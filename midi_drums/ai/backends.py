@@ -34,6 +34,7 @@ class AIProvider(str, Enum):
     OPENAI = "openai"
     GROQ = "groq"
     COHERE = "cohere"
+    OLLAMA = "ollama"
 
 
 class AIBackendConfig(BaseModel):
@@ -41,7 +42,7 @@ class AIBackendConfig(BaseModel):
 
     provider: AIProvider = Field(
         default=AIProvider.ANTHROPIC,
-        description="AI provider to use (anthropic, openai, groq, cohere)",
+        description="AI provider to use (anthropic, openai, groq, cohere, ollama)",
     )
     model: str = Field(
         default="claude-sonnet-5",
@@ -89,8 +90,9 @@ class AIBackendConfig(BaseModel):
         default_models = {
             AIProvider.ANTHROPIC: "claude-sonnet-5",
             AIProvider.OPENAI: "gpt-4o",
-            AIProvider.GROQ: "llama-3.3-70b-versatile",
             AIProvider.COHERE: "command-r-plus",
+            AIProvider.GROQ: "llama-3.3-70b-versatile",
+            AIProvider.OLLAMA: "qwen3.6",
         }
 
         model = os.getenv("AI_MODEL", default_models[provider])
@@ -170,6 +172,14 @@ class AIBackendFactory:
                 provider=GroqProvider(**provider_kwargs),
             )
 
+        elif config.provider == AIProvider.OLLAMA:
+            from pydantic_ai.models.ollama import OllamaModel
+            from pydantic_ai.providers.ollama import OllamaProvider
+
+            logger.debug(f"Creating Ollama model: {config.model}")
+            provider = OllamaProvider(base_url='http://localhost:11434/v1')
+            return OllamaModel(config.model, provider=provider)
+
         else:
             raise ValueError(
                 f"Unsupported provider for Pydantic AI: {config.provider}"
@@ -189,7 +199,7 @@ class AIBackendFactory:
         if config is None:
             config = AIBackendConfig.from_env()
 
-        _supported = {AIProvider.ANTHROPIC, AIProvider.OPENAI, AIProvider.GROQ}
+        _supported = {AIProvider.ANTHROPIC, AIProvider.OPENAI, AIProvider.GROQ, AIProvider.OLLAMA}
         if config.provider not in _supported:
             raise ValueError(
                 f"Unsupported provider for Langchain: {config.provider}. "
