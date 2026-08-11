@@ -113,10 +113,11 @@ class AIBackendConfig(BaseModel):
         )
         if not config.api_key:
             provider_key = f"{config.provider.value.upper()}_API_KEY"
-            logger.warning(
-                f"No API key found for {config.provider.value}. "
-                f"Set {provider_key} environment variable."
-            )
+            if config.provider != AIProvider.OLLAMA:
+                logger.warning(
+                    f"No API key found for {config.provider.value}. "
+                    f"Set {provider_key} environment variable."
+                )
 
         return config
 
@@ -177,7 +178,7 @@ class AIBackendFactory:
             from pydantic_ai.providers.ollama import OllamaProvider
 
             logger.debug(f"Creating Ollama model: {config.model}")
-            provider = OllamaProvider(base_url='http://localhost:11434/v1')
+            provider = OllamaProvider(base_url='http://127.0.0.1:11434')
             return OllamaModel(config.model, provider=provider)
 
         else:
@@ -229,6 +230,10 @@ class AIBackendFactory:
         kwargs: dict = {"max_tokens": config.max_tokens}
         if supports_temperature:
             kwargs["temperature"] = config.temperature
+
+        # Windows IPv6 Workaround: Reicht die korrekte IPv4-URL an das Ollama-Plugin weiter
+        if config.provider == AIProvider.OLLAMA:
+            kwargs["base_url"] = "http://127.0.0.1:11434"
 
         logger.debug(f"Creating Langchain model: {model_string}")
         return init_chat_model(model_string, **kwargs)
