@@ -178,7 +178,7 @@ class AIBackendFactory:
             from pydantic_ai.providers.ollama import OllamaProvider
 
             logger.debug(f"Creating Ollama model: {config.model}")
-            provider = OllamaProvider(base_url='http://127.0.0.1:11434')
+            provider = OllamaProvider(base_url="http://127.0.0.1:11434")
             return OllamaModel(config.model, provider=provider)
 
         else:
@@ -200,7 +200,12 @@ class AIBackendFactory:
         if config is None:
             config = AIBackendConfig.from_env()
 
-        _supported = {AIProvider.ANTHROPIC, AIProvider.OPENAI, AIProvider.GROQ, AIProvider.OLLAMA}
+        _supported = {
+            AIProvider.ANTHROPIC,
+            AIProvider.OPENAI,
+            AIProvider.GROQ,
+            AIProvider.OLLAMA,
+        }
         if config.provider not in _supported:
             raise ValueError(
                 f"Unsupported provider for Langchain: {config.provider}. "
