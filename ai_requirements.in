@@ -5,6 +5,7 @@ langchain>=0.3.0
 langchain-anthropic>=0.3.0
 langchain-openai>=0.2.0
 langchain-core>=0.3.0
+langchain-ollama==1.1.0
 
 # Pydantic AI for type-safe structured outputs
 pydantic-ai>=0.0.14
