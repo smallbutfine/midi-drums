@@ -12,7 +12,7 @@ import random
 from midi_drums.core.models.pattern import Beat, Pattern
 from midi_drums.core.models.song import Fill
 from midi_drums.core.value_objects.drum_instrument import DrumInstrument
-from midi_drums.plugins.base import DrummerPlugin
+from midi_drums.plugins.interfaces.drummer_plugin import DrummerPlugin
 
 # Type annotations use built-in list for Python 3.9+
 
@@ -279,7 +279,9 @@ class ChambersPlugin(DrummerPlugin):
 
     def _create_pfunk_groove(self) -> Pattern:
         """Create Parliament-Funkadelic signature groove."""
-        from midi_drums.core.builders.pattern_builder import PatternBuilder
+        from midi_drums.generation.builders.pattern_builder import (
+            PatternBuilder,
+        )
 
         builder = PatternBuilder("chambers_pfunk_groove")
 
@@ -316,7 +318,9 @@ class ChambersPlugin(DrummerPlugin):
 
     def _create_fast_chops_showcase(self) -> Pattern:
         """Create fast chops and triplets showcase."""
-        from midi_drums.core.builders.pattern_builder import PatternBuilder
+        from midi_drums.generation.builders.pattern_builder import (
+            PatternBuilder,
+        )
 
         builder = PatternBuilder("chambers_fast_chops")
 
@@ -343,7 +347,9 @@ class ChambersPlugin(DrummerPlugin):
 
     def _create_pocket_stretch_demo(self) -> Pattern:
         """Create in/out of pocket demonstration."""
-        from midi_drums.core.builders.pattern_builder import PatternBuilder
+        from midi_drums.generation.builders.pattern_builder import (
+            PatternBuilder,
+        )
 
         builder = PatternBuilder("chambers_pocket_stretch")
 
@@ -363,7 +369,9 @@ class ChambersPlugin(DrummerPlugin):
 
     def _create_fusion_technical_showcase(self) -> Pattern:
         """Create fusion technical showcase."""
-        from midi_drums.core.builders.pattern_builder import PatternBuilder
+        from midi_drums.generation.builders.pattern_builder import (
+            PatternBuilder,
+        )
 
         builder = PatternBuilder("chambers_fusion_technical")
 

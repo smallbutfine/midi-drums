@@ -12,7 +12,7 @@ import random
 from midi_drums.core.models.pattern import Beat, Pattern
 from midi_drums.core.models.song import Fill
 from midi_drums.core.value_objects.drum_instrument import DrumInstrument
-from midi_drums.plugins.base import DrummerPlugin
+from midi_drums.plugins.interfaces.drummer_plugin import DrummerPlugin
 
 # Type annotations use built-in list for Python 3.9+
 
@@ -290,7 +290,9 @@ class WecklPlugin(DrummerPlugin):
 
     def _create_weckl_9_pattern(self) -> Pattern:
         """Create the famous 'Weckl 9' linear pattern."""
-        from midi_drums.core.builders.pattern_builder import PatternBuilder
+        from midi_drums.generation.builders.pattern_builder import (
+            PatternBuilder,
+        )
 
         builder = PatternBuilder("weckl_9_linear")
 
@@ -317,7 +319,9 @@ class WecklPlugin(DrummerPlugin):
 
     def _create_linear_fusion_fill(self) -> Pattern:
         """Create sophisticated linear fusion fill."""
-        from midi_drums.core.builders.pattern_builder import PatternBuilder
+        from midi_drums.generation.builders.pattern_builder import (
+            PatternBuilder,
+        )
 
         builder = PatternBuilder("weckl_linear_fusion")
 
@@ -341,7 +345,9 @@ class WecklPlugin(DrummerPlugin):
 
     def _create_sophisticated_ghost_pattern(self) -> Pattern:
         """Create sophisticated ghost note pattern."""
-        from midi_drums.core.builders.pattern_builder import PatternBuilder
+        from midi_drums.generation.builders.pattern_builder import (
+            PatternBuilder,
+        )
 
         builder = PatternBuilder("weckl_ghost_sophistication")
 
@@ -368,7 +374,9 @@ class WecklPlugin(DrummerPlugin):
 
     def _create_coordination_showcase(self) -> Pattern:
         """Create complex hand-foot coordination showcase."""
-        from midi_drums.core.builders.pattern_builder import PatternBuilder
+        from midi_drums.generation.builders.pattern_builder import (
+            PatternBuilder,
+        )
 
         builder = PatternBuilder("weckl_coordination")
 

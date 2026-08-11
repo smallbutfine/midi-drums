@@ -75,7 +75,6 @@ midi_drums/
 ├── __init__.py           # Main exports (DrumGenerator, Pattern, Song)
 ├── __main__.py           # CLI entry point
 ├── core/
-│   ├── engine.py         # DrumGenerator - main composition engine
 │   ├── models/
 │   │   ├── pattern.py    # Pattern, Beat
 │   │   ├── song.py       # Song, Section, Fill, PatternVariation
@@ -86,8 +85,20 @@ midi_drums/
 │   │   ├── drum_instrument.py      # DrumInstrument
 │   │   ├── generation_parameters.py # GenerationParameters
 │   │   └── __init__.py
+│   └── __init__.py
+├── generation/
+│   ├── engines/
+│   │   ├── drum_generator.py  # DrumGenerator - main composition engine
+│   │   └── __init__.py
 │   ├── builders/
-│   │   ├── pattern_builder.py      # PatternBuilder
+│   │   ├── pattern_builder.py # PatternBuilder
+│   │   └── __init__.py
+│   ├── strategies/
+│   │   ├── pattern_strategy.py # PatternStrategy interface
+│   │   ├── fill_strategy.py    # FillStrategy interface
+│   │   └── __init__.py
+│   ├── services/
+│   │   ├── generation_service.py # GenerationService - high-level orchestration
 │   │   └── __init__.py
 │   └── __init__.py
 ├── export/
@@ -104,7 +115,15 @@ midi_drums/
 ├── exporters/
 │   └── __init__.py       # Compat shim: re-exports ReaperExporter from export/reaper/
 ├── plugins/
-│   ├── base.py          # GenrePlugin, DrummerPlugin, PluginManager
+│   ├── base.py          # Compat shim: re-exports interfaces/ + registry/ symbols
+│   ├── interfaces/
+│   │   ├── genre_plugin.py    # GenrePlugin
+│   │   ├── drummer_plugin.py  # DrummerPlugin
+│   │   └── __init__.py
+│   ├── registry/
+│   │   ├── plugin_registry.py # PluginRegistry, PluginManager
+│   │   ├── discovery.py       # PluginDiscovery - auto-discovery
+│   │   └── __init__.py
 │   ├── genres/
 │   │   ├── metal.py     # MetalGenrePlugin with 7 styles
 │   │   ├── rock.py      # RockGenrePlugin with 7 styles
@@ -117,15 +136,37 @@ midi_drums/
 │   │   ├── chambers.py  # Dennis Chambers - funk mastery
 │   │   ├── roeder.py    # Jason Roeder - atmospheric sludge
 │   │   ├── dee.py       # Mikkey Dee - speed/precision
-│   │   └── hoglan.py    # Gene Hoglan - blast beats
+│   │   ├── hoglan.py    # Gene Hoglan - blast beats
+│   │   └── composite/
+│   │       └── doom_blues.py  # CompositeDoomBluesPlugin - layers Roeder/Porcaro/Chambers
 │   └── __init__.py
 ├── api/
 │   ├── python_api.py    # DrumGeneratorAPI - high-level interface
 │   ├── cli.py           # Command-line interface
 │   └── __init__.py
-└── examples/            # Usage demonstrations
-    └── basic_usage.py   # Complete examples
+├── config/
+│   └── constants.py     # VELOCITY, TIMING, DEFAULTS constants
+├── patterns/
+│   └── templates.py     # 8 reusable pattern templates (BasicGroove, BlastBeat, ...)
+├── modifications/
+│   └── drummer_mods.py  # 12 composable drummer modifications
+├── validation/
+│   └── physical_constraints.py # Drummer-physically-playable checks
+├── humanization/
+│   └── advanced_humanization.py # Timing/velocity humanization
+├── utils/
+│   └── pattern_fixer.py # Post-generation pattern repair
+└── ai/                   # AI-powered generation (optional)
+    ├── ai_api.py         # High-level AI generation API
+    ├── backends.py       # Multi-provider backend config
+    ├── pattern_generator.py # Pydantic AI pattern generation
+    ├── agents/           # Langchain agent orchestration
+    └── prompts/          # Prompt templates for AI generation
 ```
+
+See `docs/DDD_ARCHITECTURE.md` for the domain-boundary rules (what each package
+is allowed to import) and `docs/MIGRATION_GUIDE.md` for a map from pre-epic-#8
+import paths to their current locations.
 
 ## Dependencies
 
@@ -284,8 +325,8 @@ The plugin system is designed for easy addition of:
 
 ### Creating a Genre Plugin
 ```python
-from midi_drums.plugins.base import GenrePlugin
-from midi_drums.core.builders.pattern_builder import PatternBuilder
+from midi_drums.plugins.interfaces.genre_plugin import GenrePlugin
+from midi_drums.generation.builders.pattern_builder import PatternBuilder
 from midi_drums.core.value_objects.drum_instrument import DrumInstrument
 from midi_drums.core.value_objects.generation_parameters import GenerationParameters
 from midi_drums.core.models.song import Fill
@@ -324,7 +365,7 @@ class RockGenrePlugin(GenrePlugin):
 
 ### Creating a Drummer Plugin
 ```python
-from midi_drums.plugins.base import DrummerPlugin
+from midi_drums.plugins.interfaces.drummer_plugin import DrummerPlugin
 from midi_drums.core.models.pattern import Pattern, Beat
 from midi_drums.core.value_objects.drum_instrument import DrumInstrument
 
@@ -810,5 +851,5 @@ blocking. All Python output is printed to the REAPER console for debugging.
 ### Debugging Plugin Issues
 1. Check plugin loading with `DrumGenerator().get_available_genres()`
 2. Use `test_new_architecture.py` for systematic testing
-3. Enable logging in `midi_drums.plugins.base` module
+3. Enable logging in `midi_drums.plugins.registry.plugin_registry` (registration) or `midi_drums.plugins.registry.discovery` (auto-discovery)
 4. Test plugin isolation with unit tests

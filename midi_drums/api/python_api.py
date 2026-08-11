@@ -4,10 +4,10 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from midi_drums.core.engine import DrumGenerator
 from midi_drums.core.models.kit import DrumKit
 from midi_drums.core.models.pattern import Pattern
 from midi_drums.core.models.song import Song
+from midi_drums.generation.engines.drum_generator import DrumGenerator
 
 
 class DrumGeneratorAPI:
@@ -207,8 +207,13 @@ class DrumGeneratorAPI:
             style = spec.get("style", "default")
             tempo = spec.get("tempo", 120)
             name = spec.get("name", f"{genre}_{style}_{i:02d}")
+            extra = {
+                k: v
+                for k, v in spec.items()
+                if k not in ("genre", "style", "tempo", "name")
+            }
 
-            song = self.create_song(genre, style, tempo, name=name, **spec)
+            song = self.create_song(genre, style, tempo, name=name, **extra)
             filename = output_path / f"{name}.mid"
             self.save_as_midi(song, filename)
             generated_files.append(filename)

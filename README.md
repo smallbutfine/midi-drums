@@ -2,13 +2,14 @@
 
 <div align="center">
 
+[![Version](https://img.shields.io/badge/version-0.1.0-blue.svg)](https://github.com/fsecada01/midi-drums/releases)
 [![Tests](https://github.com/fsecada01/midi-drums/actions/workflows/tests.yml/badge.svg)](https://github.com/fsecada01/midi-drums/actions/workflows/tests.yml)
 [![Python](https://img.shields.io/badge/Python-3.12%2B%20%7C%203.13-blue.svg)](https://www.python.org/)
 [![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 [![MIDI](https://img.shields.io/badge/Output-MIDI-purple.svg)](https://en.wikipedia.org/wiki/MIDI)
 [![EZDrummer](https://img.shields.io/badge/Compatible-EZDrummer_3-orange.svg)](https://www.toontrack.com/product/ezdrummer-3/)
 [![Code Reduction](https://img.shields.io/badge/Code_Reduction-62%25-brightgreen.svg)](claudedocs/REFACTORING_PROGRESS.md)
-[![Tests](https://img.shields.io/badge/Tests-257%2B_passing-success.svg)](tests/)
+[![Tests](https://img.shields.io/badge/Tests-410%2B_passing-success.svg)](tests/)
 [![Docs](https://img.shields.io/badge/Docs-GitHub_Pages-blueviolet.svg)](https://fsecada01.github.io/midi-drums/)
 
 *A comprehensive, plugin-based MIDI drum track generation system*
@@ -707,7 +708,7 @@ The plugin architecture makes it easy to extend the system with new genres and d
 **Modern approach** using pattern templates for declarative composition:
 
 ```python
-from midi_drums.plugins.base import GenrePlugin
+from midi_drums.plugins.interfaces.genre_plugin import GenrePlugin
 from midi_drums.patterns import TemplateComposer, BasicGroove, DoubleBassPedal
 from midi_drums.config import VELOCITY, TIMING
 
@@ -735,8 +736,8 @@ class MetalGenrePluginRefactored(GenrePlugin):
 **Traditional approach** still available for custom patterns:
 
 ```python
-from midi_drums.plugins.base import GenrePlugin
-from midi_drums.core.builders.pattern_builder import PatternBuilder
+from midi_drums.plugins.interfaces.genre_plugin import GenrePlugin
+from midi_drums.generation.builders.pattern_builder import PatternBuilder
 
 class RockGenrePlugin(GenrePlugin):
     def generate_pattern(self, section: str, parameters: GenerationParameters) -> Pattern:
@@ -756,7 +757,7 @@ class RockGenrePlugin(GenrePlugin):
 **Modern approach** using composable modifications (reduced from ~380 to ~66 lines!):
 
 ```python
-from midi_drums.plugins.base import DrummerPlugin
+from midi_drums.plugins.interfaces.drummer_plugin import DrummerPlugin
 from midi_drums.modifications import BehindBeatTiming, TripletVocabulary, HeavyAccents
 
 class BonhamPluginRefactored(DrummerPlugin):
@@ -880,21 +881,22 @@ pytest -m "not requires_api"
 
 ```
 midi_drums/
-├── __init__.py              # Main exports
-├── config/
-│   └── constants.py        # VELOCITY, TIMING, DEFAULTS constants
-├── patterns/
-│   └── templates.py        # 8 reusable pattern templates
-├── modifications/
-│   └── drummer_mods.py     # 12 composable drummer modifications
-├── core/
-│   └── engine.py           # DrumGenerator - main composition engine
-├── models/
-│   ├── pattern.py          # Pattern, Beat, PatternBuilder
-│   ├── song.py             # Song, Section, GenerationParameters
-│   └── kit.py              # DrumKit configurations (EZDrummer3, Metal, Jazz)
-├── plugins/
-│   ├── base.py             # Plugin system foundation
+├── __init__.py              # Main exports (DrumGenerator, Pattern, Song, ...)
+├── core/                    # Domain models & value objects (no other-domain deps)
+│   ├── models/              # Pattern, Beat, Song, Section, Kit
+│   └── value_objects/       # TimeSignature, DrumInstrument, GenerationParameters
+├── generation/               # Composition engine, builder, strategies, orchestration
+│   ├── engines/              # DrumGenerator - main composition engine
+│   ├── builders/             # PatternBuilder - fluent pattern construction
+│   ├── strategies/           # PatternStrategy / FillStrategy interfaces
+│   └── services/             # GenerationService - high-level orchestration
+├── export/                   # MIDI + Reaper file export
+│   ├── midi/                 # MIDIEngine, MIDIExporter
+│   └── reaper/                # ReaperEngine, ReaperExporter, section/marker models
+├── exporters/                # Compat shim re-exporting ReaperExporter from export/reaper/
+├── plugins/                  # Genre + drummer plugin system
+│   ├── interfaces/            # GenrePlugin, DrummerPlugin
+│   ├── registry/               # PluginRegistry, PluginManager, auto-discovery
 │   ├── genres/
 │   │   ├── metal.py        # MetalGenrePlugin - 7 styles
 │   │   ├── rock.py         # RockGenrePlugin - 7 styles
@@ -907,21 +909,23 @@ midi_drums/
 │       ├── chambers.py     # Dennis Chambers style
 │       ├── roeder.py       # Jason Roeder style
 │       ├── dee.py          # Mikkey Dee style
-│       └── hoglan.py       # Gene Hoglan style
-├── engines/
-│   └── midi_engine.py      # MIDI file generation
-├── exporters/
-│   └── reaper.py           # Reaper .rpp project exporter
+│       ├── hoglan.py       # Gene Hoglan style
+│       └── composite/       # Layered drummer styles (e.g. doom_blues)
 ├── api/
 │   ├── python_api.py       # High-level Python API
-│   └── cli.py              # Command-line interface
-├── ai/                     # AI-powered generation (optional)
-│   ├── ai_api.py           # High-level AI generation API
-│   ├── backends.py         # Multi-provider backend config
+│   └── cli.py               # Command-line interface
+├── config/
+│   └── constants.py        # VELOCITY, TIMING, DEFAULTS constants
+├── patterns/
+│   └── templates.py        # 8 reusable pattern templates
+├── modifications/
+│   └── drummer_mods.py     # 12 composable drummer modifications
+├── ai/                      # AI-powered generation (optional)
+│   ├── ai_api.py            # High-level AI generation API
+│   ├── backends.py          # Multi-provider backend config
 │   ├── pattern_generator.py # Pydantic AI pattern generation
-│   ├── agents/
-│   │   └── pattern_agent.py # Langchain agent orchestration
-│   └── prompts/            # Prompt templates for AI generation
+│   ├── agents/               # Langchain agent orchestration
+│   └── prompts/              # Prompt templates for AI generation
 ├── validation/
 │   └── physical_constraints.py # Drummer-physically-playable checks
 ├── humanization/
@@ -929,6 +933,12 @@ midi_drums/
 └── utils/
     └── pattern_fixer.py    # Post-generation pattern repair
 ```
+
+See [`docs/DDD_ARCHITECTURE.md`](docs/DDD_ARCHITECTURE.md) for the
+domain-boundary rules behind this layout, and
+[`docs/MIGRATION_GUIDE.md`](docs/MIGRATION_GUIDE.md) if you have code
+importing from pre-DDD-migration paths (`midi_drums.core.engine`,
+`midi_drums.models.*`, `midi_drums.engines.*`, etc).
 
 ### Running Examples
 
@@ -1033,11 +1043,12 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ### Phase 2: Advanced Features 🚧
 - [ ] Electronic genre plugin (House, Techno, Drum'n'Bass)
 - [ ] More drummer plugins (Neil Peart, Buddy Rich, Stewart Copeland)
-- [ ] Reaper marker import (generate drums from existing markers)
+- [x] Reaper marker import (generate drums from existing markers) - via
+      the `create_song_sections.lua` REAPER-mode bridge (regions -> `drums.mid`)
 - [ ] Real-time audio synthesis
 - [ ] AI-driven pattern variations
-- [ ] Advanced humanization algorithms
-- [ ] Groove template system
+- [x] Advanced humanization algorithms - `midi_drums/humanization/advanced_humanization.py`
+- [x] Groove template system - `midi_drums/patterns/templates.py` (8 templates + `TemplateComposer`)
 
 ### Phase 3: Integration 🔮
 - [ ] REST API for web services
