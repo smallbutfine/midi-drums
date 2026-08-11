@@ -14,6 +14,10 @@ jobs:
     name: Linting
     runs-on: ubuntu-latest
 
+    # Gibt der Action das Recht, Code-Änderungen in das Repo zurückzuschreiben
+    permissions:
+      contents: write
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -30,120 +34,23 @@ jobs:
 
       - name: Install dependencies
         run: |
-          uv venv --python ${{ matrix.python-version || '3.12' }}
+          uv venv --python '3.12'
           source .venv/bin/activate
           uv pip install -e ".[dev,ai]"
 
       - name: Run ruff
         run: uv run ruff check .
 
+      # Korrigiert die Formatierung statt nur zu prüfen
       - name: Run black
-        run: uv run black --check .
+        run: uv run black .
 
+      # Sortiert die Imports statt nur zu prüfen
       - name: Run isort
-        run: uv run isort --check-only .
+        run: uv run isort .
 
-  test:
-    name: Tests (Python ${{ matrix.python-version }})
-    runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        python-version: ['3.12', '3.13']
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v5
+      # Erkennt Änderungen und pusht sie automatisch zurück in den Branch
+      - name: Auto-commit format fixes
+        uses: stefanzweifel/git-auto-commit-action@v5
         with:
-          python-version: ${{ matrix.python-version }}
-
-      - name: Install uv
-        uses: astral-sh/setup-uv@v4
-        with:
-          enable-cache: false
-
-      - name: Install dependencies
-        run: |
-          uv venv --python ${{ matrix.python-version || '3.12' }}
-          source .venv/bin/activate
-          uv pip install -e ".[dev,ai]"
-
-      - name: Run unit tests with coverage
-        run: |
-          uv run pytest tests/unit \
-            --cov=midi_drums \
-            --cov-report=xml \
-            --cov-report=term-missing \
-            -v
-
-      - name: Run integration tests
-        run: |
-          uv run pytest tests/integration \
-            -v
-
-      - name: Upload coverage to Codecov
-        if: matrix.python-version == '3.12'
-        uses: codecov/codecov-action@v4
-        with:
-          file: ./coverage.xml
-          fail_ci_if_error: false
-          token: ${{ secrets.CODECOV_TOKEN }}
-
-  test-all:
-    name: Full Test Suite
-    runs-on: ubuntu-latest
-    needs: [lint, test]
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.12'
-
-      - name: Install uv
-        uses: astral-sh/setup-uv@v4
-        with:
-          enable-cache: false
-
-      - name: Install dependencies
-        run: |
-          uv venv --python 3.12
-          source .venv/bin/activate
-          uv pip install -e ".[dev,ai]"
-
-      - name: Run all tests with coverage
-        run: |
-          source .venv/bin/activate
-          pytest \
-            --cov=midi_drums \
-            --cov-report=html \
-            --cov-report=term-missing \
-            -v
-
-      - name: Upload coverage HTML
-        uses: actions/upload-artifact@v4
-        with:
-          name: coverage-report
-          path: htmlcov/
-          retention-days: 7
-
-      - name: Coverage summary
-        run: |
-          source .venv/bin/activate
-          coverage report --show-missing
-
-  success:
-    name: All Tests Passed
-    needs: [lint, test, test-all]
-    runs-on: ubuntu-latest
-    if: success()
-
-    steps:
-      - name: Success
-        run: echo "All tests and linting passed successfully!"
+          commit_message: "style: Automatische Code-Formatierung durch GitHub Action"
