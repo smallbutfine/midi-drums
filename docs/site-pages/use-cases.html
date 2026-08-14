@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Use Cases — MIDI Drums Generator</title>
+<meta name="description" content="Realistic end-to-end scenarios for MIDI Drums Generator: full-song generation, sample-pack batch export, the Reaper sidecar round-trip, and AI-prompted drummer lock-in.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,400;0,600;1,400&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/base16/onedark.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+<script>hljs.highlightAll();</script>
+<link rel="stylesheet" href="site.css">
+</head>
+<body>
+
+<a class="skip-link" href="#main-content">Skip to content</a>
+
+<nav id="dm-bar" aria-label="Primary">
+  <a class="dm-logo" href="index.html">midi-drums</a>
+  <span class="dm-badge">stable</span>
+  <span class="dm-sep">|</span>
+  <div class="dm-links">
+    <a href="index.html">Home</a>
+    <a href="quickstart.html">Quickstart</a>
+    <a href="recipes.html">Recipes</a>
+    <a href="use-cases.html" class="active">Use Cases</a>
+    <a href="reaper.html">Reaper</a>
+    <a href="midi_drums.html" class="api-link">API →</a>
+  </div>
+</nav>
+
+<div class="layout">
+  <nav class="toc" aria-label="On this page">
+    <p class="toc-heading">Scenarios</p>
+    <a href="#full-song">Full song, one command</a>
+    <a href="#sample-pack">Sample-pack batch export</a>
+    <a href="#reaper-roundtrip">Reaper sidecar round-trip</a>
+    <a href="#reaper-mode" class="sub">Mode: REAPER-driven</a>
+    <a href="#python-mode" class="sub">Mode: Python-driven</a>
+    <a href="#ai-mode" class="sub">Mode: AI agent</a>
+    <a href="#ai-lock-in">AI prompt → drummer lock-in</a>
+    <p class="toc-heading">Next</p>
+    <a href="#explore">Explore further</a>
+  </nav>
+
+  <article id="main-content" role="main" tabindex="-1">
+    <h1>Use Cases</h1>
+    <p class="subtitle">Realistic, end-to-end scenarios that combine multiple features — not just single API calls.</p>
+
+    <!-- FULL SONG -->
+    <h2 id="full-song">Scoring a demo with one full-song call</h2>
+    <p>You have a song idea and want a complete, multi-section drum track without hand-assembling verse/chorus/bridge structure yourself. <code>create_song</code> does this in a single call, using each genre's default section layout:</p>
+
+    <pre><code class="language-bash">midi-drums generate --genre metal --style death --tempo 180 --drummer hoglan --output demo.mid</code></pre>
+
+    <pre><code class="language-python">from midi_drums.api.python_api import DrumGeneratorAPI
+
+api = DrumGeneratorAPI()
+
+song = api.create_song(
+    "metal", "death",
+    tempo=180,
+    drummer="hoglan",
+    complexity=0.8,
+    humanization=0.3,
+)
+api.save_as_midi(song, "demo.mid")
+
+print(song.total_bars, "bars across", len(song.sections), "sections")</code></pre>
+
+    <p>The result is a single MIDI file with an intro, verse, chorus, bridge, and outro already arranged and humanized — ready to drop into a DAW as a scratch drum track.</p>
+
+    <!-- SAMPLE PACK -->
+    <h2 id="sample-pack">Sample-pack-style batch export</h2>
+    <p>You want a folder of reference tracks spanning several genres, styles, and drummer personalities — e.g. to A/B different pockets for the same tempo, or to build a demo pack. <code>batch_generate</code> takes a list of specs and writes them all in one pass:</p>
+
+    <pre><code class="language-python">from midi_drums.api.python_api import DrumGeneratorAPI
+
+api = DrumGeneratorAPI()
+
+specs = [
+    {"genre": "metal", "style": "death", "tempo": 180, "drummer": "hoglan"},
+    {"genre": "rock", "style": "classic", "tempo": 140, "drummer": "bonham"},
+    {"genre": "jazz", "style": "swing", "tempo": 120, "drummer": "weckl"},
+    {"genre": "funk", "style": "shuffle", "tempo": 98, "drummer": "chambers"},
+    {"genre": "electronic", "style": "techno", "tempo": 128},
+]
+
+files = api.batch_generate(specs, "output/sample_pack/")
+print(f"Wrote {len(files)} tracks to output/sample_pack/")</code></pre>
+
+    <div class="callout tip">
+      <div class="callout-title">Tip</div>
+      <p>Each spec accepts any keyword <code>create_song</code> does (<code>complexity</code>, <code>humanization</code>, <code>structure</code>, …), so a batch can mix simple defaults with fully custom song structures.</p>
+    </div>
+
+    <!-- REAPER ROUND-TRIP -->
+    <h2 id="reaper-roundtrip">The Reaper sidecar round-trip</h2>
+    <p><code>reaper/create_song_sections.lua</code> bridges REAPER and midi-drums bi-directionally through a <code>midi_drums_sections.json</code> sidecar file, so either side can drive the song structure. There are three modes, all triggered from the same REAPER action:</p>
+
+    <h3 id="reaper-mode">Mode 1 — REAPER drives the structure</h3>
+    <p>Lay out regions on the REAPER timeline first (names + bar counts), run the Lua script, answer <strong>YES</strong> on the first dialog. The script writes the sidecar from your regions and calls midi-drums to generate matching drums:</p>
+    <pre><code class="language-bash"># What the Lua script runs under the hood
+midi-drums generate --genre metal --style doom --sidecar midi_drums_sections.json --output drums.mid</code></pre>
+
+    <h3 id="python-mode">Mode 2 — Python drives the structure</h3>
+    <p>Generate a song in Python first, export a sidecar alongside it, then let the Lua script (answer <strong>NO</strong>, then <strong>YES</strong>) build matching REAPER regions from that sidecar:</p>
+    <pre><code class="language-python">from midi_drums.api.python_api import DrumGeneratorAPI
+
+api = DrumGeneratorAPI()
+song = api.create_song("metal", "doom", tempo=70)
+
+# Writes drums.mid and drums.json (the sidecar) in one call
+api.save_as_midi_with_sidecar(song, "drums.mid")</code></pre>
+    <p>Drop <code>drums.json</code> next to your REAPER project as <code>midi_drums_sections.json</code> (or point <code>SIDECAR_PATH</code> at it in the Lua script's config block), then run the script.</p>
+
+    <h3 id="ai-mode">Mode 3 — An AI agent drives the structure</h3>
+    <p>Skip both dialogs (<strong>NO</strong>, then <strong>NO</strong>) and let an AI agent choose the section structure from a natural-language prompt, writing the sidecar for REAPER to consume:</p>
+    <pre><code class="language-bash">midi-drums prompt "Testament-inspired death metal, Hoglan blast beats, Lombardo breakdowns" \
+    --song --tempo 185 --write-sidecar midi_drums_sections.json --output drums.mid</code></pre>
+
+    <div class="callout warn">
+      <div class="callout-title">Blocking call</div>
+      <p>AI mode takes roughly 20–45 seconds since it's a full agent composition pass — the Lua script warns before blocking REAPER's UI while it waits.</p>
+    </div>
+
+    <p>See the <a href="reaper.html">Reaper Integration Tutorial</a> for marker-based (non-sidecar) export, and <code>reaper/README.md</code> in the repo for installing the Lua script itself.</p>
+
+    <!-- AI LOCK-IN -->
+    <h2 id="ai-lock-in">Iterating with AI, then locking in a drummer</h2>
+    <p>A common workflow: describe the groove you want in plain English, iterate on the description until the AI's interpretation feels right, then apply a specific legendary drummer's style on top of the winning pattern.</p>
+
+    <div class="step">
+      <div class="step-num">1</div>
+      <div class="step-body">
+        <h3>Iterate on the description</h3>
+        <pre><code class="language-bash">midi-drums prompt "funky groove with ghost notes and syncopation" -o try1.mid
+midi-drums prompt "funky groove, heavier ghost notes, pushed 16ths, tighter pocket" -o try2.mid</code></pre>
+        <p>Each call is fast (single pattern, not a full song) — cheap enough to iterate on wording until the groove matches what you're hearing.</p>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num">2</div>
+      <div class="step-body">
+        <h3>Lock in a drummer once you're happy</h3>
+        <pre><code class="language-bash"># Apply a drummer directly on the next AI generation
+midi-drums prompt "funky groove, heavier ghost notes, pushed 16ths, tighter pocket" \
+    --drummer chambers -o final.mid</code></pre>
+        <pre><code class="language-python"># Or pass the drummer straight into the AI call itself
+from midi_drums.ai.ai_api import DrumGeneratorAI
+from midi_drums.api.python_api import DrumGeneratorAPI
+
+ai = DrumGeneratorAI()
+pattern, info = ai.generate_pattern_from_text_sync(
+    "funky groove, heavier ghost notes, pushed 16ths, tighter pocket",
+    tempo=100,
+    drummer_style="chambers",
+)
+
+api = DrumGeneratorAPI()
+api.save_pattern_as_midi(pattern, "final.mid", tempo=100)</code></pre>
+      </div>
+    </div>
+
+    <p>Because drummer styles are composable modifications applied after generation (see <a href="quickstart.html#drummer">Applying drummer styles</a>), the AI-chosen pattern and the drummer's signature feel stay decoupled — swap either independently.</p>
+
+    <!-- EXPLORE -->
+    <h2 id="explore">Explore further</h2>
+    <ul>
+      <li><a href="quickstart.html">Quickstart</a> — installation and first track</li>
+      <li><a href="recipes.html">Recipes</a> — complete worked examples for metal, jazz, prog rock, funk, and electronic</li>
+      <li><a href="reaper.html">Reaper Tutorial</a> — marker-based DAW integration workflow</li>
+      <li><a href="midi_drums.html">API Reference</a> — auto-generated from docstrings</li>
+    </ul>
+  </article>
+</div>
+
+<footer>
+  <span style="color:var(--muted)"><strong style="color:var(--violet)">midi-drums</strong> · MIT License</span>
+  &nbsp;·&nbsp;
+  <a href="index.html">Home</a> &nbsp;·&nbsp;
+  <a href="quickstart.html">Quickstart</a> &nbsp;·&nbsp;
+  <a href="recipes.html">Recipes</a> &nbsp;·&nbsp;
+  <a href="reaper.html">Reaper</a> &nbsp;·&nbsp;
+  <a href="midi_drums.html">API</a> &nbsp;·&nbsp;
+  <a href="https://github.com/fsecada01/midi-drums">GitHub</a>
+</footer>
+
+</body>
+</html>

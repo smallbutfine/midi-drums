@@ -4,57 +4,21 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>MIDI Drums Generator — Professional Drum Track Generation</title>
-<meta name="description" content="A plugin-based Python system for creating professional MIDI drum tracks across Metal, Rock, Jazz, and Funk with 7 legendary drummer styles.">
+<meta name="description" content="A plugin-based Python system for creating professional MIDI drum tracks across Metal, Rock, Jazz, Funk, and Electronic with 10 legendary drummer styles.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,300;0,400;0,600;1,400&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="site.css">
 <style>
-/* ── Tokens ─────────────────────────────────────────────────────────────── */
-:root {
-  --bg:          #0a0f17;
-  --bg-raised:   #0e1520;
-  --panel:       #141d2b;
-  --panel-lit:   #1a2438;
-  --code-bg:     #080d14;
-  --border:      #1c2840;
-  --border-lit:  #263650;
-  --border-glow: #2e4270;
+/* Page-specific to index.html: the landing-page hero, terminal code block,
+   stats strip, feature cards, genres/drummers sections, install strip,
+   buttons, nav and footer. These are used by this page only, so they stay
+   inline rather than living in site.css (tokens, reset, doc-page nav,
+   layout, typography, and skip-link/focus-visible accessibility rules are
+   shared there). body{line-height:1.7} below intentionally overrides
+   site.css's 1.75 default — index.html always used the tighter value. */
 
-  --violet:      #a78bfa;
-  --violet-d:    #7c5fdb;
-  --violet-dim:  rgba(167,139,250,0.08);
-  --violet-glow: rgba(167,139,250,0.15);
-  --amber:       #fbbf24;
-  --amber-dim:   rgba(251,191,36,0.08);
-  --sky:         #38bdf8;
-  --sky-dim:     rgba(56,189,248,0.08);
-  --green:       #4ade80;
-  --green-dim:   rgba(74,222,128,0.08);
-  --rose:        #fb7185;
-
-  --text:        #c8d3e0;
-  --muted:       #5a6f8a;
-  --dim:         #2d3f57;
-  --white:       #eef2f8;
-
-  --mono: 'IBM Plex Mono', 'Courier New', monospace;
-  --sans: 'Inter', system-ui, -apple-system, sans-serif;
-  --bar-h: 44px;
-  --radius: 6px;
-}
-
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-html { scroll-behavior: smooth; }
-body {
-  background: var(--bg);
-  color: var(--text);
-  font-family: var(--sans);
-  padding-top: var(--bar-h);
-  line-height: 1.7;
-  -webkit-font-smoothing: antialiased;
-}
-::-webkit-scrollbar { width: 5px; }
-::-webkit-scrollbar-thumb { background: var(--border-lit); border-radius: 3px; }
+body { line-height: 1.7; }
 
 /* ── NAV ─────────────────────────────────────────────────────────────────── */
 #nav {
@@ -86,7 +50,7 @@ body {
   border: 1px solid rgba(74,222,128,0.35);
   background: rgba(74,222,128,0.05);
 }
-.nav-sep { color: var(--dim); margin: 0 0.85rem; }
+.nav-sep { color: var(--muted); margin: 0 0.85rem; }
 .nav-links {
   margin-left: auto; display: flex; align-items: center; gap: 1.25rem;
 }
@@ -246,7 +210,7 @@ body {
 .term-dot-g { background: #28c840; box-shadow: 0 0 4px rgba(40,200,64,0.4); }
 .term-title {
   margin-left: auto; font-family: var(--mono); font-size: 10px;
-  color: var(--dim); letter-spacing: 0.05em;
+  color: var(--text); letter-spacing: 0.05em;
 }
 .term-pre {
   background: var(--code-bg);
@@ -258,7 +222,7 @@ body {
   line-height: 1.7; color: var(--text);
   box-shadow: 0 8px 32px rgba(0,0,0,0.4);
 }
-.c  { color: var(--dim); font-style: italic; }
+.c  { color: var(--muted); font-style: italic; }
 .k  { color: var(--violet); }
 .f  { color: var(--sky); }
 .s  { color: var(--green); }
@@ -393,10 +357,11 @@ body {
   border-color: var(--gb-color, var(--violet));
   box-shadow: 0 0 20px rgba(0,0,0,0.3), 0 0 0 1px rgba(167,139,250,0.05);
 }
-.gb-metal  { --gb-color: var(--amber); }
-.gb-rock   { --gb-color: var(--sky); }
-.gb-jazz   { --gb-color: var(--violet); }
-.gb-funk   { --gb-color: var(--green); }
+.gb-metal      { --gb-color: var(--amber); }
+.gb-rock       { --gb-color: var(--sky); }
+.gb-jazz       { --gb-color: var(--violet); }
+.gb-funk       { --gb-color: var(--green); }
+.gb-electronic { --gb-color: var(--rose); }
 
 .genre-name {
   font-family: var(--mono); font-size: 0.82rem; font-weight: 600;
@@ -481,16 +446,14 @@ body {
   color: var(--text); display: flex; gap: 0.75rem; align-items: center;
   flex-wrap: wrap;
 }
-.install-cmd .prompt { color: var(--dim); user-select: none; }
+.install-cmd .prompt { color: var(--muted); user-select: none; }
 .install-cmd .cmd    { color: var(--green); }
 .install-cmd .arg    { color: var(--sky); }
 
 /* ── FOOTER ──────────────────────────────────────────────────────────────── */
-footer {
-  border-top: 1px solid var(--border);
-  padding: 2.5rem 1.75rem;
-  font-family: var(--mono); font-size: 0.78rem; color: var(--dim);
-}
+/* border/font/color come from site.css's shared footer rule; only padding
+   differs here (2.5rem vs 2rem top/bottom) so we override just that. */
+footer { padding: 2.5rem 1.75rem; }
 .footer-inner {
   max-width: 960px; margin: 0 auto;
   display: flex; align-items: center; justify-content: space-between;
@@ -499,9 +462,9 @@ footer {
 .footer-brand { color: var(--muted); }
 .footer-brand strong { color: var(--violet); }
 .footer-links { display: flex; gap: 1.25rem; }
-.footer-links a { color: var(--dim); text-decoration: none; transition: color 0.15s; }
+.footer-links a { color: var(--muted); text-decoration: none; transition: color 0.15s; }
 .footer-links a:hover { color: var(--violet); }
-.footer-right { color: var(--dim); text-align: right; }
+.footer-right { color: var(--muted); text-align: right; }
 
 @media (max-width: 640px) {
   .nav-links { display: none; }
@@ -515,21 +478,26 @@ footer {
 </head>
 <body>
 
+<a class="skip-link" href="#main-content">Skip to content</a>
+
 <!-- NAV -->
-<nav id="nav">
+<nav id="nav" aria-label="Primary">
   <a class="nav-logo" href="index.html">
     <span class="nav-logo-prompt">&gt;</span> midi-drums
   </a>
-  <span class="nav-badge">v1.0  stable</span>
+  <span class="nav-badge">v0.2.0</span>
   <span class="nav-sep">·</span>
   <div class="nav-links">
     <a href="index.html" class="active">Home</a>
     <a href="quickstart.html">Quickstart</a>
     <a href="recipes.html">Recipes</a>
+    <a href="use-cases.html">Use Cases</a>
     <a href="reaper.html">Reaper</a>
     <a href="midi_drums.html" class="nav-api">API ref →</a>
   </div>
 </nav>
+
+<main id="main-content" tabindex="-1">
 
 <!-- HERO -->
 <section class="hero">
@@ -543,8 +511,9 @@ footer {
     </div>
     <p>
       A plugin-based Python system for creating professional MIDI drum tracks
-      across Metal, Rock, Jazz, and Funk — with 7 legendary drummer personalities,
-      Reaper DAW integration, and optional AI-powered natural language generation.
+      across Metal, Rock, Jazz, Funk, and Electronic — with 10 legendary drummer
+      personalities, Reaper DAW integration, and optional AI-powered natural
+      language generation.
     </p>
     <div class="hero-btns">
       <a class="btn btn-primary" href="quickstart.html">Get Started →</a>
@@ -678,7 +647,7 @@ api<span class="p">.</span><span class="f">save_pattern_as_midi</span><span clas
 <section class="genres-section">
   <div class="genres-inner">
     <div class="section-label">supported genres</div>
-    <h2 class="section-title">28 styles across 4 genres</h2>
+    <h2 class="section-title">32 styles across 5 genres</h2>
     <div class="genre-grid">
       <div class="genre-block gb-metal">
         <div class="genre-name"><span class="g-icon">🤘</span> metal</div>
@@ -728,6 +697,15 @@ api<span class="p">.</span><span class="f">save_pattern_as_midi</span><span clas
           <span class="style-chip">heavy</span>
         </div>
       </div>
+      <div class="genre-block gb-electronic">
+        <div class="genre-name"><span class="g-icon">🎧</span> electronic</div>
+        <div class="genre-styles">
+          <span class="style-chip">house</span>
+          <span class="style-chip">techno</span>
+          <span class="style-chip">drum_and_bass</span>
+          <span class="style-chip">dubstep</span>
+        </div>
+      </div>
     </div>
   </div>
 </section>
@@ -735,7 +713,7 @@ api<span class="p">.</span><span class="f">save_pattern_as_midi</span><span clas
 <!-- DRUMMERS -->
 <section class="drummers-section">
   <div class="section-label">drummer personalities</div>
-  <h2 class="section-title">7 legendary styles</h2>
+  <h2 class="section-title">10 legendary styles</h2>
   <p class="section-sub">Each drummer is a composable modification you can apply to any genre pattern.</p>
   <div class="drummers-grid">
     <div class="drummer-card">
@@ -794,6 +772,30 @@ api<span class="p">.</span><span class="f">save_pattern_as_midi</span><span clas
         <span class="dtag">metal</span><span class="dtag">death</span>
       </div>
     </div>
+    <div class="drummer-card">
+      <div class="drummer-name">Neil Peart</div>
+      <div class="drummer-handle">--drummer peart</div>
+      <div class="drummer-desc">Extreme timing precision, linear limb independence, polyrhythmic fills</div>
+      <div class="drummer-tags">
+        <span class="dtag">rock</span><span class="dtag">progressive</span><span class="dtag">metal</span>
+      </div>
+    </div>
+    <div class="drummer-card">
+      <div class="drummer-name">Buddy Rich</div>
+      <div class="drummer-handle">--drummer rich</div>
+      <div class="drummer-desc">Virtuosic single-stroke speed, dramatic dynamic contrast</div>
+      <div class="drummer-tags">
+        <span class="dtag">jazz</span><span class="dtag">rock</span>
+      </div>
+    </div>
+    <div class="drummer-card">
+      <div class="drummer-name">Stewart Copeland</div>
+      <div class="drummer-handle">--drummer copeland</div>
+      <div class="drummer-desc">Reggae/ska-influenced off-beat hi-hat, cross-stick snare</div>
+      <div class="drummer-tags">
+        <span class="dtag">rock</span><span class="dtag">funk</span>
+      </div>
+    </div>
   </div>
 </section>
 
@@ -819,6 +821,8 @@ api<span class="p">.</span><span class="f">save_pattern_as_midi</span><span clas
   </div>
 </div>
 
+</main>
+
 <!-- FOOTER -->
 <footer>
   <div class="footer-inner">
@@ -829,6 +833,7 @@ api<span class="p">.</span><span class="f">save_pattern_as_midi</span><span clas
       <a href="https://github.com/fsecada01/midi-drums">GitHub</a>
       <a href="quickstart.html">Quickstart</a>
       <a href="recipes.html">Recipes</a>
+      <a href="use-cases.html">Use Cases</a>
       <a href="reaper.html">Reaper</a>
       <a href="midi_drums.html">API</a>
     </div>
