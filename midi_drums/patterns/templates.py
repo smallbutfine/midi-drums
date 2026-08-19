@@ -487,6 +487,7 @@ class TomFill(PatternTemplate):
 
 # --- AD2 extended instrument templates ---
 
+
 @dataclass
 class BrushGroove(PatternTemplate):
     """Jazz ballad groove with real brush sweeps (AD2 preset zones A-F).
@@ -528,8 +529,7 @@ class BrushGroove(PatternTemplate):
                     builder.brush_sweep(
                         pos,
                         variant,
-                        velocity=VELOCITY.BRUSH_NORMAL
-                        + random.randint(-6, 6),
+                        velocity=VELOCITY.BRUSH_NORMAL + random.randint(-6, 6),
                     )
                     variant_idx += 1
 
@@ -572,12 +572,8 @@ class RimshotGroove(PatternTemplate):
             bar_offset = bar * 4.0
 
             # Rimshot backbeat on 2 and 4
-            builder.snare_rimshot(
-                bar_offset + 1.0, VELOCITY.SNARE_RIMSHOT
-            )
-            builder.snare_rimshot(
-                bar_offset + 3.0, VELOCITY.SNARE_NORMAL + 5
-            )
+            builder.snare_rimshot(bar_offset + 1.0, VELOCITY.SNARE_RIMSHOT)
+            builder.snare_rimshot(bar_offset + 3.0, VELOCITY.SNARE_NORMAL + 5)
 
             # Tight HH comping on offbeats (funk signature)
             if self.use_tight_hh:

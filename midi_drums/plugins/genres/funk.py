@@ -282,9 +282,7 @@ class FunkGenrePlugin(GenrePlugin):
             builder.snare_rimshot(1.0, VELOCITY.SNARE_RIMSHOT)
 
         # Ghost notes (crucial for funk feel) - keep as SNARE ghost notes
-        ghost_positions = [
-            0.25, 0.5, 1.25, 1.75, 2.25, 2.5, 2.75, 3.75
-        ]
+        ghost_positions = [0.25, 0.5, 1.25, 1.75, 2.25, 2.5, 2.75, 3.75]
         for pos in ghost_positions:
             if random.random() < 0.7:  # 70% chance for each ghost note
                 velocity = VELOCITY.SNARE_GHOST + random.randint(-10, 15)
@@ -298,7 +296,7 @@ class FunkGenrePlugin(GenrePlugin):
         # Tight hi-hat comping (AD2 tight HH zones 90-91) on offbeats
         for i in range(16):
             pos = i * 0.25
-            is_offbeat = (i % 2 == 1)
+            is_offbeat = i % 2 == 1
             if is_offbeat:
                 builder.tight_hh(pos, open=False)
             elif pos in [1.25, 3.25]:

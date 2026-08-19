@@ -30,9 +30,9 @@ from midi_drums.patterns.templates import (
     TemplateComposer,
     TomFill,
     create_basic_rock_pattern,
-    create_metal_pattern,
-    create_jazz_ballad_pattern,
     create_funk_rimshot_pattern,
+    create_jazz_ballad_pattern,
+    create_metal_pattern,
 )
 
 __all__ = [

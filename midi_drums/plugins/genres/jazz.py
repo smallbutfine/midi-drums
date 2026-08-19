@@ -484,7 +484,9 @@ class JazzGenrePlugin(GenrePlugin):
         sweep_variants = ["A", "B", "C", "D", "E", "F"]
         for i, pos in enumerate(sweep_positions):
             variant = sweep_variants[i % len(sweep_variants)]
-            builder.brush_sweep(pos, variant, velocity=50 + random.randint(-5, 12))
+            builder.brush_sweep(
+                pos, variant, velocity=50 + random.randint(-5, 12)
+            )
 
         # Very subtle kick on downbeats
         builder.kick(0.0, VELOCITY.KICK_LIGHT).kick(2.0, VELOCITY.KICK_WHISPER)

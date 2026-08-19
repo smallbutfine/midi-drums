@@ -82,9 +82,7 @@ class PatternBuilder:
     ) -> "PatternBuilder":
         """Add snare rimshot (side stick / rim click) at position."""
         vel = velocity if velocity is not None else VELOCITY.SNARE_RIMSHOT
-        self.pattern.add_beat(
-            position, DrumInstrument.SNARE_RIMSHOT, vel
-        )
+        self.pattern.add_beat(position, DrumInstrument.SNARE_RIMSHOT, vel)
         return self
 
     def tom_edge(
