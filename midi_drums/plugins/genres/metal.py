@@ -373,8 +373,16 @@ class MetalGenrePlugin(GenrePlugin):
 
         return builder.build()
         # Ride bell accents on off-beats for textural variety (progressive/metalcore)
-        builder.pattern.add_beat(1.5, DrumInstrument.RIDE_BELL, VELOCITY.RIDE_BELL + random.randint(-3, 5))
-        builder.pattern.add_beat(3.5, DrumInstrument.RIDE_BELL, VELOCITY.RIDE_BELL + random.randint(-3, 5))
+        builder.pattern.add_beat(
+            1.5,
+            DrumInstrument.RIDE_BELL,
+            VELOCITY.RIDE_BELL + random.randint(-3, 5),
+        )
+        builder.pattern.add_beat(
+            3.5,
+            DrumInstrument.RIDE_BELL,
+            VELOCITY.RIDE_BELL + random.randint(-3, 5),
+        )
 
         return builder.build()
 
@@ -399,8 +407,16 @@ class MetalGenrePlugin(GenrePlugin):
             builder.tight_hh(i * 0.5, open=False)
 
         # Ride bell accents on off-beats for aggressive textural variety
-        builder.pattern.add_beat(1.5, DrumInstrument.RIDE_BELL, VELOCITY.RIDE_BELL_ACCENT + random.randint(-3, 4))
-        builder.pattern.add_beat(3.5, DrumInstrument.RIDE_BELL, VELOCITY.RIDE_BELL_ACCENT + random.randint(-3, 4))
+        builder.pattern.add_beat(
+            1.5,
+            DrumInstrument.RIDE_BELL,
+            VELOCITY.RIDE_BELL_ACCENT + random.randint(-3, 4),
+        )
+        builder.pattern.add_beat(
+            3.5,
+            DrumInstrument.RIDE_BELL,
+            VELOCITY.RIDE_BELL_ACCENT + random.randint(-3, 4),
+        )
 
         # Choked crash on major downbeats (sharp "chick" cutoff)
         builder.crash_choked(0.0, "A", VELOCITY.CRASH_HEAVY)
@@ -424,8 +440,16 @@ class MetalGenrePlugin(GenrePlugin):
 
         return builder.build()
         # Ride bell accents on off-beats (progressive/metalcore texture)
-        builder.pattern.add_beat(1.5, DrumInstrument.RIDE_BELL, VELOCITY.RIDE_BELL + random.randint(-2, 4))
-        builder.pattern.add_beat(3.5, DrumInstrument.RIDE_BELL, VELOCITY.RIDE_BELL + random.randint(-2, 4))
+        builder.pattern.add_beat(
+            1.5,
+            DrumInstrument.RIDE_BELL,
+            VELOCITY.RIDE_BELL + random.randint(-2, 4),
+        )
+        builder.pattern.add_beat(
+            3.5,
+            DrumInstrument.RIDE_BELL,
+            VELOCITY.RIDE_BELL + random.randint(-2, 4),
+        )
 
         return builder.build()
 
@@ -444,7 +468,9 @@ class MetalGenrePlugin(GenrePlugin):
         return builder.build()
         # Choked crash accents on major downbeats (sharp "chick" cutoff)
         builder.crash_choked(0.0, "A", VELOCITY.CRASH_ACCENT)
-        builder.crash_choked(4.0 if params.complexity > 0.7 else 2.0, "B", VELOCITY.CRASH_ACCENT)
+        builder.crash_choked(
+            4.0 if params.complexity > 0.7 else 2.0, "B", VELOCITY.CRASH_ACCENT
+        )
 
         return builder.build()
 
