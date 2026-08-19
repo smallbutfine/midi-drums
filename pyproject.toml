@@ -4,7 +4,7 @@ authors = [
     { name = "Francis Secada", email = "francis.secada@gmail.com" },
 ]
 readme = "README.md"
-requires-python = ">=3.12,<3.14"
+requires-python = ">=3.12,<3.15"
 license = { text = "MIT" }
 classifiers = [
     "Programming Language :: Python :: 3",

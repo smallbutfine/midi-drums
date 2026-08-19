@@ -1,6 +1,5 @@
 """Tests for AD2 extended instrument support (brush sweeps, rimshots, tight HH)."""
 
-import pytest
 
 from midi_drums.config import VELOCITY
 from midi_drums.core.models.pattern import Pattern
@@ -11,7 +10,6 @@ class TestPatternBuilderExtendedMethods:
     """Test that the new PatternBuilder methods correctly emit extended instruments."""
 
     def test_brush_sweep_emits_correct_variant(self):
-        from midi_drums.patterns.templates import TemplateComposer
         from midi_drums.generation.builders.pattern_builder import PatternBuilder
 
         builder = PatternBuilder("brush_test")
@@ -82,7 +80,7 @@ class TestBrushGrooveTemplate:
     """Test the BrushGroove template generates correct brush patterns."""
 
     def test_generates_brush_sweeps(self):
-        from midi_drums.patterns import BrushGroove, PatternTemplate
+        from midi_drums.patterns import BrushGroove
         from midi_drums.generation.builders.pattern_builder import PatternBuilder
 
         builder = PatternBuilder("test")

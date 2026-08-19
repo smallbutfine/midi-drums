@@ -7,6 +7,7 @@ Emphasizes "the one", ghost notes, syncopated patterns, and deep pocket.
 
 import random
 
+from midi_drums.config import VELOCITY
 from midi_drums.core.models.pattern import Beat, Pattern
 from midi_drums.core.models.song import Fill
 from midi_drums.core.value_objects.drum_instrument import DrumInstrument
