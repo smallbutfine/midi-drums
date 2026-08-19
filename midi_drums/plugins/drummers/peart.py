@@ -80,7 +80,11 @@ class PeartPlugin(DrummerPlugin):
         ]
 
     def _create_quintuplet_tom_fill(self) -> Pattern:
-        """Quintuplet tom cascade reflecting Peart's polyrhythmic vocabulary."""
+        """Quintuplet tom cascade reflecting Peart's polyrhythmic vocabulary.
+
+        Uses AD2 TOM_EDGE for the tight metallic attack that defines progressive
+        metal fills - each hit must cut through dense guitar layers.
+        """
         builder = PatternBuilder("peart_quintuplet_toms")
         instruments = [
             DrumInstrument.MID_TOM,
@@ -97,6 +101,11 @@ class PeartPlugin(DrummerPlugin):
                 else VELOCITY.TOM_HEAVY
             )
             builder.pattern.add_beat(position, instrument, velocity)
+
+        # Add tom_edge rim accents for that tight metallic progressive attack
+        builder.tom_edge(1.0, "MID", VELOCITY.TOM_ACCENT)
+        builder.tom_edge(2.0, "FLOOR", VELOCITY.TOM_ACCENT + 3)
+
         return builder.build()
 
     def _create_linear_precision_fill(self) -> Pattern:

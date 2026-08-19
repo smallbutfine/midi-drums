@@ -287,9 +287,13 @@ class MetalGenrePlugin(GenrePlugin):
             builder.kick(pos, 110 + random.randint(-5, 10))
             builder.snare(pos + 0.25, 115 + random.randint(-5, 10))
 
-        # Sparse hi-hat for texture
-        for i in [0.0, 2.0]:
-            builder.hihat(i, 80, open=(i == 2.0))
+        # Tight HH (AD2 zone 91) — dry pencil attack for blast-beat sections
+        # where wash from standard hi-hat would muddy the texture
+        for i in range(8):
+            builder.tight_hh(i * 0.5, open=False)
+
+        # Sparse crashed cymbal for textural punctuation
+        builder.crash_choked(2.0, "B", VELOCITY.CRASH_ACCENT)
 
         return builder.build()
 
@@ -320,13 +324,13 @@ class MetalGenrePlugin(GenrePlugin):
         builder.snare(1.0, 125)
         builder.snare(3.0, 125)
 
-        # Ride pattern for atmospheric sustain (quarters)
-        for i in range(4):
-            builder.ride(i, 75)
+        # Tight HH (AD2 zone 91) — dry pencil attack for crushing precision at slow tempos
+        for i in range(8):
+            builder.tight_hh(i * 0.5, open=False)
 
-        # Open hi-hat max accents for aggressive texture (EZDrummer note 60)
-        builder.pattern.add_beat(1.0, DrumInstrument.OPEN_HH_MAX, 100)
-        builder.pattern.add_beat(3.0, DrumInstrument.OPEN_HH_MAX, 100)
+        # Ride bell accents on off-beats for textural atmosphere
+        builder.ride_bell(1.5, VELOCITY.RIDE_BELL + random.randint(-2, 4))
+        builder.ride_bell(3.5, VELOCITY.RIDE_BELL + random.randint(-2, 4))
 
         return builder.build()
 
@@ -347,14 +351,9 @@ class MetalGenrePlugin(GenrePlugin):
         # Crash on 1 for emphasis
         builder.crash(0.0, 115)
 
-        # Continuous ride for driving intensity (8th notes)
+        # Tight HH (AD2 zone 91) — dry pencil attack suits the crushing weight of doom
         for i in range(8):
-            builder.ride(i * 0.5, 80)
-
-        return builder.build()
-        # Open hi-hat max accents on backbeat (EZDrummer note 60)
-        builder.pattern.add_beat(1.0, DrumInstrument.OPEN_HH_MAX, 110)
-        builder.pattern.add_beat(3.0, DrumInstrument.OPEN_HH_MAX, 110)
+            builder.tight_hh(i * 0.5, open=False)
 
         return builder.build()
 
@@ -371,18 +370,19 @@ class MetalGenrePlugin(GenrePlugin):
         builder.snare(2.75, 100)  # Syncopated
         builder.snare(3.0, 115)
 
-        return builder.build()
-        # Ride bell accents on off-beats for textural variety (progressive/metalcore)
-        builder.pattern.add_beat(
+        # Ride bell accents on off-beats (progressive/metalcore texture)
+        builder.ride_bell(
             1.5,
-            DrumInstrument.RIDE_BELL,
-            VELOCITY.RIDE_BELL + random.randint(-3, 5),
+            VELOCITY.RIDE_BELL_ACCENT + random.randint(-2, 4),
         )
-        builder.pattern.add_beat(
+        builder.ride_bell(
             3.5,
-            DrumInstrument.RIDE_BELL,
-            VELOCITY.RIDE_BELL + random.randint(-3, 5),
+            VELOCITY.RIDE_BELL_ACCENT + random.randint(-2, 4),
         )
+
+        # Choked crash on major downbeats (sharp "chick" cutoff)
+        builder.crash_choked(0.0, "A", VELOCITY.CRASH_HEAVY)
+        builder.crash_choked(2.5, "C", VELOCITY.CRASH_ACCENT)
 
         return builder.build()
 
@@ -400,7 +400,7 @@ class MetalGenrePlugin(GenrePlugin):
 
         # Snare on 2 and 4 with rimshot accents
         builder.snare(1.0, VELOCITY.SNARE_HEAVY)
-        builder.snare_rimshot(3.0, VELOCITY.SNARE_RIMSHOT + 5)
+        builder.snare_rimshot(3.0, min(VELOCITY.SNARE_RIMSHOT + 5, 127))
 
         # Tight HH rapid comping (AD2 zone 91) on every 8th note
         for i in range(8):
@@ -438,16 +438,17 @@ class MetalGenrePlugin(GenrePlugin):
         builder.snare(1.0, 120)
         builder.snare(3.0, 120)
 
-        return builder.build()
+        # Choked crash on downbeats (sharp "chick" cutoff)
+        builder.crash_choked(0.0, "A", VELOCITY.CRASH_HEAVY)
+        builder.crash_choked(2.0, "B", VELOCITY.CRASH_ACCENT)
+
         # Ride bell accents on off-beats (progressive/metalcore texture)
-        builder.pattern.add_beat(
+        builder.ride_bell(
             1.5,
-            DrumInstrument.RIDE_BELL,
             VELOCITY.RIDE_BELL + random.randint(-2, 4),
         )
-        builder.pattern.add_beat(
+        builder.ride_bell(
             3.5,
-            DrumInstrument.RIDE_BELL,
             VELOCITY.RIDE_BELL + random.randint(-2, 4),
         )
 
@@ -465,9 +466,8 @@ class MetalGenrePlugin(GenrePlugin):
             else:
                 builder.snare(pos + 0.25, 120)
 
-        return builder.build()
         # Choked crash accents on major downbeats (sharp "chick" cutoff)
-        builder.crash_choked(0.0, "A", VELOCITY.CRASH_ACCENT)
+        builder.crash_choked(0.0, "A", VELOCITY.CRASH_HEAVY)
         builder.crash_choked(
             4.0 if params.complexity > 0.7 else 2.0, "B", VELOCITY.CRASH_ACCENT
         )
@@ -492,8 +492,10 @@ class MetalGenrePlugin(GenrePlugin):
         builder.crash(0.0, 115)
         builder.crash(2.0, 110)
 
-        # Ride bell for texture
-        builder.pattern.add_beat(1.5, DrumInstrument.RIDE_BELL, 90)
-        builder.pattern.add_beat(3.5, DrumInstrument.RIDE_BELL, 90)
+        # Ride bell accents for texture (progressive/metalcore) + tom_edge for attack clarity
+        builder.ride_bell(1.5, 90)
+        builder.ride_bell(3.5, 90)
+        builder.tom_edge(0.5, "MID", VELOCITY.TOM_HEAVY - 5)
+        builder.tom_edge(2.5, "FLOOR", VELOCITY.TOM_ACCENT)
 
         return builder.build()

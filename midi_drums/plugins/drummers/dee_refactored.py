@@ -4,8 +4,10 @@ Reduced from ~360 lines to ~63 lines (82% reduction) by using the
 DrummerModification system instead of manual pattern manipulation.
 """
 
+from midi_drums.config import VELOCITY
 from midi_drums.core.models.pattern import Pattern
 from midi_drums.core.models.song import Fill
+from midi_drums.generation.builders.pattern_builder import PatternBuilder
 from midi_drums.modifications import (
     SpeedPrecision,
     TwistedAccents,
@@ -51,7 +53,48 @@ class DeePlugin(DrummerPlugin):
 
     def get_signature_fills(self) -> list[Fill]:
         """Return Mikkey Dee's signature fill patterns."""
-        return []
+        return [
+            Fill(
+                pattern=self._create_twisted_tom_fill(),
+                trigger_probability=0.7,
+                section_position="end",
+            ),
+            Fill(
+                pattern=self._create_ride_bell_stinger(),
+                trigger_probability=0.5,
+                section_position="middle",
+            ),
+        ]
+
+    def _create_twisted_tom_fill(self) -> Pattern:
+        """Tom cascade with displaced backbeat - Dee's signature displacement.
+
+        Uses tom_edge (rimmed/edge toms) for the tight metallic attack that
+        drives Motorhead and Scorpion riffs. Ends on a crash_choked for punchy cutoff.
+        """
+        builder = PatternBuilder("dee_twisted_tom_fill")
+
+        # Ascending tom_edge cascade (tight metallic attack)
+        builder.tom_edge(0.0, "3", VELOCITY.TOM_HEAVY)
+        builder.tom_edge(0.5, "MID", VELOCITY.TOM_ACCENT)
+        builder.tom_edge(1.0, "FLOOR", VELOCITY.TOM_ACCENT + 2)
+
+        # Twisted snare (displaced off the downbeat - signature Dee technique)
+        builder.snare(1.75, VELOCITY.SNARE_HEAVY)
+
+        return builder.build()
+
+    def _create_ride_bell_stinger(self) -> Pattern:
+        """Ride bell accent on beat 3 for a piercing metal stinger.
+
+        AD2 ride_bell (note 61) gives the sharp bell attack that cuts through
+        heavy guitar distortion - useful for power/speed metal transitions.
+        """
+        builder = PatternBuilder("dee_ride_bell_stinger")
+        builder.ride_bell(2.5, VELOCITY.RIDE_BELL_ACCENT)
+        builder.crash_choked(3.0, "A", VELOCITY.CRASH_HEAVY)
+
+        return builder.build()
 
 
 # backward-compat alias for existing test imports
