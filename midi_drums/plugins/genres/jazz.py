@@ -460,35 +460,38 @@ class JazzGenrePlugin(GenrePlugin):
     def _ballad_intro(
         self, parameters: GenerationParameters, time_sig: TimeSignature
     ) -> Pattern:
-        """Ballad intro with brushes."""
+        """Ballad intro with actual brush sweeps."""
         builder = PatternBuilder("jazz_ballad_intro")
 
-        # Soft brush sweeps
-        builder.snare(0.0, 50)  # Soft sweep
-        builder.snare(2.0, 55)
+        # Real brush sweep patterns (AD2 zones 35-30)
+        builder.brush_sweep(0.0, "A", velocity=60)  # Close Soft Tap
+        builder.brush_sweep(2.0, "B", velocity=58)  # Sweep Mute
 
         # Very light kick
-        builder.kick(0.0, 60)
+        builder.kick(0.0, VELOCITY.KICK_LIGHT)
 
         return builder.build()
 
     def _ballad_verse(
         self, parameters: GenerationParameters, time_sig: TimeSignature
     ) -> Pattern:
-        """Ballad verse with brush technique."""
+        """Ballad verse with brush technique (real brush zones)."""
         builder = PatternBuilder("jazz_ballad_verse")
 
-        # Brush sweep pattern (circular motion simulation)
+        # Real brush sweep pattern across all 6 presets for variety
         sweep_positions = [0.0, 0.5, 1.0, 1.5, 2.0, 2.5, 3.0, 3.5]
-        for pos in sweep_positions:
-            velocity = 55 + random.randint(-5, 10)
-            builder.snare(pos, velocity)  # Brush sweep
+        sweep_variants = ["A", "B", "C", "D", "E", "F"]
+        for i, pos in enumerate(sweep_positions):
+            variant = sweep_variants[i % len(sweep_variants)]
+            builder.brush_sweep(pos, variant, velocity=50 + random.randint(-5, 12))
 
-        # Very subtle kick
-        builder.kick(0.0, 65).kick(2.0, 60)
+        # Very subtle kick on downbeats
+        builder.kick(0.0, VELOCITY.KICK_LIGHT).kick(2.0, VELOCITY.KICK_WHISPER)
 
-        # Soft hi-hat
-        builder.hihat(1.0, 50).hihat(3.0, 50)
+        # Soft hi-hat backbeat (only on 2 and 4 for ballad feel)
+        builder.hihat(1.0, VELOCITY.HIHAT_LIGHT).hihat(
+            3.0, VELOCITY.HIHAT_LIGHT
+        )
 
         return builder.build()
 
@@ -560,14 +563,16 @@ class JazzGenrePlugin(GenrePlugin):
         pattern.beats.extend(new_beats)
 
     def _create_brush_sweep_fill(self) -> Pattern:
-        """Create brush sweep fill."""
+        """Create brush sweep fill using real brush zones."""
         builder = PatternBuilder("jazz_brush_sweep")
 
-        # Circular brush sweep simulation
-        sweep_positions = [0.0, 0.125, 0.25, 0.375, 0.5, 0.625, 0.75, 0.875]
-        for pos in sweep_positions:
-            velocity = 60 + random.randint(-5, 10)
-            builder.snare(pos, velocity)
+        # Circular brush sweep across all 6 presets for smooth shimmer
+        sweep_variants = ["A", "B", "C", "D", "E", "F"]
+        for i in range(8):
+            variant = sweep_variants[i % len(sweep_variants)]
+            builder.brush_sweep(
+                i * 0.125, variant, velocity=58 + random.randint(-4, 8)
+            )
 
         return builder.build()
 

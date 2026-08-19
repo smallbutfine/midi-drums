@@ -485,6 +485,114 @@ class TomFill(PatternTemplate):
             builder.pattern.add_beat(pos, instruments[i], VELOCITY.TOM_NORMAL)
 
 
+# --- AD2 extended instrument templates ---
+
+@dataclass
+class BrushGroove(PatternTemplate):
+    """Jazz ballad groove with real brush sweeps (AD2 preset zones A-F).
+
+    Produces authentic brush shimmer across all 6 sweep presets, ideal for
+    jazz ballads and slow tempo styles. Automatically alternates variants to
+    prevent mechanical repetition.
+
+    Example:
+        # Ballad verse groove
+        BrushGroove(density=0.8, variant_cycle="ABCD")
+
+    Args:
+        density: Fraction of 8th notes that get brush hits (0.0-1.0).
+                 Higher = denser shimmer.
+        variant_cycle: Pattern sweep preset cycle, e.g. "ABCDEF"
+                       or "AD" for alternating bright/dark sweeps.
+        use_ride: Whether to layer ride comping underneath the brushes.
+    """
+
+    density: float = 0.65
+    variant_cycle: str = "ABCDEF"
+    use_ride: bool = True
+    ride_velocity: int = VELOCITY.RIDE_LIGHT
+
+    def generate(self, builder: PatternBuilder, **kwargs) -> PatternBuilder:
+        bars = kwargs.get("bars", 1)
+        variants = list(self.variant_cycle)
+        variant_idx = 0
+
+        for bar in range(bars):
+            bar_offset = bar * 4.0
+
+            # Brush sweep on 8th notes (or subset per density)
+            for i in range(8):
+                pos = bar_offset + (i * TIMING.EIGHTH)
+                if random.random() < self.density:
+                    variant = variants[variant_idx % len(variants)]
+                    builder.brush_sweep(
+                        pos,
+                        variant,
+                        velocity=VELOCITY.BRUSH_NORMAL
+                        + random.randint(-6, 6),
+                    )
+                    variant_idx += 1
+
+            # Layer ride comping if requested (Elvin Jones style)
+            if self.use_ride:
+                for i in range(0, 8, 2):
+                    pos = bar_offset + (i * TIMING.EIGHTH)
+                    builder.ride(
+                        pos, self.ride_velocity + random.randint(-3, 5)
+                    )
+
+        return builder
+
+
+@dataclass
+class RimshotGroove(PatternTemplate):
+    """Funk/R&B groove with rimshots instead of snare backbeats.
+
+    Uses AD2's SNARE_RIMSHOT (side stick) zone for that crisp, muted
+    backbeat characteristic of classic funk and R&B. Can combine with
+    tight HH comping for an authentic James Brown vibe.
+
+    Example:
+        # Funk "the one" groove
+        RimshotGroove(use_tight_hh=True)
+
+    Args:
+        use_tight_hh: Whether to comp tight HH on offbeats instead of regular
+                      hihat.
+        rim_variant: Which rim preset to use (A for side stick, B for brush).
+    """
+
+    use_tight_hh: bool = True
+    rim_variant: str = "MID"
+
+    def generate(self, builder: PatternBuilder, **kwargs) -> PatternBuilder:
+        bars = kwargs.get("bars", 1)
+
+        for bar in range(bars):
+            bar_offset = bar * 4.0
+
+            # Rimshot backbeat on 2 and 4
+            builder.snare_rimshot(
+                bar_offset + 1.0, VELOCITY.SNARE_RIMSHOT
+            )
+            builder.snare_rimshot(
+                bar_offset + 3.0, VELOCITY.SNARE_NORMAL + 5
+            )
+
+            # Tight HH comping on offbeats (funk signature)
+            if self.use_tight_hh:
+                for i in range(16):
+                    pos = bar_offset + (i * TIMING.SIXTEENTH)
+                    is_offbeat = i % 2 == 1
+                    if is_offbeat:
+                        builder.tight_hh(pos, open=False)
+                    elif random.random() < 0.5:
+                        # Sparse tight HH on some beats for texture
+                        builder.tight_hh(pos, open=False)
+
+        return builder
+
+
 class TemplateComposer:
     """Compose multiple templates into complete patterns.
 
@@ -601,3 +709,51 @@ def create_metal_pattern(
     composer.add(CrashAccents(positions=[0.0]))
 
     return composer.build(bars=bars, complexity=complexity)
+
+
+def create_jazz_ballad_pattern(
+    name: str = "jazz_ballad",
+    bars: int = 1,
+    density: float = 0.65,
+) -> Pattern:
+    """Create a jazz ballad pattern with real brush sweeps.
+
+    Uses AD2 brush sweep zones (A-F) for authentic shimmer rather than
+    soft snare simulation.
+
+    Args:
+        name: Pattern name
+        bars: Number of bars
+        density: Brush hit density (0.0-1.0)
+
+    Returns:
+        Complete Pattern with brush sweeps + ride comping
+    """
+    return (
+        TemplateComposer(name)
+        .add(BrushGroove(density=density))
+        .build(bars=bars)
+    )
+
+
+def create_funk_rimshot_pattern(
+    name: str = "funk_rimshot",
+    bars: int = 1,
+) -> Pattern:
+    """Create a funk groove with rimshots (side stick) on backbeat.
+
+    Uses AD2's SNARE_RIMSHOT zone for crisp side stick instead of regular snare.
+    Pairs well with tight HH comping.
+
+    Args:
+        name: Pattern name
+        bars: Number of bars
+
+    Returns:
+        Complete Pattern with rimshot backbeat + tight HH comping
+    """
+    return (
+        TemplateComposer(name)
+        .add(RimshotGroove(use_tight_hh=True))
+        .build(bars=bars)
+    )

@@ -262,24 +262,31 @@ class FunkGenrePlugin(GenrePlugin):
     def _classic_funk_verse(
         self, parameters: GenerationParameters, time_sig: TimeSignature
     ) -> Pattern:
-        """Classic funk verse based on Clyde Stubblefield's "Funky Drummer"."""
+        """Classic funk verse based on Clyde Stubblefield's Funky Drummer."""
         builder = PatternBuilder("funk_classic_verse")
 
         # "The one" - emphasis on beat 1
-        builder.kick(0.0, 115)
+        builder.kick(0.0, VELOCITY.KICK_HEAVY)
 
         # Syncopated kick pattern
-        builder.kick(0.75, 90).kick(3.25, 95)  # 16th note syncopation
+        builder.kick(0.75, VELOCITY.KICK_NORMAL).kick(
+            3.25, int(VELOCITY.KICK_NORMAL * 0.9)
+        )
 
-        # Snare backbeat with ghost notes
-        builder.snare(1.0, 110)  # Strong backbeat
-        builder.snare(3.0, 110)  # Strong backbeat
+        # Snare backbeat with ghost notes + rimshot accents
+        builder.snare(1.0, VELOCITY.SNARE_HEAVY)  # Strong backbeat
+        builder.snare(3.0, VELOCITY.SNARE_HEAVY)  # Strong backbeat
+        # Occasional rimshot on the one for variety
+        if random.random() < 0.4:
+            builder.snare_rimshot(1.0, VELOCITY.SNARE_RIMSHOT)
 
-        # Ghost notes (crucial for funk feel)
-        ghost_positions = [0.25, 0.5, 1.25, 1.75, 2.25, 2.5, 2.75, 3.75]
+        # Ghost notes (crucial for funk feel) - keep as SNARE ghost notes
+        ghost_positions = [
+            0.25, 0.5, 1.25, 1.75, 2.25, 2.5, 2.75, 3.75
+        ]
         for pos in ghost_positions:
             if random.random() < 0.7:  # 70% chance for each ghost note
-                velocity = 45 + random.randint(-10, 15)  # Very quiet
+                velocity = VELOCITY.SNARE_GHOST + random.randint(-10, 15)
                 builder.pattern.add_beat(
                     pos,
                     DrumInstrument.SNARE,
@@ -287,17 +294,17 @@ class FunkGenrePlugin(GenrePlugin):
                     ghost_note=True,
                 )
 
-        # 16th note hi-hat pattern with opens
+        # Tight hi-hat comping (AD2 tight HH zones 90-91) on offbeats
         for i in range(16):
             pos = i * 0.25
-            # Open hi-hat on 'e' of beats 2 and 4 (Stubblefield signature)
-            open_hihat = pos in [1.25, 3.25]
-            velocity = 75 + random.randint(-3, 7)
-
-            if open_hihat:
-                velocity += 5  # Slightly louder for opens
-
-            builder.hihat(pos, velocity, open=open_hihat)
+            is_offbeat = (i % 2 == 1)
+            if is_offbeat:
+                builder.tight_hh(pos, open=False)
+            elif pos in [1.25, 3.25]:
+                # Open hi-hat on 'e' of beats 2 and 4
+                builder.hihat(pos, VELOCITY.HIHAT_NORMAL + 5, open=True)
+            else:
+                builder.tight_hh(pos, open=False)
 
         return builder.build()
 

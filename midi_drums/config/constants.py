@@ -71,6 +71,11 @@ class VelocityRanges:
     SPLASH_NORMAL: Final[int] = 95
     SPLASH_ACCENT: Final[int] = 105
 
+    # Brush sweep velocities (snare brush preset zones)
+    BRUSH_NORMAL: Final[int] = 55
+    BRUSH_LIGHT: Final[int] = 45
+    BRUSH_HEAVY: Final[int] = 65
+
     # Tom velocities
     TOM_WHISPER: Final[int] = 70
     TOM_LIGHT: Final[int] = 85

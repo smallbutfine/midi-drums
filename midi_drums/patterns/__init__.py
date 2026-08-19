@@ -20,15 +20,19 @@ Usage:
 from midi_drums.patterns.templates import (
     BasicGroove,
     BlastBeat,
+    BrushGroove,
     CrashAccents,
     DoubleBassPedal,
     FunkGhostNotes,
     JazzRidePattern,
     PatternTemplate,
+    RimshotGroove,
     TemplateComposer,
     TomFill,
     create_basic_rock_pattern,
     create_metal_pattern,
+    create_jazz_ballad_pattern,
+    create_funk_rimshot_pattern,
 )
 
 __all__ = [
@@ -42,9 +46,14 @@ __all__ = [
     "FunkGhostNotes",
     "CrashAccents",
     "TomFill",
+    # AD2 extended instrument templates
+    "BrushGroove",
+    "RimshotGroove",
     # Composer
     "TemplateComposer",
     # Convenience functions
     "create_basic_rock_pattern",
     "create_metal_pattern",
+    "create_jazz_ballad_pattern",
+    "create_funk_rimshot_pattern",
 ]
