@@ -1,6 +1,7 @@
 """Drummer style plugins for applying signature drumming styles to patterns."""
 
 from midi_drums.plugins.drummers.bonham_refactored import BonhamPlugin
+from midi_drums.plugins.drummers.carey import CareyPlugin
 from midi_drums.plugins.drummers.chambers_refactored import ChambersPlugin
 from midi_drums.plugins.drummers.copeland import CopelandPlugin
 from midi_drums.plugins.drummers.dee_refactored import DeePlugin
@@ -13,6 +14,7 @@ from midi_drums.plugins.drummers.weckl_refactored import WecklPlugin
 
 __all__ = [
     "BonhamPlugin",
+    "CareyPlugin",
     "ChambersPlugin",
     "CopelandPlugin",
     "DeePlugin",

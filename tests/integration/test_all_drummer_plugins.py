@@ -22,6 +22,7 @@ def test_drummer_plugin_loading():
 
         expected_drummers = [
             "bonham",
+            "carey",
             "chambers",
             "dee",
             "hoglan",
