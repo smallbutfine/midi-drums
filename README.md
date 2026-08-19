@@ -55,6 +55,9 @@ MIDI Drums Generator is a Python system that creates professional-quality drum t
   - Provider-agnostic backend (Anthropic, OpenAI, Groq, Cohere)
   - Environment-driven configuration for production use
 
+This fork added support for local Ollama server for the Langchain agents, in this case for qwen3.6.
+It might more or less easily be adapted to other local models.
+  
 ## 🚀 Quick Start
 
 ### Installation
@@ -72,7 +75,7 @@ midi-drums --help
 
 **Option 2: Development installation**
 ```bash
-git clone https://github.com/fsecada01/midi-drums.git
+git clone https://github.com/smallbutfine/midi-drums.git
 cd midi-drums
 
 uv sync                  # recommended
