@@ -1,9 +1,9 @@
 """
 Danny Carey drummer plugin - Tool style.
 
-Implements Danny Carey's signature polyrhythmic, odd-meter, tom-heavy approach 
-to progressive and alternative metal. Known for his deep tom work, complex 
-polyrhythms (3 vs 2 quintuplets), ethnic percussion influences, and the 
+Implements Danny Carey's signature polyrhythmic, odd-meter, tom-heavy approach
+to progressive and alternative metal. Known for his deep tom work, complex
+polyrhythms (3 vs 2 quintuplets), ethnic percussion influences, and the
 spacious, heavy "Tool groove" that defines albums like Lateralus and Fear Inoculum.
 """
 
@@ -134,7 +134,9 @@ class CareyPlugin(DrummerPlugin):
                         poly_kick = Beat(
                             position=pos,
                             instrument=beat.instrument,
-                            velocity=min(127, beat.velocity + random.randint(-8, 8)),
+                            velocity=min(
+                                127, beat.velocity + random.randint(-8, 8)
+                            ),
                             duration=beat.duration * 0.9,
                         )
                         new_beats.append(poly_kick)
@@ -228,7 +230,11 @@ class CareyPlugin(DrummerPlugin):
             if random.random() < 0.15:
                 casc_tom = Beat(
                     position=pos,
-                    instrument=DrumInstrument.FLOOR_TOM if i < 2 else DrumInstrument.MID_TOM,
+                    instrument=(
+                        DrumInstrument.FLOOR_TOM
+                        if i < 2
+                        else DrumInstrument.MID_TOM
+                    ),
                     velocity=95 + random.randint(-5, 20),
                     duration=0.3,
                 )
@@ -260,7 +266,9 @@ class CareyPlugin(DrummerPlugin):
         for i in range(8):
             pos = i * 0.5
             if random.random() < 0.1:
-                eth_inst = random.choice([DrumInstrument.CHINA, DrumInstrument.RIDE_BELL])
+                eth_inst = random.choice(
+                    [DrumInstrument.CHINA, DrumInstrument.RIDE_BELL]
+                )
                 ethnic = Beat(
                     position=pos,
                     instrument=eth_inst,
@@ -291,11 +299,9 @@ class CareyPlugin(DrummerPlugin):
             # Floor tom foundation building upward
             (0.0, DrumInstrument.FLOOR_TOM, 120),
             (0.8, DrumInstrument.FLOOR_TOM, 115),
-
             # Mid tom cascade building intensity
             (1.6, DrumInstrument.MID_TOM, 110),
             (2.4, DrumInstrument.MID_TOM, 105),
-
             # Kick transition with crash accent
             (3.2, DrumInstrument.KICK, 100),
             (4.0, DrumInstrument.FLOOR_TOM, 125),
@@ -365,7 +371,9 @@ class CareyPlugin(DrummerPlugin):
         # Ethnic percussion simulation (china/cymbal accents on off-beats)
         for i in [0.5, 1.5]:
             pos = i
-            builder.pattern.add_beat(pos, DrumInstrument.CHINA, 90 + random.randint(-5, 15))
+            builder.pattern.add_beat(
+                pos, DrumInstrument.CHINA, 90 + random.randint(-5, 15)
+            )
 
         # Timpani-like rolls on toms (deep, resonant tones)
         for i in range(8):
@@ -395,11 +403,15 @@ class CareyPlugin(DrummerPlugin):
 
             # Extended sustain creates the "swell" effect (simulated)
             if random.random() < 0.7:
-                builder.pattern.add_beat(pos + 0.25, DrumInstrument.RIDE_BELL, 85)
+                builder.pattern.add_beat(
+                    pos + 0.25, DrumInstrument.RIDE_BELL, 85
+                )
 
         # Chinese cymbal accents for ethnic texture
         for i in [1.0, 3.0]:
             pos = i
-            builder.pattern.add_beat(pos, DrumInstrument.CHINA, 95 + random.randint(-5, 10))
+            builder.pattern.add_beat(
+                pos, DrumInstrument.CHINA, 95 + random.randint(-5, 10)
+            )
 
         return builder.build()
