@@ -46,12 +46,13 @@ These are **not** GM Level 1 percussion notes — GM's percussion range starts a
 
 ### Addictive Drums 2 (XLN Audio)
 
-- The specific keymap page (https://support.xlnaudio.com/hc/en-us/articles/16925247222045-Addictive-Drums-2-Keymap) returned **HTTP 403** — XLN's support portal blocks the fetch.
-- Search snippets confirm AD2 ships a "GM Map Preset" for e-drum compatibility but gave no note numbers.
-- **Verdict:** no data obtained.
+- **RESOLVED:** Vendor-documented keymap obtained from "Addictive Drums 2 Keymap" PDF (June 2021).
+- The full keymap has been implemented in `midi_drums/core/models/kit.py::_AD2_FULL_MAP` with 35 zone mappings covering core drums, brush sweeps (6 presets), rim variants, tom edge hits, tight hi-hat articulations, crash chokes, and extended hi-hat zones.
+- AD2 diverges from GM on hi-hat positions (notes 48-57), snare rim (37/40 vs GM's 40 for RIM/Side Stick), and several cymbal notes. Core drums (kick: 36, snare: 38) align with GM.
 
 ## Recommendation
 
 1. **Ship now:** the EZDrummer-3-is-already-correct / GM-preset-is-actually-wrong fix — grounded entirely in this repo's own code plus the stable, decades-old GM Level 1 spec. No external citation risk.
-2. **Don't ship:** fabricated or unreliably-sourced note tables for Superior Drummer 3, BFD3, or Addictive Drums 2. Leave those three presets as explicit GM-equivalent placeholders, with an inline comment noting real vendor research is still needed, and call this out plainly in the PR description as a deliberately deferred follow-up (matches the issue's own "as time allows" hedge on this item).
+2. **Don't ship:** fabricated or unreliably-sourced note tables for Superior Drummer 3 or BFD3. Leave those presets as explicit GM-equivalent placeholders with the "not yet researched" caveat.
+3. Addictive Drums 2 has been resolved — real vendor notes are now in `kit.py::_AD2_FULL_MAP`.
 3. **Future follow-up** (not this phase): the Scribd SD3 mapping guide and BFD3's in-app Key Map panel (referenced by FXpansion's own docs as the authoritative live reference) are the two most promising next leads if someone picks this back up — both require a human with the actual product installed to verify, which this research pass didn't have access to.

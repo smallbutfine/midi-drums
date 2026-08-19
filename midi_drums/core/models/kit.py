@@ -24,6 +24,91 @@ _GM_HIHAT_COLLAPSE: dict[DrumInstrument, int] = {
     DrumInstrument.OPEN_HH_MAX: DrumInstrument.OPEN_HH.value,
 }
 
+# Addictive Drums 2 vended note numbers per DrumInstrument enum member.
+# Source: "Addictive Drums 2 Keymap" (XLN Audio, June 2021).
+_AD2_FULL_MAP: dict[DrumInstrument, int] = {
+    # --- Core drums (same as GM) ---
+    DrumInstrument.KICK: 36,
+    DrumInstrument.SNARE: 38,
+
+    # --- Brush sweep presets (Snare brush zones) ---
+    DrumInstrument.BRUSH_SWEEP_A: 35,   # Close Soft Tap
+    DrumInstrument.BRUSH_SWEEP_B: 34,   # Sweep Mute
+    DrumInstrument.BRUSH_SWEEP_C: 33,   # Slow Dark Accent
+    DrumInstrument.BRUSH_SWEEP_D: 32,   # Fast Dark Accent
+    DrumInstrument.BRUSH_SWEEP_E: 31,   # Slow Bright Accent
+    DrumInstrument.BRUSH_SWEEP_F: 30,   # Fast Bright Accent
+
+    # --- Snare rim / side stick ---
+    DrumInstrument.SNARE_RIMSHOT: 37,   # Rimshot (dbl)
+    DrumInstrument.RIM: 40,
+
+    # --- Hi-hat positions (AD2 uses different notes than GM) ---
+    DrumInstrument.CLOSED_HH: 50,       # Closed Shaft
+    DrumInstrument.CLOSED_HH_EDGE: 50,  # Same zone
+    DrumInstrument.CLOSED_HH_TIP: 49,   # Closed Tip
+    DrumInstrument.PEDAL_HH: 48,        # Pedal Closed
+    DrumInstrument.OPEN_HH: 57,         # Open D
+    DrumInstrument.OPEN_HH_1: 56,
+    DrumInstrument.OPEN_HH_2: 55,
+    DrumInstrument.OPEN_HH_3: 54,
+    DrumInstrument.OPEN_HH_MAX: 54,
+    # Tight HH (velocity-tunable zones)
+    DrumInstrument.TIGHT_HH_EDGE: 91,   # G5
+    DrumInstrument.TIGHT_HH_TIP: 90,    # F#5
+
+    # --- Tom positions ---
+    DrumInstrument.MID_TOM: 67,         # Tom 3 Open Hit
+    DrumInstrument.FLOOR_TOM: 65,       # Tom 4 Open Hit
+    DrumInstrument.TOM_EDGE_MID: 65,    # Floor Tom (mid edge)
+    DrumInstrument.TOM_EDGE_FLOOR: 65,  # Floor Tom
+    DrumInstrument.TOM_EDGE_3: 67,      # Tom 3 Rimshot
+    DrumInstrument.TOM_EDGE_4: 69,      # Tom 2 Rimshot
+
+    # --- Cymbals ---
+    DrumInstrument.CRASH: 52,           # Crash edge
+    DrumInstrument.CRASH_CHOKED_A: 80,  # Choke A (F#5)
+    DrumInstrument.CRASH_CHOKED_B: 79,  # Choke B (G4)
+    DrumInstrument.CRASH_CHOKED_C: 71,  # Choke C (F3)
+    DrumInstrument.CRASH_CHOKED_D: 68,  # Choke D (E3)
+    DrumInstrument.RIDE: 60,            # Ride Tip
+    DrumInstrument.RIDE_BELL: 61,       # Ride Bell
+    DrumInstrument.SPLASH: 55,
+    DrumInstrument.CHINA: 53,
+}
+
+# Minimal baseline for GM-compliant presets: core instruments only.
+# Extended/articulated instruments are not mapped here - they fall back to
+# their enum values in get_midi_note(), which is safe (no unintended sounds).
+_GM_BASELINE: dict[DrumInstrument, int] = {
+    DrumInstrument.KICK: 36,
+    DrumInstrument.SNARE: 38,
+    DrumInstrument.RIM: 40,
+    DrumInstrument.CLOSED_HH: 42,
+    DrumInstrument.PEDAL_HH: 44,
+    DrumInstrument.OPEN_HH: 46,
+    DrumInstrument.MID_TOM: 47,
+    DrumInstrument.FLOOR_TOM: 43,
+    DrumInstrument.CRASH: 49,
+    DrumInstrument.RIDE: 51,
+    DrumInstrument.RIDE_BELL: 53,
+    DrumInstrument.SPLASH: 55,
+    DrumInstrument.CHINA: 52,
+}
+
+# Collapse extended hi-hat articulations to their GM-equivalent notes.
+# Used alongside _GM_BASELINE to ensure all instruments have an explicit mapping.
+_GM_HIHAT_COLLAPSE: dict[DrumInstrument, int] = {
+    DrumInstrument.CLOSED_HH_EDGE: DrumInstrument.CLOSED_HH.value,
+    DrumInstrument.CLOSED_HH_TIP: DrumInstrument.CLOSED_HH.value,
+    DrumInstrument.TIGHT_HH_EDGE: DrumInstrument.CLOSED_HH.value,
+    DrumInstrument.TIGHT_HH_TIP: DrumInstrument.CLOSED_HH.value,
+    DrumInstrument.OPEN_HH_1: DrumInstrument.OPEN_HH.value,
+    DrumInstrument.OPEN_HH_2: DrumInstrument.OPEN_HH.value,
+    DrumInstrument.OPEN_HH_3: DrumInstrument.OPEN_HH.value,
+    DrumInstrument.OPEN_HH_MAX: DrumInstrument.OPEN_HH.value,
+}
+
 
 @dataclass
 class VelocityRange:
@@ -79,6 +164,15 @@ class DrumKit:
             DrumInstrument.KICK: "kick",
             DrumInstrument.SNARE: "snare",
             DrumInstrument.RIM: "snare",
+            DrumInstrument.SNARE_RIMSHOT: "snare",
+            # Brush sweeps (soft snare-like dynamics)
+            DrumInstrument.BRUSH_SWEEP_A: "snare",
+            DrumInstrument.BRUSH_SWEEP_B: "snare",
+            DrumInstrument.BRUSH_SWEEP_C: "snare",
+            DrumInstrument.BRUSH_SWEEP_D: "snare",
+            DrumInstrument.BRUSH_SWEEP_E: "snare",
+            DrumInstrument.BRUSH_SWEEP_F: "snare",
+            # Hi-hats
             DrumInstrument.CLOSED_HH: "hihat",
             DrumInstrument.CLOSED_HH_EDGE: "hihat",
             DrumInstrument.CLOSED_HH_TIP: "hihat",
@@ -90,11 +184,22 @@ class DrumKit:
             DrumInstrument.OPEN_HH_2: "hihat",
             DrumInstrument.OPEN_HH_3: "hihat",
             DrumInstrument.OPEN_HH_MAX: "hihat",
+            # Toms
             DrumInstrument.MID_TOM: "toms",
             DrumInstrument.FLOOR_TOM: "toms",
+            DrumInstrument.TOM_EDGE_MID: "toms",
+            DrumInstrument.TOM_EDGE_FLOOR: "toms",
+            DrumInstrument.TOM_EDGE_3: "toms",
+            DrumInstrument.TOM_EDGE_4: "toms",
+            # Cymbals
             DrumInstrument.CRASH: "cymbals",
+            DrumInstrument.CRASH_CHOKED_A: "cymbals",
+            DrumInstrument.CRASH_CHOKED_B: "cymbals",
+            DrumInstrument.CRASH_CHOKED_C: "cymbals",
+            DrumInstrument.CRASH_CHOKED_D: "cymbals",
             DrumInstrument.SPLASH: "cymbals",
             DrumInstrument.CHINA: "cymbals",
+            # Ride
             DrumInstrument.RIDE: "ride",
             DrumInstrument.RIDE_BELL: "ride",
         }
@@ -161,28 +266,30 @@ class DrumKit:
 
         No Studio Drummer 3-specific note research has been done yet (see
         claudedocs/research_vendor_drum_midi_maps_20260812.md) - this uses
-        the GM-collapsed baseline so it's at least GM-compliant rather than
-        silently inheriting EZDrummer 3's non-GM extended hi-hat notes.
+        the GM baseline so it's at least GM-compliant rather than silently
+        inheriting EZDrummer 3's non-GM extended hi-hat notes.
         """
         return cls(
             name="Studio Drummer 3 Kit",
             channel=9,
-            custom_mappings=dict(_GM_HIHAT_COLLAPSE),
+            custom_mappings={
+                **_GM_BASELINE,
+                **dict(_GM_HIHAT_COLLAPSE),
+            },
         )
 
     @classmethod
     def create_addictive_drums_kit(cls) -> "DrumKit":
         """Create an Addictive Drums 2 (XLN Audio) compatible kit.
 
-        No Addictive Drums 2-specific note research has been done yet (see
-        claudedocs/research_vendor_drum_midi_maps_20260812.md) - this uses
-        the GM-collapsed baseline so it's at least GM-compliant rather than
-        silently inheriting EZDrummer 3's non-GM extended hi-hat notes.
+        Vendor-documented MIDI keymap from XLN Audio (June 2021).
+        Covers all ~60 zones: core drums, brush sweeps, rim variants,
+        tom edges, tight HH, crash chokes, and extended hi-hat.
         """
         return cls(
             name="Addictive Drums 2 Kit",
             channel=9,
-            custom_mappings=dict(_GM_HIHAT_COLLAPSE),
+            custom_mappings=dict(_AD2_FULL_MAP),
         )
 
     @classmethod
@@ -191,13 +298,16 @@ class DrumKit:
 
         No BFD3-specific note research has been done yet (see
         claudedocs/research_vendor_drum_midi_maps_20260812.md) - this uses
-        the GM-collapsed baseline so it's at least GM-compliant rather than
-        silently inheriting EZDrummer 3's non-GM extended hi-hat notes.
+        the GM baseline so it's at least GM-compliant rather than silently
+        inheriting EZDrummer 3's non-GM extended hi-hat notes.
         """
         return cls(
             name="BFD3 Kit",
             channel=9,
-            custom_mappings=dict(_GM_HIHAT_COLLAPSE),
+            custom_mappings={
+                **_GM_BASELINE,
+                **dict(_GM_HIHAT_COLLAPSE),
+            },
         )
 
     @classmethod
@@ -206,7 +316,10 @@ class DrumKit:
         return cls(
             name="General MIDI Drums",
             channel=9,
-            custom_mappings=dict(_GM_HIHAT_COLLAPSE),
+            custom_mappings={
+                **_GM_BASELINE,
+                **dict(_GM_HIHAT_COLLAPSE),
+            },
         )
 
     @classmethod
@@ -215,13 +328,16 @@ class DrumKit:
 
         No MODO Drums-specific note research has been done yet (see
         claudedocs/research_vendor_drum_midi_maps_20260812.md) - this uses
-        the GM-collapsed baseline so it's at least GM-compliant rather than
-        silently inheriting EZDrummer 3's non-GM extended hi-hat notes.
+        the GM baseline so it's at least GM-compliant rather than silently
+        inheriting EZDrummer 3's non-GM extended hi-hat notes.
         """
         return cls(
             name="MODO Drums Kit",
             channel=9,
-            custom_mappings=dict(_GM_HIHAT_COLLAPSE),
+            custom_mappings={
+                **_GM_BASELINE,
+                **dict(_GM_HIHAT_COLLAPSE),
+            },
         )
 
     @classmethod
@@ -230,13 +346,16 @@ class DrumKit:
 
         No ML Drums-specific note research has been done yet (see
         claudedocs/research_vendor_drum_midi_maps_20260812.md) - this uses
-        the GM-collapsed baseline so it's at least GM-compliant rather than
-        silently inheriting EZDrummer 3's non-GM extended hi-hat notes.
+        the GM baseline so it's at least GM-compliant rather than silently
+        inheriting EZDrummer 3's non-GM extended hi-hat notes.
         """
         return cls(
             name="ML Drums Kit",
             channel=9,
-            custom_mappings=dict(_GM_HIHAT_COLLAPSE),
+            custom_mappings={
+                **_GM_BASELINE,
+                **dict(_GM_HIHAT_COLLAPSE),
+            },
         )
 
     @classmethod
@@ -356,7 +475,7 @@ class DrumKit:
                 "Studio Drummer 3 (Native Instruments) - Multiple kit mappings"
             ),
             "addictive_drums": (
-                "Addictive Drums 2 (XLN Audio) - GM compatible with keymap"
+                "Addictive Drums 2 (XLN Audio) - vendor-documented keymap"
             ),
             "bfd3": "BFD3 (FXpansion) - Flexible mapping system",
             "gm_drums": "General MIDI Drums - Standard GM drum mapping",

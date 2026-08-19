@@ -83,18 +83,131 @@ class TestPresetsDivergeOnNoteMapping:
             )
 
 
+class TestAddictiveDrumsHasVendorSpecificNotes:
+    """AD2 uses its own keymap (XLN Audio, June 2021) — must differ from GM.
+
+    Previously AD2 was a GM-collapsed placeholder; it now has real vendor
+    notes so several instruments resolve to different MIDI numbers than GM."""
+
+    def test_addictive_drums_presets_differ_from_gm(self):
+        ad_kit = DrumKit.create_addictive_drums_kit()
+        gm_kit = DrumKit.create_gm_drums_kit()
+
+        # Hi-hat positions differ between AD2 and GM
+        for instrument in (
+            DrumInstrument.CLOSED_HH,
+            DrumInstrument.OPEN_HH,
+            DrumInstrument.CLOSED_HH_EDGE,
+            DrumInstrument.OPEN_HH_1,
+        ):
+            assert ad_kit.get_midi_note(instrument) != gm_kit.get_midi_note(
+                instrument
+            )
+
+    def test_addictive_drums_presets_differ_from_ezdrummer3(self):
+        ad_kit = DrumKit.create_addictive_drums_kit()
+        ez_kit = DrumKit.create_ezdrummer3_kit()
+
+        # Core hi-hat notes differ between AD2 and EZD3 extended positions
+        assert ad_kit.get_midi_note(DrumInstrument.CLOSED_HH_EDGE) != (
+            ez_kit.get_midi_note(DrumInstrument.CLOSED_HH_EDGE)
+        )
+        assert ad_kit.get_midi_note(DrumInstrument.OPEN_HH_1) != (
+            ez_kit.get_midi_note(DrumInstrument.OPEN_HH_1)
+        )
+
+    def test_addictive_drums_core_instruments_match_gm_notes(self):
+        """Core drums (kick, snare) are the same MIDI notes across presets."""
+        ad_kit = DrumKit.create_addictive_drums_kit()
+
+        assert ad_kit.get_midi_note(DrumInstrument.KICK) == 36
+        assert ad_kit.get_midi_note(DrumInstrument.SNARE) == 38
+
+
+class TestAddictiveDrumsExtendedInstruments:
+    """Verify AD2's vendor-specific instruments resolve to correct MIDI notes."""
+
+    def test_brush_sweeps_resolve_to_vendor_notes(self):
+        ad = DrumKit.create_addictive_drums_kit()
+        assert ad.get_midi_note(DrumInstrument.BRUSH_SWEEP_A) == 35
+        assert ad.get_midi_note(DrumInstrument.BRUSH_SWEEP_B) == 34
+        assert ad.get_midi_note(DrumInstrument.BRUSH_SWEEP_C) == 33
+        assert ad.get_midi_note(DrumInstrument.BRUSH_SWEEP_D) == 32
+        assert ad.get_midi_note(DrumInstrument.BRUSH_SWEEP_E) == 31
+        assert ad.get_midi_note(DrumInstrument.BRUSH_SWEEP_F) == 30
+
+    def test_snare_rimshot_is_side_stick(self):
+        ad = DrumKit.create_addictive_drums_kit()
+        # AD2: RIM maps to Side Stick (40), SNARE_RIMSHOT maps to Rimshot (37)
+        assert ad.get_midi_note(DrumInstrument.SNARE_RIMSHOT) == 37
+        assert ad.get_midi_note(DrumInstrument.RIM) == 40
+
+    def test_tom_edge_hits_resolve_to_vendor_notes(self):
+        ad = DrumKit.create_addictive_drums_kit()
+        assert ad.get_midi_note(DrumInstrument.TOM_EDGE_MID) == 65
+        assert ad.get_midi_note(DrumInstrument.TOM_EDGE_FLOOR) == 65
+        assert ad.get_midi_note(DrumInstrument.TOM_EDGE_3) == 67
+        assert ad.get_midi_note(DrumInstrument.TOM_EDGE_4) == 69
+
+    def test_tight_hh_closed_resolve_to_vendor_notes(self):
+        ad = DrumKit.create_addictive_drums_kit()
+        assert ad.get_midi_note(DrumInstrument.TIGHT_HH_EDGE) == 91
+        assert ad.get_midi_note(DrumInstrument.TIGHT_HH_TIP) == 90
+
+    def test_crash_choked_resolve_to_vendor_notes(self):
+        ad = DrumKit.create_addictive_drums_kit()
+        assert ad.get_midi_note(DrumInstrument.CRASH_CHOKED_A) == 80
+        assert ad.get_midi_note(DrumInstrument.CRASH_CHOKED_B) == 79
+        assert ad.get_midi_note(DrumInstrument.CRASH_CHOKED_C) == 71
+        assert ad.get_midi_note(DrumInstrument.CRASH_CHOKED_D) == 68
+
+    def test_ad2_extended_hihat_differ_from_gm(self):
+        """AD2's tight HH notes are high (90-91) unlike GM (42/46)."""
+        ad = DrumKit.create_addictive_drums_kit()
+        gm = DrumKit.create_gm_drums_kit()
+        for inst in (
+            DrumInstrument.TIGHT_HH_EDGE,
+            DrumInstrument.TIGHT_HH_TIP,
+        ):
+            assert ad.get_midi_note(inst) != gm.get_midi_note(inst)
+
+
+class TestGmBaselineCompleteCoverage:
+    """GM-baseline presets map every core instrument explicitly.
+
+    Previously they relied on _GM_HIHAT_COLLAPSE only (8 instruments).
+    Now _GM_BASELINE covers all 13 core instruments + collapse handles the rest.
+    """
+
+    def test_every_core_instrument_has_explicit_mapping(self):
+        gm = DrumKit.create_gm_drums_kit()
+        # All 13 core instruments must be in custom_mappings (explicit)
+        expected = {
+            DrumInstrument.KICK,
+            DrumInstrument.SNARE,
+            DrumInstrument.RIM,
+            DrumInstrument.CLOSED_HH,
+            DrumInstrument.PEDAL_HH,
+            DrumInstrument.OPEN_HH,
+            DrumInstrument.MID_TOM,
+            DrumInstrument.FLOOR_TOM,
+            DrumInstrument.CRASH,
+            DrumInstrument.RIDE,
+            DrumInstrument.RIDE_BELL,
+            DrumInstrument.SPLASH,
+            DrumInstrument.CHINA,
+        }
+        mapped = set(gm.custom_mappings.keys())
+        assert expected.issubset(mapped)
+
+
 class TestGmBaselinePresetsAreActuallyGmCompliant:
-    """Regression coverage: presets whose own docstrings claim GM-standard
-    compatibility (studio_drummer3, addictive_drums, bfd3, modo_drums,
-    ml_drums) previously shipped an empty custom_mappings dict, silently
-    inheriting EZDrummer 3's non-GM extended hi-hat notes instead. They
-    must resolve identically to the gm_drums preset."""
+    """Regression: GM-baseline presets must match gm_drums for every DrumInstrument."""
 
     @pytest.mark.parametrize(
         "factory",
         [
             DrumKit.create_studio_drummer3_kit,
-            DrumKit.create_addictive_drums_kit,
             DrumKit.create_bfd3_kit,
             DrumKit.create_modo_drums_kit,
             DrumKit.create_ml_drums_kit,

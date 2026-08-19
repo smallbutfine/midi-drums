@@ -699,12 +699,14 @@ all identical:
   percussion. The extended hi-hat articulations above are collapsed to
   their nearest real GM note (closed-hat family → note 42, open-hat family
   → note 46) so output stays GM-compliant.
-- **`studio_drummer3`**, **`addictive_drums`**, **`bfd3`**, **`modo_drums`**,
+- **`studio_drummer3`**, **`bfd3`**, **`modo_drums`**,
   **`ml_drums`** — use the same GM-collapsed note table as `gm_drums`
-  (no vendor-specific note research has been done for these yet — see
+  (vendor-specific note research is still pending for these — see
   `claudedocs/research_vendor_drum_midi_maps_20260812.md`); safe to use
-  with any GM-compatible sampler today, but not yet verified against each
-  vendor's own default map, which may differ from strict GM.
+  with any GM-compatible sampler today.
+- **`addictive_drums`** — vendor-documented MIDI keymap from XLN Audio
+  (June 2021). Differs from GM on hi-hat positions (notes 48-57), rim shot
+  (44 vs 40), and several cymbal notes. Core drums (kick, snare) match GM.
 - **Custom mapping** — pass `--mapping-file path/to/mapping.json` (CLI) or
   `mapping_file="path/to/mapping.json"` (`DrumGeneratorAPI.create_song()`)
   to supply your own note table without editing the library. See
