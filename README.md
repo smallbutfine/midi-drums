@@ -64,7 +64,7 @@ It might more or less easily be adapted to other local models.
 
 **Option 1: Install as CLI tool (Recommended)**
 ```bash
-git clone https://github.com/fsecada01/midi-drums.git
+git clone https://github.com/smallbutfine/midi-drums.git
 cd midi-drums
 
 uv tool install .
