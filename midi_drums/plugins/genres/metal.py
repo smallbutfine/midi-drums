@@ -2,6 +2,7 @@
 
 import random
 
+from midi_drums.config import VELOCITY
 from midi_drums.core.models.pattern import Pattern
 from midi_drums.core.models.song import Fill
 from midi_drums.core.value_objects.drum_instrument import DrumInstrument
@@ -139,6 +140,8 @@ class MetalGenrePlugin(GenrePlugin):
             return self._doom_metal_verse(builder, params)
         elif style == "progressive":
             return self._progressive_metal_verse(builder, params)
+        elif style == "thrash":
+            return self._thrash_metal_verse(builder, params)
         else:
             return self._heavy_metal_verse(builder, params)
 
@@ -154,6 +157,8 @@ class MetalGenrePlugin(GenrePlugin):
             return self._power_metal_chorus(builder, params)
         elif style == "doom":
             return self._doom_metal_chorus(builder, params)
+        elif style == "thrash":
+            return self._thrash_metal_chorus(builder, params)
         else:
             return self._heavy_metal_chorus(builder, params)
 
@@ -171,9 +176,13 @@ class MetalGenrePlugin(GenrePlugin):
         # Rimshot on 2
         builder.pattern.add_beat(2.0, DrumInstrument.RIM, 115)
 
+        return builder.build()
         # Toms for groove
-        builder.pattern.add_beat(1.0, DrumInstrument.MID_TOM, 105)
-        builder.pattern.add_beat(3.0, DrumInstrument.FLOOR_TOM, 105)
+        builder.tom(1.0, "MID", VELOCITY.TOM_HEAVY - 10)
+        builder.tom(3.0, "FLOOR", VELOCITY.TOM_HEAVY - 10)
+
+        # Choked crash accents on downbeat (sharp cutoff "chick")
+        builder.crash_choked(0.0, "A", VELOCITY.CRASH_ACCENT)
 
         return builder.build()
 
@@ -218,37 +227,53 @@ class MetalGenrePlugin(GenrePlugin):
     def _generate_outro_pattern(
         self, style: str, params: GenerationParameters, time_sig: TimeSignature
     ) -> Pattern:
-        """Generate outro pattern."""
+        """Generate outro pattern.
+
+        Uses ride bell accents and choked crashes for dramatic ending.
+        """
         builder = PatternBuilder(f"metal_{style}_outro", time_sig)
 
         # Descending tom fill pattern
-        builder.pattern.add_beat(0.0, DrumInstrument.FLOOR_TOM, 110)
-        builder.pattern.add_beat(1.0, DrumInstrument.MID_TOM, 105)
-        builder.pattern.add_beat(2.0, DrumInstrument.SNARE, 115)
-        builder.pattern.add_beat(3.0, DrumInstrument.FLOOR_TOM, 110)
+        builder.tom(0.0, "FLOOR", VELOCITY.TOM_HEAVY + 5)
+        builder.tom(1.0, "MID", VELOCITY.TOM_HEAVY)
+        builder.snare(2.0, VELOCITY.SNARE_ACCENT)
+        builder.tom(3.0, "FLOOR", VELOCITY.TOM_HEAVY + 5)
 
-        # Final crash
-        builder.crash(3.75, 120)
+        # Choked crash for dramatic ending cutoff (sharp "chick")
+        builder.crash_choked(3.75, "A", VELOCITY.CRASH_HEAVY)
 
         return builder.build()
 
-    # Style-specific implementations
+    def _thrash_metal_verse(
+        self, builder: PatternBuilder, params: GenerationParameters
+    ) -> Pattern:
+        """Thrash metal verse - fast, aggressive, driving."""
+        # Driving kick pattern with double-time feel
+        for i in [0.0, 0.5, 1.5, 2.0, 2.5, 3.5]:
+            builder.kick(i, VELOCITY.KICK_HEAVY + random.randint(-8, 8))
+
+        # Snare on 2 and 4
+        builder.snare(1.0, VELOCITY.SNARE_HEAVY)
+        builder.snare(3.0, VELOCITY.SNARE_HEAVY)
+
+        # Tight HH driving pattern (AD2 zone 91) - crisp no wash for fast sections
+        for i in range(8):
+            builder.tight_hh(i * 0.5, open=False)
+
+        return builder.build()
+
     def _heavy_metal_verse(
         self, builder: PatternBuilder, params: GenerationParameters
     ) -> Pattern:
         """Classic heavy metal verse pattern."""
         # Kick on 1, 1.75, 3
-        builder.kick(0.0, 110)
-        builder.kick(0.75, 105)
-        builder.kick(2.0, 110)
+        builder.kick(0.0, VELOCITY.KICK_HEAVY)
+        builder.kick(0.75, VELOCITY.KICK_NORMAL)
+        builder.kick(2.0, VELOCITY.KICK_HEAVY)
 
         # Snare on 2 and 4
-        builder.snare(1.0, 115)
-        builder.snare(3.0, 115)
-
-        # Hi-hat 8ths
-        for i in range(8):
-            builder.hihat(i * 0.5, 75 + random.randint(-5, 10))
+        builder.snare(1.0, VELOCITY.SNARE_HEAVY)
+        builder.snare(3.0, VELOCITY.SNARE_HEAVY)
 
         return builder.build()
 
@@ -274,16 +299,12 @@ class MetalGenrePlugin(GenrePlugin):
         """Power metal verse - driving and melodic."""
         # Steady kick quarters
         for i in [0.0, 1.0, 2.0, 3.0]:
-            builder.kick(i, 105)
+            builder.kick(i, VELOCITY.KICK_NORMAL)
 
         # Snare on 2 and 4 with some ghost notes
-        builder.snare(1.0, 115)
-        builder.snare(3.0, 115)
-        builder.snare(1.5, 60)  # Ghost note
-
-        # Ride cymbal for driving feel
-        for i in range(4):
-            builder.ride(i, 80)
+        builder.snare(1.0, VELOCITY.SNARE_HEAVY)
+        builder.snare(3.0, VELOCITY.SNARE_HEAVY)
+        builder.snare(1.5, VELOCITY.SNARE_GHOST)  # Ghost note
 
         return builder.build()
 
@@ -330,6 +351,7 @@ class MetalGenrePlugin(GenrePlugin):
         for i in range(8):
             builder.ride(i * 0.5, 80)
 
+        return builder.build()
         # Open hi-hat max accents on backbeat (EZDrummer note 60)
         builder.pattern.add_beat(1.0, DrumInstrument.OPEN_HH_MAX, 110)
         builder.pattern.add_beat(3.0, DrumInstrument.OPEN_HH_MAX, 110)
@@ -349,10 +371,40 @@ class MetalGenrePlugin(GenrePlugin):
         builder.snare(2.75, 100)  # Syncopated
         builder.snare(3.0, 115)
 
-        # Complex hi-hat pattern
-        for i in range(16):
-            if i % 3 != 0:  # Skip every 3rd hit for complexity
-                builder.hihat(i * 0.25, 70 + random.randint(-10, 15))
+        return builder.build()
+        # Ride bell accents on off-beats for textural variety (progressive/metalcore)
+        builder.pattern.add_beat(1.5, DrumInstrument.RIDE_BELL, VELOCITY.RIDE_BELL + random.randint(-3, 5))
+        builder.pattern.add_beat(3.5, DrumInstrument.RIDE_BELL, VELOCITY.RIDE_BELL + random.randint(-3, 5))
+
+        return builder.build()
+
+    def _thrash_metal_chorus(
+        self, builder: PatternBuilder, params: GenerationParameters
+    ) -> Pattern:
+        """Thrash metal chorus - even more aggressive than verse.
+
+        Uses tight HH on fast comping, ride bell accents for texture,
+        and choked crashes on major beats for punchy cutoff.
+        """
+        # Fast kick double-time pattern
+        for i in range(8):
+            builder.kick(i * 0.5, VELOCITY.KICK_HEAVY + random.randint(-10, 8))
+
+        # Snare on 2 and 4 with rimshot accents
+        builder.snare(1.0, VELOCITY.SNARE_HEAVY)
+        builder.snare_rimshot(3.0, VELOCITY.SNARE_RIMSHOT + 5)
+
+        # Tight HH rapid comping (AD2 zone 91) on every 8th note
+        for i in range(8):
+            builder.tight_hh(i * 0.5, open=False)
+
+        # Ride bell accents on off-beats for aggressive textural variety
+        builder.pattern.add_beat(1.5, DrumInstrument.RIDE_BELL, VELOCITY.RIDE_BELL_ACCENT + random.randint(-3, 4))
+        builder.pattern.add_beat(3.5, DrumInstrument.RIDE_BELL, VELOCITY.RIDE_BELL_ACCENT + random.randint(-3, 4))
+
+        # Choked crash on major downbeats (sharp "chick" cutoff)
+        builder.crash_choked(0.0, "A", VELOCITY.CRASH_HEAVY)
+        builder.crash_choked(2.0, "B", VELOCITY.CRASH_ACCENT)
 
         return builder.build()
 
@@ -370,9 +422,10 @@ class MetalGenrePlugin(GenrePlugin):
         builder.snare(1.0, 120)
         builder.snare(3.0, 120)
 
-        # Ride for power
-        for i in range(4):
-            builder.ride(i, 85)
+        return builder.build()
+        # Ride bell accents on off-beats (progressive/metalcore texture)
+        builder.pattern.add_beat(1.5, DrumInstrument.RIDE_BELL, VELOCITY.RIDE_BELL + random.randint(-2, 4))
+        builder.pattern.add_beat(3.5, DrumInstrument.RIDE_BELL, VELOCITY.RIDE_BELL + random.randint(-2, 4))
 
         return builder.build()
 
@@ -386,11 +439,12 @@ class MetalGenrePlugin(GenrePlugin):
             if i % 2 == 0:
                 builder.kick(pos, 115)
             else:
-                builder.snare(pos, 120)
+                builder.snare(pos + 0.25, 120)
 
-        # Crash accents
-        builder.crash(0.0, 120)
-        builder.crash(2.0, 115)
+        return builder.build()
+        # Choked crash accents on major downbeats (sharp "chick" cutoff)
+        builder.crash_choked(0.0, "A", VELOCITY.CRASH_ACCENT)
+        builder.crash_choked(4.0 if params.complexity > 0.7 else 2.0, "B", VELOCITY.CRASH_ACCENT)
 
         return builder.build()
 
