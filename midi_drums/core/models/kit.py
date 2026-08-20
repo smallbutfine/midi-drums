@@ -214,13 +214,49 @@ class DrumKit:
     @classmethod
     def create_ezdrummer3_kit(cls) -> "DrumKit":
         """Create an EZDrummer 3 compatible kit configuration."""
+        # All 35 AD2-zone instruments mapped to their EZD3 keymap positions.
+        # Core drums stay on standard MIDI notes (same as GM) — EZD3 auto-detects
+        # the mapping and applies its internal patch routing.
         return cls(
             name="EZDrummer 3 Kit",
             channel=9,
-            # DrumInstrument's own note values already target EZDrummer 3's
-            # extended hi-hat articulations (see drum_instrument.py), so no
-            # overrides are needed here - this preset is the enum baseline.
-            custom_mappings={},
+            custom_mappings={
+                # Core drums (standard MIDI)
+                DrumInstrument.KICK: 36,
+                DrumInstrument.SNARE: 38,
+                DrumInstrument.RIM: 40,
+                DrumInstrument.MID_TOM: 47,
+                DrumInstrument.FLOOR_TOM: 43,
+                # Cymbals
+                DrumInstrument.CRASH: 49,
+                DrumInstrument.RIDE: 51,
+                DrumInstrument.CHINA: 52,
+                DrumInstrument.SPLASH: 55,
+                DrumInstrument.RIDE_BELL: 53,
+                # Hi-hats (standard)
+                DrumInstrument.CLOSED_HH: 42,
+                DrumInstrument.PEDAL_HH: 44,
+                DrumInstrument.OPEN_HH: 46,
+                DrumInstrument.OPEN_HH_1: 24,
+                DrumInstrument.OPEN_HH_2: 25,
+                DrumInstrument.OPEN_HH_3: 26,
+                DrumInstrument.OPEN_HH_MAX: 60,
+                # Extended hi-hats (EZD3 keymap positions)
+                DrumInstrument.CLOSED_HH_EDGE: 42,
+                DrumInstrument.CLOSED_HH_TIP: 61,
+                DrumInstrument.TIGHT_HH_EDGE: 91,
+                DrumInstrument.TIGHT_HH_TIP: 90,
+                DrumInstrument.TIGHT_HH_CLOSED: 91,
+                # Cymbal chokes (EZD3 keymap positions)
+                DrumInstrument.CRASH_CHOKED_A: 80,
+                DrumInstrument.CRASH_CHOKED_B: 79,
+                DrumInstrument.CRASH_CHOKED_C: 71,
+                DrumInstrument.CRASH_CHOKED_D: 68,
+                # Tom edges (EZD3 keymap positions)
+                DrumInstrument.TOM_EDGE_MID: 65,
+                DrumInstrument.TOM_EDGE_3: 67,
+                DrumInstrument.TOM_EDGE_4: 69,
+            },
         )
 
     @classmethod

@@ -307,18 +307,25 @@ class ComposerV2:
     ) -> Pattern:
         """Combine individual bar patterns into a single section pattern.
 
-        The result is the union of all beats across bars, with proper offset.
+        The result is the union of all beats across bars, with proper offset
+        (each bar's beats start at its correct beat position).
         """
 
         combined = Pattern(f"{bars[0].name.replace('_bar*', '')}_combined")
         total_beats = 0
+        beats_per_bar = (
+            global_params.time_signature.beats_per_bar
+            if hasattr(global_params, 'time_signature')
+            and global_params.time_signature
+            else 4
+        )
 
-        for bar in bars:
-
+        for bar_idx, bar in enumerate(bars):
+            offset = bar_idx * beats_per_bar
             for beat in bar.beats:
                 combined.beats.append(
                     Beat(
-                        position=beat.position,
+                        position=beat.position + offset,
                         instrument=beat.instrument,
                         velocity=beat.velocity,
                         duration=beat.duration,
