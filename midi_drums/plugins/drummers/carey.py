@@ -44,6 +44,8 @@ class CareyPlugin(DrummerPlugin):
     def apply_style(self, pattern: Pattern) -> Pattern:
         """Apply Danny Carey's signature style to a pattern.
 
+        NOTE: Max new-beats is capped at 12 to prevent density explosion
+        when combined with ComposerV2's bar-by-bar loop.
         Args:
             pattern: Base pattern to modify
 
@@ -53,20 +55,31 @@ class CareyPlugin(DrummerPlugin):
         styled_pattern = pattern.copy()
         styled_pattern.name = f"{pattern.name}_carey"
 
+        # Count new beats allowed (cap prevents density explosion)
+        max_new_beats = 12
+        current_count = [0]  # Use list for mutability in closures
+        
+        def _track(n):
+            """Track and cap added beat count."""
+            if n > max(0, max_new_beats - current_count[0]):
+                return max(0, max_new_beats - current_count[0])
+            current_count[0] += n
+            return n
+
         # 1. Add polyrhythmic quintuplet kick counterpoint (3 vs 2)
-        styled_pattern = self._add_polyrhythmic_kick(styled_pattern)
+        styled_pattern = self._add_polyrhythmic_kick(styled_pattern, _track)
 
         # 2. Deep tom-heavy accent patterns and cascading fills
-        styled_pattern = self._add_deep_tom_patterns(styled_pattern)
+        styled_pattern = self._add_deep_tom_patterns(styled_pattern, _track)
 
         # 3. Apply the "Tool groove" - spaciousness with intentional space
         styled_pattern = self._apply_tool_groove_space(styled_pattern)
 
         # 4. Complex pentatonic/quintuplet accent fills between beats
-        styled_pattern = self._add_pentatonic_accent_fills(styled_pattern)
+        styled_pattern = self._add_pentatonic_accent_fills(styled_pattern, _track)
 
         # 5. Cymbal swells and effects (simulated with long sustain)
-        styled_pattern = self._add_cymbal_swell_effects(styled_pattern)
+        styled_pattern = self._add_cymbal_swell_effects(styled_pattern, _track)
 
         return styled_pattern
 
@@ -108,174 +121,122 @@ class CareyPlugin(DrummerPlugin):
 
         return fills
 
-    # --- Style application methods ---
-
-    def _add_polyrhythmic_kick(self, pattern: Pattern) -> Pattern:
-        """Add polyrhythmic kick counterpoint (3 vs 2 quintuplets).
-
-        Carey constantly layers pent-uplet kicks against the main meter,
-        creating the characteristic tension/release of the "Tool groove".
-        """
-        new_beats = list(pattern.beats)
-
-        # Identify existing kicks and add quintuplet counterpoint around them
-        for beat in pattern.beats:
-            if beat.instrument == DrumInstrument.KICK:
-                original_pos = beat.position
-
-                # Quintuplet counter-kick notes spaced at 0.8 intervals (3 vs 2)
-                quintuplet_spacing = 0.8
-                num_notes = max(4, int(4.0 / quintuplet_spacing))
-
-                for i in range(1, num_notes):
-                    pos = original_pos + (i * quintuplet_spacing / 3)
-
-                    if random.random() < 0.5:  # 50% chance to add poly-kick
-                        poly_kick = Beat(
-                            position=pos,
-                            instrument=beat.instrument,
-                            velocity=min(
-                                127, beat.velocity + random.randint(-8, 8)
-                            ),
-                            duration=beat.duration * 0.9,
-                        )
-                        new_beats.append(poly_kick)
-
-        pattern.beats = new_beats
-        return pattern
-
-    def _add_deep_tom_patterns(self, pattern: Pattern) -> Pattern:
-        """Add deep tom-focused accents and cascades.
-
-        Carey's toms are incredibly deep-tuned with long sustain. Floor tom
-        cascades (starting low and going up) are his signature fill element.
-        """
-        new_beats = list(pattern.beats)
-
-        # Deep floor tom accents on off-beats for the "Tool" depth
-        for i in range(8):
-            pos = i * 0.5
-            if random.random() < 0.2:
-                deep_tom = Beat(
-                    position=pos,
-                    instrument=DrumInstrument.FLOOR_TOM,
-                    velocity=90 + random.randint(-10, 25),
-                    duration=0.8,  # Long sustain for deep tuning effect
-                )
-                new_beats.append(deep_tom)
-
-        # Mid tom accents between main beats
-        for i in range(4):
-            pos = i + 0.5
-            if random.random() < 0.15:
-                mid_tom = Beat(
-                    position=pos,
-                    instrument=DrumInstrument.MID_TOM,
-                    velocity=80 + random.randint(-5, 20),
-                    duration=0.4,
-                )
-                new_beats.append(mid_tom)
-
-        pattern.beats = new_beats
-        return pattern
-
     def _apply_tool_groove_space(self, pattern: Pattern) -> Pattern:
-        """Apply the "Tool groove" - spaciousness with intentional space.
-
-        Carey's grooves are characterized by deep, powerful hits separated by
-        silence, creating a hypnotic, heavy feel. Long-sustain drums amplify this.
-        """
+        """Apply the "Tool groove" - spaciousness with intentional space."""
         for beat in pattern.beats:
             if beat.instrument == DrumInstrument.KICK:
-                # Deep, resonant kicks with longer sustain
                 beat.velocity = min(127, beat.velocity + 15)
                 beat.duration = max(0.3, beat.duration * 1.4)
-
             elif beat.instrument == DrumInstrument.SNARE:
-                # Powerful but spacious snares (less ghost notes, more space)
                 beat.velocity = min(127, beat.velocity + 10)
-
-            elif beat.instrument in [
-                DrumInstrument.FLOOR_TOM,
-                DrumInstrument.MID_TOM,
-            ]:
-                # Deep tom sustain is key to Carey's sound
+            elif beat.instrument in [DrumInstrument.FLOOR_TOM, DrumInstrument.MID_TOM]:
                 beat.duration = max(0.4, beat.duration * 2.0)
-
         return pattern
 
-    def _add_pentatonic_accent_fills(self, pattern: Pattern) -> Pattern:
-        """Add pentatonic/quintuplet accent fills between beats.
+    # --- Style application methods ---
 
-        Carey frequently weaves pentatonic melodic patterns and quintuplet fills
-        into his grooves as transitional elements.
-        """
+    def _add_polyrhythmic_kick(self, pattern: Pattern, track_fn) -> Pattern:
+        """Add polyrhythmic kick counterpoint (3 vs 2 quintuplets)."""
         new_beats = list(pattern.beats)
 
-        # Pentatonic snare accents (5-note pattern across bar)
-        for i in range(5):
-            pos = i * 0.8
-            if random.random() < 0.3:
-                pent_snare = Beat(
-                    position=pos,
-                    instrument=DrumInstrument.SNARE,
-                    velocity=100 + random.randint(-10, 25),
-                    duration=0.1,
-                )
-                new_beats.append(pent_snare)
-
-        # Floor tom cascade pattern (floor -> mid -> high toms upward)
-        for i in range(3):
-            pos = i * 1.2
-            if random.random() < 0.15:
-                casc_tom = Beat(
-                    position=pos,
-                    instrument=(
-                        DrumInstrument.FLOOR_TOM
-                        if i < 2
-                        else DrumInstrument.MID_TOM
-                    ),
-                    velocity=95 + random.randint(-5, 20),
-                    duration=0.3,
-                )
-                new_beats.append(casc_tom)
+        for beat in pattern.beats:
+            if beat.instrument == DrumInstrument.KICK:
+                pos = beat.position
+                for i in range(1, 4):  # At most 3 extra kicks per original
+                    added = track_fn(1)  # Check/track before adding
+                    if added <= 0:
+                        break
+                    poly_pos = pos + (i * 0.267)
+                    new_beats.append(
+                        Beat(
+                            position=poly_pos,
+                            instrument=beat.instrument,
+                            velocity=min(127, beat.velocity + random.randint(-8, 8)),
+                            duration=beat.duration * 0.9,
+                        )
+                    )
 
         pattern.beats = new_beats
         return pattern
 
-    def _add_cymbal_swell_effects(self, pattern: Pattern) -> Pattern:
-        """Add cymbal swells and effects (simulated).
-
-        Carey extensively uses pedal-driven cymbal swells and ethnic percussion
-        elements. Simulated here with long-sustain crashes and ride bell accents.
-        """
+    def _add_deep_tom_patterns(self, pattern: Pattern, track_fn) -> Pattern:
+        """Add deep tom-focused accents and cascades."""
         new_beats = list(pattern.beats)
 
-        # Cymbal swells on strong beats
-        for pos in [0.0, 2.0]:
-            if random.random() < 0.35:
-                swell = Beat(
-                    position=pos,
-                    instrument=DrumInstrument.CRASH,
-                    velocity=100 + random.randint(-10, 20),
-                    duration=2.0,  # Very long sustain for "swell" effect
-                )
-                new_beats.append(swell)
-
-        # Ethnically-inspired percussion accents (simulated with china/ride bell)
         for i in range(8):
             pos = i * 0.5
+            if track_fn(1) <= 0:
+                break
+            if random.random() < 0.2:
+                new_beats.append(
+                    Beat(position=pos, instrument=DrumInstrument.FLOOR_TOM,
+                         velocity=90 + random.randint(-10, 25), duration=0.8)
+                )
+
+        for i in range(4):
+            pos = i + 0.5
+            if track_fn(1) <= 0:
+                break
+            if random.random() < 0.15:
+                new_beats.append(
+                    Beat(position=pos, instrument=DrumInstrument.MID_TOM,
+                         velocity=80 + random.randint(-5, 20), duration=0.4)
+                )
+
+        pattern.beats = new_beats
+        return pattern
+
+    def _add_pentatonic_accent_fills(self, pattern: Pattern, track_fn) -> Pattern:
+        """Add pentatonic/quintuplet accent fills between beats."""
+        new_beats = list(pattern.beats)
+
+        for i in range(5):
+            pos = i * 0.8
+            if track_fn(1) <= 0:
+                break
+            if random.random() < 0.3:
+                new_beats.append(
+                    Beat(position=pos, instrument=DrumInstrument.SNARE,
+                         velocity=100 + random.randint(-10, 25), duration=0.1)
+                )
+
+        for i in range(3):
+            pos = i * 1.2
+            if track_fn(1) <= 0:
+                break
+            if random.random() < 0.15:
+                new_beats.append(
+                    Beat(position=pos,
+                         instrument=DrumInstrument.FLOOR_TOM if i < 2 else DrumInstrument.MID_TOM,
+                         velocity=95 + random.randint(-5, 20), duration=0.3)
+                )
+
+        pattern.beats = new_beats
+        return pattern
+
+    def _add_cymbal_swell_effects(self, pattern: Pattern, track_fn) -> Pattern:
+        """Add cymbal swells and effects (simulated)."""
+        new_beats = list(pattern.beats)
+
+        for pos in [0.0, 2.0]:
+            if track_fn(1) <= 0:
+                break
+            if random.random() < 0.35:
+                new_beats.append(
+                    Beat(position=pos, instrument=DrumInstrument.CRASH,
+                         velocity=100 + random.randint(-10, 20), duration=2.0)
+                )
+
+        for i in range(8):
+            pos = i * 0.5
+            if track_fn(1) <= 0:
+                break
             if random.random() < 0.1:
-                eth_inst = random.choice(
-                    [DrumInstrument.CHINA, DrumInstrument.RIDE_BELL]
+                eth_inst = random.choice([DrumInstrument.CHINA, DrumInstrument.RIDE_BELL])
+                new_beats.append(
+                    Beat(position=pos, instrument=eth_inst,
+                         velocity=85 + random.randint(-10, 15), duration=0.6)
                 )
-                ethnic = Beat(
-                    position=pos,
-                    instrument=eth_inst,
-                    velocity=85 + random.randint(-10, 15),
-                    duration=0.6,
-                )
-                new_beats.append(ethnic)
 
         pattern.beats = new_beats
         return pattern

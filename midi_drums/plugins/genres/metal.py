@@ -576,13 +576,13 @@ class MetalGenrePlugin(GenrePlugin):
     def _death_metal_verse_v2(self, time_sig: TimeSignature) -> Pattern:
         """Flavor 2 — sparse blast (fewer blast-beat hits)."""
         builder = PatternBuilder("death_metal_verse_sparse", time_sig)
-        # Only every other 8th note gets a blast hit
+        # Half blast beats with more space between
         for i in [0.0, 1.0, 2.0, 3.0]:
-            builder.kick(i, 110)
-            builder.snare(i + 0.5, 110)
-        # Tight HH on quarters only (much sparser than base)
-        for i in range(4):
-            builder.tight_hh(i * 1.0, open=False)
+            builder.kick(i, 110).snare(i + 0.5, 110)
+            builder.kick(i + 0.25, 105)  # Extra kick for density
+        # Tight HH on every eighth note for full texture
+        for i in range(8):
+            builder.tight_hh(i * 0.5, open=False)
         return builder.build()
 
     def _death_metal_verse_v3(self, time_sig: TimeSignature) -> Pattern:
