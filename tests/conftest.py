@@ -1,5 +1,8 @@
 """Shared pytest fixtures and configuration for MIDI Drums tests."""
 
+import os
+from pathlib import Path
+
 import pytest
 
 from midi_drums.api.python_api import DrumGeneratorAPI
@@ -36,3 +39,43 @@ def pytest_configure(config):
     config.addinivalue_line(
         "markers", "requires_api: Tests requiring API access"
     )
+
+
+# ------------------------------------------------------------------ #
+# Skip AI tests when no backend is configured                          #
+# ------------------------------------------------------------------ #
+
+def pytest_runtest_setup(item: pytest.Item) -> None:
+    """Skip 'ai' + 'requires_api' markers when no API key is configured."""
+    markers = item.iter_markers("requires_api") or item.iter_markers("ai")
+    has_requirement = any(m.name in ("requires_api", "ai") for m in markers)
+    if not has_requirement:
+        return
+
+    import os  # noqa: PLC0415
+
+    # Check every real API key that could be set in .env or env
+    provider_keys = [
+        "ANTHROPIC_API_KEY",
+        "OPENAI_API_KEY",
+        "GROQ_API_KEY",
+        "COHERE_API_KEY",
+    ]
+    has_key = any(os.getenv(k) for k in provider_keys)
+    if not has_key:
+        # Also check .env file directly
+        dotenv_path = Path(__file__).parent.parent / ".env"
+        env_vars = {}
+        if dotenv_path.exists():
+            for line in dotenv_path.read_text().splitlines():
+                line = line.strip()
+                if "=" in line and not line.startswith("#"):
+                    k, v = line.split("=", 1)
+                    env_vars[k] = v
+        has_key = any(env_vars.get(k) for k in provider_keys)
+
+    if not has_key:
+        pytest.skip(
+            "No API key configured — 'ai'/'requires_api' tests skipped. "
+            "Set ANTHROPIC_API_KEY, OPENAI_API_KEY, GROQ_API_KEY or COHERE_API_KEY."
+        )
