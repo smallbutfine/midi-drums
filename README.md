@@ -21,7 +21,7 @@
 
 ## 🎯 Overview
 
-MIDI Drums Generator is a Python system that creates professional-quality drum tracks in MIDI format. Built on a modular, plugin-based architecture, it supports 5 musical genres, 10 drummer imitations, and configurable song structures — with realistic humanization, pattern variations, natural-language AI generation, and direct Reaper DAW integration.
+MIDI Drums Generator is a Python system that creates professional-quality drum tracks in MIDI format. Built on a modular, plugin-based architecture with **bar-by-bar pattern evolution** (Engine V2) as the default, it supports 5 musical genres, 11 drummer imitations + 1 composite, and configurable song structures — with realistic humanization, intensity curves, natural-language AI generation, Additive Drums 2 keymap support, and direct Reaper DAW integration.
 
 ### ✨ Key Features
 
@@ -32,8 +32,9 @@ MIDI Drums Generator is a Python system that creates professional-quality drum t
   - **Funk**: Classic, P-Funk, Shuffle, New Orleans, Fusion, Minimal, Heavy
   - **Electronic**: House, Techno, Drum & Bass, Dubstep
   - **Expandable**: Plugin architecture for more genres
-- 🥁 **Drummer Imitation** — 10 legendary styles
-  - Bonham, Porcaro, Weckl, Chambers, Roeder, Dee, Hoglan, Peart, Rich, Copeland
+- 🥁 **Drummer Imitation** — 11 legendary styles + 1 composite
+  - Bonham, Porcaro, Weckl, Chambers, Roeder, Dee, Hoglan, Peart, Rich, Copeland, Carey
+  - DoomBlues composite (Roeder + Porcaro + Chambers)
   - Signature fills and playing techniques based on research
   - Compatible across multiple genres with authentic styles
 - 🏗️ **Flexible Song Structure**
@@ -43,6 +44,9 @@ MIDI Drums Generator is a Python system that creates professional-quality drum t
 - 🎛️ **Professional Features**
   - Realistic velocity variations and humanization
   - EZDrummer 3 compatible MIDI mapping
+  - Additive Drums 2 full keymap (35 zones: tight HH, crash_choked A-D, ride_bell, tom_edge variants)
+    Use `--mapping addictive_drums` or `DrumKit.create_addictive_drums_kit()` to activate
+  - Song map / timeline export for REAPER integration
   - Multiple complexity and dynamics levels
 - 🔧 **Multiple Interfaces**
   - Python API for integration
@@ -120,6 +124,13 @@ midi-drums reaper export --genre metal --style doom --tempo 120 --output doom.rp
 # List available options
 midi-drums list genres
 midi-drums list drummers
+
+# Sidecar / song map support (REAPER sidecar JSON)
+midi-drums generate --genre metal --style death --sidecar midi_drums_sections.json -o mid 
+midi-drums generate --genre rock --style classic --song-map my_song_map.json -o rock.mid 
+
+# Write timeline JSON for REAPER song-map mode
+midi-drums generate --genre electronic --style house --write-timeline timeline.json 
 
 # AI natural language generation (requires AI setup)
 midi-drums prompt "funky groove with ghost notes"
@@ -438,6 +449,30 @@ pattern = behind_beat.apply(triplets.apply(pattern))
 
 See [`docs/DDD_ARCHITECTURE.md`](docs/DDD_ARCHITECTURE.md) for the domain-boundary rules behind this layout, [`docs/MIGRATION_GUIDE.md`](docs/MIGRATION_GUIDE.md) for pre-DDD-migration import paths, and [claudedocs/REFACTORING_PROGRESS.md](claudedocs/REFACTORING_PROGRESS.md) for the history behind this design (a 62% code-reduction refactor from the original per-plugin implementations).
 
+### 🆕 Engine V2 — Bar-by-Bar Pattern Evolution
+
+Engine V2 is now the **default** composition engine. Instead of generating one static pattern and looping it across all bars of a section, V2 produces a unique pattern for every bar using:
+
+- **Intensity curves** — section energy arcs (ASCENDING, PLATEAU, DIP_RISE, STEPS) control how complexity, velocity, and density evolve within each section
+- **Drummer personality per bar** — Bonham fills appear later in sections, Porcaro ghost notes cluster every 4th bar, crash accents on section endings, etc.
+- **No repeated bars** — every bar differs in a musically coherent way
+
+```python
+from midi_drums import DrumGenerator
+
+# V2 is now the default!
+generator = DrumGenerator()  # composer_engine="v2"
+song = generator.create_song("metal", "death", tempo=180)
+
+# Every verse bar is unique — no static looping
+default_structure = ["intro:4", "verse:8", "chorus:8", ...]  # all bars unique
+
+# Still supports V1 for backward compatibility
+generator_v1 = DrumGenerator(composer_engine="v1")
+```
+
+See [`docs/plan_01_bar_by_bar.md`](docs/plan_01_bar_by_bar.md) for the full design doc.
+
 ### Available Genres & Styles
 
 #### 🤘 Metal — Heavy, Death, Power, Progressive, Thrash, Doom, Breakdown
@@ -498,7 +533,8 @@ bonham_verse = api.generate_pattern("rock", "verse", "classic", drummer="bonham"
 ```python
 from midi_drums import DrumGenerator
 
-generator = DrumGenerator()
+# Engine V2 (bar-by-bar evolution) is now the default
+generator = DrumGenerator()  # composer_engine="v2"
 
 song = generator.create_song(
     genre="metal",
@@ -512,6 +548,9 @@ song = generator.create_song(
     complexity=0.7,
     humanization=0.3,
 )
+
+# Each verse bar is unique — no static looping
+gen_v1 = DrumGenerator(composer_engine="v1")  # backward compat
 
 generator.export_midi(song, "custom_song.mid")
 ```
@@ -772,9 +811,9 @@ New musical genres or styles, advanced humanization techniques, integration with
 - [x] CLI tool installation (`uv tool install`)
 - [x] GitHub Actions CI/CD pipeline
 
-### Phase 2: Live, Varied Patterns 🚧
-- [ ] Bar-by-bar pattern evolution (no repeated bars within sections)
-- [ ] Section intensity curves (internal arc per section — buildup, peak, drop)
+### Phase 2: Live, Varied Patterns ✅ (Engine V2 Active)
+- [x] Bar-by-bar pattern evolution (no repeated bars within sections) — **now the default engine**
+- [x] Section intensity curves (internal arc per section — buildup, peak, drop)
 - [ ] Pattern flavor swapping (3+ distinct patterns per section type)
 - [ ] Drummer fill library expansion (8-12 fills per drummer, context-aware selection)
 - [ ] Per-bar groove engine (swing ratio + timing push/pull per bar)
@@ -783,6 +822,7 @@ New musical genres or styles, advanced humanization techniques, integration with
 - [x] Reaper marker import (generate drums from existing markers) — via the `create_song_sections.lua` REAPER-mode bridge
 - [x] Advanced humanization algorithms — `midi_drums/humanization/advanced_humanization.py`
 - [x] Groove template system — `midi_drums/patterns/templates.py` (8 templates + `TemplateComposer`)
+- [x] Song map / timeline export for REAPER (`--song-map`, `--write-timeline` flags)
 
 ### Phase 3: Real-Time & Integration 🔮
 - [ ] AI-driven pattern variations (ML model or prompt-based engine)
