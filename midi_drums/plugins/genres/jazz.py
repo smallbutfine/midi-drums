@@ -668,14 +668,26 @@ class JazzGenrePlugin(GenrePlugin):
         if section == "verse":
             return [
                 self._generate_verse_pattern(style, parameters, time_sig),
-                self._swing_verserideheavy(time_sig) if style == "swing" else None,
-                self._swing_verse_sparse(time_sig) if style == "swing" else None,
+                (
+                    self._swing_verserideheavy(time_sig)
+                    if style == "swing"
+                    else None
+                ),
+                (
+                    self._swing_verse_sparse(time_sig)
+                    if style == "swing"
+                    else None
+                ),
             ]
         elif section == "chorus":
             return [
                 self._generate_chorus_pattern(style, parameters, time_sig),
                 self._swing_chorus_full(time_sig) if style == "swing" else None,
-                self._swing_chorus_brushes(time_sig) if style == "swing" else None,
+                (
+                    self._swing_chorus_brushes(time_sig)
+                    if style == "swing"
+                    else None
+                ),
             ]
         elif section == "bridge":
             return [
@@ -691,9 +703,13 @@ class JazzGenrePlugin(GenrePlugin):
             ]
         elif section in ("intro", "outro"):
             return [
-                self._generate_intro_pattern(style, parameters, time_sig)
-                if section == "intro"
-                else self._generate_outro_pattern(style, parameters, time_sig),
+                (
+                    self._generate_intro_pattern(style, parameters, time_sig)
+                    if section == "intro"
+                    else self._generate_outro_pattern(
+                        style, parameters, time_sig
+                    )
+                ),
             ]
         return [self._generate_verse_pattern(style, parameters, time_sig)]
 
@@ -704,6 +720,7 @@ class JazzGenrePlugin(GenrePlugin):
     def _swing_verserideheavy(self, time_sig):
         """Flavor 2 — ride-heavy verse."""
         import random as _rand
+
         builder = PatternBuilder("jazz_swing_verse_rid_heavy", time_sig)
         builder.kick(0.0, 85).kick(2.5, 80)
         builder.snare(1.0, 95).snare(3.0, 95)
@@ -716,6 +733,7 @@ class JazzGenrePlugin(GenrePlugin):
     def _swing_verse_sparse(self, time_sig):
         """Flavor 3 — sparse swing."""
         import random as _rand
+
         builder = PatternBuilder("jazz_swing_verse_sparse", time_sig)
         builder.kick(0.0, 80).kick(2.0, 75)
         builder.snare(1.0, 90).snare(3.0, 90)
@@ -727,6 +745,7 @@ class JazzGenrePlugin(GenrePlugin):
     def _swing_chorus_full(self, time_sig):
         """Flavor 2 — full combo chorus."""
         import random as _rand
+
         builder = PatternBuilder("jazz_swing_chorus_full", time_sig)
         for beat in range(4):
             base = beat * 1.0
@@ -742,6 +761,7 @@ class JazzGenrePlugin(GenrePlugin):
     def _swing_chorus_brushes(self, time_sig):
         """Flavor 3 — brush chorus."""
         import random as _rand
+
         builder = PatternBuilder("jazz_swing_chorus_brush", time_sig)
         for beat in range(4):
             base = beat * 1.0
@@ -755,6 +775,7 @@ class JazzGenrePlugin(GenrePlugin):
     def _bridge_latin_jazz(self, time_sig):
         """Bridge flavor — Latin jazz."""
         import random as _rand
+
         builder = PatternBuilder("jazz_bridge_latin", time_sig)
         for pos in [0.0, 1.5, 2.5, 3.75]:
             builder.kick(pos, 90 + _rand.randint(-5, 5))
@@ -767,6 +788,7 @@ class JazzGenrePlugin(GenrePlugin):
     def _bridge_ballad(self, time_sig):
         """Bridge flavor — ballad."""
         import random as _rand
+
         builder = PatternBuilder("jazz_bridge_ballad", time_sig)
         builder.kick(0.0, 65).kick(2.0, 60)
         builder.snare(1.0, 70).snare(3.0, 70)
@@ -778,6 +800,7 @@ class JazzGenrePlugin(GenrePlugin):
     def _breakdown_brushes(self, time_sig):
         """Breakdown flavor — brushes only."""
         import random as _rand
+
         builder = PatternBuilder("jazz_breakdown_brush", time_sig)
         for i in range(8):
             vel = 50 + _rand.randint(-3, 5)
@@ -787,6 +810,7 @@ class JazzGenrePlugin(GenrePlugin):
     def _breakdown_percussion(self, time_sig):
         """Breakdown flavor — percussion focus."""
         import random as _rand
+
         builder = PatternBuilder("jazz_breakdown_perc", time_sig)
         for beat in range(4):
             pos = beat * 1.0 + 0.25
@@ -799,4 +823,5 @@ class JazzGenrePlugin(GenrePlugin):
     def _time_signature(self, parameters):
         """Helper to get time signature (default 4/4 for jazz)."""
         from midi_drums.core.value_objects.time_signature import TimeSignature
+
         return TimeSignature(4, 4)

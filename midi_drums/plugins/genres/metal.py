@@ -120,18 +120,30 @@ class MetalGenrePlugin(GenrePlugin):
         if section == "verse":
             return [
                 self._generate_verse_pattern(style, parameters, time_sig),
-                self._death_metal_verse_v2(time_sig) if style == "death" else None,
-                self._death_metal_verse_v3(time_sig) if style == "death" else None,
+                (
+                    self._death_metal_verse_v2(time_sig)
+                    if style == "death"
+                    else None
+                ),
+                (
+                    self._death_metal_verse_v3(time_sig)
+                    if style == "death"
+                    else None
+                ),
             ]
         elif section == "chorus":
             return [
                 self._generate_chorus_pattern(style, parameters, time_sig),
-                self._death_metal_chorus_v2(time_sig)
-                if style == "death"
-                else None,
-                self._death_metal_chorus_v3(time_sig)
-                if style == "death"
-                else None,
+                (
+                    self._death_metal_chorus_v2(time_sig)
+                    if style == "death"
+                    else None
+                ),
+                (
+                    self._death_metal_chorus_v3(time_sig)
+                    if style == "death"
+                    else None
+                ),
             ]
         elif section == "bridge":
             return [
@@ -148,9 +160,13 @@ class MetalGenrePlugin(GenrePlugin):
         elif section in ("intro", "outro"):
             # Intro/outro already vary by style — just return a single variant
             return [
-                self._generate_intro_pattern(style, parameters, time_sig)
-                if section == "intro"
-                else self._generate_outro_pattern(style, parameters, time_sig),
+                (
+                    self._generate_intro_pattern(style, parameters, time_sig)
+                    if section == "intro"
+                    else self._generate_outro_pattern(
+                        style, parameters, time_sig
+                    )
+                ),
             ]
         # For any other section return a single flavor (no swap needed)
         return [self._generate_verse_pattern(style, parameters, time_sig)]
@@ -644,7 +660,11 @@ class MetalGenrePlugin(GenrePlugin):
         builder.kick(0.0, 130).kick(2.5, 120)
         for beat in range(4):
             if beat % 2 == 1:
-                builder.tom_edge(beat + 0.25, "MID" if beat == 1 else "FLOOR", VELOCITY.TOM_HEAVY - 10)
+                builder.tom_edge(
+                    beat + 0.25,
+                    "MID" if beat == 1 else "FLOOR",
+                    VELOCITY.TOM_HEAVY - 10,
+                )
         builder.snare(1.5, 130)
         for i in range(4):
             builder.tight_hh(i * 1.0, open=False)

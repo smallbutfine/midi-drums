@@ -249,7 +249,9 @@ class ComposerV2:
 
         # Try to get available flavors; fall back to generate_pattern()
         try:
-            all_flavors = genre_plugin.get_section_flavors(section_name, params_for_base)
+            all_flavors = genre_plugin.get_section_flavors(
+                section_name, params_for_base
+            )
         except TypeError:
             # Older plugins without get_section_flavors — skip flavor rotation
             all_flavors = []
@@ -261,11 +263,17 @@ class ComposerV2:
                 key = (global_params.genre, section_name)
                 indices = getattr(self, "_prev_indices", {})
                 idx_list = indices.setdefault(key, [])
-                base_pattern = self._select_flavor(available, bar_index, idx_list)
+                base_pattern = self._select_flavor(
+                    available, bar_index, idx_list
+                )
             else:
-                base_pattern = genre_plugin.generate_pattern(section_name, params_for_base)
+                base_pattern = genre_plugin.generate_pattern(
+                    section_name, params_for_base
+                )
         else:
-            base_pattern = genre_plugin.generate_pattern(section_name, params_for_base)
+            base_pattern = genre_plugin.generate_pattern(
+                section_name, params_for_base
+            )
 
         if not base_pattern:
             return None

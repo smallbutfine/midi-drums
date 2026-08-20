@@ -122,14 +122,30 @@ class RockGenrePlugin(GenrePlugin):
         if section == "verse":
             return [
                 self._generate_verse_pattern(style, parameters, time_sig),
-                self._classic_rock_versesyncopated(time_sig) if style == "classic" else None,
-                self._classic_rock_sparse(time_sig) if style == "classic" else None,
+                (
+                    self._classic_rock_versesyncopated(time_sig)
+                    if style == "classic"
+                    else None
+                ),
+                (
+                    self._classic_rock_sparse(time_sig)
+                    if style == "classic"
+                    else None
+                ),
             ]
         elif section == "chorus":
             return [
                 self._generate_chorus_pattern(style, parameters, time_sig),
-                self._classic_rock_chorus_rich(time_sig) if style == "classic" else None,
-                self._classic_rock_chorus_doublekicks(time_sig) if style == "classic" else None,
+                (
+                    self._classic_rock_chorus_rich(time_sig)
+                    if style == "classic"
+                    else None
+                ),
+                (
+                    self._classic_rock_chorus_doublekicks(time_sig)
+                    if style == "classic"
+                    else None
+                ),
             ]
         elif section == "bridge":
             return [
@@ -145,9 +161,13 @@ class RockGenrePlugin(GenrePlugin):
             ]
         elif section in ("intro", "outro"):
             return [
-                self._generate_intro_pattern(style, parameters, time_sig)
-                if section == "intro"
-                else self._generate_outro_pattern(style, parameters, time_sig),
+                (
+                    self._generate_intro_pattern(style, parameters, time_sig)
+                    if section == "intro"
+                    else self._generate_outro_pattern(
+                        style, parameters, time_sig
+                    )
+                ),
             ]
         return [self._generate_verse_pattern(style, parameters, time_sig)]
 
@@ -614,7 +634,9 @@ class RockGenrePlugin(GenrePlugin):
         builder = PatternBuilder("rock_classic_chorus_dk", time_sig)
         for beat in range(4):
             base = beat * 1.0
-            builder.kick(base, 115).kick(base + 0.25, 105).kick(base + 0.75, 105)
+            builder.kick(base, 115).kick(base + 0.25, 105).kick(
+                base + 0.75, 105
+            )
         builder.snare(1.0, 120).snare(3.0, 120)
         for i in range(8):
             builder.hihat(i * 0.5, 80)

@@ -651,14 +651,30 @@ class FunkGenrePlugin(GenrePlugin):
         if section == "verse":
             return [
                 self._generate_verse_pattern(style, parameters, time_sig),
-                self._classic_funk_vers_ghostdense(time_sig) if style == "classic" else None,
-                self._classic_funk_versyncopated(time_sig) if style == "classic" else None,
+                (
+                    self._classic_funk_vers_ghostdense(time_sig)
+                    if style == "classic"
+                    else None
+                ),
+                (
+                    self._classic_funk_versyncopated(time_sig)
+                    if style == "classic"
+                    else None
+                ),
             ]
         elif section == "chorus":
             return [
                 self._generate_chorus_pattern(style, parameters, time_sig),
-                self._classic_funk_chorus_minimal(time_sig) if style == "classic" else None,
-                self._classic_funk_chorus_heavygroove(time_sig) if style == "classic" else None,
+                (
+                    self._classic_funk_chorus_minimal(time_sig)
+                    if style == "classic"
+                    else None
+                ),
+                (
+                    self._classic_funk_chorus_heavygroove(time_sig)
+                    if style == "classic"
+                    else None
+                ),
             ]
         elif section == "bridge":
             return [
@@ -674,9 +690,13 @@ class FunkGenrePlugin(GenrePlugin):
             ]
         elif section in ("intro", "outro"):
             return [
-                self._generate_intro_pattern(style, parameters, time_sig)
-                if section == "intro"
-                else self._generate_outro_pattern(style, parameters, time_sig),
+                (
+                    self._generate_intro_pattern(style, parameters, time_sig)
+                    if section == "intro"
+                    else self._generate_outro_pattern(
+                        style, parameters, time_sig
+                    )
+                ),
             ]
         return [self._generate_verse_pattern(style, parameters, time_sig)]
 
@@ -687,6 +707,7 @@ class FunkGenrePlugin(GenrePlugin):
     def _classic_funk_vers_ghostdense(self, time_sig):
         """Flavor 2 — ghost-note dense verse."""
         import random as _rand
+
         builder = PatternBuilder("funk_classic_verse_ghostdense", time_sig)
         builder.kick(0.0, 115).kick(2.5, 100)
         builder.snare(1.0, 115).snare(3.0, 115)
@@ -701,6 +722,7 @@ class FunkGenrePlugin(GenrePlugin):
     def _classic_funk_versyncopated(self, time_sig):
         """Flavor 3 — syncopated funk verse."""
         import random as _rand
+
         builder = PatternBuilder("funk_classic_verse_syncop", time_sig)
         for pos in [0.0, 1.25, 2.0, 3.5]:
             builder.kick(pos, 110 + _rand.randint(-8, 8))
@@ -713,6 +735,7 @@ class FunkGenrePlugin(GenrePlugin):
     def _classic_funk_chorus_minimal(self, time_sig):
         """Flavor 2 — minimal chorus (tight groove)."""
         import random as _rand
+
         builder = PatternBuilder("funk_classic_chorus_minimal", time_sig)
         builder.kick(0.0, 115).kick(2.0, 105)
         builder.snare(1.0, 120).snare(3.0, 120)
@@ -724,6 +747,7 @@ class FunkGenrePlugin(GenrePlugin):
     def _classic_funk_chorus_heavygroove(self, time_sig):
         """Flavor 3 — heavy groove chorus."""
         import random as _rand
+
         builder = PatternBuilder("funk_classic_chorus_heavy", time_sig)
         for beat in range(4):
             base = beat * 1.0
@@ -738,6 +762,7 @@ class FunkGenrePlugin(GenrePlugin):
     def _bridge_minimal(self, time_sig):
         """Bridge flavor — minimal."""
         import random as _rand
+
         builder = PatternBuilder("funk_bridge_minimal", time_sig)
         builder.kick(0.0, 100)
         builder.snare(2.0, 105)
@@ -749,6 +774,7 @@ class FunkGenrePlugin(GenrePlugin):
     def _bridge_fusion(self, time_sig):
         """Bridge flavor — fusion."""
         import random as _rand
+
         builder = PatternBuilder("funk_bridge_fusion", time_sig)
         for pos in [0.0, 1.5, 2.5, 3.75]:
             builder.kick(pos, 100 + _rand.randint(-8, 8))
@@ -761,6 +787,7 @@ class FunkGenrePlugin(GenrePlugin):
     def _breakdown_pocket(self, time_sig):
         """Breakdown flavor — pocket groove."""
         import random as _rand
+
         builder = PatternBuilder("funk_breakdown_pocket", time_sig)
         for pos in [0.0, 1.25, 2.75, 3.5]:
             builder.kick(pos, 115 + _rand.randint(-8, 8))
@@ -773,6 +800,7 @@ class FunkGenrePlugin(GenrePlugin):
     def _breakdown_stripped(self, time_sig):
         """Breakdown flavor — stripped down."""
         import random as _rand
+
         builder = PatternBuilder("funk_breakdown_stripped", time_sig)
         builder.kick(0.0, 120).kick(2.0, 105)
         for i in range(4):
@@ -783,4 +811,5 @@ class FunkGenrePlugin(GenrePlugin):
     def _time_signature(self, parameters):
         """Helper to get time signature (default 4/4 for funk)."""
         from midi_drums.core.value_objects.time_signature import TimeSignature
+
         return TimeSignature(4, 4)
