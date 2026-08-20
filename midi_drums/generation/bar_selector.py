@@ -73,7 +73,11 @@ class BarSelector:
             # Apply density_factor as a velocity boost (not removal) for dense patterns
             # This preserves the full skeleton but modulates energy
             new_velocity = max(
-                1, min(127, beat.velocity + scaled_velocity_bias + rng.randint(-3, 3))
+                1,
+                min(
+                    127,
+                    beat.velocity + scaled_velocity_bias + rng.randint(-3, 3),
+                ),
             )
 
             # For low complexity bars (<0.5), reduce velocity proportionally
@@ -114,7 +118,11 @@ class BarSelector:
     ) -> None:
         """Add drummer-specific per-bar variations to beat list."""
         beats_per_bar = base_pattern.time_signature.beats_per_bar
-        section_pos = bar_index / max(1, section_length - 1) if section_length > 1 else 0.5
+        section_pos = (
+            bar_index / max(1, section_length - 1)
+            if section_length > 1
+            else 0.5
+        )
 
         # Bonham: triplet-feel fills appear more often in later bars
         if drummer_name and "bonham" in drummer_name.lower():
@@ -124,7 +132,10 @@ class BarSelector:
                     Beat(
                         position=pos,
                         instrument=DrumInstrument.FLOOR_TOM,
-                        velocity=max(1, min(127, VELOCITY.TOM_HEAVY + rng.randint(-10, 10))),
+                        velocity=max(
+                            1,
+                            min(127, VELOCITY.TOM_HEAVY + rng.randint(-10, 10)),
+                        ),
                         duration=0.4,
                     )
                 )
@@ -138,7 +149,13 @@ class BarSelector:
                         Beat(
                             position=pos,
                             instrument=DrumInstrument.SNARE,
-                            velocity=max(1, min(127, VELOCITY.SNARE_GHOST + rng.randint(-5, 10))),
+                            velocity=max(
+                                1,
+                                min(
+                                    127,
+                                    VELOCITY.SNARE_GHOST + rng.randint(-5, 10),
+                                ),
+                            ),
                             duration=0.1,
                             ghost_note=True,
                         )
@@ -150,7 +167,10 @@ class BarSelector:
                 Beat(
                     position=beats_per_bar * 3.5,
                     instrument=DrumInstrument.CRASH,
-                    velocity=max(1, min(127, VELOCITY.CRASH_ACCENT + rng.randint(-10, 15))),
+                    velocity=max(
+                        1,
+                        min(127, VELOCITY.CRASH_ACCENT + rng.randint(-10, 15)),
+                    ),
                     duration=0.8,
                 )
             )

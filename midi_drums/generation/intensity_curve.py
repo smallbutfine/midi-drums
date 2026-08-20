@@ -102,16 +102,19 @@ def interpolate_curve(
     lower_pt = curve_points[0]
     upper_pt = curve_points[-1]
     for i in range(len(curve_points) - 1):
-        if curve_points[i].position <= t * last_pos + first_pos * (
-            1 - t
-        ):
+        if curve_points[i].position <= t * last_pos + first_pos * (1 - t):
             lower_pt = curve_points[i]
         else:
             upper_pt = curve_points[i + 1]
 
     # Linear interpolation
-    frac = 0.0 if lower_pt.position == upper_pt.position else (
-        (position - lower_pt.position) / (upper_pt.position - lower_pt.position)
+    frac = (
+        0.0
+        if lower_pt.position == upper_pt.position
+        else (
+            (position - lower_pt.position)
+            / (upper_pt.position - lower_pt.position)
+        )
     )
     complexity = lower_pt.complexity_multiplier + frac * (
         upper_pt.complexity_multiplier - lower_pt.complexity_multiplier

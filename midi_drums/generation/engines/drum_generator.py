@@ -18,7 +18,9 @@ logger = logging.getLogger(__name__)
 class DrumGenerator:
     """Main drum generation engine."""
 
-    def __init__(self, config_path: Path | None = None, composer_engine: str = "v1"):
+    def __init__(
+        self, config_path: Path | None = None, composer_engine: str = "v1"
+    ):
         """Initialize drum generator with optional configuration.
 
         Args:
@@ -34,7 +36,7 @@ class DrumGenerator:
 
         # Load plugins
         self._load_plugins()
-        
+
         # Store composer engine choice
         self.composer_engine = composer_engine
 

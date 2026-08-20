@@ -12,7 +12,7 @@ from __future__ import annotations
 import logging
 from typing import TYPE_CHECKING
 
-from midi_drums.core.models.pattern import Pattern, Beat
+from midi_drums.core.models.pattern import Beat, Pattern
 from midi_drums.core.models.song import Fill, Section, Song
 from midi_drums.core.value_objects.generation_parameters import (
     GenerationParameters,
@@ -82,7 +82,9 @@ class ComposerV2:
                 curve = curve_map.get(section_name, IntensityCurve.PLATEAU)
                 # Flatten tuple of lists from enum value into single list
                 all_points = [pt for pts in curve.value for pt in pts]
-                intensity_pt = interpolate_curve(all_points, bar_index / max(1, bars - 1))
+                intensity_pt = interpolate_curve(
+                    all_points, bar_index / max(1, bars - 1)
+                )
 
                 # Generate base pattern from genre plugin (skeleton)
                 # We'll modify it per-bar in the selector
@@ -99,12 +101,16 @@ class ComposerV2:
                 # Apply drummer style to this specific bar's skeleton
                 drummed_pattern = base_bar_pattern
                 if params.drummer:
-                    drummer_plugin = self.plugin_manager.registry.get_drummer_plugin(
-                        params.drummer
+                    drummer_plugin = (
+                        self.plugin_manager.registry.get_drummer_plugin(
+                            params.drummer
+                        )
                     )
                     if drummer_plugin:
-                        drummed_pattern = drummer_plugin.apply_style(base_bar_pattern)
-        
+                        drummed_pattern = drummer_plugin.apply_style(
+                            base_bar_pattern
+                        )
+
                 # Final bar-level modulation (density, complexity, etc.)
                 final_pattern = self.bar_selector.generate_for_bar(
                     drummed_pattern,
@@ -115,12 +121,13 @@ class ComposerV2:
                     previous_bars=generated_bars,
                 )
 
-                
                 generated_bars.append(final_pattern)
 
             # If we have individual bar patterns, combine them into a section
             if generated_bars:
-                combined = self._combine_bar_patterns(generated_bars, genre_plugin, params)
+                combined = self._combine_bar_patterns(
+                    generated_bars, genre_plugin, params
+                )
 
                 # Determine fill placement based on section context
                 fills = self._generate_context_aware_fills(genre, params, bars)
@@ -142,7 +149,9 @@ class ComposerV2:
 
         for i, (section_name, _bars) in enumerate(structure):
             prev_section = section_names[i - 1] if i > 0 else None
-            next_section = section_names[i + 1] if i < len(structure) - 1 else None
+            next_section = (
+                section_names[i + 1] if i < len(structure) - 1 else None
+            )
 
             # Assign curves based on musical context
             if section_name == "intro":
@@ -150,7 +159,9 @@ class ComposerV2:
             elif section_name == "verse" and prev_section == "chorus":
                 # Post-chorus verse: start lower then build
                 curve_map[section_name] = IntensityCurve.DIP_RISE
-            elif section_name == "verse" and (prev_section == "bridge" or i < 2):
+            elif section_name == "verse" and (
+                prev_section == "bridge" or i < 2
+            ):
                 # First verse after bridge: build up
                 curve_map[section_name] = IntensityCurve.STEPS
             elif section_name == "chorus":
@@ -184,14 +195,17 @@ class ComposerV2:
 
         For sections that are one-bar loops (most common), returns a single-bar slice
         of the genre plugin's pattern. For multi-bar patterns, cycles through bars.
-        
+
         Returns a one-bar pattern with intensity-appropriate density and velocities.
         """
-        from midi_drums.generation.builders.pattern_builder import PatternBuilder
+        from midi_drums.generation.builders.pattern_builder import (
+            PatternBuilder,
+        )
 
         beats_per_bar = (
             global_params.time_signature.beats_per_bar
-            if hasattr(global_params, "time_signature") and global_params.time_signature
+            if hasattr(global_params, "time_signature")
+            and global_params.time_signature
             else 4
         )
 
@@ -208,7 +222,9 @@ class ComposerV2:
             style=global_params.style,
             **base_params_dict,
         )
-        base_pattern = genre_plugin.generate_pattern(section_name, params_for_base)
+        base_pattern = genre_plugin.generate_pattern(
+            section_name, params_for_base
+        )
 
         if not base_pattern:
             return None
@@ -220,7 +236,7 @@ class ComposerV2:
             num_bars_in_pattern = int(max_pos / beats_per_bar) + 1
         else:
             num_bars_in_pattern = 1
-        
+
         target_bar = bar_index % num_bars_in_pattern
 
         start_pos = target_bar * beats_per_bar
@@ -265,7 +281,9 @@ class ComposerV2:
             total_beats += len(bar.beats)
 
         # Set time signature from first bar
-        combined.time_signature = bars[0].time_signature if bars else TimeSignature()
+        combined.time_signature = (
+            bars[0].time_signature if bars else TimeSignature()
+        )
         return combined
 
     def _generate_context_aware_fills(
@@ -274,12 +292,18 @@ class ComposerV2:
         """Generate fills based on section context and drummer."""
         # If drummer has signature fills, use those preferentially
         if params.drummer:
-            drummer_plugin = self.plugin_manager.registry.get_drummer_plugin(params.drummer)
+            drummer_plugin = self.plugin_manager.registry.get_drummer_plugin(
+                params.drummer
+            )
             if drummer_plugin:
                 signature_fills = drummer_plugin.get_signature_fills()
                 if signature_fills:
                     # Return only fills appropriate for end of section
-                    return [f for f in signature_fills if f.section_position == "end"]
+                    return [
+                        f
+                        for f in signature_fills
+                        if f.section_position == "end"
+                    ]
 
         # Fallback to genre common fills
         genre_plugin = self.plugin_manager.registry.get_genre_plugin(genre)

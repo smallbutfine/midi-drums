@@ -82,7 +82,9 @@ class HoglanPlugin(DrummerPlugin):
             pos = i * 0.5
             variant = "3" if i % 2 == 0 else "FLOOR"
             builder.tom_edge(
-                pos, variant, min(VELOCITY.TOM_ACCENT + random.randint(-5, 10), 127)
+                pos,
+                variant,
+                min(VELOCITY.TOM_ACCENT + random.randint(-5, 10), 127),
             )
 
         # Choked crash cutoff (AD2 crash_choked - sharp "chick" to end the blast)
