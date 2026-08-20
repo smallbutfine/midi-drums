@@ -315,7 +315,7 @@ class ComposerV2:
         total_beats = 0
         beats_per_bar = (
             global_params.time_signature.beats_per_bar
-            if hasattr(global_params, 'time_signature')
+            if hasattr(global_params, "time_signature")
             and global_params.time_signature
             else 4
         )
