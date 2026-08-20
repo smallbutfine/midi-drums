@@ -18,17 +18,16 @@ logger = logging.getLogger(__name__)
 class DrumGenerator:
     """Main drum generation engine."""
 
-    def __init__(
-        self, config_path: Path | None = None, composer_engine: str = "v1"
-    ):
+    def __init__(self, config_path: Path | None = None, composer_engine: str = "v2"):
         """Initialize drum generator with optional configuration.
 
         Args:
             config_path: Optional path to configuration file.
             composer_engine: Composition engine to use.
-                - "v1": Static pattern reuse (original behavior, default).
-                - "v2": Bar-by-bar evolution with intensity curves and
-                  drummer per-bar variation.
+                - "v2" (default): Bar-by-bar evolution with intensity curves
+                  and drummer per-bar variation. This is the recommended mode.
+                - "v1": Static pattern reuse (original behavior, preserved for
+                  backward compatibility).
         """
         self.plugin_manager = PluginManager()
         self.drum_kit = DrumKit.create_ezdrummer3_kit()
@@ -129,6 +128,7 @@ class DrumGenerator:
         tempo: int = 120,
         structure: list[tuple[str, int]] | None = None,
         drum_kit: DrumKit | None = None,
+        composer_engine: str | None = None,
         **kwargs,
     ) -> Song:
         """Create a complete song structure.
@@ -141,6 +141,9 @@ class DrumGenerator:
                 default structure.
             drum_kit: Optional DrumKit for MIDI mapping. If None, uses
                 current kit.
+            composer_engine: Override engine for this call. "v2" (default) uses
+                bar-by-bar evolution; "v1" uses static pattern reuse. If None,
+                uses the generator's configured engine.
             **kwargs: Additional parameters for GenerationParameters
 
         Returns:
@@ -151,8 +154,33 @@ class DrumGenerator:
             self.midi_engine = MIDIEngine(drum_kit)
             self.drum_kit = drum_kit
 
-        # Create generation parameters
-        params = GenerationParameters(genre=genre, style=style, **kwargs)
+        # Resolve composer engine for this call
+        engine = composer_engine or self.composer_engine
+        
+        # Use Engine V2 (bar-by-bar evolution) by default
+        if engine == "v2":
+            from midi_drums.generation.composer_v2 import ComposerV2
+
+            if structure is None:
+                structure = [
+                    ("intro", 4),
+                    ("verse", 8),
+                    ("chorus", 8),
+                    ("verse", 8),
+                    ("chorus", 8),
+                    ("bridge", 4),
+                    ("chorus", 8),
+                    ("outro", 4),
+                ]
+
+            composer = ComposerV2(self.plugin_manager)
+            return composer.create_song(
+                genre=genre,
+                style=style,
+                tempo=tempo,
+                structure=structure,
+                **kwargs,
+            )
 
         # Use default structure if none provided
         if structure is None:
@@ -167,7 +195,23 @@ class DrumGenerator:
                 ("outro", 4),
             ]
 
-        # Create song with basic structure
+
+        # Engine V1: original static pattern reuse
+        # Create generation parameters
+        params = GenerationParameters(genre=genre, style=style, **kwargs)
+
+        if structure is None:
+            structure = [
+                ("intro", 4),
+                ("verse", 8),
+                ("chorus", 8),
+                ("verse", 8),
+                ("chorus", 8),
+                ("bridge", 4),
+                ("chorus", 8),
+                ("outro", 4),
+            ]
+
         song = Song(
             name=f"{genre}_{style}_song", tempo=tempo, global_parameters=params
         )
