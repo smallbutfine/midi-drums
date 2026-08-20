@@ -1,0 +1,289 @@
+"""ComposerV2 — bar-by-bar song composition engine.
+
+Replaces the static "generate once, repeat N bars" loop in DrumGenerator.create_song()
+with per-bar pattern generation using BarSelector and IntensityCurve.
+
+Compatible with v1 (static patterns) — call via create_song_v2() or set
+composer_engine="v2" in DrumGenerator().
+"""
+
+from __future__ import annotations
+
+import logging
+from typing import TYPE_CHECKING
+
+from midi_drums.core.models.pattern import Pattern, Beat
+from midi_drums.core.models.song import Fill, Section, Song
+from midi_drums.core.value_objects.generation_parameters import (
+    GenerationParameters,
+)
+from midi_drums.core.value_objects.time_signature import TimeSignature
+from midi_drums.generation.bar_selector import BarSelector
+from midi_drums.generation.intensity_curve import (
+    IntensityCurve,
+    interpolate_curve,
+)
+
+if TYPE_CHECKING:
+    from midi_drums.plugins.registry.plugin_registry import PluginManager
+
+logger = logging.getLogger(__name__)
+
+
+class ComposerV2:
+    """Bar-by-bar song composition engine."""
+
+    def __init__(self, plugin_manager: PluginManager, seed: int | None = None):
+        self.plugin_manager = plugin_manager
+        self.bar_selector = BarSelector(seed=seed)
+
+    def create_song(
+        self,
+        genre: str,
+        style: str,
+        tempo: int,
+        structure: list[tuple[str, int]],
+        **kwargs,
+    ) -> Song:
+        """Create a complete song with bar-by-bar pattern evolution.
+
+        Args:
+            genre: Genre name (e.g., 'metal', 'rock').
+            style: Style within genre (e.g., 'death', 'power').
+            tempo: Tempo in BPM.
+            structure: List of (section_name, bars) tuples.
+            **kwargs: Additional parameters for GenerationParameters
+                (complexity, drummer, humanization, dynamics, etc.).
+
+        Returns:
+            Complete Song object with unique patterns per bar.
+        """
+        params = GenerationParameters(genre=genre, style=style, **kwargs)
+        song = Song(
+            name=f"{genre}_{style}_song",
+            tempo=tempo,
+            global_parameters=params,
+        )
+
+        # Determine section-specific intensity curves
+        curve_map = self._get_section_curve_map(structure)
+
+        for section_name, bars in structure:
+            # Generate a unique pattern for each bar
+            generated_bars: list[Pattern] = []
+
+            genre_plugin = self.plugin_manager.registry.get_genre_plugin(genre)
+            if not genre_plugin:
+                logger.warning(f"No genre plugin found for {genre}")
+                continue
+
+            for bar_index in range(bars):
+                # Get intensity point for this bar position
+                curve = curve_map.get(section_name, IntensityCurve.PLATEAU)
+                # Flatten tuple of lists from enum value into single list
+                all_points = [pt for pts in curve.value for pt in pts]
+                intensity_pt = interpolate_curve(all_points, bar_index / max(1, bars - 1))
+
+                # Generate base pattern from genre plugin (skeleton)
+                # We'll modify it per-bar in the selector
+                # Generate base pattern directly - no separate params needed for skeleton
+
+                # Generate a unique beat-by-beat skeleton for this bar
+                base_bar_pattern = self._generate_base_bar(
+                    genre_plugin, section_name, params, bar_index, intensity_pt
+                )
+
+                if not base_bar_pattern:
+                    continue
+
+                # Apply drummer style to this specific bar's skeleton
+                drummed_pattern = base_bar_pattern
+                if params.drummer:
+                    drummer_plugin = self.plugin_manager.registry.get_drummer_plugin(
+                        params.drummer
+                    )
+                    if drummer_plugin:
+                        drummed_pattern = drummer_plugin.apply_style(base_bar_pattern)
+        
+                # Final bar-level modulation (density, complexity, etc.)
+                final_pattern = self.bar_selector.generate_for_bar(
+                    drummed_pattern,
+                    bar_index,
+                    bars,
+                    intensity_pt,
+                    drummer_name=params.drummer,
+                    previous_bars=generated_bars,
+                )
+
+                
+                generated_bars.append(final_pattern)
+
+            # If we have individual bar patterns, combine them into a section
+            if generated_bars:
+                combined = self._combine_bar_patterns(generated_bars, genre_plugin, params)
+
+                # Determine fill placement based on section context
+                fills = self._generate_context_aware_fills(genre, params, bars)
+
+                section = Section(section_name, combined, bars, fills=fills)
+                song.add_section(section)
+
+        return song
+
+    def _get_section_curve_map(
+        self, structure: list[tuple[str, int]]
+    ) -> dict[str, IntensityCurve]:
+        """Assign intensity curves based on section names and neighbors."""
+        curve_map = {}
+        section_names = [name for name, _ in structure]
+
+        # Find chorus positions for post-chorus dips
+        # _chorus_indices used for future pre-chorus curve adjustments
+
+        for i, (section_name, _bars) in enumerate(structure):
+            prev_section = section_names[i - 1] if i > 0 else None
+            next_section = section_names[i + 1] if i < len(structure) - 1 else None
+
+            # Assign curves based on musical context
+            if section_name == "intro":
+                curve_map[section_name] = IntensityCurve.ASCENDING
+            elif section_name == "verse" and prev_section == "chorus":
+                # Post-chorus verse: start lower then build
+                curve_map[section_name] = IntensityCurve.DIP_RISE
+            elif section_name == "verse" and (prev_section == "bridge" or i < 2):
+                # First verse after bridge: build up
+                curve_map[section_name] = IntensityCurve.STEPS
+            elif section_name == "chorus":
+                # Choruses maintain energy with a plateau
+                curve_map[section_name] = IntensityCurve.PLATEAU
+            elif section_name == "bridge":
+                # Bridge: dip then rise (setup for final chorus)
+                if next_section == "chorus":
+                    curve_map[section_name] = IntensityCurve.DIP_RISE
+                else:
+                    curve_map[section_name] = IntensityCurve.DESCENDING
+            elif section_name == "breakdown":
+                # Breakdown: drop to sparse, then build back
+                curve_map[section_name] = IntensityCurve.DESCCENDING
+            elif section_name == "outro":
+                curve_map[section_name] = IntensityCurve.DESCENDING
+            else:
+                curve_map[section_name] = IntensityCurve.PLATEAU
+
+        return curve_map
+
+    def _generate_base_bar(
+        self,
+        genre_plugin,
+        section_name: str,
+        global_params: GenerationParameters,
+        bar_index: int,
+        intensity_pt,
+    ) -> Pattern | None:
+        """Generate the raw beat skeleton for this specific bar (before drummer style).
+
+        For sections that are one-bar loops (most common), returns a single-bar slice
+        of the genre plugin's pattern. For multi-bar patterns, cycles through bars.
+        
+        Returns a one-bar pattern with intensity-appropriate density and velocities.
+        """
+        from midi_drums.generation.builders.pattern_builder import PatternBuilder
+
+        beats_per_bar = (
+            global_params.time_signature.beats_per_bar
+            if hasattr(global_params, "time_signature") and global_params.time_signature
+            else 4
+        )
+
+        builder = PatternBuilder(f"{section_name}_bar{bar_index}")
+
+        # Use the genre plugin to generate a base pattern for this section
+        base_params_dict = {
+            k: v
+            for k, v in vars(global_params).items()
+            if not (k == "genre" or k == "style")
+        }
+        params_for_base = GenerationParameters(
+            genre=global_params.genre,
+            style=global_params.style,
+            **base_params_dict,
+        )
+        base_pattern = genre_plugin.generate_pattern(section_name, params_for_base)
+
+        if not base_pattern:
+            return None
+
+        # If the pattern spans multiple bars, cycle through them based on bar_index.
+        # This ensures each bar gets a different subset of the multi-bar skeleton.
+        if base_pattern.beats:
+            max_pos = max(b.position for b in base_pattern.beats)
+            num_bars_in_pattern = int(max_pos / beats_per_bar) + 1
+        else:
+            num_bars_in_pattern = 1
+        
+        target_bar = bar_index % num_bars_in_pattern
+
+        start_pos = target_bar * beats_per_bar
+        end_pos = start_pos + beats_per_bar
+
+        for beat in base_pattern.beats:
+            if start_pos <= beat.position < end_pos:
+                bar_pos = beat.position - start_pos
+                builder.pattern.add_beat(
+                    bar_pos,
+                    beat.instrument,
+                    max(1, min(127, beat.velocity)),
+                )
+
+        return builder.build()
+
+    def _combine_bar_patterns(
+        self, bars: list[Pattern], genre_plugin, global_params
+    ) -> Pattern:
+        """Combine individual bar patterns into a single section pattern.
+
+        The result is the union of all beats across bars, with proper offset.
+        """
+
+        combined = Pattern(f"{bars[0].name.replace('_bar*', '')}_combined")
+        total_beats = 0
+
+        for bar in bars:
+
+            for beat in bar.beats:
+                combined.beats.append(
+                    Beat(
+                        position=beat.position,
+                        instrument=beat.instrument,
+                        velocity=beat.velocity,
+                        duration=beat.duration,
+                        ghost_note=beat.ghost_note,
+                        accent=beat.accent,
+                        instrument_promoted=beat.instrument_promoted,
+                    )
+                )
+            total_beats += len(bar.beats)
+
+        # Set time signature from first bar
+        combined.time_signature = bars[0].time_signature if bars else TimeSignature()
+        return combined
+
+    def _generate_context_aware_fills(
+        self, genre: str, params: GenerationParameters, section_bars: int
+    ) -> list[Fill]:
+        """Generate fills based on section context and drummer."""
+        # If drummer has signature fills, use those preferentially
+        if params.drummer:
+            drummer_plugin = self.plugin_manager.registry.get_drummer_plugin(params.drummer)
+            if drummer_plugin:
+                signature_fills = drummer_plugin.get_signature_fills()
+                if signature_fills:
+                    # Return only fills appropriate for end of section
+                    return [f for f in signature_fills if f.section_position == "end"]
+
+        # Fallback to genre common fills
+        genre_plugin = self.plugin_manager.registry.get_genre_plugin(genre)
+        if genre_plugin:
+            return genre_plugin.get_common_fills()
+
+        return []

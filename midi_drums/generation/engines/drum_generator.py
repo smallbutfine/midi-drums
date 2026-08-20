@@ -18,14 +18,93 @@ logger = logging.getLogger(__name__)
 class DrumGenerator:
     """Main drum generation engine."""
 
-    def __init__(self, config_path: Path | None = None):
-        """Initialize drum generator with optional configuration."""
+    def __init__(self, config_path: Path | None = None, composer_engine: str = "v1"):
+        """Initialize drum generator with optional configuration.
+
+        Args:
+            config_path: Optional path to configuration file.
+            composer_engine: Composition engine to use.
+                - "v1": Static pattern reuse (original behavior, default).
+                - "v2": Bar-by-bar evolution with intensity curves and
+                  drummer per-bar variation.
+        """
         self.plugin_manager = PluginManager()
         self.drum_kit = DrumKit.create_ezdrummer3_kit()
         self.midi_engine = MIDIEngine(self.drum_kit)
 
         # Load plugins
         self._load_plugins()
+        
+        # Store composer engine choice
+        self.composer_engine = composer_engine
+
+    def create_song_v2(
+        self,
+        genre: str,
+        style: str = "default",
+        tempo: int = 120,
+        structure: list[tuple[str, int]] | None = None,
+        drum_kit: DrumKit | None = None,
+        **kwargs,
+    ) -> Song:
+        """Create a complete song with bar-by-bar pattern evolution (Engine v2).
+
+        Each bar within each section gets a unique pattern shaped by:
+        - Intensity curves (section arcs like ASCENDING, PLATEAU, DIP_RISE)
+        - Drummer personality (per-bar variations specific to each drummer)
+        - Section context (verse after bridge vs. first verse)
+
+        Args:
+            genre: Genre name (e.g., 'metal', 'rock')
+            style: Style within genre (e.g., 'death', 'power' for metal)
+            tempo: Tempo in BPM
+            structure: List of (section_name, bars) tuples. If None, uses
+                default structure.
+            drum_kit: Optional DrumKit for MIDI mapping. If None, uses
+                current kit.
+            **kwargs: Additional parameters for GenerationParameters
+
+        Returns:
+            Complete Song object with unique patterns per bar
+
+        Example:
+            # Generate with bar-by-bar evolution (Engine v2)
+            generator = DrumGenerator(composer_engine="v2")
+            song = generator.create_song_v2(
+                "metal", "death", tempo=180, complexity=0.8, drummer="hoglan"
+            )
+
+        See also: :meth:`create_song` (Engine v1 - original static behavior)
+        """
+        # Update MIDI engine if new drum kit provided
+        if drum_kit:
+            self.midi_engine = MIDIEngine(drum_kit)
+            self.drum_kit = drum_kit
+
+        from midi_drums.generation.composer_v2 import ComposerV2
+
+        # Use default structure if none provided
+        if structure is None:
+            structure = [
+                ("intro", 4),
+                ("verse", 8),
+                ("chorus", 8),
+                ("verse", 8),
+                ("chorus", 8),
+                ("bridge", 4),
+                ("chorus", 8),
+                ("outro", 4),
+            ]
+
+        composer = ComposerV2(self.plugin_manager)
+        song = composer.create_song(
+            genre=genre,
+            style=style,
+            tempo=tempo,
+            structure=structure,
+            **kwargs,
+        )
+        return song
 
     def _load_plugins(self) -> None:
         """Load all available plugins."""
