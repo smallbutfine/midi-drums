@@ -411,8 +411,12 @@ class JazzGenrePlugin(GenrePlugin):
             builder.ride(pos, min(127, velocity))
 
         # Ride bell accents for fusion texture
-        builder.ride_bell(0.5, VELOCITY.RIDE_BELL_ACCENT + random.randint(-2, 3))
-        builder.ride_bell(2.5, VELOCITY.RIDE_BELL_ACCENT + random.randint(-2, 3))
+        builder.ride_bell(
+            0.5, VELOCITY.RIDE_BELL_ACCENT + random.randint(-2, 3)
+        )
+        builder.ride_bell(
+            2.5, VELOCITY.RIDE_BELL_ACCENT + random.randint(-2, 3)
+        )
 
         # More aggressive kick pattern
         kick_pattern = [0.0, 1.5, 2.25, 3.75]
@@ -430,7 +434,9 @@ class JazzGenrePlugin(GenrePlugin):
 
         # Choked crash on syncopated accents
         if random.random() < 0.4:
-            builder.crash_choked(random.choice([1.5, 2.5]), "B", VELOCITY.CRASH_ACCENT)
+            builder.crash_choked(
+                random.choice([1.5, 2.5]), "B", VELOCITY.CRASH_ACCENT
+            )
 
         return builder.build()
 
@@ -484,7 +490,9 @@ class JazzGenrePlugin(GenrePlugin):
 
         # Choked crash on off-beats for Latin punctuation
         if random.random() < 0.3:
-            builder.crash_choked(random.choice([0.75, 1.75, 3.5]), "D", VELOCITY.CRASH_ACCENT)
+            builder.crash_choked(
+                random.choice([0.75, 1.75, 3.5]), "D", VELOCITY.CRASH_ACCENT
+            )
 
         return builder.build()
 
@@ -574,7 +582,9 @@ class JazzGenrePlugin(GenrePlugin):
             builder.ride(pos, velocity)
 
         # Ride bell accents for modern texture
-        builder.ride_bell(0.0, VELOCITY.RIDE_BELL_ACCENT + random.randint(-2, 3))
+        builder.ride_bell(
+            0.0, VELOCITY.RIDE_BELL_ACCENT + random.randint(-2, 3)
+        )
 
         # Modern comping patterns with tom_edge
         builder.kick(0.25, 80).kick(2.75, 85)

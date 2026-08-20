@@ -277,7 +277,9 @@ class FunkGenrePlugin(GenrePlugin):
         # Snare backbeat with tom_edge accent (tight metallic rim sound on the one)
         builder.snare(1.0, VELOCITY.SNARE_HEAVY)  # Strong backbeat
         builder.snare(3.0, VELOCITY.SNARE_HEAVY)  # Strong backbeat
-        builder.tom_edge(0.0, "MID", VELOCITY.TOM_HEAVY - 2)  # Accent on the one
+        builder.tom_edge(
+            0.0, "MID", VELOCITY.TOM_HEAVY - 2
+        )  # Accent on the one
 
         # Occasional rimshot on the one for variety
         if random.random() < 0.4:
@@ -337,7 +339,9 @@ class FunkGenrePlugin(GenrePlugin):
         # Maximum emphasis on "the one"
         builder.kick(0.0, 120)  # "The one" is everything
         builder.snare(0.0, 100)  # Reinforce with snare
-        builder.tom_edge(0.0, "FLOOR", VELOCITY.TOM_HEAVY)  # Floor tom emphasis on the one
+        builder.tom_edge(
+            0.0, "FLOOR", VELOCITY.TOM_HEAVY
+        )  # Floor tom emphasis on the one
 
         # Complex syncopated kick pattern
         p_funk_kicks = [0.75, 1.5, 2.25, 3.5]
@@ -362,8 +366,12 @@ class FunkGenrePlugin(GenrePlugin):
                 builder.tight_hh(pos, open=False, velocity=velocity)
 
         # Ride bell accents for syncopated P-Funk texture
-        builder.ride_bell(0.5, VELOCITY.RIDE_BELL_ACCENT + random.randint(-2, 3))
-        builder.ride_bell(2.5, VELOCITY.RIDE_BELL_ACCENT + random.randint(-2, 3))
+        builder.ride_bell(
+            0.5, VELOCITY.RIDE_BELL_ACCENT + random.randint(-2, 3)
+        )
+        builder.ride_bell(
+            2.5, VELOCITY.RIDE_BELL_ACCENT + random.randint(-2, 3)
+        )
 
         return builder.build()
 
@@ -451,7 +459,9 @@ class FunkGenrePlugin(GenrePlugin):
 
         # Choked crash on off-beats for Latin punctuation
         if random.random() < 0.3:
-            builder.crash_choked(random.choice([0.75, 2.5]), "D", VELOCITY.CRASH_ACCENT)
+            builder.crash_choked(
+                random.choice([0.75, 2.5]), "D", VELOCITY.CRASH_ACCENT
+            )
 
         return builder.build()
 
@@ -479,12 +489,18 @@ class FunkGenrePlugin(GenrePlugin):
             builder.tight_hh(pos, open=False, velocity=min(127, velocity))
 
         # Ride bell accents for fusion texture
-        builder.ride_bell(0.5, VELOCITY.RIDE_BELL_ACCENT + random.randint(-2, 3))
-        builder.ride_bell(2.5, VELOCITY.RIDE_BELL_ACCENT + random.randint(-2, 3))
+        builder.ride_bell(
+            0.5, VELOCITY.RIDE_BELL_ACCENT + random.randint(-2, 3)
+        )
+        builder.ride_bell(
+            2.5, VELOCITY.RIDE_BELL_ACCENT + random.randint(-2, 3)
+        )
 
         # Choked crash on syncopated accents
         if random.random() < 0.3:
-            builder.crash_choked(random.choice([1.5, 3.5]), "B", VELOCITY.CRASH_ACCENT)
+            builder.crash_choked(
+                random.choice([1.5, 3.5]), "B", VELOCITY.CRASH_ACCENT
+            )
 
         return builder.build()
 
@@ -554,8 +570,12 @@ class FunkGenrePlugin(GenrePlugin):
             builder.tight_hh(pos, open=False, velocity=velocity)
 
         # Ride bell accents for heavy funk texture
-        builder.ride_bell(1.0, VELOCITY.RIDE_BELL_ACCENT + random.randint(-2, 3))
-        builder.ride_bell(3.0, VELOCITY.RIDE_BELL_ACCENT + random.randint(-2, 3))
+        builder.ride_bell(
+            1.0, VELOCITY.RIDE_BELL_ACCENT + random.randint(-2, 3)
+        )
+        builder.ride_bell(
+            3.0, VELOCITY.RIDE_BELL_ACCENT + random.randint(-2, 3)
+        )
 
         # Choked crash on downbeat
         builder.crash_choked(0.0, "A", VELOCITY.CRASH_HEAVY)
