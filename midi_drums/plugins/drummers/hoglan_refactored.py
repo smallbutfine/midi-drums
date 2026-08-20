@@ -81,7 +81,9 @@ class HoglanPlugin(DrummerPlugin):
         for i in range(8):
             pos = i * 0.5
             variant = "3" if i % 2 == 0 else "FLOOR"
-            builder.tom_edge(pos, variant, VELOCITY.TOM_ACCENT + random.randint(-5, 10))
+            builder.tom_edge(
+                pos, variant, VELOCITY.TOM_ACCENT + random.randint(-5, 10)
+            )
 
         # Choked crash cutoff (AD2 crash_choked - sharp "chick" to end the blast)
         builder.crash_choked(4.0, "A", VELOCITY.CRASH_HEAVY)
@@ -105,7 +107,9 @@ class HoglanPlugin(DrummerPlugin):
             else:
                 builder.tom(pos, "MID", VELOCITY.TOM_ACCENT)
             # Rim accent
-            builder.tom_edge(pos + 0.5, "4" if beat % 2 == 0 else "3", VELOCITY.TOM_HEAVY)
+            builder.tom_edge(
+                pos + 0.5, "4" if beat % 2 == 0 else "3", VELOCITY.TOM_HEAVY
+            )
 
         return builder.build()
 
