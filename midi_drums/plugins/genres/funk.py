@@ -274,9 +274,11 @@ class FunkGenrePlugin(GenrePlugin):
             3.25, int(VELOCITY.KICK_NORMAL * 0.9)
         )
 
-        # Snare backbeat with ghost notes + rimshot accents
+        # Snare backbeat with tom_edge accent (tight metallic rim sound on the one)
         builder.snare(1.0, VELOCITY.SNARE_HEAVY)  # Strong backbeat
         builder.snare(3.0, VELOCITY.SNARE_HEAVY)  # Strong backbeat
+        builder.tom_edge(0.0, "MID", VELOCITY.TOM_HEAVY - 2)  # Accent on the one
+
         # Occasional rimshot on the one for variety
         if random.random() < 0.4:
             builder.snare_rimshot(1.0, VELOCITY.SNARE_RIMSHOT)
@@ -293,7 +295,7 @@ class FunkGenrePlugin(GenrePlugin):
                     ghost_note=True,
                 )
 
-        # Tight hi-hat comping (AD2 tight HH zones 90-91) on offbeats
+        # Tight HH comping (AD2 tight HH zones 90-91) on offbeats for funk character
         for i in range(16):
             pos = i * 0.25
             is_offbeat = i % 2 == 1
@@ -304,6 +306,10 @@ class FunkGenrePlugin(GenrePlugin):
                 builder.hihat(pos, VELOCITY.HIHAT_NORMAL + 5, open=True)
             else:
                 builder.tight_hh(pos, open=False)
+
+        # Choked crash accents for funk punctuation
+        if random.random() < 0.3:
+            builder.crash_choked(0.0, "A", VELOCITY.CRASH_ACCENT)
 
         return builder.build()
 
@@ -331,6 +337,7 @@ class FunkGenrePlugin(GenrePlugin):
         # Maximum emphasis on "the one"
         builder.kick(0.0, 120)  # "The one" is everything
         builder.snare(0.0, 100)  # Reinforce with snare
+        builder.tom_edge(0.0, "FLOOR", VELOCITY.TOM_HEAVY)  # Floor tom emphasis on the one
 
         # Complex syncopated kick pattern
         p_funk_kicks = [0.75, 1.5, 2.25, 3.5]
@@ -338,16 +345,25 @@ class FunkGenrePlugin(GenrePlugin):
             velocity = 95 + random.randint(-5, 10)
             builder.kick(pos, velocity)
 
-        # Snare pattern
+        # Snare pattern with tom_edge accents
         builder.snare(1.0, 105).snare(3.0, 105)
         builder.snare(2.75, 85)  # Syncopated snare
+        builder.tom_edge(1.5, "MID", VELOCITY.TOM_NORMAL + 3)
+        builder.tom_edge(3.5, "FLOOR", VELOCITY.TOM_HEAVY - 5)
 
-        # Intricate hi-hat work
+        # Intricate tight HH comping (P-Funk signature)
         hi_hat_pattern = [0.25, 0.5, 1.25, 1.75, 2.0, 2.5, 3.25, 3.75]
         for i, pos in enumerate(hi_hat_pattern):
-            open_hihat = i % 4 == 1  # Pattern of opens
+            is_offbeat = i % 2 == 1
             velocity = 78 + random.randint(-5, 8)
-            builder.hihat(pos, velocity, open=open_hihat)
+            if is_offbeat:
+                builder.tight_hh(pos, open=True, velocity=velocity)
+            else:
+                builder.tight_hh(pos, open=False, velocity=velocity)
+
+        # Ride bell accents for syncopated P-Funk texture
+        builder.ride_bell(0.5, VELOCITY.RIDE_BELL_ACCENT + random.randint(-2, 3))
+        builder.ride_bell(2.5, VELOCITY.RIDE_BELL_ACCENT + random.randint(-2, 3))
 
         return builder.build()
 
@@ -378,10 +394,12 @@ class FunkGenrePlugin(GenrePlugin):
         builder.kick(0.0, 110)  # Strong "the one"
         builder.kick(2.5, 95)  # Shuffle kick
 
-        # Linear snare pattern (Purdie signature)
+        # Linear snare pattern (Purdie signature) with tom_edge accents
         builder.snare(1.0, 105)
         builder.snare(2.0, 100)  # Linear approach
         builder.snare(3.0, 105)
+        builder.tom_edge(0.5, "MID", VELOCITY.TOM_NORMAL + 5)
+        builder.tom_edge(2.5, "FLOOR", VELOCITY.TOM_HEAVY - 8)
 
         # Shuffle ghost notes
         ghost_positions = [0.33, 1.33, 2.33, 3.33]  # Triplet feel ghosts
@@ -391,14 +409,18 @@ class FunkGenrePlugin(GenrePlugin):
                 pos, DrumInstrument.SNARE, velocity, ghost_note=True
             )
 
-        # Shuffle hi-hat pattern
+        # Shuffle tight HH pattern (tighter attack than regular HH for shuffle feel)
         shuffle_hi_hat = [0.0, 0.67, 1.0, 1.67, 2.0, 2.67, 3.0, 3.67]
         for i, pos in enumerate(shuffle_hi_hat):
             velocity = 75 + random.randint(-3, 7)
             # Accent pattern for shuffle
             if i % 2 == 0:
                 velocity += 5
-            builder.hihat(pos, velocity)
+            builder.tight_hh(pos, open=False, velocity=velocity)
+
+        # Ride bell accents on downbeats for Purdie texture
+        builder.ride_bell(0.0, VELOCITY.RIDE_BELL + random.randint(-2, 3))
+        builder.ride_bell(2.0, VELOCITY.RIDE_BELL + random.randint(-2, 3))
 
         return builder.build()
 
@@ -412,15 +434,24 @@ class FunkGenrePlugin(GenrePlugin):
         builder.kick(0.0, 110).kick(2.0, 105)
         builder.kick(1.75, 90).kick(3.5, 95)  # Syncopated kicks
 
-        # Snare with cross-stick feel
+        # Snare with cross-stick feel and tom_edge accents
         builder.snare(1.0, 100).snare(3.0, 100)
         builder.snare(0.5, 75).snare(2.5, 80)  # Additional snares
+        builder.tom_edge(1.0, "MID", VELOCITY.TOM_NORMAL - 3)
+        builder.tom_edge(3.0, "FLOOR", VELOCITY.TOM_HEAVY - 5)
 
-        # Relaxed hi-hat
+        # Relaxed tight HH (tighter than regular HH for NOLA feel)
         for i in range(8):
             pos = i * 0.5
             velocity = 70 + random.randint(-5, 5)
-            builder.hihat(pos, velocity)
+            builder.tight_hh(pos, open=False, velocity=velocity)
+
+        # Ride bell accents for syncopated NOLA punctuation
+        builder.ride_bell(1.5, VELOCITY.RIDE_BELL + random.randint(-2, 3))
+
+        # Choked crash on off-beats for Latin punctuation
+        if random.random() < 0.3:
+            builder.crash_choked(random.choice([0.75, 2.5]), "D", VELOCITY.CRASH_ACCENT)
 
         return builder.build()
 
@@ -433,17 +464,27 @@ class FunkGenrePlugin(GenrePlugin):
         # Fusion kick pattern
         builder.kick(0.0, 110).kick(0.75, 95).kick(2.25, 100)
 
-        # Jazz-influenced snare with linear concepts
+        # Jazz-influenced snare with linear concepts and tom_edge accents
         builder.snare(1.0, 105).snare(2.5, 85).snare(3.0, 105)
+        builder.tom_edge(1.5, "MID", VELOCITY.TOM_NORMAL + 3)
+        builder.tom_edge(3.5, "FLOOR", VELOCITY.TOM_HEAVY - 5)
 
-        # 16th note hi-hat with fusion feel
+        # 16th note tight HH with fusion feel (tight attack for fusion character)
         for i in range(16):
             pos = i * 0.25
             velocity = 72 + random.randint(-3, 8)
             # Fusion accent pattern
             if i % 4 == 0:
                 velocity += 8
-            builder.hihat(pos, min(127, velocity))
+            builder.tight_hh(pos, open=False, velocity=min(127, velocity))
+
+        # Ride bell accents for fusion texture
+        builder.ride_bell(0.5, VELOCITY.RIDE_BELL_ACCENT + random.randint(-2, 3))
+        builder.ride_bell(2.5, VELOCITY.RIDE_BELL_ACCENT + random.randint(-2, 3))
+
+        # Choked crash on syncopated accents
+        if random.random() < 0.3:
+            builder.crash_choked(random.choice([1.5, 3.5]), "B", VELOCITY.CRASH_ACCENT)
 
         return builder.build()
 
@@ -457,8 +498,11 @@ class FunkGenrePlugin(GenrePlugin):
         builder.kick(0.0, 115)  # "The one"
         builder.snare(1.0, 105).snare(3.0, 105)  # Backbeat
 
-        # Sparse hi-hat
-        builder.hihat(0.5, 70).hihat(1.5, 70).hihat(2.5, 70).hihat(3.5, 70)
+        # Sparse tight HH (minimal AD2 additions for clean minimal feel)
+        builder.tight_hh(0.5, open=False, velocity=70)
+        builder.tight_hh(1.5, open=False, velocity=70)
+        builder.tight_hh(2.5, open=False, velocity=70)
+        builder.tight_hh(3.5, open=False, velocity=70)
 
         # Single ghost note for feel
         builder.pattern.add_beat(
@@ -479,8 +523,10 @@ class FunkGenrePlugin(GenrePlugin):
             velocity = 105 + random.randint(-5, 10)
             builder.kick(pos, velocity)
 
-        # Aggressive snare with many ghosts
+        # Aggressive snare with tom_edge accents and many ghosts
         builder.snare(1.0, 115).snare(3.0, 115)
+        builder.tom_edge(0.0, "MID", VELOCITY.TOM_HEAVY + 3)
+        builder.tom_edge(2.0, "FLOOR", VELOCITY.TOM_HEAVY)
 
         # Dense ghost note pattern
         ghost_positions = [
@@ -501,11 +547,18 @@ class FunkGenrePlugin(GenrePlugin):
                 pos, DrumInstrument.SNARE, max(35, velocity), ghost_note=True
             )
 
-        # Constant 16th note hi-hat
+        # Constant 16th note tight HH (dense funk character)
         for i in range(16):
             pos = i * 0.25
             velocity = 75 + random.randint(-5, 10)
-            builder.hihat(pos, velocity)
+            builder.tight_hh(pos, open=False, velocity=velocity)
+
+        # Ride bell accents for heavy funk texture
+        builder.ride_bell(1.0, VELOCITY.RIDE_BELL_ACCENT + random.randint(-2, 3))
+        builder.ride_bell(3.0, VELOCITY.RIDE_BELL_ACCENT + random.randint(-2, 3))
+
+        # Choked crash on downbeat
+        builder.crash_choked(0.0, "A", VELOCITY.CRASH_HEAVY)
 
         return builder.build()
 

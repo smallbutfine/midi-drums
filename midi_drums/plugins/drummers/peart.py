@@ -102,9 +102,9 @@ class PeartPlugin(DrummerPlugin):
             )
             builder.pattern.add_beat(position, instrument, velocity)
 
-        # Add tom_edge rim accents for that tight metallic progressive attack
-        builder.tom_edge(1.0, "MID", VELOCITY.TOM_ACCENT)
-        builder.tom_edge(2.0, "FLOOR", VELOCITY.TOM_ACCENT + 3)
+        # Rim accents sit within the fill window so they actually render
+        builder.tom_edge(0.85, "MID", VELOCITY.TOM_ACCENT - 1)
+        builder.tom_edge(0.95, "FLOOR", VELOCITY.TOM_HEAVY)
 
         return builder.build()
 

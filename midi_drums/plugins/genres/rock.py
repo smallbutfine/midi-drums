@@ -8,6 +8,7 @@ cymbal techniques.
 
 import random
 
+from midi_drums.config import VELOCITY
 from midi_drums.core.models.pattern import Beat, Pattern
 from midi_drums.core.models.song import Fill
 from midi_drums.core.value_objects.drum_instrument import DrumInstrument
@@ -366,14 +367,19 @@ class RockGenrePlugin(GenrePlugin):
         builder.kick(0.0, 100).kick(1.75, 95).kick(2.5, 90)
         builder.snare(1.0, 105).snare(3.0, 105)
 
-        # 16th note hi-hat pattern
+        # 16th note tight HH pattern (dry attack for alt-rock character)
         for i in range(16):
             pos = i * 0.25
             velocity = 70 + random.randint(-5, 5)
             # Accent every 4th hit
             if i % 4 == 0:
                 velocity += 10
-            builder.hihat(pos, min(127, velocity))
+            builder.tight_hh(pos, open=False, velocity=min(127, velocity))
+
+        # Choked crash on chorus downbeats for alt-rock punctuation
+        builder.crash_choked(0.0, "A", VELOCITY.CRASH_HEAVY)
+        if random.random() < 0.4:
+            builder.crash_choked(2.0, "C", VELOCITY.CRASH_ACCENT)
 
         return builder.build()
 
@@ -428,9 +434,12 @@ class RockGenrePlugin(GenrePlugin):
         # Snare on every beat (punk characteristic)
         builder.snare(1.0, 115).snare(1.5, 110).snare(3.0, 115).snare(3.5, 110)
 
-        # "Sloshy" open hi-hats
+        # Tight HH on every eighth note — dry pencil attack for punk speed
         for i in range(8):
-            builder.hihat(i * 0.5, 95, open=True)
+            builder.tight_hh(i * 0.5, open=False)
+
+        # Choked crash on beat 1 (sharp cutoff "chick")
+        builder.crash_choked(0.0, "A", VELOCITY.CRASH_HEAVY)
 
         return builder.build()
 
@@ -444,14 +453,23 @@ class RockGenrePlugin(GenrePlugin):
         builder.kick(0.0, 115).kick(2.0, 115).kick(3.5, 100)
         builder.snare(1.0, 120).snare(3.0, 120)  # Heavy snare
 
-        # Driving hi-hat
+        # Tight HH for driving attack (punk/hard rock style)
         for i in range(8):
             velocity = 85 + random.randint(-5, 5)
-            builder.hihat(i * 0.5, velocity)
+            builder.tight_hh(i * 0.5, open=False, velocity=velocity)
 
-        # Add crash accents
-        if random.random() < 0.3:
-            builder.crash(0.0, 110)
+        # Tom edge accent on backbeat for metallic punch
+        builder.tom_edge(1.0, "MID", VELOCITY.TOM_HEAVY - 3)
+        builder.tom_edge(3.0, "FLOOR", VELOCITY.TOM_HEAVY - 3)
+
+        # Ride bell accents on off-beats
+        builder.ride_bell(1.5, VELOCITY.RIDE_BELL + random.randint(-2, 4))
+        builder.ride_bell(3.5, VELOCITY.RIDE_BELL + random.randint(-2, 4))
+
+        # Choked crash on major downbeats
+        builder.crash_choked(0.0, "A", VELOCITY.CRASH_HEAVY)
+        if random.random() < 0.5:
+            builder.crash_choked(2.0, "B", VELOCITY.CRASH_ACCENT)
 
         return builder.build()
 
@@ -465,12 +483,12 @@ class RockGenrePlugin(GenrePlugin):
         builder.kick(0.0, 100).kick(2.0, 100)
         builder.snare(1.0, 105).snare(3.0, 105)
 
-        # Tight hi-hat pattern
+        # Tight HH for clean pop-rock sound (minimal AD2 additions)
         for i in range(8):
             velocity = 75
             if i % 2 == 0:  # Accent on beats
                 velocity = 85
-            builder.hihat(i * 0.5, velocity)
+            builder.tight_hh(i * 0.5, open=False, velocity=velocity)
 
         return builder.build()
 

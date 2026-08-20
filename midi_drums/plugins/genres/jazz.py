@@ -287,6 +287,10 @@ class JazzGenrePlugin(GenrePlugin):
 
             builder.ride(pos, velocity)
 
+        # Ride bell accents on strong beats for traditional jazz feel
+        builder.ride_bell(0.0, VELOCITY.RIDE_BELL + random.randint(-2, 3))
+        builder.ride_bell(2.0, VELOCITY.RIDE_BELL + random.randint(-2, 3))
+
         # Hi-hat foot on 2 and 4 (crucial for swing feel)
         builder.hihat(1.0, 75).hihat(3.0, 75)
 
@@ -366,7 +370,11 @@ class JazzGenrePlugin(GenrePlugin):
 
             builder.ride(pos, velocity)
 
-        # Active comping between snare and kick
+        # Ride bell accents on downbeats
+        builder.ride_bell(0.0, VELOCITY.RIDE_BELL + random.randint(-2, 3))
+        builder.ride_bell(2.0, VELOCITY.RIDE_BELL + random.randint(-2, 3))
+
+        # Active comping between snare and kick with tom_edge accents
         comping_patterns = [
             (0.75, DrumInstrument.KICK, 85),
             (1.25, DrumInstrument.SNARE, 75),
@@ -377,6 +385,10 @@ class JazzGenrePlugin(GenrePlugin):
         for pos, instrument, velocity in comping_patterns:
             if random.random() < 0.7:  # 70% chance for each comp
                 builder.pattern.add_beat(pos, instrument, velocity)
+
+        # Tom edge accents for tight bebop comping attack
+        builder.tom_edge(1.5, "MID", VELOCITY.TOM_NORMAL - 5)
+        builder.tom_edge(3.25, "FLOOR", VELOCITY.TOM_NORMAL - 5)
 
         # Hi-hat on 2 and 4
         builder.hihat(1.0, 75).hihat(3.0, 75)
@@ -398,15 +410,27 @@ class JazzGenrePlugin(GenrePlugin):
                 velocity += 8
             builder.ride(pos, min(127, velocity))
 
+        # Ride bell accents for fusion texture
+        builder.ride_bell(0.5, VELOCITY.RIDE_BELL_ACCENT + random.randint(-2, 3))
+        builder.ride_bell(2.5, VELOCITY.RIDE_BELL_ACCENT + random.randint(-2, 3))
+
         # More aggressive kick pattern
         kick_pattern = [0.0, 1.5, 2.25, 3.75]
         for pos in kick_pattern:
             builder.kick(pos, 95 + random.randint(-5, 10))
 
+        # Tom edge accents for tight fusion comping
+        builder.tom_edge(1.0, "MID", VELOCITY.TOM_HEAVY - 8)
+        builder.tom_edge(3.0, "FLOOR", VELOCITY.TOM_NORMAL + 5)
+
         # Snare backbeat with ghost notes
         builder.snare(1.0, 105).snare(3.0, 105)
         builder.snare(0.75, 65, ghost_note=True)  # Ghost note
         builder.snare(2.75, 68, ghost_note=True)
+
+        # Choked crash on syncopated accents
+        if random.random() < 0.4:
+            builder.crash_choked(random.choice([1.5, 2.5]), "B", VELOCITY.CRASH_ACCENT)
 
         return builder.build()
 
@@ -451,10 +475,16 @@ class JazzGenrePlugin(GenrePlugin):
         builder.snare(1.0, 60)  # Soft brush sweep
         builder.snare(3.0, 65)
 
-        # Light ride cymbal
+        # Light ride cymbal with bell accents for Latin punctuation
         for i in range(4):
             pos = i * 1.0
             builder.ride(pos, 70)
+        builder.ride_bell(0.5, VELOCITY.RIDE_BELL + random.randint(-2, 3))
+        builder.ride_bell(2.5, VELOCITY.RIDE_BELL + random.randint(-2, 3))
+
+        # Choked crash on off-beats for Latin punctuation
+        if random.random() < 0.3:
+            builder.crash_choked(random.choice([0.75, 1.75, 3.5]), "D", VELOCITY.CRASH_ACCENT)
 
         return builder.build()
 
@@ -510,9 +540,15 @@ class JazzGenrePlugin(GenrePlugin):
             velocity = 88 + random.randint(-3, 7)
             builder.ride(pos, velocity)
 
-        # More aggressive comping
+        # Ride bell accents on downbeats
+        builder.ride_bell(0.0, VELOCITY.RIDE_BELL + random.randint(-2, 4))
+        builder.ride_bell(2.0, VELOCITY.RIDE_BELL + random.randint(-2, 4))
+
+        # More aggressive comping with tom_edge accents
         builder.kick(0.75, 90).kick(2.25, 85)
         builder.snare(1.33, 85).snare(3.67, 88)
+        builder.tom_edge(1.0, "MID", VELOCITY.TOM_HEAVY - 5)
+        builder.tom_edge(3.0, "FLOOR", VELOCITY.TOM_NORMAL)
 
         # Strong hi-hat on 2 and 4
         builder.hihat(1.0, 80).hihat(3.0, 80)
@@ -537,9 +573,13 @@ class JazzGenrePlugin(GenrePlugin):
             velocity = 82 + random.randint(-5, 8)
             builder.ride(pos, velocity)
 
-        # Modern comping patterns
+        # Ride bell accents for modern texture
+        builder.ride_bell(0.0, VELOCITY.RIDE_BELL_ACCENT + random.randint(-2, 3))
+
+        # Modern comping patterns with tom_edge
         builder.kick(0.25, 80).kick(2.75, 85)
         builder.snare(1.17, 75).snare(3.5, 80)
+        builder.tom_edge(1.5, "MID", VELOCITY.TOM_NORMAL - 5)
 
         # Hi-hat on 2 and 4
         builder.hihat(1.0, 75).hihat(3.0, 75)

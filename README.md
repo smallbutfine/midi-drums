@@ -817,7 +817,7 @@ New musical genres or styles, advanced humanization techniques, integration with
 - [ ] Pattern flavor swapping (3+ distinct patterns per section type)
 - [ ] Drummer fill library expansion (8-12 fills per drummer, context-aware selection)
 - [ ] Per-bar groove engine (swing ratio + timing push/pull per bar)
-- [x] AD2 keymap wiring — tight HH, crash_choked, ride_bell, tom_edge in metal patterns
+- [x] AD2 keymap wiring — tight HH, crash_choked, ride_bell, tom_edge in all 4 genres (metal, rock, jazz, funk)
 - [x] Electronic genre plugin (House, Techno, Drum & Bass, Dubstep)
 - [x] Reaper marker import (generate drums from existing markers) — via the `create_song_sections.lua` REAPER-mode bridge
 - [x] Advanced humanization algorithms — `midi_drums/humanization/advanced_humanization.py`

@@ -285,6 +285,31 @@ class GenrePlugin(ABC):
         """
         return []
 
+    def get_section_flavors(
+        self, section: str, parameters: GenerationParameters
+    ) -> list[Pattern]:
+        """Get alternative pattern flavors for a specific section.
+
+        Each genre can provide 3+ distinct patterns for any given section type.
+        ComposerV2 rotates between these flavors per bar to create musical diversity.
+
+        Args:
+            section: Section type ('verse', 'chorus', 'bridge', etc.)
+            parameters: Generation parameters (style, complexity, etc.)
+
+        Returns:
+            List of Pattern objects representing different ways to play this section.
+            The first item is always the "default" pattern (same as generate_pattern).
+
+        Example:
+            For death metal verse, flavors might be:
+            - sparse_blast: fewer blast beats, more space
+            - full_double_bass: continuous double bass + blasts
+            - syncopated_kick: complex kick patterns with lighter snare
+        """
+        # Default: return only the standard pattern (no flavor variety)
+        return [self.generate_pattern(section, parameters)]
+
     def supports_style(self, style: str) -> bool:
         """Check if this plugin supports the given style."""
         return style in self.supported_styles

@@ -175,7 +175,7 @@ class ComposerV2:
                     curve_map[section_name] = IntensityCurve.DESCENDING
             elif section_name == "breakdown":
                 # Breakdown: drop to sparse, then build back
-                curve_map[section_name] = IntensityCurve.DESCCENDING
+                curve_map[section_name] = IntensityCurve.DIP_RISE
             elif section_name == "outro":
                 curve_map[section_name] = IntensityCurve.DESCENDING
             else:
@@ -298,12 +298,8 @@ class ComposerV2:
             if drummer_plugin:
                 signature_fills = drummer_plugin.get_signature_fills()
                 if signature_fills:
-                    # Return only fills appropriate for end of section
-                    return [
-                        f
-                        for f in signature_fills
-                        if f.section_position == "end"
-                    ]
+                    # Use all drummer signature fills
+                    return signature_fills
 
         # Fallback to genre common fills
         genre_plugin = self.plugin_manager.registry.get_genre_plugin(genre)
