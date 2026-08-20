@@ -10,6 +10,37 @@ release process.
 
 ## [Unreleased]
 
+### Added
+
+- **Additive Drums 2 full keymap wiring**: AD2 tight HH (notes 90-91), crash_choked
+  A-D (notes 68-80), ride_bell (note 61), and tom_edge variants (notes 65-69)
+  are now used in metal genre patterns instead of generic GM equivalents. Metal
+  genres see 37+ additional AD2 articulations across all sections.
+- **AD2 zone-aware drummer fills**: Dee gains tom_edge cascade + ride_bell stinger;
+  Hoglan gains rapid tom_edge blast accents + chicken_lights (open/tom alternation);
+  Peart gains tom_edge rim accents in his quintuplet fill. All AD2 zones resolve to
+  the correct MIDI notes in `DrumKit.create_addictive_drums_kit()`.
+- **Danny Carey (Tool) drummer plugin**: polyrhythmic kick counterpoint, deep
+  tom-heavy accent patterns, spacious Tool-groove feel, pentatonic/quintuplet
+  accent fills, cymbal swell effects. Four signature fills:
+  quintuplet tom cascade, polyrhythmic buildup, ethnic-inspired fill, and
+  cymbal swell pattern.
+- **Velocity overflow fix**: `snare_rimshot(VELOCITY.SNARE_RIMSHOT + 5)` in
+  thrash chorus clamped to 127 (MIDI velocity max) instead of producing a
+  ValueError.
+
+### Changed
+
+- **Death metal verse**: replaces sparse standard hi-hat with tight HH rapid
+  comping (AD2 zone 91) and adds crash_choked punctuation — blast-beat sections
+  no longer wash out in the cymbal texture.
+- **Doom metal verse/chorus**: ride bell off-beats + tight HH replace generic ride
+  for the dry, crushing precision required at slow tempos.
+- **Progressive metal verse**: uses `ride_bell()` method (AD2 note 61) +
+  `crash_choked()` on downbeats instead of plain GM crash/ride.
+- **Heavy/power chorus patterns**: ride bell + tom_edge accents wired in for
+  textural variety and attack clarity.
+
 ## [0.2.0] - 2026-08-13
 
 ### Added

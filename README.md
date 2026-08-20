@@ -459,6 +459,7 @@ See [`docs/DDD_ARCHITECTURE.md`](docs/DDD_ARCHITECTURE.md) for the domain-bounda
 | **Gene Hoglan** | Mechanical precision, blast beats |
 | **Neil Peart** | Extreme timing precision, linear limb independence, polyrhythmic fills |
 | **Buddy Rich** | Virtuosic single-stroke speed, dramatic dynamic contrast |
+| **Danny Carey**  | Polyrhythmic quintuplets, deep tom cascades, ethnic percussion textures |
 | **Stewart Copeland** | Reggae/ska-influenced off-beat hi-hat, cross-stick snare |
 
 **Future expansions:** World genres (Latin, Reggae, Afrobeat) — see [Roadmap](#-roadmap).
@@ -765,24 +766,31 @@ New musical genres or styles, advanced humanization techniques, integration with
 
 ### Phase 1: Core Expansion ✅
 - [x] Rock, Jazz, and Funk genre plugins (7 styles each)
-- [x] 10 drummer plugins (Bonham, Porcaro, Weckl, Chambers, Roeder, Dee, Hoglan, Peart, Rich, Copeland)
+- [x] 11 drummer plugins (+ 1 composite) (Bonham, Porcaro, Weckl, Chambers, Roeder, Dee, Hoglan, Peart, Rich, Copeland, Carey)
 - [x] Comprehensive testing and validation system
 - [x] Reaper DAW integration with automatic markers
 - [x] CLI tool installation (`uv tool install`)
 - [x] GitHub Actions CI/CD pipeline
 
-### Phase 2: Advanced Features 🚧
+### Phase 2: Live, Varied Patterns 🚧
+- [ ] Bar-by-bar pattern evolution (no repeated bars within sections)
+- [ ] Section intensity curves (internal arc per section — buildup, peak, drop)
+- [ ] Pattern flavor swapping (3+ distinct patterns per section type)
+- [ ] Drummer fill library expansion (8-12 fills per drummer, context-aware selection)
+- [ ] Per-bar groove engine (swing ratio + timing push/pull per bar)
+- [x] AD2 keymap wiring — tight HH, crash_choked, ride_bell, tom_edge in metal patterns
 - [x] Electronic genre plugin (House, Techno, Drum & Bass, Dubstep)
 - [x] Reaper marker import (generate drums from existing markers) — via the `create_song_sections.lua` REAPER-mode bridge
 - [x] Advanced humanization algorithms — `midi_drums/humanization/advanced_humanization.py`
 - [x] Groove template system — `midi_drums/patterns/templates.py` (8 templates + `TemplateComposer`)
-- [ ] Real-time audio synthesis
-- [ ] AI-driven pattern variations
 
-### Phase 3: Integration 🔮
+### Phase 3: Real-Time & Integration 🔮
+- [ ] AI-driven pattern variations (ML model or prompt-based engine)
+- [ ] Per-bar CC controller mapping for expression in EZDrummer/AD2 playback
 - [ ] REST API for web services
-- [ ] DAW integration (VST/AU plugins)
-- [ ] Pattern marketplace
+- [ ] DAW integration (VST/AU plugins) 
+- [ ] Real-time audio synthesis
+- [ ] Pattern marketplace / community sharing
 - [ ] Visual pattern editor
 - [ ] World music genres (Latin, Reggae, Afrobeat)
 

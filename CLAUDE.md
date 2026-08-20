@@ -7,8 +7,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 This is a comprehensive MIDI drum generation system with a modular, plugin-based architecture. It supports multiple genres, styles, drummer imitations, and song structures. The system evolved from a simple single-file metal generator (`generate_metal_drum_track.py`) into a full-featured, extensible platform.
 
 ### Key Features
-- **Multi-Genre Support**: Metal (7 styles), Rock (7 styles), Jazz (7 styles), Funk (7 styles), expandable to electronic
-- **Drummer Imitation**: 7 drummer plugins with authentic styles (Bonham, Porcaro, Weckl, Chambers, Roeder, Dee, Hoglan)
+- **Multi-Genre Support**: Metal (7 styles), Rock (7 styles), Jazz (7 styles), Funk (7 styles), Electronic (4 styles)
+- **Drummer Imitation**: 11 drummer plugins + 1 composite (Bonham, Porcaro, Weckl, Chambers, Roeder, Dee, Hoglan, Peart, Rich, Copeland, Carey) plus DoomBlues composite
 - **Song Structure**: Configurable sections (verse, chorus, bridge, breakdown, intro, outro)
 - **Pattern Variations**: Humanization, fills, complexity control, and dynamic variations
 - **Multiple Interfaces**: Python API, CLI, and direct module usage
@@ -129,14 +129,29 @@ midi_drums/
 │   │   ├── rock.py      # RockGenrePlugin with 7 styles
 │   │   ├── jazz.py      # JazzGenrePlugin with 7 styles
 │   │   └── funk.py      # FunkGenrePlugin with 7 styles
-│   ├── drummers/        # 7 drummer style plugins
-│   │   ├── bonham.py    # John Bonham - triplets, behind-beat
-│   │   ├── porcaro.py   # Jeff Porcaro - shuffle, ghost notes
-│   │   ├── weckl.py     # Dave Weckl - linear, fusion
-│   │   ├── chambers.py  # Dennis Chambers - funk mastery
-│   │   ├── roeder.py    # Jason Roeder - atmospheric sludge
-│   │   ├── dee.py       # Mikkey Dee - speed/precision
-│   │   ├── hoglan.py    # Gene Hoglan - blast beats
+│   ├── drummers/        # 11 drummer style plugins + composite
+│   │   ├── bonham.py            # John Bonham - triplets, behind-beat
+│   │   ├── bonham_refactored.py  # refactored composable modifications
+│   │   ├── porcaro.py           # Jeff Porcaro - shuffle, ghost notes
+│   │   ├── porcaro_refactored.py  # refactored composable modifications
+│   │   ├── weckl.py             # Dave Weckl - linear, fusion
+│   │   ├── weckl_refactored.py  # refactored composable modifications
+│   │   ├── chambers.py          # Dennis Chambers - funk mastery
+│   │   ├── chambers_refactored.py  # refactored composable modifications
+│   │   ├── roeder.py            # Jason Roeder - atmospheric sludge
+│   │   ├── roeder_refactored.py   # refactored composable modifications
+│   │   ├── dee.py               # Mikkey Dee - speed/precision
+│   │   ├── dee_refactored.py      # refactored composable modifications
+│   │   ├── hoglan.py            # Gene Hoglan - blast beats
+│   │   ├── hoglan_refactored.py   # refactored composable modifications
+│   │   ├── peart.py             # Neil Peart - polyrhythmic fills, extreme precision
+│   │   ├── rich.py              # Buddy Rich - virtuosic speed
+│   │   ├── copeland.py          # Stewart Copeland - reggae/ska off-beat work
+│   │   ├── carey.py             # Danny Carey - polyrhythmic quintuplets, deep toms
+│   │   └── composite/
+│   │       └── doom_blues.py    # CompositeDoomBluesPlugin
+│   │   │   └── composite/
+│   │   │       └── doom_blues.py  # CompositeDoomBluesPlugin
 │   │   └── composite/
 │   │       └── doom_blues.py  # CompositeDoomBluesPlugin - layers Roeder/Porcaro/Chambers
 │   └── __init__.py
