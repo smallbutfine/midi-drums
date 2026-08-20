@@ -58,7 +58,7 @@ class CareyPlugin(DrummerPlugin):
         # Count new beats allowed (cap prevents density explosion)
         max_new_beats = 12
         current_count = [0]  # Use list for mutability in closures
-        
+
         def _track(n):
             """Track and cap added beat count."""
             if n > max(0, max_new_beats - current_count[0]):
@@ -76,7 +76,9 @@ class CareyPlugin(DrummerPlugin):
         styled_pattern = self._apply_tool_groove_space(styled_pattern)
 
         # 4. Complex pentatonic/quintuplet accent fills between beats
-        styled_pattern = self._add_pentatonic_accent_fills(styled_pattern, _track)
+        styled_pattern = self._add_pentatonic_accent_fills(
+            styled_pattern, _track
+        )
 
         # 5. Cymbal swells and effects (simulated with long sustain)
         styled_pattern = self._add_cymbal_swell_effects(styled_pattern, _track)
@@ -129,7 +131,10 @@ class CareyPlugin(DrummerPlugin):
                 beat.duration = max(0.3, beat.duration * 1.4)
             elif beat.instrument == DrumInstrument.SNARE:
                 beat.velocity = min(127, beat.velocity + 10)
-            elif beat.instrument in [DrumInstrument.FLOOR_TOM, DrumInstrument.MID_TOM]:
+            elif beat.instrument in [
+                DrumInstrument.FLOOR_TOM,
+                DrumInstrument.MID_TOM,
+            ]:
                 beat.duration = max(0.4, beat.duration * 2.0)
         return pattern
 
@@ -151,7 +156,9 @@ class CareyPlugin(DrummerPlugin):
                         Beat(
                             position=poly_pos,
                             instrument=beat.instrument,
-                            velocity=min(127, beat.velocity + random.randint(-8, 8)),
+                            velocity=min(
+                                127, beat.velocity + random.randint(-8, 8)
+                            ),
                             duration=beat.duration * 0.9,
                         )
                     )
@@ -169,8 +176,12 @@ class CareyPlugin(DrummerPlugin):
                 break
             if random.random() < 0.2:
                 new_beats.append(
-                    Beat(position=pos, instrument=DrumInstrument.FLOOR_TOM,
-                         velocity=90 + random.randint(-10, 25), duration=0.8)
+                    Beat(
+                        position=pos,
+                        instrument=DrumInstrument.FLOOR_TOM,
+                        velocity=90 + random.randint(-10, 25),
+                        duration=0.8,
+                    )
                 )
 
         for i in range(4):
@@ -179,14 +190,20 @@ class CareyPlugin(DrummerPlugin):
                 break
             if random.random() < 0.15:
                 new_beats.append(
-                    Beat(position=pos, instrument=DrumInstrument.MID_TOM,
-                         velocity=80 + random.randint(-5, 20), duration=0.4)
+                    Beat(
+                        position=pos,
+                        instrument=DrumInstrument.MID_TOM,
+                        velocity=80 + random.randint(-5, 20),
+                        duration=0.4,
+                    )
                 )
 
         pattern.beats = new_beats
         return pattern
 
-    def _add_pentatonic_accent_fills(self, pattern: Pattern, track_fn) -> Pattern:
+    def _add_pentatonic_accent_fills(
+        self, pattern: Pattern, track_fn
+    ) -> Pattern:
         """Add pentatonic/quintuplet accent fills between beats."""
         new_beats = list(pattern.beats)
 
@@ -196,8 +213,12 @@ class CareyPlugin(DrummerPlugin):
                 break
             if random.random() < 0.3:
                 new_beats.append(
-                    Beat(position=pos, instrument=DrumInstrument.SNARE,
-                         velocity=100 + random.randint(-10, 25), duration=0.1)
+                    Beat(
+                        position=pos,
+                        instrument=DrumInstrument.SNARE,
+                        velocity=100 + random.randint(-10, 25),
+                        duration=0.1,
+                    )
                 )
 
         for i in range(3):
@@ -206,9 +227,16 @@ class CareyPlugin(DrummerPlugin):
                 break
             if random.random() < 0.15:
                 new_beats.append(
-                    Beat(position=pos,
-                         instrument=DrumInstrument.FLOOR_TOM if i < 2 else DrumInstrument.MID_TOM,
-                         velocity=95 + random.randint(-5, 20), duration=0.3)
+                    Beat(
+                        position=pos,
+                        instrument=(
+                            DrumInstrument.FLOOR_TOM
+                            if i < 2
+                            else DrumInstrument.MID_TOM
+                        ),
+                        velocity=95 + random.randint(-5, 20),
+                        duration=0.3,
+                    )
                 )
 
         pattern.beats = new_beats
@@ -223,8 +251,12 @@ class CareyPlugin(DrummerPlugin):
                 break
             if random.random() < 0.35:
                 new_beats.append(
-                    Beat(position=pos, instrument=DrumInstrument.CRASH,
-                         velocity=100 + random.randint(-10, 20), duration=2.0)
+                    Beat(
+                        position=pos,
+                        instrument=DrumInstrument.CRASH,
+                        velocity=100 + random.randint(-10, 20),
+                        duration=2.0,
+                    )
                 )
 
         for i in range(8):
@@ -232,10 +264,16 @@ class CareyPlugin(DrummerPlugin):
             if track_fn(1) <= 0:
                 break
             if random.random() < 0.1:
-                eth_inst = random.choice([DrumInstrument.CHINA, DrumInstrument.RIDE_BELL])
+                eth_inst = random.choice(
+                    [DrumInstrument.CHINA, DrumInstrument.RIDE_BELL]
+                )
                 new_beats.append(
-                    Beat(position=pos, instrument=eth_inst,
-                         velocity=85 + random.randint(-10, 15), duration=0.6)
+                    Beat(
+                        position=pos,
+                        instrument=eth_inst,
+                        velocity=85 + random.randint(-10, 15),
+                        duration=0.6,
+                    )
                 )
 
         pattern.beats = new_beats
