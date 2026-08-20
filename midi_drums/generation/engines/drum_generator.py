@@ -18,7 +18,9 @@ logger = logging.getLogger(__name__)
 class DrumGenerator:
     """Main drum generation engine."""
 
-    def __init__(self, config_path: Path | None = None, composer_engine: str = "v2"):
+    def __init__(
+        self, config_path: Path | None = None, composer_engine: str = "v2"
+    ):
         """Initialize drum generator with optional configuration.
 
         Args:
@@ -156,7 +158,7 @@ class DrumGenerator:
 
         # Resolve composer engine for this call
         engine = composer_engine or self.composer_engine
-        
+
         # Use Engine V2 (bar-by-bar evolution) by default
         if engine == "v2":
             from midi_drums.generation.composer_v2 import ComposerV2
@@ -194,7 +196,6 @@ class DrumGenerator:
                 ("chorus", 8),
                 ("outro", 4),
             ]
-
 
         # Engine V1: original static pattern reuse
         # Create generation parameters
