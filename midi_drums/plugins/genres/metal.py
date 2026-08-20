@@ -102,6 +102,59 @@ class MetalGenrePlugin(GenrePlugin):
 
         return fills
 
+    # ------------------------------------------------------------------
+    # Pattern Flavors (PLAN #3)
+    # ------------------------------------------------------------------
+
+    def get_section_flavors(
+        self, section: str, parameters: GenerationParameters
+    ) -> list[Pattern]:
+        """Return 3+ distinct patterns for every (section, style) combo.
+
+        Flavor 1 is always the base ``generate_pattern()`` result; flavors
+        2 and 3 give ComposerV2 real alternatives to rotate bar-by-bar.
+        """
+        style = parameters.style
+        time_sig = TimeSignature(4, 4)
+
+        if section == "verse":
+            return [
+                self._generate_verse_pattern(style, parameters, time_sig),
+                self._death_metal_verse_v2(time_sig) if style == "death" else None,
+                self._death_metal_verse_v3(time_sig) if style == "death" else None,
+            ]
+        elif section == "chorus":
+            return [
+                self._generate_chorus_pattern(style, parameters, time_sig),
+                self._death_metal_chorus_v2(time_sig)
+                if style == "death"
+                else None,
+                self._death_metal_chorus_v3(time_sig)
+                if style == "death"
+                else None,
+            ]
+        elif section == "bridge":
+            return [
+                self._generate_bridge_pattern(style, parameters, time_sig),
+                self._bridge_half_time(time_sig),
+                self._bridge_tom_buildup(time_sig),
+            ]
+        elif section == "breakdown":
+            return [
+                self._generate_breakdown_pattern(style, parameters, time_sig),
+                self._breakdown_syncopated(time_sig),
+                self._breakdown_half_time(time_sig),
+            ]
+        elif section in ("intro", "outro"):
+            # Intro/outro already vary by style — just return a single variant
+            return [
+                self._generate_intro_pattern(style, parameters, time_sig)
+                if section == "intro"
+                else self._generate_outro_pattern(style, parameters, time_sig),
+            ]
+        # For any other section return a single flavor (no swap needed)
+        return [self._generate_verse_pattern(style, parameters, time_sig)]
+
     def _generate_intro_pattern(
         self, style: str, params: GenerationParameters, time_sig: TimeSignature
     ) -> Pattern:
@@ -498,4 +551,101 @@ class MetalGenrePlugin(GenrePlugin):
         builder.tom_edge(0.5, "MID", VELOCITY.TOM_HEAVY - 5)
         builder.tom_edge(2.5, "FLOOR", VELOCITY.TOM_ACCENT)
 
+        return builder.build()
+
+    # ------------------------------------------------------------------
+    # Flavor v2/v3 helpers for death metal verse + chorus
+    # ------------------------------------------------------------------
+
+    def _death_metal_verse_v2(self, time_sig: TimeSignature) -> Pattern:
+        """Flavor 2 — sparse blast (fewer blast-beat hits)."""
+        builder = PatternBuilder("death_metal_verse_sparse", time_sig)
+        # Only every other 8th note gets a blast hit
+        for i in [0.0, 1.0, 2.0, 3.0]:
+            builder.kick(i, 110)
+            builder.snare(i + 0.5, 110)
+        # Tight HH on quarters only (much sparser than base)
+        for i in range(4):
+            builder.tight_hh(i * 1.0, open=False)
+        return builder.build()
+
+    def _death_metal_verse_v3(self, time_sig: TimeSignature) -> Pattern:
+        """Flavor 3 — syncopated kick with lighter snare."""
+        builder = PatternBuilder("death_metal_verse_syncopated", time_sig)
+        for pos in [0.0, 0.75, 1.5, 2.25, 3.0]:
+            builder.kick(pos, 115)
+        # Lighter snare on off-beats
+        builder.snare(0.5, 100).snare(2.0, 100).snare(3.5, 100)
+        for i in range(8):
+            builder.tight_hh(i * 0.5, open=False)
+        return builder.build()
+
+    def _death_metal_chorus_v2(self, time_sig: TimeSignature) -> Pattern:
+        """Flavor 2 — double-kick heavy, fewer blasts."""
+        builder = PatternBuilder("death_metal_chorus_dk", time_sig)
+        for beat in range(4):
+            base = beat * 1.0
+            builder.kick(base, 120).kick(base + 0.5, 115)
+        builder.snare(1.0, 120).snare(3.0, 120)
+        for i in range(8):
+            builder.tight_hh(i * 0.5, open=False)
+        return builder.build()
+
+    def _death_metal_chorus_v3(self, time_sig: TimeSignature) -> Pattern:
+        """Flavor 3 — blast on off-beats with tom accents."""
+        builder = PatternBuilder("death_metal_chorus_tom", time_sig)
+        for i in range(8):
+            pos = i * 0.5
+            builder.kick(pos, 115)
+            if i % 2 == 0:
+                builder.snare(pos + 0.25, 120)
+        # Tom edge accents
+        builder.tom_edge(0.25, "MID", VELOCITY.TOM_HEAVY)
+        builder.tom_edge(1.25, "FLOOR", VELOCITY.TOM_ACCENT)
+        for i in range(8):
+            builder.tight_hh(i * 0.5, open=False)
+        return builder.build()
+
+    def _bridge_half_time(self, time_sig: TimeSignature) -> Pattern:
+        """Bridge flavor — half-time groove."""
+        builder = PatternBuilder("bridge_half_time", time_sig)
+        builder.kick(0.0, 120).kick(2.5, 115)
+        builder.snare(1.5, 125)
+        for i in range(4):
+            builder.tight_hh(i * 1.0, open=False)
+        return builder.build()
+
+    def _bridge_tom_buildup(self, time_sig: TimeSignature) -> Pattern:
+        """Bridge flavor — tom build-up toward next section."""
+        builder = PatternBuilder("bridge_tom_build", time_sig)
+        for i in range(4):
+            pos = i * 0.5
+            builder.snare(pos, 100 + i * 8)
+        # Sparse kick on off-beats
+        builder.kick(0.25, 95).kick(1.75, 100).kick(3.25, 105)
+        for i in range(8):
+            builder.tight_hh(i * 0.5, open=False)
+        return builder.build()
+
+    def _breakdown_syncopated(self, time_sig: TimeSignature) -> Pattern:
+        """Breakdown flavor — heavily syncopated kick."""
+        builder = PatternBuilder("breakdown_syncopated", time_sig)
+        for pos in [0.0, 0.75, 1.5, 2.0, 2.75, 3.5]:
+            builder.kick(pos, 125)
+        # Snare ghost notes + rimshot
+        builder.snare(1.0, 95).snare_rimshot(3.0, 115)
+        for i in range(4):
+            builder.tight_hh(i * 1.0, open=False)
+        return builder.build()
+
+    def _breakdown_half_time(self, time_sig: TimeSignature) -> Pattern:
+        """Breakdown flavor — half-time with heavy tom accents."""
+        builder = PatternBuilder("breakdown_half_time", time_sig)
+        builder.kick(0.0, 130).kick(2.5, 120)
+        for beat in range(4):
+            if beat % 2 == 1:
+                builder.tom_edge(beat + 0.25, "MID" if beat == 1 else "FLOOR", VELOCITY.TOM_HEAVY - 10)
+        builder.snare(1.5, 130)
+        for i in range(4):
+            builder.tight_hh(i * 1.0, open=False)
         return builder.build()

@@ -655,3 +655,148 @@ class JazzGenrePlugin(GenrePlugin):
             builder.snare(pos, velocity)  # Cross stick simulation
 
         return builder.build()
+
+    # ------------------------------------------------------------------
+    # Pattern Flavors (PLAN #3)
+    # ------------------------------------------------------------------
+
+    def get_section_flavors(self, section, parameters):
+        """Return 3+ distinct patterns for every (section, style) combo."""
+        style = parameters.style
+        time_sig = self._time_signature(parameters)
+
+        if section == "verse":
+            return [
+                self._generate_verse_pattern(style, parameters, time_sig),
+                self._swing_verserideheavy(time_sig) if style == "swing" else None,
+                self._swing_verse_sparse(time_sig) if style == "swing" else None,
+            ]
+        elif section == "chorus":
+            return [
+                self._generate_chorus_pattern(style, parameters, time_sig),
+                self._swing_chorus_full(time_sig) if style == "swing" else None,
+                self._swing_chorus_brushes(time_sig) if style == "swing" else None,
+            ]
+        elif section == "bridge":
+            return [
+                self._generate_bridge_pattern(style, parameters, time_sig),
+                self._bridge_latin_jazz(time_sig),
+                self._bridge_ballad(time_sig),
+            ]
+        elif section == "breakdown":
+            return [
+                self._generate_breakdown_pattern(style, parameters, time_sig),
+                self._breakdown_brushes(time_sig),
+                self._breakdown_percussion(time_sig),
+            ]
+        elif section in ("intro", "outro"):
+            return [
+                self._generate_intro_pattern(style, parameters, time_sig)
+                if section == "intro"
+                else self._generate_outro_pattern(style, parameters, time_sig),
+            ]
+        return [self._generate_verse_pattern(style, parameters, time_sig)]
+
+    # ------------------------------------------------------------------
+    # Jazz flavor methods (swing focused)
+    # ------------------------------------------------------------------
+
+    def _swing_verserideheavy(self, time_sig):
+        """Flavor 2 — ride-heavy verse."""
+        import random as _rand
+        builder = PatternBuilder("jazz_swing_verse_rid_heavy", time_sig)
+        builder.kick(0.0, 85).kick(2.5, 80)
+        builder.snare(1.0, 95).snare(3.0, 95)
+        for i in range(8):
+            pos = i * 0.5
+            vel = 85 + _rand.randint(-3, 5) if i % 2 == 0 else 75
+            builder.ride(pos, min(127, vel))
+        return builder.build()
+
+    def _swing_verse_sparse(self, time_sig):
+        """Flavor 3 — sparse swing."""
+        import random as _rand
+        builder = PatternBuilder("jazz_swing_verse_sparse", time_sig)
+        builder.kick(0.0, 80).kick(2.0, 75)
+        builder.snare(1.0, 90).snare(3.0, 90)
+        for i in range(4):
+            vel = 70 + _rand.randint(-3, 5)
+            builder.ride(i * 1.0, min(127, vel))
+        return builder.build()
+
+    def _swing_chorus_full(self, time_sig):
+        """Flavor 2 — full combo chorus."""
+        import random as _rand
+        builder = PatternBuilder("jazz_swing_chorus_full", time_sig)
+        for beat in range(4):
+            base = beat * 1.0
+            builder.kick(base, 90).kick(base + 0.5, 85)
+        builder.snare(1.0, 105).snare(3.0, 105)
+        builder.crash(0.0, 110)
+        builder.crash(2.0, 105)
+        for i in range(8):
+            vel = 85 + _rand.randint(-3, 5)
+            builder.ride(i * 0.5, min(127, vel))
+        return builder.build()
+
+    def _swing_chorus_brushes(self, time_sig):
+        """Flavor 3 — brush chorus."""
+        import random as _rand
+        builder = PatternBuilder("jazz_swing_chorus_brush", time_sig)
+        for beat in range(4):
+            base = beat * 1.0
+            builder.kick(base, 80).kick(base + 0.5, 75)
+        builder.snare(1.0, 95).snare(3.0, 95)
+        for i in range(8):
+            vel = 65 + _rand.randint(-3, 5)
+            builder.hihat(i * 0.5, min(127, vel))
+        return builder.build()
+
+    def _bridge_latin_jazz(self, time_sig):
+        """Bridge flavor — Latin jazz."""
+        import random as _rand
+        builder = PatternBuilder("jazz_bridge_latin", time_sig)
+        for pos in [0.0, 1.5, 2.5, 3.75]:
+            builder.kick(pos, 90 + _rand.randint(-5, 5))
+        builder.snare(1.0, 100).snare(3.0, 100)
+        for i in range(8):
+            vel = 75 + _rand.randint(-3, 5)
+            builder.ride(i * 0.5, min(127, vel))
+        return builder.build()
+
+    def _bridge_ballad(self, time_sig):
+        """Bridge flavor — ballad."""
+        import random as _rand
+        builder = PatternBuilder("jazz_bridge_ballad", time_sig)
+        builder.kick(0.0, 65).kick(2.0, 60)
+        builder.snare(1.0, 70).snare(3.0, 70)
+        for i in range(4):
+            vel = 55 + _rand.randint(-3, 5)
+            builder.hihat(i * 1.0, min(127, vel))
+        return builder.build()
+
+    def _breakdown_brushes(self, time_sig):
+        """Breakdown flavor — brushes only."""
+        import random as _rand
+        builder = PatternBuilder("jazz_breakdown_brush", time_sig)
+        for i in range(8):
+            vel = 50 + _rand.randint(-3, 5)
+            builder.hihat(i * 0.5, min(127, vel))
+        return builder.build()
+
+    def _breakdown_percussion(self, time_sig):
+        """Breakdown flavor — percussion focus."""
+        import random as _rand
+        builder = PatternBuilder("jazz_breakdown_perc", time_sig)
+        for beat in range(4):
+            pos = beat * 1.0 + 0.25
+            builder.snare(pos, 75 + _rand.randint(-5, 8))
+        for i in range(4):
+            vel = 60 + _rand.randint(-3, 5)
+            builder.hihat(i * 1.0, min(127, vel))
+        return builder.build()
+
+    def _time_signature(self, parameters):
+        """Helper to get time signature (default 4/4 for jazz)."""
+        from midi_drums.core.value_objects.time_signature import TimeSignature
+        return TimeSignature(4, 4)

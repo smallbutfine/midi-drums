@@ -183,6 +183,30 @@ class ComposerV2:
 
         return curve_map
 
+    def _select_flavor(
+        self,
+        available: list[Pattern],
+        bar_index: int,
+        previous_indices: list[int],
+    ) -> Pattern:
+        """Pick a flavor for this bar, avoiding immediate repeats.
+
+        Tries to pick a different flavor than the last bar; falls back
+        to the first (default) if all others were just used.
+        """
+        if len(available) <= 1:
+            return available[0]
+
+        # Filter out flavors used on the immediately previous bar(s)
+        recent = set(previous_indices[-2:]) if previous_indices else set()
+        candidates = [i for i in range(len(available)) if i not in recent]
+        if not candidates:
+            candidates = list(range(len(available)))
+
+        idx = candidates[bar_index % len(candidates)]
+        previous_indices.append(idx)
+        return available[idx]
+
     def _generate_base_bar(
         self,
         genre_plugin,
@@ -222,9 +246,26 @@ class ComposerV2:
             style=global_params.style,
             **base_params_dict,
         )
-        base_pattern = genre_plugin.generate_pattern(
-            section_name, params_for_base
-        )
+
+        # Try to get available flavors; fall back to generate_pattern()
+        try:
+            all_flavors = genre_plugin.get_section_flavors(section_name, params_for_base)
+        except TypeError:
+            # Older plugins without get_section_flavors — skip flavor rotation
+            all_flavors = []
+
+        if all_flavors:
+            # Filter out None entries (e.g. style-specific flavors only for some styles)
+            available = [f for f in all_flavors if f is not None]
+            if available:
+                key = (global_params.genre, section_name)
+                indices = getattr(self, "_prev_indices", {})
+                idx_list = indices.setdefault(key, [])
+                base_pattern = self._select_flavor(available, bar_index, idx_list)
+            else:
+                base_pattern = genre_plugin.generate_pattern(section_name, params_for_base)
+        else:
+            base_pattern = genre_plugin.generate_pattern(section_name, params_for_base)
 
         if not base_pattern:
             return None

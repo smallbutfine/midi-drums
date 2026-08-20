@@ -108,6 +108,49 @@ class RockGenrePlugin(GenrePlugin):
 
         return fills
 
+    # ------------------------------------------------------------------
+    # Pattern Flavors (PLAN #3)
+    # ------------------------------------------------------------------
+
+    def get_section_flavors(
+        self, section: str, parameters: GenerationParameters
+    ) -> list[Pattern]:
+        """Return 3+ distinct patterns for every (section, style) combo."""
+        style = parameters.style
+        time_sig = TimeSignature(4, 4)
+
+        if section == "verse":
+            return [
+                self._generate_verse_pattern(style, parameters, time_sig),
+                self._classic_rock_versesyncopated(time_sig) if style == "classic" else None,
+                self._classic_rock_sparse(time_sig) if style == "classic" else None,
+            ]
+        elif section == "chorus":
+            return [
+                self._generate_chorus_pattern(style, parameters, time_sig),
+                self._classic_rock_chorus_rich(time_sig) if style == "classic" else None,
+                self._classic_rock_chorus_doublekicks(time_sig) if style == "classic" else None,
+            ]
+        elif section == "bridge":
+            return [
+                self._generate_bridge_pattern(style, parameters, time_sig),
+                self._bridge_half_time_rock(time_sig),
+                self._bridge_groove(time_sig),
+            ]
+        elif section == "breakdown":
+            return [
+                self._generate_breakdown_pattern(style, parameters, time_sig),
+                self._breakdown_punk(time_sig),
+                self._breakdown_half_time_rock(time_sig),
+            ]
+        elif section in ("intro", "outro"):
+            return [
+                self._generate_intro_pattern(style, parameters, time_sig)
+                if section == "intro"
+                else self._generate_outro_pattern(style, parameters, time_sig),
+            ]
+        return [self._generate_verse_pattern(style, parameters, time_sig)]
+
     def _generate_intro_pattern(
         self,
         style: str,
@@ -528,4 +571,89 @@ class RockGenrePlugin(GenrePlugin):
         builder.crash(0.0, 115)
         builder.kick(0.0, 115)
 
+        return builder.build()
+
+    # ------------------------------------------------------------------
+    # Rock flavor methods (classic rock focused)
+    # ------------------------------------------------------------------
+
+    def _classic_rock_versesyncopated(self, time_sig):
+        """Flavor 2 — syncopated kick."""
+        builder = PatternBuilder("rock_classic_verse_sync", time_sig)
+        for pos in [0.0, 1.5, 2.75, 3.25]:
+            builder.kick(pos, 105 + random.randint(-5, 5))
+        builder.snare(1.0, 110).snare(3.0, 115)
+        for i in range(8):
+            builder.hihat(i * 0.5, 80)
+        return builder.build()
+
+    def _classic_rock_sparse(self, time_sig):
+        """Flavor 3 — sparse groove."""
+        builder = PatternBuilder("rock_classic_verse_sparse", time_sig)
+        builder.kick(0.0, 105).kick(2.0, 100)
+        builder.snare(1.0, 110).snare(3.0, 110)
+        for i in range(4):
+            builder.hihat(i * 1.0, 75)
+        return builder.build()
+
+    def _classic_rock_chorus_rich(self, time_sig):
+        """Flavor 2 — chorus with crash accents."""
+        builder = PatternBuilder("rock_classic_chorus_rich", time_sig)
+        for beat in range(4):
+            base = beat * 1.0
+            builder.kick(base, 110).kick(base + 0.5, 105)
+        builder.snare(1.0, 120).snare(3.0, 120)
+        builder.crash(0.0, 115)
+        builder.crash(2.0, 110)
+        for i in range(8):
+            builder.hihat(i * 0.5, 85)
+        return builder.build()
+
+    def _classic_rock_chorus_doublekicks(self, time_sig):
+        """Flavor 3 — double kick chorus."""
+        builder = PatternBuilder("rock_classic_chorus_dk", time_sig)
+        for beat in range(4):
+            base = beat * 1.0
+            builder.kick(base, 115).kick(base + 0.25, 105).kick(base + 0.75, 105)
+        builder.snare(1.0, 120).snare(3.0, 120)
+        for i in range(8):
+            builder.hihat(i * 0.5, 80)
+        return builder.build()
+
+    def _bridge_half_time_rock(self, time_sig):
+        """Bridge flavor — half-time."""
+        builder = PatternBuilder("rock_bridge_hm", time_sig)
+        builder.kick(0.0, 115).kick(2.0, 110)
+        builder.snare(1.5, 120)
+        for i in range(4):
+            builder.hihat(i * 1.0, 75)
+        return builder.build()
+
+    def _bridge_groove(self, time_sig):
+        """Bridge flavor — groovy with syncopation."""
+        builder = PatternBuilder("rock_bridge_groove", time_sig)
+        for pos in [0.0, 1.25, 2.0, 3.0]:
+            builder.kick(pos, 105)
+        builder.snare(1.0, 115).snare(3.0, 115)
+        for i in range(8):
+            builder.hihat(i * 0.5, 78)
+        return builder.build()
+
+    def _breakdown_punk(self, time_sig):
+        """Breakdown flavor — punk style."""
+        builder = PatternBuilder("rock_breakdown_punk", time_sig)
+        for pos in [0.0, 1.0, 2.0, 3.0]:
+            builder.kick(pos, 125)
+        builder.snare(1.0, 120).snare(3.0, 120)
+        for i in range(8):
+            builder.tight_hh(i * 0.5, open=False)
+        return builder.build()
+
+    def _breakdown_half_time_rock(self, time_sig):
+        """Breakdown flavor — half-time heavy."""
+        builder = PatternBuilder("rock_breakdown_hm", time_sig)
+        builder.kick(0.0, 130).kick(2.5, 120)
+        builder.snare(1.5, 130)
+        for i in range(4):
+            builder.hihat(i * 1.0, 70)
         return builder.build()

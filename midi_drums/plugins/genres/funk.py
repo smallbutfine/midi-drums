@@ -638,3 +638,149 @@ class FunkGenrePlugin(GenrePlugin):
         builder.snare(1.5, 90)
 
         return builder.build()
+
+    # ------------------------------------------------------------------
+    # Pattern Flavors (PLAN #3)
+    # ------------------------------------------------------------------
+
+    def get_section_flavors(self, section, parameters):
+        """Return 3+ distinct patterns for every (section, style) combo."""
+        style = parameters.style
+        time_sig = self._time_signature(parameters)
+
+        if section == "verse":
+            return [
+                self._generate_verse_pattern(style, parameters, time_sig),
+                self._classic_funk_vers_ghostdense(time_sig) if style == "classic" else None,
+                self._classic_funk_versyncopated(time_sig) if style == "classic" else None,
+            ]
+        elif section == "chorus":
+            return [
+                self._generate_chorus_pattern(style, parameters, time_sig),
+                self._classic_funk_chorus_minimal(time_sig) if style == "classic" else None,
+                self._classic_funk_chorus_heavygroove(time_sig) if style == "classic" else None,
+            ]
+        elif section == "bridge":
+            return [
+                self._generate_bridge_pattern(style, parameters, time_sig),
+                self._bridge_minimal(time_sig),
+                self._bridge_fusion(time_sig),
+            ]
+        elif section == "breakdown":
+            return [
+                self._generate_breakdown_pattern(style, parameters, time_sig),
+                self._breakdown_pocket(time_sig),
+                self._breakdown_stripped(time_sig),
+            ]
+        elif section in ("intro", "outro"):
+            return [
+                self._generate_intro_pattern(style, parameters, time_sig)
+                if section == "intro"
+                else self._generate_outro_pattern(style, parameters, time_sig),
+            ]
+        return [self._generate_verse_pattern(style, parameters, time_sig)]
+
+    # ------------------------------------------------------------------
+    # Funk flavor methods (classic funk focused)
+    # ------------------------------------------------------------------
+
+    def _classic_funk_vers_ghostdense(self, time_sig):
+        """Flavor 2 — ghost-note dense verse."""
+        import random as _rand
+        builder = PatternBuilder("funk_classic_verse_ghostdense", time_sig)
+        builder.kick(0.0, 115).kick(2.5, 100)
+        builder.snare(1.0, 115).snare(3.0, 115)
+        # Dense ghost notes on snare
+        for pos in [0.25, 0.75, 1.25, 1.75, 2.25, 2.75, 3.25]:
+            builder.snare(pos, 60 + _rand.randint(-10, 15), ghost_note=True)
+        for i in range(8):
+            vel = 80 + _rand.randint(-5, 5)
+            builder.hihat(i * 0.5, min(127, vel))
+        return builder.build()
+
+    def _classic_funk_versyncopated(self, time_sig):
+        """Flavor 3 — syncopated funk verse."""
+        import random as _rand
+        builder = PatternBuilder("funk_classic_verse_syncop", time_sig)
+        for pos in [0.0, 1.25, 2.0, 3.5]:
+            builder.kick(pos, 110 + _rand.randint(-8, 8))
+        builder.snare(1.0, 115).snare(3.0, 110)
+        for i in range(8):
+            vel = 78 + _rand.randint(-5, 5)
+            builder.hihat(i * 0.5, min(127, vel))
+        return builder.build()
+
+    def _classic_funk_chorus_minimal(self, time_sig):
+        """Flavor 2 — minimal chorus (tight groove)."""
+        import random as _rand
+        builder = PatternBuilder("funk_classic_chorus_minimal", time_sig)
+        builder.kick(0.0, 115).kick(2.0, 105)
+        builder.snare(1.0, 120).snare(3.0, 120)
+        for i in range(8):
+            vel = 75 + _rand.randint(-3, 5)
+            builder.tight_hh(i * 0.5, open=False, velocity=min(127, vel))
+        return builder.build()
+
+    def _classic_funk_chorus_heavygroove(self, time_sig):
+        """Flavor 3 — heavy groove chorus."""
+        import random as _rand
+        builder = PatternBuilder("funk_classic_chorus_heavy", time_sig)
+        for beat in range(4):
+            base = beat * 1.0
+            builder.kick(base, 120).kick(base + 0.5, 105)
+        builder.snare(1.0, 125).snare(3.0, 125)
+        builder.crash(0.0, 115)
+        for i in range(8):
+            vel = 82 + _rand.randint(-3, 5)
+            builder.hihat(i * 0.5, min(127, vel))
+        return builder.build()
+
+    def _bridge_minimal(self, time_sig):
+        """Bridge flavor — minimal."""
+        import random as _rand
+        builder = PatternBuilder("funk_bridge_minimal", time_sig)
+        builder.kick(0.0, 100)
+        builder.snare(2.0, 105)
+        for i in range(4):
+            vel = 65 + _rand.randint(-3, 5)
+            builder.hihat(i * 1.0, min(127, vel))
+        return builder.build()
+
+    def _bridge_fusion(self, time_sig):
+        """Bridge flavor — fusion."""
+        import random as _rand
+        builder = PatternBuilder("funk_bridge_fusion", time_sig)
+        for pos in [0.0, 1.5, 2.5, 3.75]:
+            builder.kick(pos, 100 + _rand.randint(-8, 8))
+        builder.snare(1.0, 110).snare(3.0, 110)
+        for i in range(8):
+            vel = 78 + _rand.randint(-3, 5)
+            builder.hihat(i * 0.5, min(127, vel))
+        return builder.build()
+
+    def _breakdown_pocket(self, time_sig):
+        """Breakdown flavor — pocket groove."""
+        import random as _rand
+        builder = PatternBuilder("funk_breakdown_pocket", time_sig)
+        for pos in [0.0, 1.25, 2.75, 3.5]:
+            builder.kick(pos, 115 + _rand.randint(-8, 8))
+        builder.snare(1.0, 110).snare(3.0, 110)
+        for i in range(8):
+            vel = 78 + _rand.randint(-3, 5)
+            builder.hihat(i * 0.5, min(127, vel))
+        return builder.build()
+
+    def _breakdown_stripped(self, time_sig):
+        """Breakdown flavor — stripped down."""
+        import random as _rand
+        builder = PatternBuilder("funk_breakdown_stripped", time_sig)
+        builder.kick(0.0, 120).kick(2.0, 105)
+        for i in range(4):
+            vel = 60 + _rand.randint(-3, 5)
+            builder.hihat(i * 1.0, min(127, vel))
+        return builder.build()
+
+    def _time_signature(self, parameters):
+        """Helper to get time signature (default 4/4 for funk)."""
+        from midi_drums.core.value_objects.time_signature import TimeSignature
+        return TimeSignature(4, 4)
