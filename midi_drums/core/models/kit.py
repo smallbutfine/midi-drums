@@ -242,7 +242,7 @@ class DrumKit:
                 DrumInstrument.OPEN_HH_3: 26,
                 DrumInstrument.OPEN_HH_MAX: 60,
                 # Extended hi-hats (EZD3 keymap positions)
-                DrumInstrument.CLOSED_HH_EDGE: 42,
+                # Note: CLOSED_HH_EDGE uses enum default (22), not a custom mapping
                 DrumInstrument.CLOSED_HH_TIP: 61,
                 DrumInstrument.TIGHT_HH_EDGE: 91,
                 DrumInstrument.TIGHT_HH_TIP: 90,
