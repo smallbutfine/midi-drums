@@ -117,6 +117,275 @@ class MetalGenrePlugin(GenrePlugin):
 
         return fills
 
+    def get_section_flavors(
+        self, section: str, parameters: GenerationParameters
+    ) -> list[Pattern]:
+        """Return 3 distinct pattern flavors for this (section, style).
+
+        Each flavor differs in kick placement, snare density, or timekeeper so
+        ComposerV2 can rotate skeletons bar-by-bar instead of repeating the same
+        skeleton with velocity tweaks only.
+        """
+        style = parameters.style
+        complexity = parameters.complexity
+
+        if section == "intro":
+            return self._flavors_intro(style, complexity)
+        elif section == "verse":
+            return self._flavors_verse(style, complexity)
+        elif section == "chorus":
+            return self._flavors_chorus(style, complexity)
+        elif section == "breakdown":
+            return self._flavors_breakdown(style, complexity)
+        elif section in ("bridge", "pre_chorus"):
+            return self._flavors_bridge(style, complexity)
+        elif section in ("outro", "ending"):
+            return self._flavors_outro(style, complexity)
+        return []
+
+    def _flavors_intro(self, style: str, complexity: float) -> list[Pattern]:
+        name = f"metal_{style}_intro"
+        # Flavor 1: sparse quarter-hat with crash on beat 1
+        f1 = (
+            TemplateComposer(f"{name}_i_sparse")
+            .add(
+                BasicGroove(
+                    kick_positions=[0.0, 2.0],
+                    snare_positions=[],
+                    hihat_subdivision=TIMING.QUARTER,
+                )
+            )
+            .add(CrashAccents(positions=[0.0], intensity=1.0))
+            .build(bars=1, complexity=complexity)
+        )
+        # Flavor 2: double-kick build with crash at end
+        f2 = (
+            TemplateComposer(f"{name}_i_double")
+            .add(
+                BasicGroove(
+                    kick_positions=[0.0, 0.5, 1.0, 1.5, 2.0, 2.5, 3.0, 3.5],
+                    snare_positions=[],
+                    hihat_subdivision=TIMING.HALF,
+                )
+            )
+            .add(CrashAccents(positions=[3.0], intensity=1.0))
+            .build(bars=1, complexity=complexity)
+        )
+        # Flavor 3: crash-sparse with tom fill
+        f3 = (
+            TemplateComposer(f"{name}_i_crash")
+            .add(
+                BasicGroove(
+                    kick_positions=[0.0],
+                    snare_positions=[],
+                    hihat_subdivision=TIMING.HALF,
+                )
+            )
+            .add(CrashAccents(positions=[0.0, 1.5, 3.0], intensity=0.7))
+            .build(bars=1, complexity=complexity)
+        )
+        return [f1, f2, f3]
+
+    def _flavors_verse(self, style: str, complexity: float) -> list[Pattern]:
+        name = f"metal_{style}_verse"
+        # Flavor 1: sparse blast — less dense timekeeper
+        f1 = (
+            TemplateComposer(f"{name}_v_sparse")
+            .add(
+                DoubleBassPedal(
+                    subdivision=TIMING.EIGHTH_TRIPLET,
+                    intensity=0.7,
+                    pattern_type="burst",
+                )
+            )
+            .add(BlastBeat(style="traditional", intensity=0.85))
+            .build(bars=1, complexity=complexity)
+        )
+        # Flavor 2: continuous double bass (maximum density)
+        f2 = (
+            TemplateComposer(f"{name}_v_full")
+            .add(
+                DoubleBassPedal(
+                    subdivision=TIMING.SIXTEENTH,
+                    intensity=1.0,
+                    pattern_type="continuous",
+                )
+            )
+            .add(BlastBeat(style="hammer", intensity=0.95))
+            .build(bars=1, complexity=complexity)
+        )
+        # Flavor 3: syncopated gallop pattern
+        f3 = (
+            TemplateComposer(f"{name}_v_sync")
+            .add(
+                DoubleBassPedal(
+                    subdivision=TIMING.EIGHTH,
+                    intensity=0.85,
+                    pattern_type="gallop",
+                )
+            )
+            .add(BlastBeat(style="traditional", intensity=0.7))
+            .build(bars=1, complexity=complexity)
+        )
+        return [f1, f2, f3]
+
+    def _flavors_chorus(self, style: str, complexity: float) -> list[Pattern]:
+        name = f"metal_{style}_chorus"
+        c = min(1.0, complexity + 0.2)
+        # Flavor 1: blast + crash on 1 and 3
+        f1 = (
+            TemplateComposer(f"{name}_c_blast")
+            .add(BlastBeat(style="traditional", intensity=1.0))
+            .add(CrashAccents(positions=[0.0, 2.0], intensity=1.0))
+            .build(bars=1, complexity=c)
+        )
+        # Flavor 2: gallop + crash on every quarter
+        f2 = (
+            TemplateComposer(f"{name}_c_gallop")
+            .add(
+                DoubleBassPedal(
+                    subdivision=TIMING.EIGHTH,
+                    intensity=0.95,
+                    pattern_type="gallop",
+                )
+            )
+            .add(CrashAccents(positions=[0.0, 1.0, 2.0, 3.0], intensity=0.85))
+            .build(bars=1, complexity=c)
+        )
+        # Flavor 3: heavy double-bass wall
+        f3 = (
+            TemplateComposer(f"{name}_c_wall")
+            .add(
+                DoubleBassPedal(
+                    subdivision=TIMING.SIXTEENTH,
+                    intensity=1.0,
+                    pattern_type="continuous",
+                )
+            )
+            .add(CrashAccents(positions=[0.0], intensity=1.0))
+            .build(bars=1, complexity=c)
+        )
+        return [f1, f2, f3]
+
+    def _flavors_breakdown(self, style: str, complexity: float) -> list[Pattern]:
+        name = f"metal_{style}_breakdown"
+        # Flavor 1: sparse syncopated groove
+        f1 = (
+            TemplateComposer(f"{name}_b_sparse")
+            .add(
+                BasicGroove(
+                    kick_positions=[0.0, 2.5],
+                    snare_positions=[1.5],
+                    hihat_subdivision=TIMING.HALF,
+                )
+            )
+            .add(TomFill(pattern="descending", start_position=3.0))
+            .build(bars=1, complexity=complexity)
+        )
+        # Flavor 2: heavy stomp
+        f2 = (
+            TemplateComposer(f"{name}_b_stomp")
+            .add(
+                BasicGroove(
+                    kick_positions=[0.0, 1.0, 2.0, 3.0],
+                    snare_positions=[2.0],
+                    hihat_subdivision=TIMING.QUARTER,
+                )
+            )
+            .add(CrashAccents(positions=[0.0], intensity=1.0))
+            .build(bars=1, complexity=complexity)
+        )
+        # Flavor 3: half-time slow groove
+        f3 = (
+            TemplateComposer(f"{name}_b_half")
+            .add(
+                BasicGroove(
+                    kick_positions=[0.0, 3.0],
+                    snare_positions=[1.5],
+                    hihat_subdivision=TIMING.EIGHTH,
+                )
+            )
+            .add(TomFill(pattern="around", start_position=0.0))
+            .build(bars=1, complexity=max(0.0, complexity - 0.15))
+        )
+        return [f1, f2, f3]
+
+    def _flavors_bridge(self, style: str, complexity: float) -> list[Pattern]:
+        name = f"metal_{style}_bridge"
+        c = max(0.0, complexity - 0.1)
+        # Flavor 1: tom-heavy bridge
+        f1 = (
+            TemplateComposer(f"{name}_br_tom")
+            .add(
+                BasicGroove(
+                    kick_positions=[0.0],
+                    snare_positions=[],
+                    hihat_subdivision=TIMING.HALF,
+                )
+            )
+            .add(TomFill(pattern="descending", start_position=0.0))
+            .build(bars=1, complexity=c)
+        )
+        # Flavor 2: sparse groove with fill
+        f2 = (
+            TemplateComposer(f"{name}_br_sparse")
+            .add(
+                BasicGroove(
+                    kick_positions=[0.0, 2.5],
+                    snare_positions=[1.0, 3.0],
+                    hihat_subdivision=TIMING.EIGHTH,
+                )
+            )
+            .add(TomFill(pattern="around", start_position=3.0))
+            .build(bars=1, complexity=c)
+        )
+        # Flavor 3: ride/crash-based
+        f3 = (
+            TemplateComposer(f"{name}_br_ride")
+            .add(
+                BasicGroove(
+                    kick_positions=[0.0, 1.5, 3.0],
+                    snare_positions=[1.0],
+                    hihat_subdivision=TIMING.EIGHTH,
+                )
+            )
+            .add(CrashAccents(positions=[3.5], intensity=0.8))
+            .build(bars=1, complexity=c)
+        )
+        return [f1, f2, f3]
+
+    def _flavors_outro(self, style: str, complexity: float) -> list[Pattern]:
+        name = f"metal_{style}_outro"
+        c = max(0.0, complexity - 0.3)
+        # Flavor 1: descending tom + crash
+        f1 = (
+            TemplateComposer(f"{name}_o_desc")
+            .add(TomFill(pattern="descending", start_position=0.0))
+            .add(CrashAccents(positions=[3.75], intensity=1.0))
+            .build(bars=1, complexity=c)
+        )
+        # Flavor 2: sparse hits fading out
+        f2 = (
+            TemplateComposer(f"{name}_o_sparse")
+            .add(
+                BasicGroove(
+                    kick_positions=[0.0],
+                    snare_positions=[],
+                    hihat_subdivision=TIMING.QUARTER,
+                )
+            )
+            .add(CrashAccents(positions=[3.5], intensity=0.6))
+            .build(bars=1, complexity=c)
+        )
+        # Flavor 3: tom roll finale
+        f3 = (
+            TemplateComposer(f"{name}_o_rollo")
+            .add(TomFill(pattern="ascending", start_position=0.0))
+            .add(CrashAccents(positions=[3.5], intensity=1.0))
+            .build(bars=1, complexity=c)
+        )
+        return [f1, f2, f3]
+
     def _high_energy_timekeeper(
         self, section: str, parameters: GenerationParameters
     ) -> DrumInstrument:

@@ -8,6 +8,7 @@ full functional equivalence with the original funk.py plugin.
 from midi_drums.config import TIMING
 from midi_drums.core.models.pattern import Pattern
 from midi_drums.core.models.song import Fill
+from midi_drums.core.value_objects.drum_instrument import DrumInstrument
 from midi_drums.core.value_objects.generation_parameters import (
     GenerationParameters,
 )
@@ -147,6 +148,278 @@ class FunkGenrePlugin(GenrePlugin):
         )
 
         return fills
+
+    def get_section_flavors(
+        self, section: str, parameters: GenerationParameters
+    ) -> list[Pattern]:
+        """Return 3 distinct funk flavors for this (section, style)."""
+        style = parameters.style
+        complexity = parameters.complexity
+
+        if section == "intro":
+            return self._flavors_intro(style, complexity)
+        elif section == "verse":
+            return self._flavors_verse(style, complexity)
+        elif section == "chorus":
+            return self._flavors_chorus(style, complexity)
+        elif section == "breakdown":
+            return self._flavors_breakdown(style, complexity)
+        elif section in ("bridge", "pre_chorus"):
+            return self._flavors_bridge(style, complexity)
+        elif section == "outro":
+            return self._flavors_outro(style, complexity)
+        return []
+
+    def _flavors_intro(self, style: str, complexity: float) -> list[Pattern]:
+        name = f"funk_{style}_intro"
+        # 1: building groove with tight hi-hat
+        f1 = (
+            TemplateComposer(f"{name}_f1")
+            .add(
+                BasicGroove(
+                    kick_positions=[0.0, 2.0],
+                    snare_positions=[],
+                    hihat_subdivision=TIMING.EIGHTH,
+                )
+            )
+            .add(CrashAccents(positions=[3.5], intensity=1.0))
+            .build(bars=1, complexity=max(0.0, complexity - 0.2))
+        )
+        # 2: sparse attack with building snare fills
+        f2 = (
+            TemplateComposer(f"{name}_f2")
+            .add(
+                BasicGroove(
+                    kick_positions=[0.0],
+                    snare_positions=[],
+                    hihat_subdivision=TIMING.HALF,
+                )
+            )
+            .add(TomFill(pattern="ascending", start_position=2.5))
+            .build(bars=1, complexity=max(0.0, complexity - 0.3))
+        )
+        # 3: tight stomp with double-kick build
+        f3 = (
+            TemplateComposer(f"{name}_f3")
+            .add(
+                BasicGroove(
+                    kick_positions=[0.0, 0.5, 1.0, 1.5, 2.0, 2.5, 3.0, 3.5],
+                    snare_positions=[],
+                    hihat_subdivision=TIMING.HALF,
+                )
+            )
+            .add(CrashAccents(positions=[0.0], intensity=1.0))
+            .build(bars=1, complexity=max(0.0, complexity - 0.3))
+        )
+        return [f1, f2, f3]
+
+    def _flavors_verse(self, style: str, complexity: float) -> list[Pattern]:
+        name = f"funk_{style}_verse"
+        # 1: classic "the one" groove with ghost notes
+        f1 = (
+            TemplateComposer(f"{name}_f1")
+            .add(
+                FunkGhostNotes(
+                    density=0.7,
+                    emphasize_one=True,
+                    main_snare_positions=[1.0, 3.0],
+                )
+            )
+            .add(
+                BasicGroove(
+                    kick_positions=[0.0, 2.0],
+                    snare_positions=[1.0, 3.0],
+                    hihat_subdivision=TIMING.EIGHTH,
+                )
+            )
+            .build(bars=1, complexity=complexity)
+        )
+        # 2: syncopated pocket with tight hi-hat
+        groove_f2 = BasicGroove(
+            kick_positions=[0.0, 0.75, 2.0],
+            snare_positions=[1.0, 3.0],
+            hihat_subdivision=TIMING.SIXTEENTH,
+        )
+        f2 = (
+            TemplateComposer(f"{name}_f2")
+            .add(FunkGhostNotes(density=0.5, emphasize_one=False))
+            .add(groove_f2)
+            .build(bars=1, complexity=complexity)
+        )
+        # 3: ghost-note heavy with half-time kick
+        groove_f3 = BasicGroove(
+            kick_positions=[0.0, 3.0],
+            snare_positions=[1.5],
+            hihat_subdivision=TIMING.EIGHTH,
+        )
+        f3 = (
+            TemplateComposer(f"{name}_f3")
+            .add(FunkGhostNotes(density=0.9, emphasize_one=False))
+            .add(groove_f3)
+            .build(bars=1, complexity=max(0.0, complexity - 0.1))
+        )
+        return [f1, f2, f3]
+
+    def _flavors_chorus(self, style: str, complexity: float) -> list[Pattern]:
+        name = f"funk_{style}_chorus"
+        c = min(1.0, complexity + 0.2)
+        # 1: double-kick funk with crash accents
+        groove_c1 = BasicGroove(
+            kick_positions=[0.0, 0.5, 2.0, 2.5],
+            snare_positions=[1.0, 3.0],
+            hihat_subdivision=TIMING.EIGHTH,
+        )
+        f1 = (
+            TemplateComposer(f"{name}_f1")
+            .add(FunkGhostNotes(density=0.8, emphasize_one=True))
+            .add(groove_c1)
+            .add(CrashAccents(positions=[0.0, 2.0], intensity=0.9))
+            .build(bars=1, complexity=c)
+        )
+        # 2: crash-heavy with half-time shuffle
+        groove_c2 = BasicGroove(
+            kick_positions=[0.0, 3.0],
+            snare_positions=[1.5],
+            hihat_subdivision=TIMING.EIGHTH,
+        )
+        f2 = (
+            TemplateComposer(f"{name}_f2")
+            .add(JazzRidePattern(swing_ratio=0.6, accent_pattern="standard"))
+            .add(groove_c2)
+            .add(CrashAccents(positions=[0.0, 1.0, 2.0, 3.0], intensity=0.8))
+            .build(bars=1, complexity=c)
+        )
+        # 3: straight-eighth with dense kick patterns
+        groove_c3 = BasicGroove(
+            kick_positions=[0.0, 1.0, 2.0, 3.0],
+            snare_positions=[1.0, 3.0],
+            hihat_subdivision=TIMING.SIXTEENTH,
+        )
+        f3 = (
+            TemplateComposer(f"{name}_f3")
+            .add(JazzRidePattern(swing_ratio=0.2, accent_pattern="standard"))
+            .add(groove_c3)
+            .build(bars=1, complexity=c)
+        )
+        return [f1, f2, f3]
+
+    def _flavors_breakdown(self, style: str, complexity: float) -> list[Pattern]:
+        name = f"funk_{style}_breakdown"
+        # 1: sparse minimal groove
+        groove_b1 = BasicGroove(
+            kick_positions=[0.0],
+            snare_positions=[],
+            hihat_subdivision=TIMING.HALF,
+        )
+        f1 = (
+            TemplateComposer(f"{name}_f1")
+            .add(groove_b1)
+            .build(bars=1, complexity=max(0.0, complexity - 0.3))
+        )
+        # 2: half-time groove with ghost notes
+        groove_b2 = BasicGroove(
+            kick_positions=[0.0, 3.0],
+            snare_positions=[1.5],
+            hihat_subdivision=TIMING.EIGHTH,
+        )
+        f2 = (
+            TemplateComposer(f"{name}_f2")
+            .add(FunkGhostNotes(density=0.4, emphasize_one=False))
+            .add(groove_b2)
+            .build(bars=1, complexity=max(0.0, complexity - 0.2))
+        )
+        # 3: syncopated bass drum with sparse snare
+        groove_b3 = BasicGroove(
+            kick_positions=[0.0, 1.25, 2.5],
+            snare_positions=[],
+            hihat_subdivision=TIMING.HALF,
+        )
+        f3 = (
+            TemplateComposer(f"{name}_f3")
+            .add(groove_b3)
+            .add(TomFill(pattern="descending", start_position=3.0))
+            .build(bars=1, complexity=max(0.0, complexity - 0.15))
+        )
+        return [f1, f2, f3]
+
+    def _flavors_bridge(self, style: str, complexity: float) -> list[Pattern]:
+        name = f"funk_{style}_bridge"
+        c = max(0.0, complexity - 0.1)
+        # 1: fusion-style with tight comping
+        f1 = (
+            TemplateComposer(f"{name}_f1")
+            .add(JazzRidePattern(swing_ratio=0.2, accent_pattern="standard"))
+            .add(FunkGhostNotes(density=0.6, emphasize_one=True))
+            .add(TomFill(pattern="around", start_position=3.0))
+            .build(bars=1, complexity=c)
+        )
+        # 2: latin-funk with clave-pattern kick
+        groove_f2 = BasicGroove(
+            kick_positions=[0.0, 0.75, 1.5, 2.0, 2.75],
+            snare_positions=[1.0, 3.0],
+            hihat_subdivision=TIMING.EIGHTH,
+        )
+        f2 = (
+            TemplateComposer(f"{name}_f2")
+            .add(FunkGhostNotes(density=0.7, emphasize_one=True))
+            .add(groove_f2)
+            .build(bars=1, complexity=c)
+        )
+        # 3: sparse pocket with tom accents
+        groove_f3 = BasicGroove(
+            kick_positions=[0.0, 2.5],
+            snare_positions=[],
+            hihat_subdivision=TIMING.EIGHTH,
+        )
+        f3 = (
+            TemplateComposer(f"{name}_f3")
+            .add(groove_f3)
+            .add(TomFill(pattern="around", start_position=0.0))
+            .build(bars=1, complexity=c)
+        )
+        return [f1, f2, f3]
+
+    def _flavors_outro(self, style: str, complexity: float) -> list[Pattern]:
+        name = f"funk_{style}_outro"
+        c = max(0.0, complexity - 0.3)
+        # 1: fade groove with ghost notes
+        groove_o1 = BasicGroove(
+            kick_positions=[0.0],
+            snare_positions=[],
+            hihat_subdivision=TIMING.HALF,
+        )
+        f1 = (
+            TemplateComposer(f"{name}_f1")
+            .add(FunkGhostNotes(density=0.5, emphasize_one=False))
+            .add(groove_o1)
+            .build(bars=1, complexity=c)
+        )
+        # 2: sparse hits with final tom roll
+        groove_o2 = BasicGroove(
+            kick_positions=[0.0],
+            snare_positions=[],
+            hihat_subdivision=TIMING.HALF,
+        )
+        f2 = (
+            TemplateComposer(f"{name}_f2")
+            .add(groove_o2)
+            .add(TomFill(pattern="descending", start_position=3.0))
+            .build(bars=1, complexity=c)
+        )
+        # 3: sparse tom roll finale with crash
+        f3 = (
+            TemplateComposer(f"{name}_f3")
+            .add(TomFill(pattern="descending", start_position=0.0))
+            .add(CrashAccents(positions=[3.75], intensity=1.0))
+            .build(bars=1, complexity=c)
+        )
+        return [f1, f2, f3]
+
+    def _high_energy_timekeeper(
+        self, section: str, parameters: GenerationParameters
+    ) -> DrumInstrument:
+        """Default ride cymbal for funk timekeeping."""
+        return super()._high_energy_timekeeper(section, parameters)
 
     # -------------------------------------------------------------------------
     # Section generators
@@ -302,9 +575,9 @@ class FunkGenrePlugin(GenrePlugin):
                             hihat_subdivision=TIMING.EIGHTH,
                         )
                     )
-                    .build(bars=1, complexity=max(0.0, complexity - 0.2))
+                    .build(bars=1, complexity=max(0.0, complexity - 0.1))
                 )
-            case _:  # heavy
+            case "heavy":
                 # Heavy funk with rock influence
                 return (
                     TemplateComposer(name)
@@ -317,89 +590,38 @@ class FunkGenrePlugin(GenrePlugin):
                     )
                     .add(
                         BasicGroove(
-                            kick_positions=[0.0, 0.5, 2.0, 2.5],
+                            kick_positions=[0.0, 1.0, 2.0, 3.0],
                             snare_positions=[1.0, 3.0],
-                            hihat_subdivision=TIMING.SIXTEENTH,
+                            hihat_subdivision=TIMING.EIGHTH,
                         )
                     )
-                    .add(CrashAccents(positions=[0.0], intensity=0.85))
-                    .build(bars=1, complexity=complexity)
+                    .add(CrashAccents(positions=[0.0], intensity=0.8))
+                    .build(bars=1, complexity=max(0.0, complexity + 0.1))
                 )
+        # fallback (should not reach)
+        return (
+            TemplateComposer(name)
+            .add(FunkGhostNotes(density=0.5, emphasize_one=True))
+            .add(
+                BasicGroove(
+                    kick_positions=[0.0, 2.0],
+                    snare_positions=[1.0, 3.0],
+                    hihat_subdivision=TIMING.SIXTEENTH,
+                )
+            )
+            .build(bars=1, complexity=complexity)
+        )
 
     def _generate_chorus(self, style: str, complexity: float) -> Pattern:
         """Chorus pattern - more intense than verse."""
         name = f"funk_{style}_chorus"
-        chorus_complexity = min(1.0, complexity + 0.2)
+        c = min(1.0, complexity + 0.2)
 
         match style:
             case "classic":
                 return (
                     TemplateComposer(name)
-                    .add(
-                        FunkGhostNotes(
-                            density=0.8,
-                            emphasize_one=True,
-                            main_snare_positions=[1.0, 3.0],
-                        )
-                    )
-                    .add(
-                        BasicGroove(
-                            kick_positions=[0.0, 0.5, 1.5, 2.0, 3.0],
-                            snare_positions=[1.0, 3.0],
-                            hihat_subdivision=TIMING.SIXTEENTH,
-                        )
-                    )
-                    .add(CrashAccents(positions=[0.0], intensity=0.9))
-                    .build(bars=1, complexity=chorus_complexity)
-                )
-            case "shuffle":
-                return (
-                    TemplateComposer(name)
-                    .add(
-                        FunkGhostNotes(
-                            density=0.7,
-                            emphasize_one=False,
-                            main_snare_positions=[1.0, 3.0],
-                        )
-                    )
-                    .add(
-                        JazzRidePattern(
-                            swing_ratio=0.33, accent_pattern="elvin"
-                        )
-                    )
-                    .add(CrashAccents(positions=[0.0], intensity=0.85))
-                    .build(bars=1, complexity=chorus_complexity)
-                )
-            case "heavy":
-                return (
-                    TemplateComposer(name)
-                    .add(
-                        FunkGhostNotes(
-                            density=0.8,
-                            emphasize_one=True,
-                            main_snare_positions=[1.0, 3.0],
-                        )
-                    )
-                    .add(
-                        BasicGroove(
-                            kick_positions=[0.0, 0.5, 1.0, 2.0, 2.5, 3.0],
-                            snare_positions=[1.0, 3.0],
-                            hihat_subdivision=TIMING.SIXTEENTH,
-                        )
-                    )
-                    .add(CrashAccents(positions=[0.0, 2.0], intensity=1.0))
-                    .build(bars=1, complexity=chorus_complexity)
-                )
-            case "minimal":
-                return (
-                    TemplateComposer(name)
-                    .add(
-                        FunkGhostNotes(
-                            density=0.5,
-                            emphasize_one=True,
-                            main_snare_positions=[1.0, 3.0],
-                        )
-                    )
+                    .add(FunkGhostNotes(density=0.8, emphasize_one=True))
                     .add(
                         BasicGroove(
                             kick_positions=[0.0, 1.0, 2.0, 3.0],
@@ -407,41 +629,93 @@ class FunkGenrePlugin(GenrePlugin):
                             hihat_subdivision=TIMING.EIGHTH,
                         )
                     )
-                    .build(bars=1, complexity=chorus_complexity)
+                    .add(CrashAccents(positions=[0.0, 2.0], intensity=0.9))
+                    .build(bars=1, complexity=c)
                 )
-            case _:  # pfunk, new_orleans, fusion
+            case "pfunk":
                 return (
                     TemplateComposer(name)
-                    .add(
-                        FunkGhostNotes(
-                            density=0.75,
-                            emphasize_one=True,
-                            main_snare_positions=[1.0, 3.0],
-                        )
-                    )
+                    .add(FunkGhostNotes(density=0.9, emphasize_one=True))
                     .add(
                         BasicGroove(
-                            kick_positions=[0.0, 0.5, 2.0, 2.5],
+                            kick_positions=[0.0, 0.5, 1.0, 1.5, 2.0, 2.5],
                             snare_positions=[1.0, 3.0],
                             hihat_subdivision=TIMING.SIXTEENTH,
                         )
                     )
-                    .add(CrashAccents(positions=[0.0], intensity=0.9))
-                    .build(bars=1, complexity=chorus_complexity)
+                    .add(CrashAccents(positions=[0.0], intensity=1.0))
+                    .build(bars=1, complexity=c)
                 )
-
-    def _generate_breakdown(self, style: str, complexity: float) -> Pattern:
-        """Breakdown pattern - minimal, spacious groove."""
-        name = f"funk_{style}_breakdown"
+            case "shuffle":
+                return (
+                    TemplateComposer(name)
+                    .add(
+                        FunkGhostNotes(
+                            density=0.7, emphasize_one=False, main_snare_positions=[1.0, 3.0]
+                        )
+                    )
+                    .add(JazzRidePattern(swing_ratio=0.35, accent_pattern="standard"))
+                    .build(bars=1, complexity=c)
+                )
+            case "new_orleans":
+                return (
+                    TemplateComposer(name)
+                    .add(FunkGhostNotes(density=0.8, emphasize_one=True))
+                    .add(
+                        BasicGroove(
+                            kick_positions=[0.0, 0.5, 1.5, 2.0, 3.0],
+                            snare_positions=[1.0, 2.5, 3.0],
+                            hihat_subdivision=TIMING.SIXTEENTH,
+                        )
+                    )
+                    .add(CrashAccents(positions=[0.0], intensity=0.8))
+                    .build(bars=1, complexity=c)
+                )
+            case "fusion":
+                return (
+                    TemplateComposer(name)
+                    .add(FunkGhostNotes(density=0.8, emphasize_one=False))
+                    .add(JazzRidePattern(swing_ratio=0.2, accent_pattern="standard"))
+                    .add(
+                        BasicGroove(
+                            kick_positions=[0.0, 1.0, 2.0, 3.0],
+                            snare_positions=[1.0, 3.0],
+                            hihat_subdivision=TIMING.EIGHTH,
+                        )
+                    )
+                    .add(CrashAccents(positions=[0.0], intensity=0.9))
+                    .build(bars=1, complexity=c)
+                )
+            case "minimal":
+                return (
+                    TemplateComposer(name)
+                    .add(FunkGhostNotes(density=0.4, emphasize_one=True))
+                    .add(
+                        BasicGroove(
+                            kick_positions=[0.0, 2.0],
+                            snare_positions=[1.0, 3.0],
+                            hihat_subdivision=TIMING.HALF,
+                        )
+                    )
+                    .build(bars=1, complexity=c)
+                )
+            case "heavy":
+                return (
+                    TemplateComposer(name)
+                    .add(FunkGhostNotes(density=0.9, emphasize_one=True))
+                    .add(
+                        BasicGroove(
+                            kick_positions=[0.0, 1.0, 2.0, 3.0],
+                            snare_positions=[1.0, 3.0],
+                            hihat_subdivision=TIMING.SIXTEENTH,
+                        )
+                    )
+                    .add(CrashAccents(positions=[0.0, 2.0], intensity=1.0))
+                    .build(bars=1, complexity=c)
+                )
         return (
             TemplateComposer(name)
-            .add(
-                FunkGhostNotes(
-                    density=0.4,
-                    emphasize_one=True,
-                    main_snare_positions=[1.0, 3.0],
-                )
-            )
+            .add(FunkGhostNotes(density=0.7, emphasize_one=True))
             .add(
                 BasicGroove(
                     kick_positions=[0.0, 2.0],
@@ -449,76 +723,100 @@ class FunkGenrePlugin(GenrePlugin):
                     hihat_subdivision=TIMING.EIGHTH,
                 )
             )
-            .build(bars=1, complexity=max(0.0, complexity - 0.2))
+            .add(CrashAccents(positions=[0.0], intensity=0.8))
+            .build(bars=1, complexity=c)
+        )
+
+    def _generate_breakdown(self, style: str, complexity: float) -> Pattern:
+        """Breakdown pattern - sparse, minimal groove."""
+        name = f"funk_{style}_breakdown"
+        return (
+            TemplateComposer(name)
+            .add(FunkGhostNotes(density=0.3, emphasize_one=False))
+            .add(
+                BasicGroove(
+                    kick_positions=[0.0],
+                    snare_positions=[],
+                    hihat_subdivision=TIMING.HALF,
+                )
+            )
+            .build(bars=1, complexity=max(0.0, complexity - 0.3))
         )
 
     def _generate_bridge(self, style: str, complexity: float) -> Pattern:
-        """Bridge pattern - often a breakdown or contrasting section."""
+        """Bridge pattern - often a transition or solo section."""
         name = f"funk_{style}_bridge"
         bridge_complexity = max(0.0, complexity - 0.1)
 
         match style:
-            case "shuffle" | "fusion":
+            case "classic":
                 return (
                     TemplateComposer(name)
-                    .add(
-                        JazzRidePattern(
-                            swing_ratio=0.33, accent_pattern="standard"
-                        )
-                    )
+                    .add(FunkGhostNotes(density=0.4, emphasize_one=False))
+                    .add(TomFill(pattern="around", start_position=3.0))
+                    .build(bars=1, complexity=bridge_complexity)
+                )
+            case "fusion":
+                return (
+                    TemplateComposer(name)
+                    .add(JazzRidePattern(swing_ratio=0.2, accent_pattern="standard"))
                     .add(
                         FunkGhostNotes(
-                            density=0.4,
-                            emphasize_one=False,
-                            main_snare_positions=[1.0, 3.0],
+                            density=0.5, emphasize_one=False, main_snare_positions=[1.0, 3.0]
                         )
                     )
                     .add(TomFill(pattern="around", start_position=3.0))
                     .build(bars=1, complexity=bridge_complexity)
                 )
-            case _:
+            case "pfunk":
+                return (
+                    TemplateComposer(name)
+                    .add(FunkGhostNotes(density=0.6, emphasize_one=True))
+                    .add(
+                        BasicGroove(
+                            kick_positions=[0.0, 1.5, 3.0],
+                            snare_positions=[1.0, 2.5],
+                            hihat_subdivision=TIMING.SIXTEENTH,
+                        )
+                    )
+                    .build(bars=1, complexity=bridge_complexity)
+                )
+            case "minimal":
                 return (
                     TemplateComposer(name)
                     .add(
-                        FunkGhostNotes(
-                            density=0.5,
-                            emphasize_one=True,
-                            main_snare_positions=[1.0, 3.0],
-                        )
-                    )
-                    .add(
                         BasicGroove(
-                            kick_positions=[0.0, 2.0],
-                            snare_positions=[1.0, 3.0],
-                            hihat_subdivision=TIMING.EIGHTH,
+                            kick_positions=[0.0],
+                            snare_positions=[],
+                            hihat_subdivision=TIMING.HALF,
                         )
                     )
-                    .add(TomFill(pattern="descending", start_position=3.0))
+                    .build(bars=1, complexity=max(0.0, bridge_complexity - 0.2))
+                )
+            case "shuffle":
+                return (
+                    TemplateComposer(name)
+                    .add(JazzRidePattern(swing_ratio=0.33, accent_pattern="standard"))
+                    .build(bars=1, complexity=bridge_complexity)
+                )
+            # Fallback for any unhandled style
+            case _:
+                return (
+                    TemplateComposer(name)
+                    .add(FunkGhostNotes(density=0.5, emphasize_one=False))
+                    .add(TomFill(pattern="around", start_position=3.0))
                     .build(bars=1, complexity=bridge_complexity)
                 )
 
     def _generate_outro(self, style: str, complexity: float) -> Pattern:
-        """Outro pattern - winds down the groove."""
+        """Outro pattern - winding down with a final hit."""
         name = f"funk_{style}_outro"
         outro_complexity = max(0.0, complexity - 0.3)
 
         return (
             TemplateComposer(name)
-            .add(
-                FunkGhostNotes(
-                    density=0.4,
-                    emphasize_one=True,
-                    main_snare_positions=[1.0, 3.0],
-                )
-            )
-            .add(
-                BasicGroove(
-                    kick_positions=[0.0, 2.0],
-                    snare_positions=[1.0, 3.0],
-                    hihat_subdivision=TIMING.EIGHTH,
-                )
-            )
-            .add(TomFill(pattern="descending", start_position=3.0))
+            .add(FunkGhostNotes(density=0.3, emphasize_one=False))
+            .add(TomFill(pattern="descending", start_position=0.0))
             .add(CrashAccents(positions=[3.75], intensity=1.0))
             .build(bars=1, complexity=outro_complexity)
         )

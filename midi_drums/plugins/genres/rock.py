@@ -153,6 +153,274 @@ class RockGenrePlugin(GenrePlugin):
 
         return fills
 
+    def get_section_flavors(
+        self, section: str, parameters: GenerationParameters
+    ) -> list[Pattern]:
+        """Return 3 distinct rock flavors for this (section, style)."""
+        style = parameters.style
+        complexity = parameters.complexity
+
+        if section == "intro":
+            return self._flavors_intro(style, complexity)
+        elif section == "verse":
+            return self._flavors_verse(style, complexity)
+        elif section == "chorus":
+            return self._flavors_chorus(style, complexity)
+        elif section == "breakdown":
+            return self._flavors_breakdown(style, complexity)
+        elif section in ("bridge", "pre_chorus"):
+            return self._flavors_bridge(style, complexity)
+        elif section == "outro":
+            return self._flavors_outro(style, complexity)
+        return []
+
+    def _flavors_intro(self, style: str, complexity: float) -> list[Pattern]:
+        name = f"rock_{style}_intro"
+        c = max(0.0, complexity - 0.3)
+        # 1: sparse quarter-hat with single crash
+        f1 = (
+            TemplateComposer(f"{name}_f1")
+            .add(
+                BasicGroove(
+                    kick_positions=[0.0, 2.0],
+                    snare_positions=[],
+                    hihat_subdivision=TIMING.QUARTER,
+                )
+            )
+            .add(CrashAccents(positions=[0.0], intensity=1.0))
+            .build(bars=1, complexity=c)
+        )
+        # 2: double-kick build with crash at bar end
+        f2 = (
+            TemplateComposer(f"{name}_f2")
+            .add(
+                BasicGroove(
+                    kick_positions=[0.0, 0.5, 1.0, 1.5, 2.0, 2.5, 3.0, 3.5],
+                    snare_positions=[],
+                    hihat_subdivision=TIMING.HALF,
+                )
+            )
+            .add(CrashAccents(positions=[3.0], intensity=1.0))
+            .build(bars=1, complexity=c)
+        )
+        # 3: crash-sparse with tom fill at end
+        f3 = (
+            TemplateComposer(f"{name}_f3")
+            .add(
+                BasicGroove(
+                    kick_positions=[0.0],
+                    snare_positions=[],
+                    hihat_subdivision=TIMING.HALF,
+                )
+            )
+            .add(CrashAccents(positions=[0.0, 1.5, 3.0], intensity=0.7))
+            .build(bars=1, complexity=c)
+        )
+        return [f1, f2, f3]
+
+    def _flavors_verse(self, style: str, complexity: float) -> list[Pattern]:
+        name = f"rock_{style}_verse"
+        # 1: classic backbeat groove
+        f1 = (
+            TemplateComposer(f"{name}_f1")
+            .add(
+                BasicGroove(
+                    kick_positions=[0.0, 2.0],
+                    snare_positions=[1.0, 3.0],
+                    hihat_subdivision=TIMING.EIGHTH,
+                )
+            )
+            .build(bars=1, complexity=complexity)
+        )
+        # 2: syncopated kick with tight hi-hat
+        f2 = (
+            TemplateComposer(f"{name}_f2")
+            .add(
+                BasicGroove(
+                    kick_positions=[0.0, 0.75, 2.0, 2.75],
+                    snare_positions=[1.0, 3.0],
+                    hihat_subdivision=TIMING.SIXTEENTH,
+                )
+            )
+            .build(bars=1, complexity=complexity)
+        )
+        # 3: half-time feel with heavy snare
+        f3 = (
+            TemplateComposer(f"{name}_f3")
+            .add(
+                BasicGroove(
+                    kick_positions=[0.0, 3.0],
+                    snare_positions=[1.5],
+                    hihat_subdivision=TIMING.HALF,
+                )
+            )
+            .build(bars=1, complexity=max(0.0, complexity - 0.1))
+        )
+        return [f1, f2, f3]
+
+    def _flavors_chorus(self, style: str, complexity: float) -> list[Pattern]:
+        name = f"rock_{style}_chorus"
+        c = min(1.0, complexity + 0.2)
+        # 1: stomp on every beat
+        f1 = (
+            TemplateComposer(f"{name}_f1")
+            .add(
+                BasicGroove(
+                    kick_positions=[0.0, 1.0, 2.0, 3.0],
+                    snare_positions=[1.0, 3.0],
+                    hihat_subdivision=TIMING.EIGHTH,
+                )
+            )
+            .add(CrashAccents(positions=[0.0, 2.0], intensity=1.0))
+            .build(bars=1, complexity=c)
+        )
+        # 2: gallop kick pattern
+        f2 = (
+            TemplateComposer(f"{name}_f2")
+            .add(
+                BasicGroove(
+                    kick_positions=[0.0, 0.75, 1.0, 1.75, 2.0, 2.75, 3.0],
+                    snare_positions=[1.0, 3.0],
+                    hihat_subdivision=TIMING.EIGHTH,
+                )
+            )
+            .add(CrashAccents(positions=[0.0], intensity=1.0))
+            .build(bars=1, complexity=c)
+        )
+        # 3: crash-rich with ride-like cymbal timekeeping
+        f3 = (
+            TemplateComposer(f"{name}_f3")
+            .add(
+                BasicGroove(
+                    kick_positions=[0.0, 2.0],
+                    snare_positions=[1.0, 3.0],
+                    hihat_subdivision=TIMING.HALF,
+                )
+            )
+            .add(CrashAccents(positions=[0.0, 1.0, 2.0, 3.0], intensity=0.8))
+            .build(bars=1, complexity=c)
+        )
+        return [f1, f2, f3]
+
+    def _flavors_breakdown(self, style: str, complexity: float) -> list[Pattern]:
+        name = f"rock_{style}_breakdown"
+        # 1: sparse syncopated groove
+        f1 = (
+            TemplateComposer(f"{name}_f1")
+            .add(
+                BasicGroove(
+                    kick_positions=[0.0, 2.5],
+                    snare_positions=[1.5],
+                    hihat_subdivision=TIMING.HALF,
+                )
+            )
+            .add(TomFill(pattern="descending", start_position=3.0))
+            .build(bars=1, complexity=complexity)
+        )
+        # 2: heavy stomp on every beat
+        f2 = (
+            TemplateComposer(f"{name}_f2")
+            .add(
+                BasicGroove(
+                    kick_positions=[0.0, 1.0, 2.0, 3.0],
+                    snare_positions=[2.0],
+                    hihat_subdivision=TIMING.QUARTER,
+                )
+            )
+            .add(CrashAccents(positions=[0.0], intensity=1.0))
+            .build(bars=1, complexity=complexity)
+        )
+        # 3: half-time slow groove
+        f3 = (
+            TemplateComposer(f"{name}_f3")
+            .add(
+                BasicGroove(
+                    kick_positions=[0.0, 3.0],
+                    snare_positions=[1.5],
+                    hihat_subdivision=TIMING.EIGHTH,
+                )
+            )
+            .add(TomFill(pattern="around", start_position=0.0))
+            .build(bars=1, complexity=max(0.0, complexity - 0.15))
+        )
+        return [f1, f2, f3]
+
+    def _flavors_bridge(self, style: str, complexity: float) -> list[Pattern]:
+        name = f"rock_{style}_bridge"
+        c = max(0.0, complexity - 0.1)
+        # 1: tom-heavy bridge
+        f1 = (
+            TemplateComposer(f"{name}_f1")
+            .add(
+                BasicGroove(
+                    kick_positions=[0.0],
+                    snare_positions=[],
+                    hihat_subdivision=TIMING.HALF,
+                )
+            )
+            .add(TomFill(pattern="descending", start_position=0.0))
+            .build(bars=1, complexity=c)
+        )
+        # 2: sparse groove with fill
+        f2 = (
+            TemplateComposer(f"{name}_f2")
+            .add(
+                BasicGroove(
+                    kick_positions=[0.0, 2.5],
+                    snare_positions=[1.0, 3.0],
+                    hihat_subdivision=TIMING.EIGHTH,
+                )
+            )
+            .add(TomFill(pattern="around", start_position=3.0))
+            .build(bars=1, complexity=c)
+        )
+        # 3: ride/crash-based
+        f3 = (
+            TemplateComposer(f"{name}_f3")
+            .add(
+                BasicGroove(
+                    kick_positions=[0.0, 1.5, 3.0],
+                    snare_positions=[1.0],
+                    hihat_subdivision=TIMING.EIGHTH,
+                )
+            )
+            .add(CrashAccents(positions=[3.5], intensity=0.8))
+            .build(bars=1, complexity=c)
+        )
+        return [f1, f2, f3]
+
+    def _flavors_outro(self, style: str, complexity: float) -> list[Pattern]:
+        name = f"rock_{style}_outro"
+        c = max(0.0, complexity - 0.3)
+        # 1: descending tom + crash
+        f1 = (
+            TemplateComposer(f"{name}_f1")
+            .add(TomFill(pattern="descending", start_position=0.0))
+            .add(CrashAccents(positions=[3.75], intensity=1.0))
+            .build(bars=1, complexity=c)
+        )
+        # 2: sparse hits fading out
+        f2 = (
+            TemplateComposer(f"{name}_f2")
+            .add(
+                BasicGroove(
+                    kick_positions=[0.0],
+                    snare_positions=[],
+                    hihat_subdivision=TIMING.QUARTER,
+                )
+            )
+            .add(CrashAccents(positions=[3.5], intensity=0.6))
+            .build(bars=1, complexity=c)
+        )
+        # 3: ascending tom finale
+        f3 = (
+            TemplateComposer(f"{name}_f3")
+            .add(TomFill(pattern="ascending", start_position=0.0))
+            .add(CrashAccents(positions=[3.5], intensity=1.0))
+            .build(bars=1, complexity=c)
+        )
+        return [f1, f2, f3]
+
     def _high_energy_timekeeper(
         self, section: str, parameters: GenerationParameters
     ) -> DrumInstrument:
@@ -178,7 +446,6 @@ class RockGenrePlugin(GenrePlugin):
     def _generate_intro(self, style: str, complexity: float) -> Pattern:
         """Intro pattern - typically builds energy."""
         name = f"rock_{style}_intro"
-        # Reduce intensity by 30% for intro
         intro_complexity = max(0.0, complexity - 0.3)
 
         return (
@@ -214,14 +481,17 @@ class RockGenrePlugin(GenrePlugin):
             return (
                 TemplateComposer(name)
                 .add(
-                    BasicGroove(
-                        kick_positions=[0.0, 2.0],
-                        snare_positions=[1.0, 3.0],
-                        hihat_subdivision=TIMING.EIGHTH,
+                    JazzRidePattern(
+                        swing_ratio=0.58,
+                        accent_positions=[0.0, 0.75, 1.5, 2.25, 3.0],
                     )
                 )
                 .add(
-                    JazzRidePattern(swing_ratio=0.33, accent_pattern="standard")
+                    BasicGroove(
+                        kick_positions=[0.0, 1.5, 2.0],
+                        snare_positions=[1.0, 3.0],
+                        hihat_subdivision=TIMING.EIGHTH,
+                    )
                 )
                 .build(bars=1, complexity=complexity)
             )
@@ -230,11 +500,12 @@ class RockGenrePlugin(GenrePlugin):
                 TemplateComposer(name)
                 .add(
                     BasicGroove(
-                        kick_positions=[0.0, 0.75, 2.0, 2.5],
+                        kick_positions=[0.0, 0.75, 2.0],
                         snare_positions=[1.0, 3.0],
                         hihat_subdivision=TIMING.EIGHTH,
                     )
                 )
+                .add(TomFill(pattern="around", start_position=3.0))
                 .build(bars=1, complexity=complexity)
             )
         elif style == "progressive":
@@ -242,16 +513,27 @@ class RockGenrePlugin(GenrePlugin):
                 TemplateComposer(name)
                 .add(
                     BasicGroove(
-                        kick_positions=[0.0, 0.75, 1.5, 2.5, 3.25],
-                        snare_positions=[1.0, 2.75, 3.5],
+                        kick_positions=[0.0, 0.75, 1.5, 2.25, 3.0],
+                        snare_positions=[1.0, 2.75, 3.0],
                         hihat_subdivision=TIMING.SIXTEENTH,
                     )
                 )
-                .add(TomFill(pattern="around", start_position=3.5))
-                .add(CrashAccents(positions=[0.0], intensity=0.8))
                 .build(bars=1, complexity=complexity)
             )
         elif style == "punk":
+            return (
+                TemplateComposer(name)
+                .add(
+                    BasicGroove(
+                        kick_positions=[0.0, 2.0],
+                        snare_positions=[1.0, 3.0],
+                        hihat_subdivision=TIMING.HALF,
+                    )
+                )
+                .add(CrashAccents(positions=[0.0], intensity=0.9))
+                .build(bars=1, complexity=max(0.0, complexity + 0.1))
+            )
+        elif style == "hard":
             return (
                 TemplateComposer(name)
                 .add(
@@ -261,9 +543,59 @@ class RockGenrePlugin(GenrePlugin):
                         hihat_subdivision=TIMING.EIGHTH,
                     )
                 )
-                .build(bars=1, complexity=complexity)
+                .add(CrashAccents(positions=[0.0], intensity=0.9))
+                .build(bars=1, complexity=max(0.0, complexity + 0.1))
             )
-        elif style == "hard":
+        else:  # pop
+            return (
+                TemplateComposer(name)
+                .add(
+                    BasicGroove(
+                        kick_positions=[0.0, 2.0],
+                        snare_positions=[1.0, 3.0],
+                        hihat_subdivision=TIMING.EIGHTH,
+                    )
+                )
+                .build(bars=1, complexity=max(0.0, complexity - 0.1))
+            )
+
+    def _generate_chorus(self, style: str, complexity: float) -> Pattern:
+        """Chorus pattern - more intense than verse."""
+        name = f"rock_{style}_chorus"
+        c = min(1.0, complexity + 0.2)
+
+        if style == "classic":
+            return (
+                TemplateComposer(name)
+                .add(
+                    BasicGroove(
+                        kick_positions=[0.0, 1.0, 2.0, 3.0],
+                        snare_positions=[1.0, 3.0],
+                        hihat_subdivision=TIMING.EIGHTH,
+                    )
+                )
+                .add(CrashAccents(positions=[0.0, 2.0], intensity=1.0))
+                .build(bars=1, complexity=c)
+            )
+        elif style == "blues":
+            return (
+                TemplateComposer(name)
+                .add(
+                    JazzRidePattern(
+                        swing_ratio=0.6,
+                        accent_positions=[0.0, 0.5, 1.0, 1.5, 2.0, 2.5, 3.0],
+                    )
+                )
+                .add(
+                    BasicGroove(
+                        kick_positions=[0.0, 1.0, 2.0, 3.0],
+                        snare_positions=[1.0, 3.0],
+                        hihat_subdivision=TIMING.EIGHTH,
+                    )
+                )
+                .build(bars=1, complexity=c)
+            )
+        elif style == "alternative":
             return (
                 TemplateComposer(name)
                 .add(
@@ -273,72 +605,36 @@ class RockGenrePlugin(GenrePlugin):
                         hihat_subdivision=TIMING.EIGHTH,
                     )
                 )
-                .add(CrashAccents(positions=[0.0], intensity=0.9))
-                .build(bars=1, complexity=complexity)
-            )
-        else:  # pop
-            return (
-                TemplateComposer(name)
-                .add(
-                    BasicGroove(
-                        kick_positions=[0.0, 1.0, 2.0, 3.0],
-                        snare_positions=[1.0, 3.0],
-                        hihat_subdivision=TIMING.SIXTEENTH,
-                    )
-                )
-                .build(bars=1, complexity=complexity)
-            )
-
-    def _generate_chorus(self, style: str, complexity: float) -> Pattern:
-        """Chorus pattern - more intense than verse."""
-        name = f"rock_{style}_chorus"
-        # Increase intensity by 20%
-        chorus_complexity = min(1.0, complexity + 0.2)
-
-        if style == "blues":
-            return (
-                TemplateComposer(name)
-                .add(
-                    BasicGroove(
-                        kick_positions=[0.0, 1.0, 2.0, 3.0],
-                        snare_positions=[1.0, 3.0],
-                        hihat_subdivision=TIMING.EIGHTH,
-                    )
-                )
-                .add(
-                    JazzRidePattern(swing_ratio=0.33, accent_pattern="standard")
-                )
-                .add(CrashAccents(positions=[0.0], intensity=0.9))
-                .build(bars=1, complexity=chorus_complexity)
+                .add(CrashAccents(positions=[0.0], intensity=1.0))
+                .build(bars=1, complexity=c)
             )
         elif style == "progressive":
             return (
                 TemplateComposer(name)
                 .add(
                     BasicGroove(
-                        kick_positions=[0.0, 0.75, 1.5, 2.5, 3.25],
-                        snare_positions=[1.0, 2.75, 3.5],
+                        kick_positions=[0.0, 0.75, 1.5, 2.25, 3.0],
+                        snare_positions=[1.0, 2.75, 3.0],
                         hihat_subdivision=TIMING.SIXTEENTH,
                     )
                 )
-                .add(TomFill(pattern="descending", start_position=3.0))
-                .add(CrashAccents(positions=[0.0, 2.0], intensity=0.9))
-                .build(bars=1, complexity=chorus_complexity)
+                .add(CrashAccents(positions=[0.0], intensity=1.0))
+                .build(bars=1, complexity=c)
             )
         elif style == "punk":
             return (
                 TemplateComposer(name)
                 .add(
                     BasicGroove(
-                        kick_positions=[0.0, 0.5, 1.0, 1.5, 2.0, 2.5, 3.0, 3.5],
+                        kick_positions=[0.0, 1.0, 2.0, 3.0],
                         snare_positions=[1.0, 3.0],
-                        hihat_subdivision=TIMING.EIGHTH,
+                        hihat_subdivision=TIMING.HALF,
                     )
                 )
-                .add(CrashAccents(positions=[0.0], intensity=1.0))
-                .build(bars=1, complexity=chorus_complexity)
+                .add(CrashAccents(positions=[0.0, 1.0, 2.0, 3.0], intensity=0.9))
+                .build(bars=1, complexity=c)
             )
-        else:  # classic, alternative, hard, pop
+        elif style == "hard":
             return (
                 TemplateComposer(name)
                 .add(
@@ -348,61 +644,43 @@ class RockGenrePlugin(GenrePlugin):
                         hihat_subdivision=TIMING.EIGHTH,
                     )
                 )
-                .add(CrashAccents(positions=[0.0], intensity=0.9))
-                .build(bars=1, complexity=chorus_complexity)
+                .add(CrashAccents(positions=[0.0, 2.0], intensity=1.0))
+                .build(bars=1, complexity=c)
+            )
+        else:  # pop
+            return (
+                TemplateComposer(name)
+                .add(
+                    BasicGroove(
+                        kick_positions=[0.0, 2.0],
+                        snare_positions=[1.0, 3.0],
+                        hihat_subdivision=TIMING.EIGHTH,
+                    )
+                )
+                .add(CrashAccents(positions=[0.0], intensity=0.8))
+                .build(bars=1, complexity=c)
             )
 
     def _generate_breakdown(self, style: str, complexity: float) -> Pattern:
-        """Breakdown pattern - simplified, spacious."""
+        """Breakdown pattern - syncopated, heavy."""
         name = f"rock_{style}_breakdown"
         return (
             TemplateComposer(name)
             .add(
                 BasicGroove(
-                    kick_positions=[0.0, 2.0],
-                    snare_positions=[1.0, 3.0],
-                    hihat_subdivision=TIMING.QUARTER,
+                    kick_positions=[0.0, 1.5, 2.5],
+                    snare_positions=[2.0],
+                    hihat_subdivision=TIMING.HALF,
                 )
             )
             .add(TomFill(pattern="descending", start_position=3.0))
-            .build(bars=1, complexity=max(0.0, complexity - 0.2))
+            .build(bars=1, complexity=complexity)
         )
 
     def _generate_bridge(self, style: str, complexity: float) -> Pattern:
-        """Bridge pattern - often simpler or different from verse/chorus."""
+        """Bridge pattern - often simpler, with added tom fills."""
         name = f"rock_{style}_bridge"
         bridge_complexity = max(0.0, complexity - 0.1)
-
-        if style in ["blues", "progressive"]:
-            return (
-                TemplateComposer(name)
-                .add(
-                    BasicGroove(
-                        kick_positions=[0.0, 2.0],
-                        snare_positions=[1.0, 3.0],
-                        hihat_subdivision=TIMING.QUARTER,
-                    )
-                )
-                .add(TomFill(pattern="around", start_position=3.0))
-                .build(bars=1, complexity=bridge_complexity)
-            )
-        else:
-            return (
-                TemplateComposer(name)
-                .add(
-                    BasicGroove(
-                        kick_positions=[0.0, 2.0],
-                        snare_positions=[1.0, 3.0],
-                        hihat_subdivision=TIMING.QUARTER,
-                    )
-                )
-                .build(bars=1, complexity=bridge_complexity)
-            )
-
-    def _generate_outro(self, style: str, complexity: float) -> Pattern:
-        """Outro pattern - winds down."""
-        name = f"rock_{style}_outro"
-        outro_complexity = max(0.0, complexity - 0.3)
 
         return (
             TemplateComposer(name)
@@ -413,7 +691,18 @@ class RockGenrePlugin(GenrePlugin):
                     hihat_subdivision=TIMING.QUARTER,
                 )
             )
-            .add(TomFill(pattern="descending", start_position=3.0))
+            .add(TomFill(pattern="around", start_position=3.0))
+            .build(bars=1, complexity=bridge_complexity)
+        )
+
+    def _generate_outro(self, style: str, complexity: float) -> Pattern:
+        """Outro pattern - descending tom fill with final crash."""
+        name = f"rock_{style}_outro"
+        outro_complexity = max(0.0, complexity - 0.3)
+
+        return (
+            TemplateComposer(name)
+            .add(TomFill(pattern="descending", start_position=0.0))
             .add(CrashAccents(positions=[3.75], intensity=1.0))
             .build(bars=1, complexity=outro_complexity)
         )
