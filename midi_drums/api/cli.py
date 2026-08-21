@@ -1085,7 +1085,7 @@ def handle_prompt_command(args) -> None:
                         "composition_notes": result.get("output", ""),
                     },
                 }
-                meta_path.write_text(json.dumps(meta, indent=2))
+                meta_path.write_text(json.dumps(meta, indent=2), encoding="utf-8")
                 print(f"  Metadata   : {meta_path}")
 
             # ── optional sidecar for REAPER Lua integration ──────────────────
@@ -1166,7 +1166,7 @@ def handle_prompt_command(args) -> None:
                 }
                 if info.suggestions:
                     meta["generation"]["suggestions"] = info.suggestions
-                meta_path.write_text(json.dumps(meta, indent=2))
+                meta_path.write_text(json.dumps(meta, indent=2), encoding="utf-8")
                 print(f"  Metadata   : {meta_path}")
 
             # ── optional sidecar for REAPER Lua integration ──────────────────
