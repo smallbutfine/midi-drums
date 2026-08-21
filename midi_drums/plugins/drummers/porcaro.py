@@ -40,7 +40,7 @@ class PorcaroPlugin(DrummerPlugin):
         return "porcaro"
 
     @property
-    def compatible_genres(self) -> list[str]:
+    def preferred_genres(self) -> list[str]:
         return ["rock", "pop", "blues", "funk", "jazz"]
 
     def apply_style(self, pattern: Pattern) -> Pattern:

@@ -41,7 +41,7 @@ class HoglanPlugin(DrummerPlugin):
         return "hoglan"
 
     @property
-    def compatible_genres(self) -> list[str]:
+    def preferred_genres(self) -> list[str]:
         return ["metal", "death", "thrash", "progressive"]
 
     def apply_style(self, pattern: Pattern) -> Pattern:

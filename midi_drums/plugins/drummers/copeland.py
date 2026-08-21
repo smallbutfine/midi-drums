@@ -47,7 +47,7 @@ class CopelandPlugin(DrummerPlugin):
         return "copeland"
 
     @property
-    def compatible_genres(self) -> list[str]:
+    def preferred_genres(self) -> list[str]:
         return ["rock", "funk"]
 
     def apply_style(self, pattern: Pattern) -> Pattern:

@@ -47,7 +47,7 @@ class ChambersPlugin(DrummerPlugin):
         return "chambers"
 
     @property
-    def compatible_genres(self) -> list[str]:
+    def preferred_genres(self) -> list[str]:
         return ["funk", "jazz", "fusion", "rock", "r&b"]
 
     def apply_style(self, pattern: Pattern) -> Pattern:

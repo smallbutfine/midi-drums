@@ -10,6 +10,7 @@ composer_engine="v2" in DrumGenerator().
 from __future__ import annotations
 
 import logging
+import random
 from typing import TYPE_CHECKING
 
 from midi_drums.core.models.pattern import Beat, Pattern
@@ -61,6 +62,28 @@ class ComposerV2:
             Complete Song object with unique patterns per bar.
         """
         params = GenerationParameters(genre=genre, style=style, **kwargs)
+
+        # Auto-select a random preferred drummer when none is specified
+        if not params.drummer:
+            all_drummers = self.plugin_manager.get_available_drummers()
+            preferred_for_genre: list[str] = []
+            for name in all_drummers:
+                plugin = self.plugin_manager.registry.get_drummer_plugin(name)
+                if plugin and genre in plugin.preferred_genres:
+                    preferred_for_genre.append(name)
+
+            if preferred_for_genre:
+                params.drummer = random.choice(preferred_for_genre)
+                logger.info(
+                    f"Auto-selected drummer '{params.drummer}' for {genre}"
+                )
+            else:
+                # If no drummer prefers this genre, pick any at random
+                params.drummer = random.choice(all_drummers)
+                logger.info(
+                    f"No preferred drummer for {genre}; randomly picked '{params.drummer}'"
+                )
+
         song = Song(
             name=f"{genre}_{style}_song",
             tempo=tempo,

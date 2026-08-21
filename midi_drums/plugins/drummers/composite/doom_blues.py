@@ -41,7 +41,7 @@ class CompositeDoomBluesPlugin(DrummerPlugin):
         return "composite_doom_blues"
 
     @property
-    def compatible_genres(self) -> list[str]:
+    def preferred_genres(self) -> list[str]:
         """Compatible with doom metal and blues-influenced genres."""
         return ["metal", "rock", "blues"]
 

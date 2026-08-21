@@ -33,8 +33,10 @@ class CareyPlugin(DrummerPlugin):
         return "carey"
 
     @property
-    def compatible_genres(self) -> list[str]:
+    def preferred_genres(self) -> list[str]:
         return [
+            "metal",
+            "rock",
             "progressive",
             "alternative",
             "hard_rock",

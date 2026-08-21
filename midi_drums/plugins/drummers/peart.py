@@ -45,7 +45,7 @@ class PeartPlugin(DrummerPlugin):
         return "peart"
 
     @property
-    def compatible_genres(self) -> list[str]:
+    def preferred_genres(self) -> list[str]:
         return ["rock", "progressive", "metal"]
 
     def apply_style(self, pattern: Pattern) -> Pattern:

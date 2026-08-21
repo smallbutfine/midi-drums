@@ -43,7 +43,7 @@ class BonhamPlugin(DrummerPlugin):
         return "bonham"
 
     @property
-    def compatible_genres(self) -> list[str]:
+    def preferred_genres(self) -> list[str]:
         return ["rock", "metal", "blues", "hard_rock"]
 
     def apply_style(self, pattern: Pattern) -> Pattern:

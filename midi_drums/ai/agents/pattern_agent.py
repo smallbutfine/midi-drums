@@ -32,17 +32,13 @@ SYSTEM_PROMPT = (
     "  rock  : classic, blues, alternative, progressive, punk, hard, pop\n"
     "  jazz  : swing, bebop, fusion, latin, ballad, hard_bop, contemporary\n"
     "  funk  : classic, pfunk, shuffle, new_orleans, fusion, minimal, heavy\n\n"
+    "IMPORTANT — valid drummer names (use EXACTLY these strings):\n"
+    "  carey, bonham, chambers, copeland, dee, hoglan, peart, porcaro, rich, roeder, weckl\n\n"
     "Never pass a style like 'death metal' or 'heavy metal' — use 'death' or 'heavy'.\n\n"
     "When composing a song, follow this exact workflow:\n"
-    "1. Infer genre, style, tempo, and structure from the user's description\n"
-    "2. Call create_song with the full section list\n"
-    "3. Call generate_pattern for each distinct section type that needs a unique pattern\n"
-    "4. Call apply_drummer_style to apply the appropriate drummer to each pattern\n"
-    "5. Call assign_pattern_to_section for EVERY section in the song — this is mandatory.\n"
-    "   Without this step the exported MIDI will be wrong.\n"
-    "6. After all assignments, briefly summarise what was created and reference the IDs\n\n"
-    "Available tools allow you to generate patterns, apply drummer styles, "
-    "create complete songs, and list available options."
+    "1. Infer genre, style, tempo, structure, and drummer from the user's description\n"
+    "2. Call create_song with the full section list AND the drummer name (if specified)\n"
+    "3. Briefly summarise what was created and reference the ID",
 )
 
 
@@ -254,7 +250,8 @@ class PatternCompositionAgent:
 
         @tool
         def create_song(
-            genre: str, style: str, tempo: int = 120, structure: str = "default"
+            genre: str, style: str, tempo: int = 120, structure: str = "default",
+            drummer: str | None = None,
         ) -> str:
             """Create a complete multi-section song.
 
@@ -267,13 +264,16 @@ class PatternCompositionAgent:
                     funk  → classic | pfunk | shuffle | new_orleans | fusion | minimal | heavy
                 tempo: Tempo in BPM (40-300)
                 structure: Song structure description or "default"
+                drummer: Drummer personality to apply — one of:
+                    carey | bonham | chambers | copeland | dee | hoglan | peart |
+                    porcaro | rich | roeder | weckl
 
             Returns:
                 Description of created song with ID
             """
             style = _normalize_style(genre, style)
             logger.info(
-                f"Tool: create_song({genre}/{style}, {tempo} BPM, {structure})"
+                f"Tool: create_song({genre}/{style}, {tempo} BPM, {structure}, drummer={drummer})"
             )
 
             # Parse structure string into (section_name, bars) tuples
@@ -302,11 +302,29 @@ class PatternCompositionAgent:
                         bars = _SECTION_BARS.get(name, 4)
                     parsed_structure.append((name, bars))
 
+            # Normalize drummer name: "danny carey" → "carey", etc.
+            _DRUMMER_NAMES = [
+                "carey", "bonham", "chambers", "copeland", "dee",
+                "hoglan", "peart", "porcaro", "rich", "roeder", "weckl",
+            ]
+            resolved_drummer: str | None = None
+            if drummer:
+                norm = drummer.lower().replace(" ", "_").replace("-", "_")
+                # substring match ("danny_carey" → "carey")
+                for v in _DRUMMER_NAMES:
+                    if v in norm or norm in v:
+                        resolved_drummer = v
+                        logger.debug(f"Drummer '{drummer}' normalized to '{v}'")
+                        break
+                if resolved_drummer is None and norm not in _DRUMMER_NAMES:
+                    logger.warning(f"Unknown drummer '{drummer}', ignoring")
+
             song = self.drum_generator.create_song(
                 genre=genre,
                 style=style,
                 tempo=tempo,
                 **({"structure": parsed_structure} if parsed_structure else {}),
+                drummer=resolved_drummer,
             )
 
             # Cache the song
@@ -328,8 +346,9 @@ class PatternCompositionAgent:
             if len(song.sections) > 5:
                 section_desc += f", +{len(song.sections) - 5} more"
 
+            drummer_note = f" (drummer: {resolved_drummer})" if resolved_drummer else ""
             return (
-                f"Created {genre}/{style} song at {tempo} BPM "
+                f"Created {genre}/{style} song at {tempo} BPM{drummer_note} "
                 f"(ID: {song_id}, {len(song.sections)} sections: {section_desc}). "
                 f"Use this ID to export to MIDI."
             )

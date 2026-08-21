@@ -17,8 +17,8 @@ class DrummerPlugin(ABC):
 
     @property
     @abstractmethod
-    def compatible_genres(self) -> list[str]:
-        """List of genres this drummer style works well with."""
+    def preferred_genres(self) -> list[str]:
+        """Genres this drummer style prefers (any drummer can play any genre)."""
         pass
 
     @abstractmethod
@@ -38,9 +38,9 @@ class DrummerPlugin(ABC):
         """Get fill patterns characteristic of this drummer."""
         pass
 
-    def is_compatible_with_genre(self, genre: str) -> bool:
-        """Check if this drummer style is compatible with the genre."""
-        return genre in self.compatible_genres
+    def is_preferred_for_genre(self, genre: str) -> bool:
+        """Check if this genre is in the drummer's preferred list."""
+        return genre in self.preferred_genres
 
     def get_style_parameters(self) -> dict[str, float]:
         """Get style-specific parameter adjustments.

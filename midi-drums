@@ -1,0 +1,10 @@
+Generating from prompt: 'Danny Carey with death metal and doom metal with use of ghost notes and double base kick drum, use a lot of cymbals epic complex diverse'
+Provider : ollama/qwen3.6
+Output dir: output/danny_carey_with_death/
+Composing song via agent…
+
+  Parts      : output\danny_carey_with_death\parts/ (8 files)
+  Metadata   : output\danny_carey_with_death\metadata.json
+
+Done!
+  Output : output\danny_carey_with_death\danny_carey_with_death.mid

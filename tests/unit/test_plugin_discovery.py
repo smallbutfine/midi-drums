@@ -27,7 +27,7 @@ def test_discover_plugins_loads_external_directory(tmp_path):
         "        return '_external_test_drummer'\n"
         "\n"
         "    @property\n"
-        "    def compatible_genres(self):\n"
+        "    def preferred_genres(self):\n"
         "        return ['rock']\n"
         "\n"
         "    def apply_style(self, pattern):\n"
@@ -57,7 +57,7 @@ def test_register_plugins_from_module_registers_locally_defined_class_once():
             return "_local_test_drummer"
 
         @property
-        def compatible_genres(self) -> list[str]:
+        def preferred_genres(self) -> list[str]:
             return ["rock"]
 
         def apply_style(self, pattern):

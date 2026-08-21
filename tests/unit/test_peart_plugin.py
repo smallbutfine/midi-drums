@@ -24,8 +24,8 @@ class TestPeartPlugin:
     def test_drummer_name(self):
         assert PeartPlugin().drummer_name == "peart"
 
-    def test_compatible_genres_declared(self):
-        genres = PeartPlugin().compatible_genres
+    def test_preferred_genres_declared(self):
+        genres = PeartPlugin().preferred_genres
         assert isinstance(genres, list)
         assert len(genres) > 0
         assert "rock" in genres
@@ -74,7 +74,7 @@ class TestPeartPlugin:
     @pytest.mark.parametrize("genre", ["rock", "progressive", "metal"])
     def test_compatible_with_declared_genres(self, genre):
         plugin = PeartPlugin()
-        assert plugin.is_compatible_with_genre(genre)
+        assert plugin.is_preferred_for_genre(genre)
 
 
 class TestPeartPluginDiscovery:

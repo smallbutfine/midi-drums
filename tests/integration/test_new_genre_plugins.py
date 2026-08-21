@@ -183,10 +183,10 @@ def test_drummer_genre_compatibility():
 
     results = {}
 
-    for drummer, compatible_genres in compatibility_matrix.items():
+    for drummer, preferred_genres in compatibility_matrix.items():
         try:
             compatible_count = 0
-            for genre in compatible_genres:
+            for genre in preferred_genres:
                 # Test pattern generation and drummer style application
                 style = genre_styles.get(genre, "classic")
                 pattern = generator.generate_pattern(
@@ -197,10 +197,10 @@ def test_drummer_genre_compatibility():
                     if styled and len(styled.beats) > 0:
                         compatible_count += 1
 
-            success_rate = compatible_count / len(compatible_genres)
+            success_rate = compatible_count / len(preferred_genres)
             print(
                 f"  {drummer.capitalize()}: {compatible_count}/"
-                f"{len(compatible_genres)} genres compatible "
+                f"{len(preferred_genres)} genres compatible "
                 f"({success_rate:.1%})"
             )
             results[drummer] = success_rate >= 0.8  # 80% success rate

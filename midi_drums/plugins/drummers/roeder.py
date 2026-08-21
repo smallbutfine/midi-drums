@@ -40,7 +40,7 @@ class RoederPlugin(DrummerPlugin):
         return "roeder"
 
     @property
-    def compatible_genres(self) -> list[str]:
+    def preferred_genres(self) -> list[str]:
         return ["metal", "sludge", "post_metal", "doom", "atmospheric"]
 
     def apply_style(self, pattern: Pattern) -> Pattern:

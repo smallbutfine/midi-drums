@@ -40,7 +40,7 @@ class WecklPlugin(DrummerPlugin):
         return "weckl"
 
     @property
-    def compatible_genres(self) -> list[str]:
+    def preferred_genres(self) -> list[str]:
         return ["jazz", "fusion", "funk", "rock"]
 
     def apply_style(self, pattern: Pattern) -> Pattern:

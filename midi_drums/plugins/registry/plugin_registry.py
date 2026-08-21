@@ -64,12 +64,12 @@ class PluginRegistry:
         plugin = self.get_genre_plugin(genre)
         return plugin.supported_styles if plugin else []
 
-    def get_compatible_drummers_for_genre(self, genre: str) -> list[str]:
+    def get_preferred_drummers_for_genre(self, genre: str) -> list[str]:
         """Get drummers compatible with the given genre."""
         return [
             name
             for name, plugin in self._drummer_plugins.items()
-            if plugin.is_compatible_with_genre(genre)
+            if plugin.is_preferred_for_genre(genre)
         ]
 
 

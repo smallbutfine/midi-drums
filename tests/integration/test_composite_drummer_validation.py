@@ -157,10 +157,10 @@ class TestCompositeDrummerDescription:
         drummer = CompositeDoomBluesPlugin()
         assert drummer.drummer_name == "composite_doom_blues"
 
-    def test_compatible_genres(self):
+    def test_preferred_genres(self):
         """Test compatible genres list."""
         drummer = CompositeDoomBluesPlugin()
-        genres = drummer.compatible_genres
+        genres = drummer.preferred_genres
 
         assert "metal" in genres
         assert "rock" in genres

@@ -47,7 +47,7 @@ class RichPlugin(DrummerPlugin):
         return "rich"
 
     @property
-    def compatible_genres(self) -> list[str]:
+    def preferred_genres(self) -> list[str]:
         return ["jazz", "rock"]
 
     def apply_style(self, pattern: Pattern) -> Pattern:

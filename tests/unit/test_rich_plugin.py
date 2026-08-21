@@ -24,8 +24,8 @@ class TestRichPlugin:
     def test_drummer_name(self):
         assert RichPlugin().drummer_name == "rich"
 
-    def test_compatible_genres_declared(self):
-        genres = RichPlugin().compatible_genres
+    def test_preferred_genres_declared(self):
+        genres = RichPlugin().preferred_genres
         assert isinstance(genres, list)
         assert len(genres) > 0
         assert "jazz" in genres
@@ -74,7 +74,7 @@ class TestRichPlugin:
     @pytest.mark.parametrize("genre", ["jazz", "rock"])
     def test_compatible_with_declared_genres(self, genre):
         plugin = RichPlugin()
-        assert plugin.is_compatible_with_genre(genre)
+        assert plugin.is_preferred_for_genre(genre)
 
     def test_fast_chops_applied_before_heavy_accents(self):
         # FastChopsTriplets creates new beats with accent=True; HeavyAccents
