@@ -19,11 +19,11 @@ from midi_drums.core.value_objects.generation_parameters import (
 )
 from midi_drums.core.value_objects.time_signature import TimeSignature
 from midi_drums.generation.bar_selector import BarSelector
+from midi_drums.generation.fill_library.picker import FillContext, FillPicker
 from midi_drums.generation.intensity_curve import (
     IntensityCurve,
     interpolate_curve,
 )
-from midi_drums.generation.fill_library.picker import FillContext, FillPicker
 
 if TYPE_CHECKING:
     from midi_drums.plugins.registry.plugin_registry import PluginManager
@@ -370,7 +370,9 @@ class ComposerV2:
                             pattern=fill.pattern,
                             trigger_probability=fill.trigger_probability,
                             section_position=fill.section_position,
-                            preferred_sections=getattr(fill, "preferred_sections", set()),
+                            preferred_sections=getattr(
+                                fill, "preferred_sections", set()
+                            ),
                             weight=1.0,
                         )
                         context_fills.append(ctx)

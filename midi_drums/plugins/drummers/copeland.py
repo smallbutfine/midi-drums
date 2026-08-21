@@ -186,7 +186,9 @@ class CopelandPlugin(DrummerPlugin):
         # Tight, percussive off-beat hits across the bar
         for i in range(8):
             pos = i * 0.5 + 0.25  # All off-beats (between quarter notes)
-            builder.pattern.add_beat(pos, DrumInstrument.RIDE_BELL, VELOCITY.TOM_LIGHT)
+            builder.pattern.add_beat(
+                pos, DrumInstrument.RIDE_BELL, VELOCITY.TOM_LIGHT
+            )
 
         # Closing rim punctuation
         builder.snare(TIMING.DOTTED_EIGHTH * 7, VELOCITY.SNARE_NORMAL)
@@ -202,10 +204,26 @@ class CopelandPlugin(DrummerPlugin):
         builder = PatternBuilder("copeland_gamelan_percussion")
         # Metallic timbre sequence simulating gamelan bonang/gender
         sequence = [
-            (0.0, DrumInstrument.MID_TOM, VELOCITY.TOM_ACCENT),    # Bonang "leader"
-            (TIMING.EIGHTH, DrumInstrument.CHINA, VELOCITY.CHINA_ACCENT),  # Gong punctuation
-            (TIMING.SIXTEENTH * 2, DrumInstrument.FLOOR_TOM, VELOCITY.TOM_HEAVY),
-            (TIMING.DOTTED_EIGHTH, DrumInstrument.MID_TOM, VELOCITY.TOM_ACCENT - 5),
+            (
+                0.0,
+                DrumInstrument.MID_TOM,
+                VELOCITY.TOM_ACCENT,
+            ),  # Bonang "leader"
+            (
+                TIMING.EIGHTH,
+                DrumInstrument.CHINA,
+                VELOCITY.CHINA_ACCENT,
+            ),  # Gong punctuation
+            (
+                TIMING.SIXTEENTH * 2,
+                DrumInstrument.FLOOR_TOM,
+                VELOCITY.TOM_HEAVY,
+            ),
+            (
+                TIMING.DOTTED_EIGHTH,
+                DrumInstrument.MID_TOM,
+                VELOCITY.TOM_ACCENT - 5,
+            ),
             (0.875, DrumInstrument.CHINA, VELOCITY.CHINA_ACCENT + 3),
         ]
         for pos, instrument, velocity in sequence:
@@ -224,7 +242,9 @@ class CopelandPlugin(DrummerPlugin):
         for beat in range(4):
             base = beat * 1.0
             # Downbeat snare (cross-stick / rim)
-            builder.pattern.add_beat(base, DrumInstrument.RIM, VELOCITY.SNARE_NORMAL)
+            builder.pattern.add_beat(
+                base, DrumInstrument.RIM, VELOCITY.SNARE_NORMAL
+            )
             # Upbeat hi-hat accent (the "skank")
             builder.pattern.add_beat(
                 base + 0.5, DrumInstrument.OPEN_HH_1, VELOCITY.HIHAT_ACCENT

@@ -173,9 +173,9 @@ class RichPlugin(DrummerPlugin):
         builder = PatternBuilder("rich_drum_battle")
         # Call-and-response within one beat (fits fill-render window)
         calls_and_responses = [
-            (0.0, "rim", VELOCITY.SNARE_LIGHT),     # Rim-call
+            (0.0, "rim", VELOCITY.SNARE_LIGHT),  # Rim-call
             (1 / 8, "snare", VELOCITY.SNARE_HEAVY),  # Loud response
-            (2 / 8, "rim", VELOCITY.SNARE_LIGHT),     # Rim-call
+            (2 / 8, "rim", VELOCITY.SNARE_LIGHT),  # Rim-call
             (3 / 8, "snare", VELOCITY.SNARE_ACCENT),  # Louder response
             (4 / 8, "rim", VELOCITY.SNARE_NORMAL),
             (5 / 8, "snare", min(127, VELOCITY.SNARE_HEAVY + 2)),
@@ -205,7 +205,9 @@ class RichPlugin(DrummerPlugin):
         for i in range(8):
             pos = i * 0.5
             instrument = (
-                DrumInstrument.MID_TOM if i % 2 == 0 else DrumInstrument.FLOOR_TOM
+                DrumInstrument.MID_TOM
+                if i % 2 == 0
+                else DrumInstrument.FLOOR_TOM
             )
             velocity = VELOCITY.TOM_HEAVY + (i % 4) * 3
             builder.pattern.add_beat(pos, instrument, velocity)

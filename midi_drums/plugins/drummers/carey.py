@@ -390,13 +390,21 @@ class CareyPlugin(DrummerPlugin):
 
         # Mimic tabla-like rhythmic phrasing across the Mandala pad's pentatonic timbre
         sequence = [
-            (0.0, DrumInstrument.RIDE_BELL, 95),       # Mandala pad — "daya" (right)
-            (0.375, DrumInstrument.FLOOR_TOM, 100),    # Deep tom underneath
-            (0.75, DrumInstrument.RIDE_BELL, 90),      # Mandala pad — "baya" (left)
-            (1.125, DrumInstrument.CHINA, 85),         # Ethnic accent
-            (1.5, DrumInstrument.FLOOR_TOM, 95),       # Deep tom resonance
-            (2.0, DrumInstrument.RIDE_BELL, 92),       # Mandala pad phrase resolution
-            (2.75, DrumInstrument.KICK, 105),          # Kick on off-beat for Tool groove
+            (0.0, DrumInstrument.RIDE_BELL, 95),  # Mandala pad — "daya" (right)
+            (0.375, DrumInstrument.FLOOR_TOM, 100),  # Deep tom underneath
+            (0.75, DrumInstrument.RIDE_BELL, 90),  # Mandala pad — "baya" (left)
+            (1.125, DrumInstrument.CHINA, 85),  # Ethnic accent
+            (1.5, DrumInstrument.FLOOR_TOM, 95),  # Deep tom resonance
+            (
+                2.0,
+                DrumInstrument.RIDE_BELL,
+                92,
+            ),  # Mandala pad phrase resolution
+            (
+                2.75,
+                DrumInstrument.KICK,
+                105,
+            ),  # Kick on off-beat for Tool groove
         ]
 
         for pos, instrument, velocity in sequence:
@@ -446,11 +454,11 @@ class CareyPlugin(DrummerPlugin):
 
         # Ascending pentatonic tom cascade (floor → mid → rack pitch mapping)
         sequence = [
-            (0.0, DrumInstrument.FLOOR_TOM, 115),       # Deepest tone
+            (0.0, DrumInstrument.FLOOR_TOM, 115),  # Deepest tone
             (0.8, DrumInstrument.FLOOR_TOM, 110),
             (1.6, DrumInstrument.MID_TOM, 105),
             (2.4, DrumInstrument.MID_TOM, 100),
-            (3.2, DrumInstrument.KICK, 95),             # Kick transition
+            (3.2, DrumInstrument.KICK, 95),  # Kick transition
         ]
 
         for pos, instrument, velocity in sequence:

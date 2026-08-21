@@ -186,7 +186,19 @@ def test_drummer_song_generation():
     print("\n[TEST] Testing complete song generation with drummers...")
 
     api = DrumGeneratorAPI()
-    test_drummers = ["bonham", "carey", "chambers", "copeland", "dee", "hoglan", "peart", "porcaro", "rich", "roeder", "weckl"]  # All drummers
+    test_drummers = [
+        "bonham",
+        "carey",
+        "chambers",
+        "copeland",
+        "dee",
+        "hoglan",
+        "peart",
+        "porcaro",
+        "rich",
+        "roeder",
+        "weckl",
+    ]  # All drummers
 
     results = {}
 

@@ -4,7 +4,6 @@ from __future__ import annotations
 
 import random
 from dataclasses import dataclass, field
-from typing import Any
 
 from midi_drums.core.models.pattern import Pattern
 
@@ -91,7 +90,11 @@ class FillPicker:
     ) -> FillContext | None:
         """Pick one fill or return None (no fill this bar)."""
         candidates = self.select_candidates(
-            available_fills, section_name, bar_index, total_bars, recent_fill_indices
+            available_fills,
+            section_name,
+            bar_index,
+            total_bars,
+            recent_fill_indices,
         )
 
         if not candidates:

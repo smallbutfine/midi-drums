@@ -186,10 +186,26 @@ class PeartPlugin(DrummerPlugin):
         # Ascending cascade across tom heights simulating rotation
         sequence = [
             (0.0, DrumInstrument.MID_TOM, VELOCITY.TOM_HEAVY),
-            (TIMING.SIXTEENTH * 1, DrumInstrument.FLOOR_TOM, VELOCITY.TOM_HEAVY + 2),
-            (TIMING.SIXTEENTH * 2, DrumInstrument.KICK, VELOCITY.KICK_HEAVY - 5),
-            (TIMING.SIXTEENTH * 3, DrumInstrument.MID_TOM, VELOCITY.TOM_HEAVY + 4),
-            (TIMING.DOTTED_EIGHTH, DrumInstrument.FLOOR_TOM, VELOCITY.TOM_ACCENT),
+            (
+                TIMING.SIXTEENTH * 1,
+                DrumInstrument.FLOOR_TOM,
+                VELOCITY.TOM_HEAVY + 2,
+            ),
+            (
+                TIMING.SIXTEENTH * 2,
+                DrumInstrument.KICK,
+                VELOCITY.KICK_HEAVY - 5,
+            ),
+            (
+                TIMING.SIXTEENTH * 3,
+                DrumInstrument.MID_TOM,
+                VELOCITY.TOM_HEAVY + 4,
+            ),
+            (
+                TIMING.DOTTED_EIGHTH,
+                DrumInstrument.FLOOR_TOM,
+                VELOCITY.TOM_ACCENT,
+            ),
             (0.875, DrumInstrument.CHINA, VELOCITY.CHINA_ACCENT),
         ]
         for pos, instrument, velocity in sequence:
@@ -199,14 +215,16 @@ class PeartPlugin(DrummerPlugin):
     def _create_malletkat_electronic_fill(self) -> Pattern:
         """MalletKAT / electronic percussion fill.
 
-        Peart incorporates MalletKAT electronic percussion triggers into live
-        and studio setups for metallic/ethnic timbres unavailable from acoustic
-toms. Simulated with RIDE_BELL (AD2: Ride 1 Bell = ethnic trigger) mapped
-        to the MalletKAT's pentatonic metallic response.
+                Peart incorporates MalletKAT electronic percussion triggers into live
+                and studio setups for metallic/ethnic timbres unavailable from acoustic
+        toms. Simulated with RIDE_BELL (AD2: Ride 1 Bell = ethnic trigger) mapped
+                to the MalletKAT's pentatonic metallic response.
         """
         builder = PatternBuilder("peart_malletkat_electronic")
         # Pentatonic metallic pattern simulating MalletKAT strikes
-        builder.pattern.add_beat(0.0, DrumInstrument.RIDE_BELL, VELOCITY.TOM_ACCENT)
+        builder.pattern.add_beat(
+            0.0, DrumInstrument.RIDE_BELL, VELOCITY.TOM_ACCENT
+        )
         builder.pattern.add_beat(
             TIMING.EIGHTH, DrumInstrument.CHINA, VELOCITY.CHINA_ACCENT
         )
@@ -227,9 +245,13 @@ toms. Simulated with RIDE_BELL (AD2: Ride 1 Bell = ethnic trigger) mapped
         # Three groups of triplet snare-tom-china (each within one beat)
         for group in range(3):
             offset = group * TIMING.EIGHTH
-            builder.pattern.add_beat(offset, DrumInstrument.SNARE, VELOCITY.SNARE_HEAVY)
             builder.pattern.add_beat(
-                offset + TIMING.SIXTEENTH, DrumInstrument.MID_TOM, VELOCITY.TOM_HEAVY
+                offset, DrumInstrument.SNARE, VELOCITY.SNARE_HEAVY
+            )
+            builder.pattern.add_beat(
+                offset + TIMING.SIXTEENTH,
+                DrumInstrument.MID_TOM,
+                VELOCITY.TOM_HEAVY,
             )
             builder.pattern.add_beat(
                 offset + TIMING.DOTTED_SIXTEENTH,
