@@ -202,6 +202,9 @@ class TripletVocabulary(DrummerModification):
 
                 for i in range(6):
                     pos = fill_start + (i * TIMING.SIXTEENTH_TRIPLET)
+                    # Clamp position to stay within the bar boundary
+                    if pos >= bar_start + 4.0:
+                        break  # don't spill into next bar
                     modified_beats.append(
                         Beat(
                             position=pos,

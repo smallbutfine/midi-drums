@@ -82,13 +82,13 @@ class BarSelector:
 
             # For low complexity bars (<0.5), reduce velocity proportionally
             if complexity_mult < 0.5:
-                new_velocity = int(new_velocity * complexity_mult)
+                new_velocity = max(20, int(new_velocity * complexity_mult))
 
             new_beats.append(
                 Beat(
                     position=new_position,
                     instrument=beat.instrument,
-                    velocity=new_velocity,
+                    velocity=max(1, new_velocity),  # minimum velocity floor of 1
                     duration=beat.duration,
                     ghost_note=beat.ghost_note,
                     accent=beat.accent,
@@ -101,6 +101,21 @@ class BarSelector:
             self._add_drummer_personality(
                 new_beats, base_pattern, bar_index, section_length, rng
             )
+
+        # Ensure minimum velocity floor for core instruments — beats this low
+        # are inaudible in most MIDI players and defeat the purpose of generation.
+        from midi_drums.config import VELOCITY
+
+        for beat in new_beats:
+            if beat.instrument in (
+                DrumInstrument.KICK,
+                DrumInstrument.SNARE,
+            ) and beat.velocity < 40:
+                beat.velocity = max(
+                    int(VELOCITY.KICK_NORMAL) if beat.instrument == DrumInstrument.KICK
+                    else int(VELOCITY.SNARE_NORMAL),
+                    beat.velocity,
+                )
 
         pattern = Pattern(f"{base_pattern.name}_bar{bar_index}")
         pattern.beats = new_beats

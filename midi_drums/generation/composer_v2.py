@@ -38,6 +38,7 @@ class ComposerV2:
 
     def __init__(self, plugin_manager: PluginManager, seed: int | None = None):
         self.plugin_manager = plugin_manager
+        self._rng = random.Random(seed)
         self.bar_selector = BarSelector(seed=seed)
         self.fill_picker = FillPicker(seed=seed)
 
@@ -137,6 +138,36 @@ class ComposerV2:
                             base_bar_pattern
                         )
 
+                # Ensure core instruments are present regardless of drummer modifier.
+                # Drummer plugins (e.g., Weckl's linear coordination) may remove kicks,
+                # but every bar needs at least one kick and one snare to sound musical.
+                has_kick = any(
+                    b.instrument == DrumInstrument.KICK for b in drummed_pattern.beats
+                )
+                has_snare = any(
+                    b.instrument == DrumInstrument.SNARE for b in drummed_pattern.beats
+                )
+                if not has_kick:
+                    from midi_drums.config import VELOCITY
+
+                    drummed_pattern.beats.append(
+                        Beat(
+                            position=0.0,
+                            instrument=DrumInstrument.KICK,
+                            velocity=int(VELOCITY.KICK_HEAVY),
+                        )
+                    )
+                if not has_snare:
+                    from midi_drums.config import VELOCITY
+
+                    drummed_pattern.beats.append(
+                        Beat(
+                            position=2.0,
+                            instrument=DrumInstrument.SNARE,
+                            velocity=int(VELOCITY.SNARE_ACCENT),
+                        )
+                    )
+
                 # Final bar-level modulation (density, complexity, etc.)
                 final_pattern = self.bar_selector.generate_for_bar(
                     drummed_pattern,
@@ -217,8 +248,8 @@ class ComposerV2:
     ) -> Pattern:
         """Pick a flavor for this bar, avoiding immediate repeats.
 
-        Tries to pick a different flavor than the last bar; falls back
-        to the first (default) if all others were just used.
+        Uses randomness (rather than pure cycling) to produce varied patterns
+        across bars. Ensures the same flavor isn't used on two consecutive bars.
         """
         if len(available) <= 1:
             return available[0]
@@ -229,7 +260,8 @@ class ComposerV2:
         if not candidates:
             candidates = list(range(len(available)))
 
-        idx = candidates[bar_index % len(candidates)]
+        # Random selection from valid candidates (not deterministic cycling)
+        idx = self._rng.choice(candidates)
         previous_indices.append(idx)
         return available[idx]
 
@@ -328,22 +360,65 @@ class ComposerV2:
 
         built = builder.build()
 
-        # If this bar slice is completely empty, fall back to the original full pattern
+        # Ensure core instruments are always present — a pattern without at least
+        # one snare hit on the backbeat will sound hollow/empty regardless of other hits.
+        from midi_drums.config import VELOCITY
+
+        has_kick = any(b.instrument == DrumInstrument.KICK for b in built.beats)
+        has_snare_backbeat = any(
+            b.instrument == DrumInstrument.SNARE and abs(b.position - beats_per_bar / 2) < 0.1
+            for b in built.beats
+        )
+
+        if not has_kick:
+            built.beats.append(
+                Beat(position=0.0, instrument=DrumInstrument.KICK, velocity=int(VELOCITY.KICK_HEAVY))
+            )
+        if not has_snare_backbeat:
+            built.beats.append(
+                Beat(
+                    position=beats_per_bar / 2,
+                    instrument=DrumInstrument.SNARE,
+                    velocity=int(VELOCITY.SNARE_ACCENT),
+                )
+            )
+
+        # If this bar slice is completely empty, fall back to a minimal default pattern.
+        # The fallback must always produce beats — a section with an empty bar would
+        # leave a gap in the combined song that sounds like silence.
         if not built.beats:
             logger.warning(
                 f"Empty bar slice for {section_name} bar {bar_index}; "
-                "reusing the full base pattern instead."
+                "creating a minimal default pattern."
             )
-            # Create a one-bar slice from the first bar of the base pattern
-            fallback_builder = PatternBuilder(f"{section_name}_bar{bar_index}_fallback")
-            for beat in base_pattern.beats:
-                if beat.position < beats_per_bar:
-                    fallback_builder.pattern.add_beat(
-                        beat.position,
-                        beat.instrument,
-                        max(1, min(127, beat.velocity)),
-                    )
-            built = fallback_builder.build()
+            from midi_drums.config import VELOCITY
+
+            # Use the first available flavor that has beats, or fall back to defaults
+            if all_flavors:
+                available = [f for f in all_flavors if f is not None and f.beats]
+                if available:
+                    source = available[0]
+                    builder2 = PatternBuilder(f"{section_name}_bar{bar_index}_fallback")
+                    for beat in source.beats[:16]:  # cap at first bar's hits
+                        if beat.position < beats_per_bar:
+                            builder2.pattern.add_beat(
+                                beat.position,
+                                beat.instrument,
+                                max(1, min(127, beat.velocity)),
+                            )
+                    built = builder2.build()
+            
+            # Ultimate fallback: kick on 1 + snare on 3
+            if not built.beats:
+                from midi_drums.config import VELOCITY
+                built = Pattern(f"{section_name}_bar{bar_index}_minimal")
+                built.beats.append(
+                    Beat(position=0.0, instrument=DrumInstrument.KICK, velocity=int(VELOCITY.KICK_HEAVY))
+                )
+                built.beats.append(
+                    Beat(position=2.0, instrument=DrumInstrument.SNARE, velocity=int(VELOCITY.SNARE_ACCENT))
+                )
+                built.time_signature = base_pattern.time_signature if base_pattern else TimeSignature()
 
         return built
 
@@ -352,9 +427,9 @@ class ComposerV2:
     ) -> Pattern:
         """Combine individual bar patterns into a single section pattern.
 
-        The result is the union of all beats across bars, with proper offset
-        (each bar's beats start at its correct beat position).
-        Skips empty bars but ensures the final pattern always has beats.
+        The result is the union of all beats across bars. Bars already have
+        section-relative positions from BarSelector.generate_for_bar(), so no
+        additional offset is applied — we just collect and deduplicate them.
         """
 
         combined = Pattern(f"{bars[0].name.replace('_bar*', '')}_combined")
@@ -366,22 +441,44 @@ class ComposerV2:
             else 4
         )
 
-        # Validate: reject bars with zero beats (should not happen after fix)
+        # Validate bars — warn but don't skip empty ones (they are filled in-place below)
         for i, bar in enumerate(bars):
             if not bar.beats:
                 logger.warning(
-                    f"Bar {i} has zero beats — this bar will be skipped "
-                    f"in the combined pattern. Check _generate_base_bar fallback logic."
+                    f"Bar {i} has zero beats — filling with a basic kick/snare pattern."
                 )
+
+        # Use a set to deduplicate hits at the same (position, instrument)
+        seen: set[tuple[float, str]] = set()
 
         for bar_idx, bar in enumerate(bars):
             if not bar.beats:
-                continue  # skip empty bars
-            offset = bar_idx * beats_per_bar
-            for beat in bar.beats:
+                # Fill empty bars with a minimal kick/snare pattern at this position
+                fill_pos = bar_idx * beats_per_bar + 0.0
                 combined.beats.append(
                     Beat(
-                        position=beat.position + offset,
+                        position=fill_pos,
+                        instrument=DrumInstrument.KICK,
+                        velocity=80,
+                    )
+                )
+                combined.beats.append(
+                    Beat(
+                        position=fill_pos + beats_per_bar / 2,
+                        instrument=DrumInstrument.SNARE,
+                        velocity=100,
+                    )
+                )
+                continue
+
+            for beat in bar.beats:
+                key = (round(beat.position, 4), beat.instrument.name)
+                if key in seen:
+                    continue  # deduplicate same instrument at same position
+                seen.add(key)
+                combined.beats.append(
+                    Beat(
+                        position=beat.position,
                         instrument=beat.instrument,
                         velocity=beat.velocity,
                         duration=beat.duration,
@@ -405,6 +502,15 @@ class ComposerV2:
             combined.beats.append(
                 Beat(position=2, instrument=DrumInstrument.SNARE, velocity=int(VELOCITY.SNARE_ACCENT))
             )
+
+        # Ensure minimum velocity for snare hits — ghost notes at vel < 40
+        # become nearly inaudible and defeat the purpose of pattern generation.
+        from midi_drums.config import VELOCITY
+
+        min_snare_vel = int(VELOCITY.SNARE_NORMAL * 0.5)  # ~57 (half of normal)
+        for beat in combined.beats:
+            if beat.instrument == DrumInstrument.SNARE and beat.velocity < min_snare_vel:
+                beat.velocity = max(min_snare_vel, beat.velocity + 15)  # boost gently
 
         # Set time signature from first bar
         combined.time_signature = (
