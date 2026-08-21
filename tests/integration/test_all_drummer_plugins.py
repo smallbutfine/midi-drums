@@ -111,51 +111,41 @@ def test_drummer_signature_fills():
 
     drummers = [
         "bonham",
+        "carey",
         "chambers",
+        "copeland",
         "dee",
         "hoglan",
+        "peart",
         "porcaro",
+        "rich",
         "roeder",
         "weckl",
     ]
+
+    drummer_imports = {
+        "bonham": "midi_drums.plugins.drummers.bonham.BonhamPlugin",
+        "carey": "midi_drums.plugins.drummers.carey.CareyPlugin",
+        "chambers": "midi_drums.plugins.drummers.chambers.ChambersPlugin",
+        "copeland": "midi_drums.plugins.drummers.copeland.CopelandPlugin",
+        "dee": "midi_drums.plugins.drummers.dee.DeePlugin",
+        "hoglan": "midi_drums.plugins.drummers.hoglan.HoglanPlugin",
+        "peart": "midi_drums.plugins.drummers.peart.PeartPlugin",
+        "porcaro": "midi_drums.plugins.drummers.porcaro.PorcaroPlugin",
+        "rich": "midi_drums.plugins.drummers.rich.RichPlugin",
+        "roeder": "midi_drums.plugins.drummers.roeder.RoederPlugin",
+        "weckl": "midi_drums.plugins.drummers.weckl.WecklPlugin",
+    }
 
     results = {}
 
     for drummer in drummers:
         try:
-            # Import the specific drummer plugin to test fills directly
-            if drummer == "bonham":
-                from midi_drums.plugins.drummers.bonham import BonhamPlugin
-
-                plugin = BonhamPlugin()
-            elif drummer == "chambers":
-                from midi_drums.plugins.drummers.chambers import ChambersPlugin
-
-                plugin = ChambersPlugin()
-            elif drummer == "dee":
-                from midi_drums.plugins.drummers.dee import DeePlugin
-
-                plugin = DeePlugin()
-            elif drummer == "hoglan":
-                from midi_drums.plugins.drummers.hoglan import HoglanPlugin
-
-                plugin = HoglanPlugin()
-            elif drummer == "porcaro":
-                from midi_drums.plugins.drummers.porcaro import PorcaroPlugin
-
-                plugin = PorcaroPlugin()
-            elif drummer == "roeder":
-                from midi_drums.plugins.drummers.roeder import RoederPlugin
-
-                plugin = RoederPlugin()
-            elif drummer == "weckl":
-                from midi_drums.plugins.drummers.weckl import WecklPlugin
-
-                plugin = WecklPlugin()
-            else:
-                print(f"[FAIL] Unknown drummer: {drummer}")
-                results[drummer] = False
-                continue
+            # Dynamic import via dotted path
+            mod_path, cls_name = drummer_imports[drummer].rsplit(".", 1)
+            mod = __import__(mod_path, fromlist=[cls_name])
+            plugin_cls = getattr(mod, cls_name)
+            plugin = plugin_cls()
 
             fills = plugin.get_signature_fills()
             fill_count = len(fills)
@@ -196,7 +186,7 @@ def test_drummer_song_generation():
     print("\n[TEST] Testing complete song generation with drummers...")
 
     api = DrumGeneratorAPI()
-    test_drummers = ["bonham", "porcaro", "weckl", "chambers"]  # Sample test
+    test_drummers = ["bonham", "carey", "chambers", "copeland", "dee", "hoglan", "peart", "porcaro", "rich", "roeder", "weckl"]  # All drummers
 
     results = {}
 

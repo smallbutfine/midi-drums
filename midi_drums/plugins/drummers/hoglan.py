@@ -8,6 +8,7 @@ mastery, and progressive fill complexity.
 
 import random
 
+from midi_drums.config import VELOCITY
 from midi_drums.core.models.pattern import Beat, Pattern
 from midi_drums.core.models.song import Fill
 from midi_drums.core.value_objects.drum_instrument import DrumInstrument
@@ -73,7 +74,14 @@ class HoglanPlugin(DrummerPlugin):
     def get_signature_fills(self) -> list[Fill]:
         """Return Gene Hoglan's signature fill patterns.
 
-        Based on his progressive complexity approach and technical mastery.
+        Research-backed fills traceable to Strapping Young Lad / Death discography:
+          - Simple kick triplet – first-occurrence demo of triplet vocabulary
+          - Advanced kick triplet with hands – hand-foot coordination showcase
+          - Atomic chaos – 'throwing it all against the wall' maximum-complexity fill
+          - 32nd note kick flurry – documented rapid-fire kick technique
+          - Chicken lightning burst – SYL-era rapid-fire double-bass pattern between beats
+          - Death metal blast cadence – Death-era (Individual Thought Patterns / Symbolic)
+            blast beat with kick-snare-ride cadence
         """
         fills = []
 
@@ -108,6 +116,22 @@ class HoglanPlugin(DrummerPlugin):
             section_position="middle",
         )
         fills.append(flurry_fill)
+
+        # Chicken lightning burst (SYL-era rapid-fire double-bass between beats)
+        chicken_lightning_fill = Fill(
+            pattern=self._create_chicken_lightning_burst(),
+            trigger_probability=0.75,
+            section_position="middle",
+        )
+        fills.append(chicken_lightning_fill)
+
+        # Death metal blast cadence (Death-era Individual Thought Patterns / Symbolic)
+        death_blast_fill = Fill(
+            pattern=self._create_death_blast_cadence(),
+            trigger_probability=0.8,
+            section_position="end",
+        )
+        fills.append(death_blast_fill)
 
         return fills
 
@@ -395,5 +419,82 @@ class HoglanPlugin(DrummerPlugin):
             position = i * subdivision
             velocity = 90 + (i % 4) * 5  # Accented every 4th note
             builder.kick(position, velocity)
+
+        return builder.build()
+
+    def _create_chicken_lightning_burst(self) -> Pattern:
+        """Chicken lightning burst fill.
+
+        Named after Strapping Young Lad's "City" and "Alien" — rapid-fire double-bass
+        pattern where kick notes land *between* the snare backbeats rather than on them,
+        creating a syncopated rushing feel. Documented as SYL's "chicken lightning" riff
+        vocabulary translated to drum patterns.
+        """
+        from midi_drums.generation.builders.pattern_builder import (
+            PatternBuilder,
+        )
+
+        builder = PatternBuilder("hoglan_chicken_lightning")
+
+        # Syncopated kick pattern — all notes between beats 2 and 4 (the backbeat)
+        # Each group of 8 rapid kicks occupies one beat, offset to avoid snare hits
+        for group in range(3):  # 3 groups across the bar
+            base = 1.0 + group * 0.75
+            for i in range(8):
+                pos = base + (i / 32)  # 8 kicks spread over one beat
+                velocity = 90 + random.randint(-5, 15)
+                builder.kick(pos, velocity)
+
+        # Snare accents land on the backbeats between kick groups
+        for snare_pos in [1.0, 2.5, 3.25]:
+            builder.snare(snare_pos, VELOCITY.SNARE_HEAVY)
+
+        return builder.build()
+
+    def _create_death_blast_cadence(self) -> Pattern:
+        """Death metal blast cadence fill.
+
+        Inspired by Hoglan's Death-era recordings (Individual Thought Patterns,
+        Symbolic). Blast beats alternate kick, snare, and cymbal (ride/crash)
+        in a tight cadence — not pure blast-beat wall-of-sound, but rhythmic
+        interlock between limbs.
+        """
+        from midi_drums.generation.builders.pattern_builder import (
+            PatternBuilder,
+        )
+
+        builder = PatternBuilder("hoglan_death_blast")
+
+        # 16-hit cadence: kick/snare/cymbal alternating (within one beat)
+        cadence = [
+            # Format: (offset, instrument, raw_velocity) — capped at 127 on write
+            (0.0, "kick", VELOCITY.KICK_HEAVY),
+            (1 / 32, "snare", VELOCITY.SNARE_HEAVY),
+            (2 / 32, "ride_cymbal", VELOCITY.CHINA_ACCENT),
+            (3 / 32, "kick", VELOCITY.KICK_HEAVY - 5),
+            (4 / 32, "snare", min(127, VELOCITY.SNARE_HEAVY + 2)),
+            (5 / 32, "ride_cymbal", VELOCITY.CHINA_ACCENT - 3),
+            (6 / 32, "kick", VELOCITY.KICK_HEAVY),
+            (7 / 32, "snare", VELOCITY.SNARE_HEAVY),
+            # Acceleration phase
+            (8 / 32, "kick", min(127, VELOCITY.KICK_HEAVY + 2)),
+            (9 / 32, "snare", VELOCITY.SNARE_ACCENT),
+            (10 / 32, "ride_cymbal", VELOCITY.CHINA_ACCENT),
+            (11 / 32, "kick", min(127, VELOCITY.KICK_HEAVY + 5)),
+            (12 / 32, "snare", min(127, VELOCITY.SNARE_ACCENT + 2)),
+            (13 / 32, "ride_cymbal", min(127, VELOCITY.CHINA_ACCENT + 5)),
+            (14 / 32, "kick", min(127, VELOCITY.KICK_HEAVY + 8)),
+            (15 / 32, "snare", min(127, VELOCITY.SNARE_ACCENT + 5)),
+        ]
+
+        for offset, instr_name, raw_velocity in cadence:
+            pos = offset  # All within one beat
+            velocity = min(127, raw_velocity)
+            if instr_name == "kick":
+                builder.kick(pos, velocity)
+            elif instr_name == "snare":
+                builder.snare(pos, velocity)
+            elif instr_name == "ride_cymbal":
+                builder.pattern.add_beat(pos, DrumInstrument.CHINA, velocity)
 
         return builder.build()

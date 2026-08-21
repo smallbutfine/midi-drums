@@ -3,8 +3,9 @@ Danny Carey drummer plugin - Tool style.
 
 Implements Danny Carey's signature polyrhythmic, odd-meter, tom-heavy approach
 to progressive and alternative metal. Known for his deep tom work, complex
-polyrhythms (3 vs 2 quintuplets), ethnic percussion influences, and the
-spacious, heavy "Tool groove" that defines albums like Lateralus and Fear Inoculum.
+polyrhythms (3 vs 2 quintuplets), custom electronic drum pad influences,
+and the spacious, heavy "Tool groove" that defines albums like Lateralus and
+Fear Inoculum.
 """
 
 import random
@@ -21,7 +22,7 @@ class CareyPlugin(DrummerPlugin):
     Characteristics:
     - Polyrhythmic complexity (3 vs 2 quintuplets, odd meters)
     - Deep tom-focused patterns with cascading fills
-    - Ethnically-inspired percussion textures (taiko/timpani/hang)
+    - Custom electronic drum pad textures (Mandala pads triggering tabla/octoban samples)
     - Spacious grooves with intentional space between hits
     - Complex pentatonic/quintuplet accent fills
     - Long-sustain cymbal swells and effects
@@ -105,13 +106,37 @@ class CareyPlugin(DrummerPlugin):
         )
         fills.append(polyrhythmic_fill)
 
-        # Deep ethnic-inspired fill (taiko/timpani/hang feel)
-        ethnic_fill = Fill(
-            pattern=self._create_ethnic_inspired_fill(),
+        # Custom Mandala pad / tabla-sample fill (replaces prior "ethnic/taiko")
+        mandala_tabla_fill = Fill(
+            pattern=self._create_mandala_tabla_fill(),
+            trigger_probability=0.7,
+            section_position="middle",
+        )
+        fills.append(mandala_tabla_fill)
+
+        # Odd-meter kick counterpoint fill (Tool-era signature technique)
+        odd_meter_kick_fill = Fill(
+            pattern=self._create_odd_meter_kick_counterpoint(),
             trigger_probability=0.65,
+            section_position="middle",
+        )
+        fills.append(odd_meter_kick_fill)
+
+        # Deep sacred-geometry tom pattern (pentatonic tom cascades)
+        sacred_geometry_fill = Fill(
+            pattern=self._create_sacred_geometry_tom_fill(),
+            trigger_probability=0.6,
             section_position="end",
         )
-        fills.append(ethnic_fill)
+        fills.append(sacred_geometry_fill)
+
+        # Pentatonic kick accent fill (Tool-era polyrhythmic approach)
+        pentatonic_kick_fill = Fill(
+            pattern=self._create_pentatonic_kick_accent(),
+            trigger_probability=0.55,
+            section_position="middle",
+        )
+        fills.append(pentatonic_kick_fill)
 
         # Cymbal swell pattern for atmospheric transition
         cymbal_fill = Fill(
@@ -348,11 +373,127 @@ class CareyPlugin(DrummerPlugin):
 
         return builder.build()
 
-    def _create_ethnic_inspired_fill(self) -> Pattern:
-        """Create ethnically-inspired fill pattern.
+    def _create_mandala_tabla_fill(self) -> Pattern:
+        """Custom Mandala pad / tabla-sample fill.
 
-        Carey incorporates ethnic percussion elements (taiko, timpani, hang drum
-        feel). Simulated here with unique tom/china combinations and long sustain.
+        Carey incorporates custom electronic drum pads (Mandala, etc.) to trigger
+        samples such as prerecorded tabla and octoban sounds during live performances
+        — documented in Tool interview material. Simulated here with RIDE_BELL / CHINA
+        mapped to the Addictive Drums 2 ethnic keymap (midi_drums/core/value_objects/drum_instrument.py)
+        where Ride 1 Bell corresponds to AD2 Key D3 (ethnic percussion trigger).
+        """
+        from midi_drums.generation.builders.pattern_builder import (
+            PatternBuilder,
+        )
+
+        builder = PatternBuilder("carey_mandala_tabla")
+
+        # Mimic tabla-like rhythmic phrasing across the Mandala pad's pentatonic timbre
+        sequence = [
+            (0.0, DrumInstrument.RIDE_BELL, 95),       # Mandala pad — "daya" (right)
+            (0.375, DrumInstrument.FLOOR_TOM, 100),    # Deep tom underneath
+            (0.75, DrumInstrument.RIDE_BELL, 90),      # Mandala pad — "baya" (left)
+            (1.125, DrumInstrument.CHINA, 85),         # Ethnic accent
+            (1.5, DrumInstrument.FLOOR_TOM, 95),       # Deep tom resonance
+            (2.0, DrumInstrument.RIDE_BELL, 92),       # Mandala pad phrase resolution
+            (2.75, DrumInstrument.KICK, 105),          # Kick on off-beat for Tool groove
+        ]
+
+        for pos, instrument, velocity in sequence:
+            builder.pattern.add_beat(pos, instrument, velocity)
+
+        return builder.build()
+
+    def _create_odd_meter_kick_counterpoint(self) -> Pattern:
+        """Odd-meter kick counterpoint fill.
+
+        Carey frequently layers a kick drum pattern in one meter (e.g. 5 or 7)
+        against the main groove's time signature — creating an independent rhythmic
+        counterpoint that resolves when both meters align. Documented in Tool-era
+        analyses of Lateralus and Fear Inoculum arrangements.
+        """
+        from midi_drums.generation.builders.pattern_builder import (
+            PatternBuilder,
+        )
+
+        builder = PatternBuilder("carey_odd_meter_kick")
+
+        # 7-note kick pattern over a 4/4 bar (resolves on bar boundary)
+        for i in range(7):
+            pos = i * (4.0 / 7)  # 7 equal divisions of the bar
+            velocity = 90 + random.randint(-5, 15)
+            builder.kick(pos, velocity)
+
+        # Floor tom accents aligning with kick on beats 2 and 4
+        for beat in [1.6, 3.6]:
+            builder.pattern.add_beat(beat, DrumInstrument.FLOOR_TOM, 98)
+
+        return builder.build()
+
+    def _create_sacred_geometry_tom_fill(self) -> Pattern:
+        """Sacred-geometry tom pattern (pentatonic cascade).
+
+        Carey's tom work often follows pentatonic pitch sequences — ascending and
+        descending through toms in intervals that create a "sacred geometry"
+        feel. This fill maps to his characteristic pentatonic tom cascades found
+        across Tool discography.
+        """
+        from midi_drums.generation.builders.pattern_builder import (
+            PatternBuilder,
+        )
+
+        builder = PatternBuilder("carey_sacred_geometry_tom")
+
+        # Ascending pentatonic tom cascade (floor → mid → rack pitch mapping)
+        sequence = [
+            (0.0, DrumInstrument.FLOOR_TOM, 115),       # Deepest tone
+            (0.8, DrumInstrument.FLOOR_TOM, 110),
+            (1.6, DrumInstrument.MID_TOM, 105),
+            (2.4, DrumInstrument.MID_TOM, 100),
+            (3.2, DrumInstrument.KICK, 95),             # Kick transition
+        ]
+
+        for pos, instrument, velocity in sequence:
+            builder.pattern.add_beat(pos, instrument, velocity)
+
+        # Return to floor tom on bar boundary with China accent
+        builder.pattern.add_beat(4.0, DrumInstrument.FLOOR_TOM, 125)
+        builder.pattern.add_beat(4.0, DrumInstrument.CHINA, 110)
+
+        return builder.build()
+
+    def _create_pentatonic_kick_accent(self) -> Pattern:
+        """Pentatonic kick accent fill.
+
+        Carey often accents the kick drum with pentatonic pitch sequences
+        that mirror his tom work. This fill layers a pentatonic kick pattern
+        over deep floor-tom sustenance.
+        """
+        from midi_drums.generation.builders.pattern_builder import (
+            PatternBuilder,
+        )
+
+        builder = PatternBuilder("carey_pentatonic_kick")
+
+        # Pentatonic kick sequence (root, third, fourth, fifth, octave)
+        pentatonic_intervals = [0.0, 1.2, 2.0, 3.2, 4.0]
+        for i, pos in enumerate(pentatonic_intervals):
+            velocity = 95 + (i % 3) * 10
+            builder.kick(pos, min(127, velocity))
+
+        # Floor tom underpinning
+        for beat in [1.0, 3.0]:
+            builder.pattern.add_beat(beat, DrumInstrument.FLOOR_TOM, 105)
+
+        return builder.build()
+
+    def _create_ethnic_inspired_fill(self) -> Pattern:
+        """Ethnically-inspired fill pattern (superseded by mandala_tabla_fill).
+
+        Carey incorporates ethnic percussion elements via custom electronic drum
+        pads (Mandala, etc.) triggering tabla/octoban samples — see _create_mandala_tabla_fill.
+        Kept here for backward compatibility but new compositions should use
+        the dedicated mandala/tabla fill instead.
         """
         from midi_drums.generation.builders.pattern_builder import (
             PatternBuilder,

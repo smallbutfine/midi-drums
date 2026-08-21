@@ -23,6 +23,7 @@ from midi_drums.generation.intensity_curve import (
     IntensityCurve,
     interpolate_curve,
 )
+from midi_drums.generation.fill_library.picker import FillContext, FillPicker
 
 if TYPE_CHECKING:
     from midi_drums.plugins.registry.plugin_registry import PluginManager
@@ -36,6 +37,7 @@ class ComposerV2:
     def __init__(self, plugin_manager: PluginManager, seed: int | None = None):
         self.plugin_manager = plugin_manager
         self.bar_selector = BarSelector(seed=seed)
+        self.fill_picker = FillPicker(seed=seed)
 
     def create_song(
         self,
@@ -345,17 +347,36 @@ class ComposerV2:
     def _generate_context_aware_fills(
         self, genre: str, params: GenerationParameters, section_bars: int
     ) -> list[Fill]:
-        """Generate fills based on section context and drummer."""
+        """Generate fills based on section context and drummer.
+
+        Drummer signature fills are wrapped in FillContext so that
+        FillPicker can apply position-aware weighting later.  Genre
+        common fills remain as bare Fill objects (they have no context).
+        """
         # If drummer has signature fills, use those preferentially
         if params.drummer:
             drummer_plugin = self.plugin_manager.registry.get_drummer_plugin(
                 params.drummer
             )
             if drummer_plugin:
-                signature_fills = drummer_plugin.get_signature_fills()
-                if signature_fills:
-                    # Use all drummer signature fills
-                    return signature_fills
+                raw_fills = drummer_plugin.get_signature_fills()
+                if raw_fills:
+                    # Wrap each Fill in a FillContext so picker can weight by
+                    # section preference, trigger probability, etc.
+                    context_fills: list[FillContext] = []
+                    for fill in raw_fills:
+                        ctx = FillContext(
+                            name=fill.pattern.name,
+                            pattern=fill.pattern,
+                            trigger_probability=fill.trigger_probability,
+                            section_position=fill.section_position,
+                            preferred_sections=getattr(fill, "preferred_sections", set()),
+                            weight=1.0,
+                        )
+                        context_fills.append(ctx)
+                    # Return the FillContexts wrapped as Fill objects
+                    # (FillContext._pattern_name provides legacy accessor)
+                    return [self._fill_from_context(f) for f in context_fills]
 
         # Fallback to genre common fills
         genre_plugin = self.plugin_manager.registry.get_genre_plugin(genre)
@@ -363,3 +384,15 @@ class ComposerV2:
             return genre_plugin.get_common_fills()
 
         return []
+
+    def _fill_from_context(self, ctx: FillContext) -> Fill:
+        """Convert a FillContext back to a Fill for API compatibility.
+
+        The returned Fill delegates _pattern_name / pattern.name to the
+        context so existing code that reads fill.pattern.name still works.
+        """
+        return Fill(
+            pattern=ctx.pattern,
+            trigger_probability=ctx.trigger_probability,
+            section_position=ctx.section_position,
+        )

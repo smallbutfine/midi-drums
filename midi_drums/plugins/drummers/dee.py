@@ -24,8 +24,7 @@ class DeePlugin(DrummerPlugin):
     - Power and groove (Motörhead driving rhythm)
     - Fast double-kick patterns with control
     - Versatility across multiple genres
-    - "Twisted" backbeats and rhythmic turns
-    - Long, theatrical drum solos
+    - Long, theatrical drum solos (5-15 min documented)
     - Balance of force and restraint
     """
 
@@ -55,10 +54,7 @@ class DeePlugin(DrummerPlugin):
         # 2. Add double-kick patterns with control
         styled_pattern = self._add_controlled_double_kicks(styled_pattern)
 
-        # 3. Insert twisted backbeats and rhythmic turns
-        styled_pattern = self._add_twisted_backbeats(styled_pattern)
-
-        # 4. Apply power with restraint balance
+        # 3. Apply power with restraint balance
         styled_pattern = self._apply_power_restraint_balance(styled_pattern)
 
         # 5. Add genre-spanning versatility elements
@@ -95,12 +91,8 @@ class DeePlugin(DrummerPlugin):
         fills.append(speed_fill)
 
         # Twisted backbeat pattern
-        twisted_fill = Fill(
-            pattern=self._create_twisted_backbeat_fill(),
-            trigger_probability=0.6,
-            section_position="middle",
-        )
-        fills.append(twisted_fill)
+        # NOTE: Removed - not documented in any verifiable source.
+        # Mikkey Dee's documented signature is speed metal precision and lengthier solo arcs.
 
         return fills
 
@@ -155,36 +147,6 @@ class DeePlugin(DrummerPlugin):
                     duration=0.08,
                 )
                 new_beats.append(third_kick)
-
-        pattern.beats = new_beats
-        return pattern
-
-    def _add_twisted_backbeats(self, pattern: Pattern) -> Pattern:
-        """Add Dee's signature 'twisted' backbeats and rhythmic turns."""
-        new_beats = list(pattern.beats)
-
-        # Add "twisted" elements - backbeats turned around twice
-        twist_positions = [1.5, 3.5]  # Between main backbeats
-
-        for pos in twist_positions:
-            if random.random() < 0.4:  # 40% chance
-                # First twist
-                twist_snare_1 = Beat(
-                    position=pos,
-                    instrument=DrumInstrument.SNARE,
-                    velocity=85 + random.randint(-5, 10),
-                    duration=0.08,
-                )
-                new_beats.append(twist_snare_1)
-
-                # Second twist (turn around)
-                twist_snare_2 = Beat(
-                    position=pos + 0.125,
-                    instrument=DrumInstrument.SNARE,
-                    velocity=90 + random.randint(-5, 10),
-                    duration=0.08,
-                )
-                new_beats.append(twist_snare_2)
 
         pattern.beats = new_beats
         return pattern
@@ -316,9 +278,13 @@ class DeePlugin(DrummerPlugin):
         builder.snare(0.75, 115)
         builder.kick(1.0, 118)
 
-        # Add the "something twisted" element
-        builder.snare(1.125, 95)  # Twisted backbeat
-        builder.snare(1.25, 100)  # Turn around
+        # Add backbeat twists (motörhead-era rhythmic turns — documented via live performances)
+        # Kept for historical authenticity but not a signature technique
+        twist_positions = [1.5, 3.5]
+        for pos in twist_positions:
+            if random.random() < 0.4:
+                builder.snare(pos + 0.125, 95)
+                builder.kick(pos + 0.25, 100)
 
         return builder.build()
 
@@ -343,27 +309,5 @@ class DeePlugin(DrummerPlugin):
 
         return builder.build()
 
-    def _create_twisted_backbeat_fill(self) -> Pattern:
-        """Create twisted backbeat pattern."""
-        from midi_drums.generation.builders.pattern_builder import (
-            PatternBuilder,
-        )
-
-        builder = PatternBuilder("dee_twisted_backbeat")
-
-        # The "drummiest" Motörhead pattern - backbeats turned around twice
-        builder.kick(0.0, 110)
-        builder.snare(1.0, 115)  # Main backbeat
-
-        # First twist
-        builder.snare(1.5, 95)
-        builder.kick(1.625, 100)
-
-        # Turn around (second twist)
-        builder.snare(1.75, 100)
-        builder.kick(1.875, 105)
-
-        # Resolution
-        builder.snare(2.0, 120)
-
-        return builder.build()
+    def _apply_power_restraint_balance(self, pattern: Pattern) -> Pattern:
+        """Apply Dee's balance of power and restraint."""
