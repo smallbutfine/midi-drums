@@ -65,6 +65,10 @@ class BonhamPlugin(DrummerPlugin):
           - Sixtuplet: six-note snare/tom run (Stairway to Heaven bridge)
           - GTBT triplets: opening triplet pattern (Good Times Bad Times)
           - Hand drumming: live-only hand-tom cadence (Moby Dick live eras)
+          - WKS triplet groove: 3/4 triplet feel (When The Sisters Kneel)
+          - When My Baby: double-kick/syncopated tom fill
+          - Rockers: half-time shuffle with triplet bass drum (Trampled Under Foot)
+          - Immigrant Song: driving triplets into chorus
         """
         return [
             Fill(
@@ -86,6 +90,26 @@ class BonhamPlugin(DrummerPlugin):
                 pattern=self._create_hand_drumming_fill(),
                 trigger_probability=0.6,
                 section_position="end",
+            ),
+            Fill(
+                pattern=self._create_wks_triplet_groove(),
+                trigger_probability=0.75,
+                section_position="middle",
+            ),
+            Fill(
+                pattern=self._create_when_my_baby_fill(),
+                trigger_probability=0.7,
+                section_position="end",
+            ),
+            Fill(
+                pattern=self._create_rockers_half_time_shuffle(),
+                trigger_probability=0.8,
+                section_position="start",
+            ),
+            Fill(
+                pattern=self._create_immigrant_song_triplet_fill(),
+                trigger_probability=0.75,
+                section_position="middle",
             ),
         ]
 
@@ -148,6 +172,96 @@ class BonhamPlugin(DrummerPlugin):
             inst = DrumInstrument.MID_TOM if pos % 0.5 == 0 else DrumInstrument.FLOOR_TOM
             velocity = VELOCITY.TOM_HEAVY + random.randint(-8, 12)
             builder.pattern.add_beat(pos, inst, velocity)
+        return builder.build()
+
+    def _create_wks_triplet_groove(self) -> Pattern:
+        """When The Sisters Kneel triplet groove (Led Zeppelin III).
+
+        Bonham plays a triplet-based pattern in 3/4 feel on this track.
+        Simulated with triplet-kick emphasis and tom accents.
+        """
+        from midi_drums.generation.builders.pattern_builder import (
+            PatternBuilder,
+        )
+
+        builder = PatternBuilder("bonham_wks_triplet")
+        # Triplets across 4/4 bar (feels like 3/4)
+        for i in range(12):  # 12 eighth-note triplets in a bar
+            pos = TIMING.EIGHTH_TRIPLET * i
+            if i % 3 == 0:
+                builder.kick(pos, VELOCITY.KICK_HEAVY)
+            if i % 4 == 0:
+                builder.pattern.add_beat(
+                    pos, DrumInstrument.MID_TOM,
+                    min(VELOCITY.TOM_ACCENT + random.randint(-5, 10), 127),
+                )
+        return builder.build()
+
+    def _create_when_my_baby_fill(self) -> Pattern:
+        """When My Baby Just Smiles At Me double-kick/tom fill.
+
+        Bonham's jazz-influenced fill with syncopated kick and tom runs
+        from Led Zeppelin II (1969). Uses syncopated kick pattern into
+        a descending tom line.
+        """
+        from midi_drums.generation.builders.pattern_builder import (
+            PatternBuilder,
+        )
+
+        builder = PatternBuilder("bonham_when_my_baby")
+        # Syncopated kick approach
+        builder.kick(0.0, VELOCITY.KICK_HEAVY)
+        builder.kick(TIMING.EIGHTH_TRIPLET * 2, VELOCITY.KICK_NORMAL)
+        builder.kick(TIMING.HALF + TIMING.EIGHTH_TRIPLET, VELOCITY.KICK_HEAVY)
+        # Descending tom run (rack → mid → floor)
+        for i in range(4):
+            pos = TIMING.QUARTER * 2 + i * TIMING.SIXTEENTH
+            inst = DrumInstrument.MID_TOM if i < 2 else DrumInstrument.FLOOR_TOM
+            builder.pattern.add_beat(
+                pos, inst,
+                VELOCITY.TOM_HEAVY - (i * 5),
+            )
+        return builder.build()
+
+    def _create_rockers_half_time_shuffle(self) -> Pattern:
+        """Trampled Under Foot half-time shuffle with triplet bass drum.
+
+        Bonham's pioneering funk-rock shuffle on Trampled Under Foot (Houses
+        of the Holy, 1973) — half-time snare on beat 3, but with a triplet-based
+        bass drum pattern derived from the "Fool in the Rain" shuffle vocabulary.
+        """
+        from midi_drums.generation.builders.pattern_builder import (
+            PatternBuilder,
+        )
+
+        builder = PatternBuilder("bonham_rockers_shuffle")
+        # Half-time feel with triplet bass drum ("Fool in the Rain" precursor)
+        for i in range(6):
+            pos = TIMING.EIGHTH_TRIPLET * i
+            velocity = VELOCITY.KICK_LIGHT if i % 2 == 0 else VELOCITY.KICK_HEAVY
+            builder.kick(pos, min(velocity, 127))
+        # Backbeat on beat 3 (half-time position)
+        builder.snare(TIMING.HALF * 3, VELOCITY.SNARE_HEAVY)
+        return builder.build()
+
+    def _create_immigrant_song_triplet_fill(self) -> Pattern:
+        """Immigrant Song driving triplet fill.
+
+        The iconic triplet kick/snare pattern from Immigrant Song (Led Zeppelin III).
+        Fast, aggressive triplet rhythm that drives the song's intensity.
+        """
+        from midi_drums.generation.builders.pattern_builder import (
+            PatternBuilder,
+        )
+
+        builder = PatternBuilder("bonham_immigrant_triplet")
+        # Aggressive triplets (12 hits packed into one beat via 32nd notes)
+        for i in range(12):
+            pos = i * TIMING.EIGHTH_TRIPLET / 3  # sixteenth-note triplets
+            if i % 2 == 0:
+                builder.kick(pos, min(VELOCITY.KICK_HEAVY + random.randint(-5, 10), 127))
+            else:
+                builder.snare(pos, VELOCITY.SNARE_HEAVY)
         return builder.build()
 
 

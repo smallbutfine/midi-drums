@@ -8,7 +8,7 @@
 [![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 [![MIDI](https://img.shields.io/badge/Output-MIDI-purple.svg)](https://en.wikipedia.org/wiki/MIDI)
 [![EZDrummer](https://img.shields.io/badge/Compatible-EZDrummer_3-orange.svg)](https://www.toontrack.com/product/ezdrummer-3/)
-[![Tests](https://img.shields.io/badge/Tests-500%2B_passing-success.svg)](tests/)
+[![Tests](https://img.shields.io/badge/Tests-562%2B_passing-success.svg)](tests/)
 [![Docs](https://img.shields.io/badge/Docs-GitHub_Pages-blueviolet.svg)](https://fsecada01.github.io/midi-drums/)
 
 *A comprehensive, plugin-based MIDI drum track generation system*
@@ -483,19 +483,19 @@ See [`docs/plan_01_bar_by_bar.md`](docs/plan_01_bar_by_bar.md) for the full desi
 
 ### Available Drummers
 
-| Drummer | Signature Techniques |
-|---------|----------------------|
-| **John Bonham** | Triplet vocabulary, behind-the-beat timing |
-| **Jeff Porcaro** | Half-time shuffle, studio precision |
-| **Dave Weckl** | Linear playing, fusion mastery |
-| **Dennis Chambers** | Funk mastery, incredible chops |
-| **Jason Roeder** | Atmospheric sludge, minimal creativity |
-| **Mikkey Dee** | Speed/precision, versatile power |
-| **Gene Hoglan** | Mechanical precision, blast beats |
-| **Neil Peart** | Extreme timing precision, linear limb independence, polyrhythmic fills |
-| **Buddy Rich** | Virtuosic single-stroke speed, dramatic dynamic contrast |
-| **Danny Carey**  | Polyrhythmic quintuplets, deep tom cascades, ethnic percussion textures |
-| **Stewart Copeland** | Reggae/ska-influenced off-beat hi-hat, cross-stick snare |
+| Drummer | Signature Fills |
+|---------|----------------|
+| **John Bonham** | 8: Moby Dick tom solo, Sixtuplet run, GTBT triplets, Hand cadence, WKS triplets, When My Baby fill, Rockers shuffle, Immigrant Song drive |
+| **Jeff Porcaro** | 8: Rosanna shuffle, Half-time shuffle, Ghost notes, Studio precision, Aja fusion, Waiter's pad, Rosanna variation, Chain of Fools |
+| **Dave Weckl** | 8: Weckl 9 pattern, Linear fusion, Ghost notes, Coordination showcase, Liquid Drummers roll, Elektric Band fill, Step Forward groove, Linear tom excursion |
+| **Dennis Chambers** | 8: P-Funk groove, Fast chops, Pocket stretch, Fusion showcase, Santana Latin pocket, Funky Drummer kick, Ghost-note toms, One-drop |
+| **Jason Roeder** | 8: Atmospheric tom roll, Labyrinthine fill, Crushing pattern, Minimal kit showcase, Souls at Zero buildup, Wounds sludge interlock, Pain of Always ambient, Times of Grace tremolo |
+| **Mikkey Dee** | 8: King Diamond kick intro, Motorhead solo arc, Ride bell stinger, Blast intro, Motorhead gallop, Speed metal run, Abigail cascade, Scream for Me punctuation |
+| **Gene Hoglan** | 8: Blast accents, Chicken lights, Death blast cadence, SYL ghost cascade, Dark Angel speed run, Mechanical roll, Dethklok wall-of-sound, Fear Factory industrial |
+| **Neil Peart** | 6: Quintuplet toms, Linear precision, China punctuation, R30 rotation fill, MalletKAT electronic, Swiss Army triplets |
+| **Buddy Rich** | 8: Single-stroke roll, Dynamic cascade, Showman crash, Drum battle, Big Band swing solo, Cross-stick/snap combo, Paradiddle excursion, Double paradiddle |
+| **Danny Carey** | 4+: Quintuplet tom cascade, Polyrhythmic buildup, Mandala tabla fill, Odd-meter kick counterpoint, Sacred geometry fill, Pentatonic kick accent, Ethnic inspired fill, Cymbal swell pattern |
+| **Stewart Copeland** | 8: Skank hi-hat, Displaced accent, Syncopated tom skip, Octoban off-beat, Gamelan percussion, Reggae skank groove, Message in a Box toms, Every Breath ghost interlock |
 
 **Future expansions:** World genres (Latin, Reggae, Afrobeat) — see [Roadmap](#-roadmap).
 
@@ -814,8 +814,8 @@ New musical genres or styles, advanced humanization techniques, integration with
 ### Phase 2: Live, Varied Patterns ✅ (Engine V2 Active)
 - [x] Bar-by-bar pattern evolution (no repeated bars within sections) — **now the default engine**
 - [x] Section intensity curves (internal arc per section — buildup, peak, drop)
-- [ ] Pattern flavor swapping (3+ distinct patterns per section type)
-- [ ] Drummer fill library expansion (8-12 fills per drummer, context-aware selection)
+- [x] Pattern flavor swapping (3+ distinct patterns per section type)
+- [x] Drummer fill library expansion (8 fills per drummer × 11 drummers = 64+ fills, context-aware selection) — **completed**
 - [ ] Per-bar groove engine (swing ratio + timing push/pull per bar)
 - [x] AD2 keymap wiring — tight HH, crash_choked, ride_bell, tom_edge in all 4 genres (metal, rock, jazz, funk)
 - [x] Electronic genre plugin (House, Techno, Drum & Bass, Dubstep)

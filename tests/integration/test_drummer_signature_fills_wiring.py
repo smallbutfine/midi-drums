@@ -77,9 +77,10 @@ class TestDrummerSignatureFillsWiredIntoGeneration:
         assert len(fill_pattern_names) > 0
 
     def test_drummer_with_no_signature_fills_falls_back_to_genre_pool(self):
-        """A drummer whose get_signature_fills() returns [] (e.g. Bonham,
-        the currently-registered default) falls back to the genre's
-        common fills rather than leaving section.fills empty."""
+        """A drummer whose get_signature_fills() returns [] (if one existed)
+        would fall back to the genre's common fills rather than leaving
+        section.fills empty. Bonham now has 8 signature fills, so this test
+        verifies they're all present and no Peart fills leak in."""
         generator = DrumGenerator()
         song = generator.create_song(
             genre="rock",
@@ -91,7 +92,8 @@ class TestDrummerSignatureFillsWiredIntoGeneration:
         section = song.sections[0]
         fill_pattern_names = {fill.pattern.name for fill in section.fills}
         assert not (fill_pattern_names & PEART_FILL_PATTERN_NAMES)
-        assert len(fill_pattern_names) == 4
+        # Bonham now has 8 signature fills after the expand-fill-library phase
+        assert len(fill_pattern_names) == 8
 
     def test_peart_signature_fill_actually_rendered_in_midi_output(self):
         """Force fill selection deterministically and prove a Peart

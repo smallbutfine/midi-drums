@@ -61,6 +61,10 @@ class RoederPlugin(DrummerPlugin):
           - Labyrinthine complexity: winding rhythmic motifs
           - Crushing weight: heavy single-hit accents with long sustain
           - Minimal kit showcase: limited toms for maximum impact
+          - Souls at Zero buildup: slow-building tension fill (Neurosis era)
+          - Wounds sludge pattern: heavy, resonant tom-to-kick interlock
+          - Pain of Always ambient pad: sustained cymbal with sparse hits
+          - Times of Grace tremolo fill: double-kick tremolo into cavernous toms
         """
         return [
             Fill(
@@ -80,6 +84,26 @@ class RoederPlugin(DrummerPlugin):
             ),
             Fill(
                 pattern=self._create_minimal_kit_showcase(),
+                trigger_probability=0.6,
+                section_position="end",
+            ),
+            Fill(
+                pattern=self._create_souls_at_zero_buildup(),
+                trigger_probability=0.75,
+                section_position="end",
+            ),
+            Fill(
+                pattern=self._create_wounds_sludge_interlock(),
+                trigger_probability=0.7,
+                section_position="middle",
+            ),
+            Fill(
+                pattern=self._create_pain_of_always_ambient_fill(),
+                trigger_probability=0.65,
+                section_position="start",
+            ),
+            Fill(
+                pattern=self._create_times_of_grace_tremolo(),
                 trigger_probability=0.6,
                 section_position="end",
             ),
@@ -153,6 +177,86 @@ class RoederPlugin(DrummerPlugin):
             DrumInstrument.FLOOR_TOM,
             min(VELOCITY.TOM_HEAVY + 5, 127),
         )
+        return builder.build()
+
+    def _create_souls_at_zero_buildup(self) -> Pattern:
+        """Souls at Zero slow-building tension fill (Neurosis era)."""
+        from midi_drums.generation.builders.pattern_builder import (
+            PatternBuilder,
+        )
+
+        builder = PatternBuilder("roeder_souls_at_zero_buildup")
+        phases = [
+            (0.0, DrumInstrument.FLOOR_TOM, VELOCITY.TOM_ACCENT),
+            (TIMING.HALF, DrumInstrument.FLOOR_TOM, VELOCITY.TOM_HEAVY),
+            (TIMING.HALF * 2, None, min(VELOCITY.KICK_HEAVY + random.randint(-5, 10), 127)),
+            (TIMING.HALF * 3, None, min(VELOCITY.KICK_HEAVY + 5, 127)),
+        ]
+        for offset, inst, vel in phases:
+            if inst is not None:
+                builder.tom(offset, inst.value, vel)
+            else:
+                builder.kick(offset, vel)
+        builder.snare(TIMING.HALF * 4 - TIMING.SIXTEENTH,
+            min(VELOCITY.SNARE_ACCENT + 15, 127))
+        return builder.build()
+
+    def _create_wounds_sludge_interlock(self) -> Pattern:
+        """Wounds-era heavy tom-to-kick interlock."""
+        from midi_drums.generation.builders.pattern_builder import (
+            PatternBuilder,
+        )
+
+        builder = PatternBuilder("roeder_wounds_sludge")
+        interlock = [
+            (0.0, DrumInstrument.FLOOR_TOM, VELOCITY.TOM_HEAVY),
+            (TIMING.HALF, "KICK", VELOCITY.KICK_HEAVY),
+            (TIMING.HALF * 2, DrumInstrument.MID_TOM,
+                min(VELOCITY.TOM_HEAVY + random.randint(-5, 10), 127)),
+            (TIMING.HALF * 3, "KICK",
+                min(VELOCITY.KICK_HEAVY + 8, 127)),
+        ]
+        for offset, inst_or_name, vel in interlock:
+            if inst_or_name == "KICK":
+                builder.kick(offset, vel)
+            else:
+                builder.pattern.add_beat(offset, inst_or_name, min(vel, 127))
+        builder.crash(TIMING.HALF * 3 + TIMING.EIGHTH_TRIPLET,
+            VELOCITY.CRASH_HEAVY)
+        return builder.build()
+
+    def _create_pain_of_always_ambient_fill(self) -> Pattern:
+        """Pain of Always ambient pad with sparse hits."""
+        from midi_drums.generation.builders.pattern_builder import (
+            PatternBuilder,
+        )
+
+        builder = PatternBuilder("roeder_pain_of_always_ambient")
+        for i in range(4):
+            pos = TIMING.HALF * i
+            builder.hihat(pos, VELOCITY.HIHAT_ACCENT + 10)
+        builder.tom(TIMING.EIGHTH_TRIPLET, DrumInstrument.FLOOR_TOM.value,
+            VELOCITY.TOM_LIGHT)
+        builder.tom(TIMING.HALF * 3 + TIMING.EIGHTH_TRIPLET,
+            DrumInstrument.MID_TOM.value, VELOCITY.TOM_ACCENT)
+        builder.crash(TIMING.DOTTED_EIGHTH, min(VELOCITY.CRASH_HEAVY - 10, 127))
+        return builder.build()
+
+    def _create_times_of_grace_tremolo(self) -> Pattern:
+        """Times of Grace double-kick tremolo into cavernous toms."""
+        from midi_drums.generation.builders.pattern_builder import (
+            PatternBuilder,
+        )
+
+        builder = PatternBuilder("roeder_times_of_grace_tremolo")
+        for i in range(16):
+            pos = TIMING.THIRTY_SECOND * i
+            builder.kick(pos, min(VELOCITY.KICK_HEAVY + random.randint(-5, 10), 127))
+        for i in range(4):
+            pos = TIMING.HALF * i
+            inst = "FLOOR" if i < 2 else "MID"
+            builder.tom(pos, inst,
+                min(VELOCITY.TOM_HEAVY + (i * 5), 127))
         return builder.build()
 
 

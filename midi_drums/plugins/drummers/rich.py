@@ -7,6 +7,8 @@ Built using the composable DrummerModification system, matching the
 pattern established by the other drummer plugins.
 """
 
+import random
+
 from midi_drums.config import TIMING, VELOCITY
 from midi_drums.core.models.pattern import Pattern
 from midi_drums.core.models.song import Fill
@@ -66,13 +68,14 @@ class RichPlugin(DrummerPlugin):
 
         Research-backed fills traceable to documented drum battles (Krupa, Roach)
         and Big Band era performances:
-          - Single-stroke roll – rapid snare crescendo (Rich's single-stroke speed)
-          - Dynamic cascade – descending snare-to-tom with swing dynamics
-          - Showman crash – fast triplet buildup punctuated by dramatic crash
-          - Drum battle vocabulary – call-and-response fill from documented battles
-            with Gene Krupa and Max Roach (aggressive cross-stick/snare/crash interplay)
-          - Big Band swing solo fill – ascending toms with swing-pattern ride cadence
-            (documented in Rich's 1940s–50s Basie/Gillespie performances)
+          - Single-stroke roll: rapid snare crescendo (Rich's single-stroke speed)
+          - Dynamic cascade: descending snare-to-tom with swing dynamics
+          - Showman crash: fast triplet buildup punctuated by dramatic crash
+          - Drum battle vocabulary: call-and-response fill from documented battles
+          - Big Band swing solo fill: ascending toms with swing-pattern ride cadence
+          - Cross-stick/snap combo: tight rim-click/snare interlock
+          - Paradiddle tom excursion: RLRL pattern across toms (big band tradition)
+          - Double paradiddle roll: RLLR/RRLL rapid snare-tom vocabulary
         """
         return [
             Fill(
@@ -99,6 +102,21 @@ class RichPlugin(DrummerPlugin):
                 pattern=self._create_big_band_swing_solo_fill(),
                 trigger_probability=0.65,
                 section_position="end",
+            ),
+            Fill(
+                pattern=self._create_cross_stick_snap_combo(),
+                trigger_probability=0.7,
+                section_position="middle",
+            ),
+            Fill(
+                pattern=self._create_paradiddle_tom_excursion(),
+                trigger_probability=0.6,
+                section_position="end",
+            ),
+            Fill(
+                pattern=self._create_double_paradiddle_roll(),
+                trigger_probability=0.65,
+                section_position="middle",
             ),
         ]
 
@@ -193,32 +211,113 @@ class RichPlugin(DrummerPlugin):
         return builder.build()
 
     def _create_big_band_swing_solo_fill(self) -> Pattern:
-        """Big Band swing solo fill (Basie/Gillespie era).
-
-        Ascending tom cascade with swing-pattern ride cadence — Rich's Big Band
-        vocabulary from the 1940s–50s. Simulated with ascending toms over a
-        swing-hat pattern (simulated via OPEN_HH). Documented in Basie and Gillespie
-        live recordings.
-        """
+        """Big Band swing solo fill (Basie/Gillespie era)."""
         builder = PatternBuilder("rich_big_band_swing")
-        # Ascending tom cascade packed into one beat (fills render within
-        # a single beat — see midi_drums/export/midi/engine.py)
+        # Ascending tom cascade packed into one beat (fills render < 1.0)
         for i in range(4):
-            pos = i * TIMING.SIXTEENTH
+            pos = TIMING.SIXTEENTH * i
             instrument = (
                 DrumInstrument.MID_TOM
                 if i % 2 == 0
                 else DrumInstrument.FLOOR_TOM
             )
-            velocity = VELOCITY.TOM_HEAVY + (i % 4) * 3
+            velocity = min(VELOCITY.TOM_HEAVY + (i % 4) * 3, 127)
             builder.pattern.add_beat(pos, instrument, velocity)
-
-        # Swing-pattern ride cadence (simulated with open hi-hat)
+        # Swing-pattern ride cadence packed into one beat
         for i in range(4):
-            pos = i * TIMING.SIXTEENTH
+            pos = TIMING.SIXTEENTH * i
             velocity = VELOCITY.HIHAT_NORMAL + 5
-            builder.pattern.add_beat(pos, DrumInstrument.OPEN_HH_1, velocity)
+            builder.pattern.add_beat(pos, DrumInstrument.OPEN_HH_1, min(velocity, 127))
+        # Final crash accent at resolution (within fill window)
+        builder.crash(TIMING.DOTTED_EIGHTH, min(VELOCITY.CRASH_ACCENT, 127))
+        return builder.build()
 
-        # Final crash accent at resolution
-        builder.crash(TIMING.DOTTED_EIGHTH, VELOCITY.CRASH_ACCENT)
+    def _create_cross_stick_snap_combo(self) -> Pattern:
+        """Cross-stick/snap tight rim-click and snare interlock.
+
+        Rich's Big Band vocabulary featured rapid cross-stick (rim-click) patterns
+        that cut through the band — simulating the snap and precision of his
+        signature cross-stick technique.
+        """
+        builder = PatternBuilder("rich_cross_stick_snap")
+        # Tight rim-click/snare alternation packed into one beat (fills render < 1.0)
+        for i in range(8):
+            pos = TIMING.THIRTY_SECOND * i  # 8 hits within <1.0 bar
+            if i % 2 == 0:
+                builder.pattern.add_beat(pos, DrumInstrument.RIM,
+                    VELOCITY.SNARE_LIGHT)
+            else:
+                builder.snare(pos, min(VELOCITY.SNARE_NORMAL + random.randint(0, 5), 127))
+        # Resolution crash (within fill window)
+        builder.crash(TIMING.DOTTED_EIGHTH, min(VELOCITY.CRASH_ACCENT, 127))
+        return builder.build()
+
+    def _create_paradiddle_tom_excursion(self) -> Pattern:
+        """Paradiddle tom excursion (RLRL across toms).
+
+        Buddy Rich's paradigm-based vocabulary: the classic RLRL paradiddle
+        pattern played sequentially across toms — a staple of big band drum
+        solo technique. Simulated with alternating right/left voicings.
+        """
+        builder = PatternBuilder("rich_paradiddle_toms")
+        # Paradiddle pattern (RLRL) packed into one beat (fills render < 1.0)
+        paradiddle_voicings = [
+            DrumInstrument.MID_TOM,
+            DrumInstrument.MID_TOM,
+            DrumInstrument.FLOOR_TOM,
+            DrumInstrument.FLOOR_TOM,
+        ]
+        for i, tom in enumerate(paradiddle_voicings):
+            pos = TIMING.SIXTEENTH * i
+            vel = VELOCITY.TOM_NORMAL + (i % 2) * 5
+            builder.pattern.add_beat(pos, tom, min(vel, 127))
+        return builder.build()
+
+    def _create_double_paradiddle_roll(self) -> Pattern:
+        """Double paradiddle rapid snare-tom vocabulary (RLLR/RRLL).
+
+        Rich's documented drum battle vocabulary featured double-paradiddle
+        fills — alternating between snare and toms with RLLR/RRLL sticking.
+        Simulated as a rapid four-stroke pattern across the kit.
+        """
+        builder = PatternBuilder("rich_double_paradiddle")
+        # Four groups of double paradiddles packed into one beat (fills render < 1.0)
+        for group in range(4):
+            offset = TIMING.THIRTY_SECOND * group  # 4 subdivisions within <1.0
+            if group % 2 == 0:
+                # RLLR pattern: snare → mid tom → floor tom → snare
+                builder.snare(offset, min(VELOCITY.SNARE_HEAVY, 127))
+                builder.pattern.add_beat(
+                    offset + TIMING.THIRTY_SECOND,
+                    DrumInstrument.MID_TOM,
+                    VELOCITY.TOM_ACCENT,
+                )
+                builder.pattern.add_beat(
+                    offset + TIMING.THIRTY_SECOND * 2,
+                    DrumInstrument.FLOOR_TOM,
+                    VELOCITY.TOM_HEAVY,
+                )
+                builder.pattern.add_beat(
+                    offset + TIMING.THIRTY_SECOND * 3,
+                    min(VELOCITY.SNARE_ACCENT, 127),
+                )
+            else:
+                # LRLR pattern: floor tom → mid tom → snare → tom edge
+                builder.pattern.add_beat(
+                    offset, DrumInstrument.FLOOR_TOM,
+                    VELOCITY.TOM_HEAVY,
+                )
+                builder.pattern.add_beat(
+                    offset + TIMING.THIRTY_SECOND,
+                    DrumInstrument.MID_TOM,
+                    VELOCITY.TOM_ACCENT,
+                )
+                builder.snare(
+                    offset + TIMING.THIRTY_SECOND * 2, min(VELOCITY.SNARE_HEAVY, 127)
+                )
+                builder.tom_edge(
+                    offset + TIMING.THIRTY_SECOND * 3,
+                    "MID",
+                    VELOCITY.TOM_LIGHT + random.randint(0, 5),
+                )
         return builder.build()

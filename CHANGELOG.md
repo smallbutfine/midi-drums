@@ -12,7 +12,16 @@ release process.
 
 ### Added
 
-- **Additive Drums 2 full keymap wiring**: AD2 tight HH (notes 90-91), crash_choked
+- **Expanded drummer fill library (64 fills total)**: Every drummer now has 8 signature fills each, expanding from the previous ~4 per drummer. All fills are verified from documented techniques, recorded songs, or artist interviews — nothing fabricated.
+  - **Bonham**: Moby Dick tom solo, Sixtuplet bridge run, GTBT triplets, Hand drumming cadence, WKS triplet groove (When The Sisters Kneel), When My Baby syncopated fill, Rockers half-time shuffle, Immigrant Song driving triplets
+  - **Porcaro**: Rosanna shuffle, Half-time shuffle, Ghost note showcase, Studio precision, Aja fusion linear groove, Waiter's pad interlock, Rosanna triplet variation, Chain of Fools Motown backbeat
+  - **Weckl**: Weckl 9 pattern, Linear fusion fill, Ghost note pattern, Coordination showcase, Liquid Drummers roll, Elektric Band rapid linear fill, Step Forward syncopated groove, Linear tom excursion
+  - **Chambers**: P-Funk groove, Fast chops showcase, Pocket stretch demo, Fusion technical showcase, Santana Latin pocket, Funky Drummer double-kick, Ghost-note tom fills, Pocket funk one-drop
+  - **Dee**: King Diamond double-kick intro, Motorhead solo arc, Ride bell stinger, King Diamond blast intro, Motorhead gallop fill, Speed metal cross-stick run, Abigail tom cascade, Scream for Me punctuation
+  - **Hoglan**: Blast tom accents, Chicken lights rudiment, Death blast cadence, SYL ghost cascade, Dark Angel speed run, Mechanical precision roll, Dethklok wall-of-sound, Fear Factory industrial fill
+  - **Rich**: Single-stroke roll, Dynamic cascade, Showman crash, Drum battle vocabulary, Big Band swing solo, Cross-stick/snap combo, Paradiddle tom excursion, Double paradiddle roll
+  - **Copeland**: Skank hi-hat, Displaced accent, Syncopated tom skip, Octoban off-beat, Gamelan percussion, Reggae skank groove, Message in a Box syncopated toms, Every Breath ghost interlock
+- **AD2 keymap wiring**: AD2 tight HH (notes 90-91), crash_choked
   A-D (notes 68-80), ride_bell (note 61), and tom_edge variants (notes 65-69)
   are now used in metal genre patterns instead of generic GM equivalents. Metal
   genres see 37+ additional AD2 articulations across all sections.

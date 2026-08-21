@@ -7,6 +7,8 @@ DrummerModification system, matching the pattern established by the
 other drummer plugins.
 """
 
+import random
+
 from midi_drums.config import TIMING, VELOCITY
 from midi_drums.core.models.pattern import Pattern
 from midi_drums.core.models.song import Fill
@@ -66,15 +68,14 @@ class CopelandPlugin(DrummerPlugin):
 
         Research-backed fills traceable to The Police discography and documented
         commissioned works (Dallas Symphony Gamelan, Peter Gabriel collaborations):
-          - Skank hi-hat fill – reggae/ska off-beat hi-hat pattern
-          - Displaced accent fill – unexpected subdivision accents
-          - Syncopated tom skip – hesitating tom with cross-stick punctuation
-          - Octoban off-beat fill – The Police reunion kit documented octoban work;
-            Copeland used octobans for off-beat textures on Ghost in the Machine
-          - Gamelan percussion fill – Dallas Symphony Gamelan D'Drum commission;
-            metallic tom/cymbal patterns mimicking Indonesian gamelan
-          - Reggae skank groove fill – Peter Gabriel collaboration hi-hat mastery;
-            syncopated off-beat emphasis drawn from reggae/ska tradition
+          - Skank hi-hat fill: reggae/ska off-beat hi-hat pattern
+          - Displaced accent fill: unexpected subdivision accents
+          - Syncopated tom skip: hesitating tom with cross-stick punctuation
+          - Octoban off-beat fill: The Police reunion kit documented octoban work
+          - Gamelan percussion fill: Dallas Symphony Gamelan D'Drum commission
+          - Reggae skank groove fill: Peter Gabriel collaboration hi-hat mastery
+          - Message in a Box syncopated tom pattern: synchronized left/right hands
+          - Every Breath You Take ghost-note interlock: tight off-beat snare/kick
         """
         return [
             Fill(
@@ -106,6 +107,16 @@ class CopelandPlugin(DrummerPlugin):
                 pattern=self._create_reggae_skank_groove_fill(),
                 trigger_probability=0.7,
                 section_position="middle",
+            ),
+            Fill(
+                pattern=self._create_message_in_a_box_tom_pattern(),
+                trigger_probability=0.65,
+                section_position="end",
+            ),
+            Fill(
+                pattern=self._create_every_breath_ghost_interlock(),
+                trigger_probability=0.7,
+                section_position="start",
             ),
         ]
 
@@ -229,19 +240,66 @@ class CopelandPlugin(DrummerPlugin):
         return builder.build()
 
     def _create_reggae_skank_groove_fill(self) -> Pattern:
-        """Reggae skank groove fill.
-
-        Copeland's Peter Gabriel collaborations showcased his hi-hat mastery on reggae
-        and ska-derived grooves — syncopated off-beat emphasis with cross-stick snare.
-        Simulated here as a tight 4-bar phrase emphasizing the skank (upbeat) pattern.
-        """
+        """Reggae skank groove fill."""
         builder = PatternBuilder("copeland_reggae_skank")
         # Skank groove packed into one beat (fills render within a single beat)
         # Downbeat rim + off-beat hi-hats compressed to 16th-note spacing
         builder.pattern.add_beat(0.0, DrumInstrument.RIM, VELOCITY.SNARE_NORMAL)
         builder.pattern.add_beat(TIMING.SIXTEENTH * 2, DrumInstrument.CLOSED_HH, VELOCITY.HIHAT_NORMAL)
         builder.pattern.add_beat(TIMING.SIXTEENTH * 3, DrumInstrument.OPEN_HH_1, VELOCITY.HIHAT_ACCENT)
-
         # Closing crash accent at resolution (within render window)
         builder.crash(TIMING.DOTTED_EIGHTH, VELOCITY.CRASH_ACCENT)
+        return builder.build()
+
+    def _create_message_in_a_box_tom_pattern(self) -> Pattern:
+        """Message in a Box syncopated tom pattern.
+
+        From The Police's Message in a Box — Copeland uses synchronized
+        left/right hand patterns on toms with displaced accents. Simulated
+        as an alternating tom pattern with unexpected accent placement.
+        """
+        builder = PatternBuilder("copeland_message_box_tom")
+        # Alternating mid/floor tom packed into one beat
+        for i in range(8):
+            pos = TIMING.THIRTY_SECOND * i  # 8 hits within <1.0 bar
+            if i % 3 == 0:
+                builder.pattern.add_beat(
+                    pos, DrumInstrument.FLOOR_TOM,
+                    min(VELOCITY.TOM_HEAVY + random.randint(5, 10), 127),
+                )
+            elif i % 2 == 0:
+                builder.pattern.add_beat(pos, DrumInstrument.MID_TOM,
+                    VELOCITY.TOM_NORMAL + random.randint(-3, 5))
+            else:
+                builder.pattern.add_beat(pos, DrumInstrument.FLOOR_TOM,
+                    VELOCITY.TOM_LIGHT)
+        # Cross-stick punctuation at resolution (within fill window)
+        builder.pattern.add_beat(
+            TIMING.DOTTED_EIGHTH, DrumInstrument.RIM, VELOCITY.SNARE_NORMAL)
+        return builder.build()
+
+    def _create_every_breath_ghost_interlock(self) -> Pattern:
+        """Every Breath You Take ghost-note interlock.
+
+        The Police's Every Breath You Take features Copeland's tight, sparse
+        groove with off-beat hi-hat emphasis and ghost-note snare interlocking
+        with the kick. Simulated as a minimalist fill emphasizing space.
+        """
+        builder = PatternBuilder("copeland_every_breath_ghost")
+        # Compressed into one beat (fills render < 1.0)
+        builder.kick(0.0, VELOCITY.KICK_NORMAL)
+        builder.kick(TIMING.THIRTY_SECOND * 5, VELOCITY.KICK_LIGHT)
+        for i in range(1, 8):
+            pos = TIMING.THIRTY_SECOND * i
+            if random.random() < 0.5:
+                builder.pattern.add_beat(
+                    pos, DrumInstrument.SNARE,
+                    min(VELOCITY.SNARE_GHOST + random.randint(0, 10), 127),
+                )
+        for i in range(8):
+            if i % 2 == 1:  # On the off-beats
+                builder.pattern.add_beat(
+                    TIMING.THIRTY_SECOND * i, DrumInstrument.CLOSED_HH,
+                    VELOCITY.HIHAT_ACCENT + random.randint(-3, 5),
+                )
         return builder.build()

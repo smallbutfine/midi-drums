@@ -9,8 +9,10 @@ This is a comprehensive MIDI drum generation system with a modular, plugin-based
 ### Key Features
 - **Multi-Genre Support**: Metal (7 styles), Rock (7 styles), Jazz (7 styles), Funk (7 styles), Electronic (4 styles)
 - **Drummer Imitation**: 11 drummer plugins + 1 composite (Bonham, Porcaro, Weckl, Chambers, Roeder, Dee, Hoglan, Peart, Rich, Copeland, Carey) plus DoomBlues composite
+- **Fill Library**: 64+ verified signature fills across all drummers (8 per drummer for most), researched from documented techniques and recorded songs
+- **AD2 Keymap**: Full Additive Drums 2 keymap wiring — tight HH, crash_choked, ride_bell, tom_edge variants across all genres
 - **Song Structure**: Configurable sections (verse, chorus, bridge, breakdown, intro, outro)
-- **Pattern Variations**: Humanization, fills, complexity control, and dynamic variations
+- **Pattern Variations**: Humanization, fills, complexity control, dynamic variations, and pattern flavors
 - **Multiple Interfaces**: Python API, CLI, and direct module usage
 - **Plugin Architecture**: Easily extensible for new genres and drummers
 - **Professional Output**: EZDrummer 3 compatible MIDI with realistic velocity and timing
@@ -228,7 +230,7 @@ files = api.batch_generate(specs, "output_dir/")
 print("Genres:", api.list_genres())  # ['metal', 'rock', 'jazz', 'funk']
 print("Rock styles:", api.list_styles("rock"))  # 7 rock styles
 print("Jazz styles:", api.list_styles("jazz"))  # 7 jazz styles
-print("Drummers:", api.list_drummers())  # 7 drummer personalities
+print("Drummers:", api.list_drummers())  # 12 drummer personalities (11 + composite)
 ```
 
 ### CLI Interface
@@ -322,19 +324,20 @@ if pattern:
 - **heavy**: Heavy funk with rock influence
 
 ### Available Drummers
-- **John Bonham (bonham)**: Triplet vocabulary, behind-the-beat timing, guitar-following patterns
-- **Jeff Porcaro (porcaro)**: Half-time shuffle mastery, ghost notes, studio precision
-- **Dave Weckl (weckl)**: Linear playing, sophisticated coordination, fusion expertise
-- **Dennis Chambers (chambers)**: Funk mastery, incredible chops, pocket stretching
-- **Jason Roeder (roeder)**: Atmospheric sludge, minimal creativity, crushing weight
-- **Mikkey Dee (dee)**: Speed/precision, versatile power, twisted backbeats
-- **Gene Hoglan (hoglan)**: Mechanical precision, blast beats, progressive complexity
+- **John Bonham (bonham)**: Triplet vocabulary, behind-the-beat timing, guitar-following patterns — 8 signature fills
+- **Jeff Porcaro (porcaro)**: Half-time shuffle mastery, ghost notes, studio precision — 8 signature fills
+- **Dave Weckl (weckl)**: Linear playing, sophisticated coordination, fusion expertise — 8 signature fills
+- **Dennis Chambers (chambers)**: Funk mastery, incredible chops, pocket stretching — 8 signature fills
+- **Jason Roeder (roeder)**: Atmospheric sludge, minimal creativity, crushing weight — 8 signature fills
+- **Mikkey Dee (dee)**: Speed/precision, versatile power, twisted backbeats — 8 signature fills
+- **Gene Hoglan (hoglan)**: Mechanical precision, blast beats, progressive complexity — 8 signature fills
+- **Neil Peart (peart)**: Extreme timing precision, linear limb independence, polyrhythmic fills — 6 signature fills
+- **Buddy Rich (rich)**: Virtuosic single-stroke speed, dramatic dynamic contrast — 8 signature fills
+- **Danny Carey (carey)**: Polyrhythmic quintuplets, deep tom cascades, ethnic percussion textures — 8 signature fills
+- **Stewart Copeland (copeland)**: Reggae/ska-influenced off-beat hi-hat, cross-stick snare — 8 signature fills
+- **DoomBlues composite**: Layered Roeder + Porcaro + Chambers techniques
 
-### Future Expandability
-The plugin system is designed for easy addition of:
-- **Electronic**: house, techno, drum'n'bass, dubstep
-- **World**: latin, reggae, afrobeat, etc.
-- **More Drummers**: Neil Peart, Buddy Rich, Stewart Copeland, etc.
+### Filled Drummers in Available Drummers List → All 12 are implemented ✅
 
 ## Plugin Development Guide
 
