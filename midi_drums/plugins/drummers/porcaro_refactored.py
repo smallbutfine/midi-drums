@@ -98,11 +98,21 @@ class PorcaroPlugin(DrummerPlugin):
         ghost = [TIMING.EIGHTH_TRIPLET * i for i in range(1, 12)]
         for pos in ghost:
             if random.random() < 0.7:
-                builder.pattern.add_beat(pos, DrumInstrument.SNARE, VELOCITY.SNARE_GHOST)
+                builder.pattern.add_beat(
+                    pos, DrumInstrument.SNARE, VELOCITY.SNARE_GHOST
+                )
         for i in range(8):
             open_flag = i % 4 in [1, 3]
             vel = 75 if not open_flag else VELOCITY.HIHAT_ACCENT
-            builder.pattern.add_beat(i * TIMING.EIGHTH, DrumInstrument.OPEN_HH if open_flag else DrumInstrument.CLOSED_HH, vel)
+            builder.pattern.add_beat(
+                i * TIMING.EIGHTH,
+                (
+                    DrumInstrument.OPEN_HH
+                    if open_flag
+                    else DrumInstrument.CLOSED_HH
+                ),
+                vel,
+            )
         return builder.build()
 
     def _create_half_time_shuffle(self) -> Pattern:
@@ -116,7 +126,9 @@ class PorcaroPlugin(DrummerPlugin):
         builder.snare(TIMING.HALF, VELOCITY.SNARE_HEAVY)
         builder.kick(TIMING.HALF + TIMING.EIGHTH_TRIPLET, VELOCITY.KICK_NORMAL)
         for pos in [0.5, 1.0, 1.5, 2.5, 3.0, 3.5]:
-            builder.pattern.add_beat(pos, DrumInstrument.SNARE, VELOCITY.SNARE_GHOST)
+            builder.pattern.add_beat(
+                pos, DrumInstrument.SNARE, VELOCITY.SNARE_GHOST
+            )
         return builder.build()
 
     def _create_ghost_note_fill(self) -> Pattern:
@@ -133,7 +145,11 @@ class PorcaroPlugin(DrummerPlugin):
         for i in range(16):
             pos = i * TIMING.SIXTEENTH
             if pos > 0 and pos < 4.0:
-                builder.pattern.add_beat(pos, DrumInstrument.SNARE, VELOCITY.SNARE_GHOST + random.randint(0, 15))
+                builder.pattern.add_beat(
+                    pos,
+                    DrumInstrument.SNARE,
+                    VELOCITY.SNARE_GHOST + random.randint(0, 15),
+                )
         return builder.build()
 
     def _create_studio_precision_fill(self) -> Pattern:
@@ -144,9 +160,17 @@ class PorcaroPlugin(DrummerPlugin):
 
         builder = PatternBuilder("porcaro_studio_precision")
         builder.snare(0.0, VELOCITY.SNARE_NORMAL)
-        builder.pattern.add_beat(TIMING.EIGHTH, DrumInstrument.MID_TOM, VELOCITY.TOM_NORMAL)
-        builder.pattern.add_beat(TIMING.HALF, DrumInstrument.MID_TOM, VELOCITY.TOM_HEAVY)
-        builder.pattern.add_beat(TIMING.DOTTED_EIGHTH, DrumInstrument.FLOOR_TOM, VELOCITY.TOM_HEAVY + 2)
+        builder.pattern.add_beat(
+            TIMING.EIGHTH, DrumInstrument.MID_TOM, VELOCITY.TOM_NORMAL
+        )
+        builder.pattern.add_beat(
+            TIMING.HALF, DrumInstrument.MID_TOM, VELOCITY.TOM_HEAVY
+        )
+        builder.pattern.add_beat(
+            TIMING.DOTTED_EIGHTH,
+            DrumInstrument.FLOOR_TOM,
+            VELOCITY.TOM_HEAVY + 2,
+        )
         builder.kick(TIMING.QUARTER, VELOCITY.KICK_HEAVY)
         return builder.build()
 

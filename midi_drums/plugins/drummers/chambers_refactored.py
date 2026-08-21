@@ -110,7 +110,15 @@ class ChambersPlugin(DrummerPlugin):
             pos = i * TIMING.EIGHTH
             open_flag = i % 4 in [1, 3]
             velocity = 75 + random.randint(-5, 8)
-            builder.pattern.add_beat(pos, DrumInstrument.OPEN_HH if open_flag else DrumInstrument.CLOSED_HH, velocity)
+            builder.pattern.add_beat(
+                pos,
+                (
+                    DrumInstrument.OPEN_HH
+                    if open_flag
+                    else DrumInstrument.CLOSED_HH
+                ),
+                velocity,
+            )
         return builder.build()
 
     def _create_fast_chops_showcase(self) -> Pattern:
@@ -128,7 +136,10 @@ class ChambersPlugin(DrummerPlugin):
             builder.kick(pos, VELOCITY.KICK_NORMAL + i * 3)
         # Snare hand-chops before beat 3
         for i in range(4):
-            builder.snare(TIMING.QUARTER * 2 + i * TIMING.SIXTEENTH, VELOCITY.SNARE_LIGHT + random.randint(0, 10))
+            builder.snare(
+                TIMING.QUARTER * 2 + i * TIMING.SIXTEENTH,
+                VELOCITY.SNARE_LIGHT + random.randint(0, 10),
+            )
         return builder.build()
 
     def _create_pocket_stretch_demo(self) -> Pattern:

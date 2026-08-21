@@ -110,7 +110,9 @@ class RoederPlugin(DrummerPlugin):
         builder = PatternBuilder("roeder_labyrinthine")
         # Non-linear accent placement
         builder.kick(0.0, VELOCITY.KICK_HEAVY)
-        builder.tom_edge(TIMING.EIGHTH + TIMING.SIXTEENTH, "4", VELOCITY.TOM_ACCENT)
+        builder.tom_edge(
+            TIMING.EIGHTH + TIMING.SIXTEENTH, "4", VELOCITY.TOM_ACCENT
+        )
         builder.snare(TIMING.HALF, VELOCITY.SNARE_LIGHT)
         builder.kick(TIMING.DOTTED_EIGHTH * 2, VELOCITY.KICK_NORMAL)
         builder.tom_edge(
@@ -146,7 +148,9 @@ class RoederPlugin(DrummerPlugin):
         builder = PatternBuilder("roeder_minimal_kit")
         # Single rack + single floor tom setup (per interview)
         builder.kick(0.0, VELOCITY.KICK_HEAVY)
-        builder.pattern.add_beat(TIMING.HALF, DrumInstrument.MID_TOM, VELOCITY.TOM_HEAVY)
+        builder.pattern.add_beat(
+            TIMING.HALF, DrumInstrument.MID_TOM, VELOCITY.TOM_HEAVY
+        )
         builder.snare(TIMING.HALF * 3, VELOCITY.SNARE_ACCENT)
         builder.pattern.add_beat(
             TIMING.DOTTED_EIGHTH,

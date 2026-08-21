@@ -115,12 +115,17 @@ class BonhamPlugin(DrummerPlugin):
             (0.0, DrumInstrument.MID_TOM),
             (TIMING.EIGHTH_TRIPLET, DrumInstrument.FLOOR_TOM),
             (TIMING.EIGHTH_TRIPLET * 2, DrumInstrument.MID_TOM),
-            (TIMING.EIGHTH_TRIPLET * 3 + TIMING.SIXTEENTH, DrumInstrument.SNARE),
+            (
+                TIMING.EIGHTH_TRIPLET * 3 + TIMING.SIXTEENTH,
+                DrumInstrument.SNARE,
+            ),
             (TIMING.QUARTER + TIMING.SIXTEENTH, DrumInstrument.MID_TOM),
             (TIMING.HALF, DrumInstrument.KICK),
         ]
         for pos, inst in sequence:
-            builder.pattern.add_beat(pos, inst, VELOCITY.TOM_HEAVY + random.randint(-5, 10))
+            builder.pattern.add_beat(
+                pos, inst, VELOCITY.TOM_HEAVY + random.randint(-5, 10)
+            )
         return builder.build()
 
     def _create_gtbt_triplet_fill(self) -> Pattern:
@@ -145,7 +150,11 @@ class BonhamPlugin(DrummerPlugin):
         builder = PatternBuilder("bonham_hand_drumming")
         # Varied tom hits simulating hand strikes
         for pos in [0.0, 0.25, 0.5, 0.75, 1.0, 1.25, 1.5, 1.75]:
-            inst = DrumInstrument.MID_TOM if pos % 0.5 == 0 else DrumInstrument.FLOOR_TOM
+            inst = (
+                DrumInstrument.MID_TOM
+                if pos % 0.5 == 0
+                else DrumInstrument.FLOOR_TOM
+            )
             velocity = VELOCITY.TOM_HEAVY + random.randint(-8, 12)
             builder.pattern.add_beat(pos, inst, velocity)
         return builder.build()

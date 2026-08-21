@@ -150,7 +150,11 @@ class WecklPlugin(DrummerPlugin):
         for i in range(16):
             pos = i * TIMING.SIXTEENTH
             if pos > 0 and pos < 4.0:
-                builder.pattern.add_beat(pos, DrumInstrument.SNARE, VELOCITY.SNARE_GHOST + random.randint(0, 10))
+                builder.pattern.add_beat(
+                    pos,
+                    DrumInstrument.SNARE,
+                    VELOCITY.SNARE_GHOST + random.randint(0, 10),
+                )
         return builder.build()
 
     def _create_coordination_showcase(self) -> Pattern:
@@ -172,7 +176,9 @@ class WecklPlugin(DrummerPlugin):
             TIMING.EIGHTH_TRIPLET, DrumInstrument.MID_TOM, VELOCITY.TOM_ACCENT
         )
         builder.pattern.add_beat(
-            TIMING.DOTTED_EIGHTH * 2, DrumInstrument.FLOOR_TOM, VELOCITY.TOM_HEAVY
+            TIMING.DOTTED_EIGHTH * 2,
+            DrumInstrument.FLOOR_TOM,
+            VELOCITY.TOM_HEAVY,
         )
         return builder.build()
 
