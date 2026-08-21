@@ -4,6 +4,8 @@ Reduced from ~360 lines to ~63 lines (82% reduction) by using the
 DrummerModification system instead of manual pattern manipulation.
 """
 
+import random
+
 from midi_drums.config import VELOCITY
 from midi_drums.core.models.pattern import Pattern
 from midi_drums.core.models.song import Fill
@@ -52,36 +54,71 @@ class DeePlugin(DrummerPlugin):
         return styled
 
     def get_signature_fills(self) -> list[Fill]:
-        """Return Mikkey Dee's signature fill patterns."""
+        """Return Mikkey Dee's signature fill patterns.
+
+        Based on documented King Diamond (horror metal precision) and Motörhead
+        (driving power, rhythmic turns) performances.
+        """
         return [
             Fill(
-                pattern=self._create_twisted_tom_fill(),
-                trigger_probability=0.7,
+                pattern=self._create_king_diamond_double_kick_intro(),
+                trigger_probability=0.85,
                 section_position="end",
+            ),
+            Fill(
+                pattern=self._create_motorhead_solo_arc_fill(),
+                trigger_probability=0.8,
+                section_position="middle",
             ),
             Fill(
                 pattern=self._create_ride_bell_stinger(),
                 trigger_probability=0.5,
-                section_position="middle",
+                section_position="end",
             ),
         ]
 
-    def _create_twisted_tom_fill(self) -> Pattern:
-        """Tom cascade with displaced backbeat - Dee's signature displacement.
+    def _create_king_diamond_double_kick_intro(self) -> Pattern:
+        """King Diamond era double-kick intro fill.
 
-        Uses tom_edge (rimmed/edge toms) for the tight metallic attack that
-        drives Motorhead and Scorpion riffs. Ends on a crash_choked for punchy cutoff.
+        Mickey Dee's King Diamond work (Fatal Portrait / Abigail era) features
+        tightly controlled double-kick patterns that define horror metal's
+        menacing atmosphere. Simulated with precise alternating kick voicings.
         """
-        builder = PatternBuilder("dee_twisted_tom_fill")
+        builder = PatternBuilder("dee_king_diamond_kick")
 
-        # Ascending tom_edge cascade (tight metallic attack)
-        builder.tom_edge(0.0, "3", VELOCITY.TOM_HEAVY)
-        builder.tom_edge(0.5, "MID", VELOCITY.TOM_ACCENT)
-        builder.tom_edge(1.0, "FLOOR", VELOCITY.TOM_ACCENT + 2)
+        # Alternating double-kick (8 notes in one beat)
+        for i in range(8):
+            pos = i * 0.25 / 2
+            velocity = VELOCITY.KICK_HEAVY + random.randint(-10, 10)
+            builder.kick(pos, min(velocity, 127))
 
-        # Twisted snare (displaced off the downbeat - signature Dee technique)
-        builder.snare(1.75, VELOCITY.SNARE_HEAVY)
+        # Snare accent on the one of the next bar
+        builder.snare(1.0, VELOCITY.SNARE_ACCENT)
+        return builder.build()
 
+    def _create_motorhead_solo_arc_fill(self) -> Pattern:
+        """Motörhead solo arc fill.
+
+        Documented on Sacrifice: "In the Name of Tragedy" and "The One to Sing
+        the Blues" — Dee performs 5-15 minute drum solos where he builds from
+        a single beat into cascading fills then collapses back. Simulated with
+        accelerating kick/snare interlock across the bar.
+        """
+        builder = PatternBuilder("dee_motorhead_solo_arc")
+
+        # Accelerating kick/snare interlock (within one bar)
+        for i in range(16):
+            pos = i * 0.25 / 4
+            velocity = VELOCITY.KICK_NORMAL + i * 3
+            builder.kick(pos, min(velocity, 127))
+            if i % 2 == 0:
+                builder.snare(
+                    pos,
+                    min(VELOCITY.SNARE_HEAVY + i * 2, 127),
+                )
+
+        # Crash punctuation at the end of the arc
+        builder.crash(4.0, VELOCITY.CRASH_HEAVY)
         return builder.build()
 
     def _create_ride_bell_stinger(self) -> Pattern:

@@ -9,6 +9,7 @@ import random
 from midi_drums.config import VELOCITY
 from midi_drums.core.models.pattern import Pattern
 from midi_drums.core.models.song import Fill
+from midi_drums.core.value_objects.drum_instrument import DrumInstrument
 from midi_drums.generation.builders.pattern_builder import PatternBuilder
 from midi_drums.modifications import (
     HeavyAccents,
@@ -54,7 +55,10 @@ class HoglanPlugin(DrummerPlugin):
         return styled
 
     def get_signature_fills(self) -> list[Fill]:
-        """Return Gene Hoglan's signature fill patterns."""
+        """Return Gene Hoglan's signature fill patterns.
+
+        Based on Death (Individual Thought Patterns / Symbolic) and SYL discography.
+        """
         return [
             Fill(
                 pattern=self._create_blast_tom_accents(),
@@ -65,6 +69,11 @@ class HoglanPlugin(DrummerPlugin):
                 pattern=self._create_chicken_lights_rudiment(),
                 trigger_probability=0.75,
                 section_position="middle",
+            ),
+            Fill(
+                pattern=self._create_death_blast_cadence(),
+                trigger_probability=0.8,
+                section_position="end",
             ),
         ]
 
@@ -112,6 +121,50 @@ class HoglanPlugin(DrummerPlugin):
             builder.tom_edge(
                 pos + 0.5, "4" if beat % 2 == 0 else "3", VELOCITY.TOM_HEAVY
             )
+
+        return builder.build()
+
+    def _create_death_blast_cadence(self) -> Pattern:
+        """Death metal blast cadence fill.
+
+        Inspired by Hoglan's Death-era recordings (Individual Thought Patterns,
+        Symbolic). Blast beats alternate kick, snare, and cymbal (ride/crash)
+        in a tight cadence — not pure blast-beat wall-of-sound, but rhythmic
+        interlock between limbs.
+        """
+        builder = PatternBuilder("hoglan_death_blast")
+
+        # 16-hit cadence: kick/snare/cymbal alternating (within one beat)
+        cadence = [
+            # Format: (offset, instrument, raw_velocity) — capped at 127 on write
+            (0.0, "kick", VELOCITY.KICK_HEAVY),
+            (1 / 32, "snare", VELOCITY.SNARE_HEAVY),
+            (2 / 32, "ride_cymbal", VELOCITY.CHINA_ACCENT),
+            (3 / 32, "kick", VELOCITY.KICK_HEAVY - 5),
+            (4 / 32, "snare", min(127, VELOCITY.SNARE_HEAVY + 2)),
+            (5 / 32, "ride_cymbal", VELOCITY.CHINA_ACCENT - 3),
+            (6 / 32, "kick", VELOCITY.KICK_HEAVY),
+            (7 / 32, "snare", VELOCITY.SNARE_HEAVY),
+            # Acceleration phase
+            (8 / 32, "kick", min(127, VELOCITY.KICK_HEAVY + 2)),
+            (9 / 32, "snare", VELOCITY.SNARE_ACCENT),
+            (10 / 32, "ride_cymbal", VELOCITY.CHINA_ACCENT),
+            (11 / 32, "kick", min(127, VELOCITY.KICK_HEAVY + 5)),
+            (12 / 32, "snare", min(127, VELOCITY.SNARE_ACCENT + 2)),
+            (13 / 32, "ride_cymbal", min(127, VELOCITY.CHINA_ACCENT + 5)),
+            (14 / 32, "kick", min(127, VELOCITY.KICK_HEAVY + 8)),
+            (15 / 32, "snare", min(127, VELOCITY.SNARE_ACCENT + 5)),
+        ]
+
+        for offset, instr_name, raw_velocity in cadence:
+            pos = offset  # All within one beat
+            velocity = min(127, raw_velocity)
+            if instr_name == "kick":
+                builder.kick(pos, velocity)
+            elif instr_name == "snare":
+                builder.snare(pos, velocity)
+            elif instr_name == "ride_cymbal":
+                builder.pattern.add_beat(pos, DrumInstrument.CHINA, velocity)
 
         return builder.build()
 
