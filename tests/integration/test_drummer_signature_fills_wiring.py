@@ -29,6 +29,9 @@ PEART_FILL_PATTERN_NAMES = {
     "peart_quintuplet_toms",
     "peart_linear_precision",
     "peart_china_punctuation",
+    "peart_r30_rotation",
+    "peart_malletkat_electronic",
+    "peart_swiss_army_triplets",
 }
 
 
@@ -82,7 +85,7 @@ class TestDrummerSignatureFillsWiredIntoGeneration:
         section = song.sections[0]
         fill_pattern_names = {fill.pattern.name for fill in section.fills}
         assert not (fill_pattern_names & PEART_FILL_PATTERN_NAMES)
-        assert len(fill_pattern_names) == 3
+        assert len(fill_pattern_names) == 4
 
     def test_peart_signature_fill_actually_rendered_in_midi_output(self):
         """Force fill selection deterministically and prove a Peart

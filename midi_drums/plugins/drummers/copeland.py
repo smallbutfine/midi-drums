@@ -183,15 +183,13 @@ class CopelandPlugin(DrummerPlugin):
         AD2 ethnic trigger (closest available instrument for tight tom timbre).
         """
         builder = PatternBuilder("copeland_octoban_off_beat")
-        # Tight, percussive off-beat hits across the bar
-        for i in range(8):
-            pos = i * 0.5 + 0.25  # All off-beats (between quarter notes)
+        # Tight, percussive 16th-note pattern packed into one beat
+        # (fills render within a single beat — see midi_drums/export/midi/engine.py)
+        for i in range(4):
+            pos = i * TIMING.SIXTEENTH
             builder.pattern.add_beat(
                 pos, DrumInstrument.RIDE_BELL, VELOCITY.TOM_LIGHT
             )
-
-        # Closing rim punctuation
-        builder.snare(TIMING.DOTTED_EIGHTH * 7, VELOCITY.SNARE_NORMAL)
         return builder.build()
 
     def _create_gamelan_percussion_fill(self) -> Pattern:
@@ -238,21 +236,12 @@ class CopelandPlugin(DrummerPlugin):
         Simulated here as a tight 4-bar phrase emphasizing the skank (upbeat) pattern.
         """
         builder = PatternBuilder("copeland_reggae_skank")
-        # Skank groove: hi-hat on upbeats, snare cross-stick on downbeats
-        for beat in range(4):
-            base = beat * 1.0
-            # Downbeat snare (cross-stick / rim)
-            builder.pattern.add_beat(
-                base, DrumInstrument.RIM, VELOCITY.SNARE_NORMAL
-            )
-            # Upbeat hi-hat accent (the "skank")
-            builder.pattern.add_beat(
-                base + 0.5, DrumInstrument.OPEN_HH_1, VELOCITY.HIHAT_ACCENT
-            )
-            # Extra off-beat hi-hat for syncopation
-            builder.pattern.add_beat(
-                base + 0.25, DrumInstrument.CLOSED_HH, VELOCITY.HIHAT_NORMAL
-            )
-        # Closing crash accent
-        builder.crash(4.0, VELOCITY.CRASH_ACCENT)
+        # Skank groove packed into one beat (fills render within a single beat)
+        # Downbeat rim + off-beat hi-hats compressed to 16th-note spacing
+        builder.pattern.add_beat(0.0, DrumInstrument.RIM, VELOCITY.SNARE_NORMAL)
+        builder.pattern.add_beat(TIMING.SIXTEENTH * 2, DrumInstrument.CLOSED_HH, VELOCITY.HIHAT_NORMAL)
+        builder.pattern.add_beat(TIMING.SIXTEENTH * 3, DrumInstrument.OPEN_HH_1, VELOCITY.HIHAT_ACCENT)
+
+        # Closing crash accent at resolution (within render window)
+        builder.crash(TIMING.DOTTED_EIGHTH, VELOCITY.CRASH_ACCENT)
         return builder.build()

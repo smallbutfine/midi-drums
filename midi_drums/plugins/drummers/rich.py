@@ -201,9 +201,10 @@ class RichPlugin(DrummerPlugin):
         live recordings.
         """
         builder = PatternBuilder("rich_big_band_swing")
-        # Ascending tom cascade across the bar
-        for i in range(8):
-            pos = i * 0.5
+        # Ascending tom cascade packed into one beat (fills render within
+        # a single beat — see midi_drums/export/midi/engine.py)
+        for i in range(4):
+            pos = i * TIMING.SIXTEENTH
             instrument = (
                 DrumInstrument.MID_TOM
                 if i % 2 == 0
@@ -213,11 +214,11 @@ class RichPlugin(DrummerPlugin):
             builder.pattern.add_beat(pos, instrument, velocity)
 
         # Swing-pattern ride cadence (simulated with open hi-hat)
-        for i in range(8):
-            pos = i * 0.5
+        for i in range(4):
+            pos = i * TIMING.SIXTEENTH
             velocity = VELOCITY.HIHAT_NORMAL + 5
             builder.pattern.add_beat(pos, DrumInstrument.OPEN_HH_1, velocity)
 
-        # Final crash accent
-        builder.crash(4.0, VELOCITY.CRASH_ACCENT)
+        # Final crash accent at resolution
+        builder.crash(TIMING.DOTTED_EIGHTH, VELOCITY.CRASH_ACCENT)
         return builder.build()

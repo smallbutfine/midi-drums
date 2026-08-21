@@ -242,9 +242,9 @@ class PeartPlugin(DrummerPlugin):
         across snare and toms, each group ending on a china hit.
         """
         builder = PatternBuilder("peart_swiss_army_triplets")
-        # Three groups of triplet snare-tom-china (each within one beat)
+        # Three groups packed into one beat using 16th-note spacing
         for group in range(3):
-            offset = group * TIMING.EIGHTH
+            offset = group * TIMING.SIXTEENTH
             builder.pattern.add_beat(
                 offset, DrumInstrument.SNARE, VELOCITY.SNARE_HEAVY
             )
@@ -258,6 +258,6 @@ class PeartPlugin(DrummerPlugin):
                 DrumInstrument.CHINA,
                 VELOCITY.CHINA_ACCENT,
             )
-        # Final resolution on beat 2.0
-        builder.snare(2.0, VELOCITY.SNARE_ACCENT)
+        # Final resolution at beat 0.875 (within render window)
+        builder.snare(TIMING.DOTTED_EIGHTH, VELOCITY.SNARE_ACCENT)
         return builder.build()
