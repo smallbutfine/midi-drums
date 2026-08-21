@@ -15,6 +15,7 @@ from typing import TYPE_CHECKING
 
 from midi_drums.core.models.pattern import Beat, Pattern
 from midi_drums.core.models.song import Fill, Section, Song
+from midi_drums.core.value_objects.drum_instrument import DrumInstrument
 from midi_drums.core.value_objects.generation_parameters import (
     GenerationParameters,
 )
@@ -325,7 +326,26 @@ class ComposerV2:
                     max(1, min(127, beat.velocity)),
                 )
 
-        return builder.build()
+        built = builder.build()
+
+        # If this bar slice is completely empty, fall back to the original full pattern
+        if not built.beats:
+            logger.warning(
+                f"Empty bar slice for {section_name} bar {bar_index}; "
+                "reusing the full base pattern instead."
+            )
+            # Create a one-bar slice from the first bar of the base pattern
+            fallback_builder = PatternBuilder(f"{section_name}_bar{bar_index}_fallback")
+            for beat in base_pattern.beats:
+                if beat.position < beats_per_bar:
+                    fallback_builder.pattern.add_beat(
+                        beat.position,
+                        beat.instrument,
+                        max(1, min(127, beat.velocity)),
+                    )
+            built = fallback_builder.build()
+
+        return built
 
     def _combine_bar_patterns(
         self, bars: list[Pattern], genre_plugin, global_params
@@ -334,6 +354,7 @@ class ComposerV2:
 
         The result is the union of all beats across bars, with proper offset
         (each bar's beats start at its correct beat position).
+        Skips empty bars but ensures the final pattern always has beats.
         """
 
         combined = Pattern(f"{bars[0].name.replace('_bar*', '')}_combined")
@@ -345,7 +366,17 @@ class ComposerV2:
             else 4
         )
 
+        # Validate: reject bars with zero beats (should not happen after fix)
+        for i, bar in enumerate(bars):
+            if not bar.beats:
+                logger.warning(
+                    f"Bar {i} has zero beats — this bar will be skipped "
+                    f"in the combined pattern. Check _generate_base_bar fallback logic."
+                )
+
         for bar_idx, bar in enumerate(bars):
+            if not bar.beats:
+                continue  # skip empty bars
             offset = bar_idx * beats_per_bar
             for beat in bar.beats:
                 combined.beats.append(
@@ -360,6 +391,20 @@ class ComposerV2:
                     )
                 )
             total_beats += len(bar.beats)
+
+        # If nothing was combined, use a basic default pattern
+        if not combined.beats:
+            logger.warning(
+                "No beats were combined for section — creating a basic kick/snare pattern."
+            )
+            from midi_drums.config import VELOCITY
+
+            combined.beats.append(
+                Beat(position=0, instrument=DrumInstrument.KICK, velocity=int(VELOCITY.KICK_HEAVY))
+            )
+            combined.beats.append(
+                Beat(position=2, instrument=DrumInstrument.SNARE, velocity=int(VELOCITY.SNARE_ACCENT))
+            )
 
         # Set time signature from first bar
         combined.time_signature = (

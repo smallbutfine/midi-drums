@@ -1,10 +1,12 @@
-Generating from prompt: 'Danny Carey with death metal and doom metal with use of ghost notes and double base kick drum, use a lot of cymbals epic complex diverse'
+Generating from prompt: 'Danny Carey plays with death metal and doom metal with use of ghost notes and double base kick drum, use a lot of cymbals epic complex diverse'
 Provider : ollama/qwen3.6
-Output dir: output/danny_carey_with_death/
+Output dir: output/danny_carey_plays_with/
 Composing song via agent…
+Created **song_0** — a progressive metal composition at 90 BPM featuring Danny Carey's signature style: intricate ghost notes, complex polyrhythmic patterns, double bass kick drum work, and extensive cymbal textures for an epic, diverse sound. 
 
-  Parts      : output\danny_carey_with_death\parts/ (8 files)
-  Metadata   : output\danny_carey_with_death\metadata.json
+The song has 8 sections (intro, verses, choruses, and additional parts) ready for export to MIDI.
+  Parts      : output\danny_carey_plays_with\parts/ (8 files)
+  Metadata   : output\danny_carey_plays_with\metadata.json
 
 Done!
-  Output : output\danny_carey_with_death\danny_carey_with_death.mid
+  Output : output\danny_carey_plays_with\danny_carey_plays_with.mid
