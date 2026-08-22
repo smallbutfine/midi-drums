@@ -177,7 +177,7 @@ class RockGenrePlugin(GenrePlugin):
     def _flavors_intro(self, style: str, complexity: float) -> list[Pattern]:
         name = f"rock_{style}_intro"
         c = max(0.0, complexity - 0.3)
-        # 1: sparse quarter-hat with single crash
+        # 1: sparse quarter-hat with single crash (use bright splash for dramatic intro)
         f1 = (
             TemplateComposer(f"{name}_f1")
             .add(
@@ -187,7 +187,7 @@ class RockGenrePlugin(GenrePlugin):
                     hihat_subdivision=TIMING.QUARTER,
                 )
             )
-            .add(CrashAccents(positions=[0.0], intensity=1.0))
+            .add(CrashAccents(positions=[0.0], intensity=1.0, crash_type="splash"))
             .build(bars=1, complexity=c)
         )
         # 2: double-kick build with crash at bar end
@@ -200,10 +200,10 @@ class RockGenrePlugin(GenrePlugin):
                     hihat_subdivision=TIMING.HALF,
                 )
             )
-            .add(CrashAccents(positions=[3.0], intensity=1.0))
+            .add(CrashAccents(positions=[3.0], intensity=1.0, crash_type="splash"))
             .build(bars=1, complexity=c)
         )
-        # 3: crash-sparse with tom fill at end
+        # 3: crash-sparse with tom fill at end (use light crash to keep intro gentle)
         f3 = (
             TemplateComposer(f"{name}_f3")
             .add(
@@ -213,14 +213,14 @@ class RockGenrePlugin(GenrePlugin):
                     hihat_subdivision=TIMING.HALF,
                 )
             )
-            .add(CrashAccents(positions=[0.0, 1.5, 3.0], intensity=0.7))
+            .add(CrashAccents(positions=[0.0, 1.5, 3.0], intensity=0.7, crash_type="light"))
             .build(bars=1, complexity=c)
         )
         return [f1, f2, f3]
 
     def _flavors_verse(self, style: str, complexity: float) -> list[Pattern]:
         name = f"rock_{style}_verse"
-        # 1: classic backbeat groove
+        # 1: classic backbeat groove (use CRASH_LIGHT for verses — softer timbre)
         f1 = (
             TemplateComposer(f"{name}_f1")
             .add(
@@ -261,7 +261,7 @@ class RockGenrePlugin(GenrePlugin):
     def _flavors_chorus(self, style: str, complexity: float) -> list[Pattern]:
         name = f"rock_{style}_chorus"
         c = min(1.0, complexity + 0.2)
-        # 1: stomp on every beat
+        # 1: stomp on every beat (use CRASH_HEAVY for choruses — more power/cut-through)
         f1 = (
             TemplateComposer(f"{name}_f1")
             .add(
@@ -271,7 +271,7 @@ class RockGenrePlugin(GenrePlugin):
                     hihat_subdivision=TIMING.EIGHTH,
                 )
             )
-            .add(CrashAccents(positions=[0.0, 2.0], intensity=1.0))
+            .add(CrashAccents(positions=[0.0, 2.0], intensity=1.0, crash_type="heavy"))
             .build(bars=1, complexity=c)
         )
         # 2: gallop kick pattern
@@ -284,7 +284,7 @@ class RockGenrePlugin(GenrePlugin):
                     hihat_subdivision=TIMING.EIGHTH,
                 )
             )
-            .add(CrashAccents(positions=[0.0], intensity=1.0))
+            .add(CrashAccents(positions=[0.0], intensity=1.0, crash_type="heavy"))
             .build(bars=1, complexity=c)
         )
         # 3: crash-rich with ride-like cymbal timekeeping
@@ -297,7 +297,7 @@ class RockGenrePlugin(GenrePlugin):
                     hihat_subdivision=TIMING.HALF,
                 )
             )
-            .add(CrashAccents(positions=[0.0, 1.0, 2.0, 3.0], intensity=0.8))
+            .add(CrashAccents(positions=[0.0, 1.0, 2.0, 3.0], intensity=0.8, crash_type="heavy"))
             .build(bars=1, complexity=c)
         )
         return [f1, f2, f3]
@@ -306,7 +306,7 @@ class RockGenrePlugin(GenrePlugin):
         self, style: str, complexity: float
     ) -> list[Pattern]:
         name = f"rock_{style}_breakdown"
-        # 1: sparse syncopated groove
+        # 1: sparse syncopated groove with tom fill (use EDGE for sharper attack)
         f1 = (
             TemplateComposer(f"{name}_f1")
             .add(
@@ -316,7 +316,7 @@ class RockGenrePlugin(GenrePlugin):
                     hihat_subdivision=TIMING.HALF,
                 )
             )
-            .add(TomFill(pattern="descending", start_position=3.0))
+            .add(TomFill(pattern="descending", start_position=3.0, use_edge=True))
             .build(bars=1, complexity=complexity)
         )
         # 2: heavy stomp on every beat

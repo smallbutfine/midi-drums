@@ -269,14 +269,15 @@ class JazzRidePattern(PatternTemplate):
     """Jazz ride cymbal pattern with swing feel.
 
     Creates authentic jazz ride patterns with triplet-based swing.
-
-    Example:
-        JazzRidePattern(swing_ratio=0.33, accent_pattern="standard")
+    Supports AD2 extended timbres:
+        - use_shaft=True → RIDE_SHAFT (54) for metallic harshness (metal sections)
+        - use_bell=True → RIDE_BELL (53) for fill accents
     """
 
     swing_ratio: float = 0.33
     accent_pattern: str = "standard"  # "standard", "elvin", "tony"
     use_bell: bool = False
+    use_shaft: bool = False  # AD2 ride shaft hit for metallic harshness (metal/rock)
 
     def generate(self, builder: PatternBuilder, **kwargs) -> PatternBuilder:
         bars = kwargs.get("bars", 1)
@@ -294,6 +295,11 @@ class JazzRidePattern(PatternTemplate):
 
                     if self.use_bell and i % 4 == 0:
                         builder.ride_bell(pos, velocity)
+                    elif self.use_shaft:
+                        # AD2 ride shaft hit — metallic, bell-like timbre for metal sections
+                        builder.pattern.add_beat(
+                            pos, DrumInstrument.RIDE_SHAFT, velocity
+                        )
                     else:
                         builder.ride(pos, velocity)
 
@@ -383,11 +389,16 @@ class CrashAccents(PatternTemplate):
     """Crash cymbal accents for section emphasis.
 
     Adds crash cymbals at strategic positions for emphasis.
+    Supports AD2 extended crash types for timbral variety:
+        - "light": CRASH_LIGHT (77) — verses, softer sections  
+        - "heavy": CRASH_HEAVY (89) — choruses, power sections
+        - "splash": CRASH_SPLASH (93) — fills, bright endings
     """
 
     positions: list[float] = field(default_factory=lambda: [0.0])
     use_china: bool = False
     intensity: float = 1.0
+    crash_type: str | None = None  # "light", "heavy", "splash" or None for standard CRASH
 
     def generate(self, builder: PatternBuilder, **kwargs) -> PatternBuilder:
         bars = kwargs.get("bars", 1)
@@ -402,6 +413,18 @@ class CrashAccents(PatternTemplate):
 
                 if self.use_china:
                     builder.china(abs_pos, velocity)
+                elif self.crash_type == "light":
+                    builder.pattern.add_beat(
+                        abs_pos, DrumInstrument.CRASH_LIGHT, velocity
+                    )
+                elif self.crash_type == "heavy":
+                    builder.pattern.add_beat(
+                        abs_pos, DrumInstrument.CRASH_HEAVY, velocity
+                    )
+                elif self.crash_type == "splash":
+                    builder.pattern.add_beat(
+                        abs_pos, DrumInstrument.CRASH_SPLASH, velocity
+                    )
                 else:
                     builder.crash(abs_pos, velocity)
 
@@ -413,11 +436,13 @@ class TomFill(PatternTemplate):
     """Tom fill patterns for transitions.
 
     Creates descending or ascending tom fills.
+    Supports AD2 edge/rim hits via use_edge=True for sharper attack in rock/metal.
     """
 
     pattern: str = "descending"  # "descending", "ascending", "around"
     subdivision: float = TIMING.SIXTEENTH
     start_position: float = 3.0  # Usually bar 4
+    use_edge: bool = False  # Use TOM_EDGE variants for sharper attack (rock/metal)
 
     def generate(self, builder: PatternBuilder, **kwargs) -> PatternBuilder:
         bars = kwargs.get("bars", 1)
@@ -439,16 +464,29 @@ class TomFill(PatternTemplate):
 
         return builder
 
+    def _get_instruments(self) -> list[DrumInstrument]:
+        if not self.use_edge:
+            # Standard GM toms
+            return [
+                DrumInstrument.MID_TOM,
+                DrumInstrument.MID_TOM,
+                DrumInstrument.FLOOR_TOM,
+                DrumInstrument.FLOOR_TOM,
+            ]
+        else:
+            # AD2 edge/rim shots for aggressive attack (rock/metal)
+            return [
+                DrumInstrument.TOM_EDGE_1,  # Tight high tom rim
+                DrumInstrument.TOM_EDGE_1,
+                DrumInstrument.TOM_EDGE_FLOOR,  # Floor tom edge
+                DrumInstrument.TOM_EDGE_FLOOR,
+            ]
+
     def _descending_fill(
         self, builder: PatternBuilder, start_pos: float, num_notes: int
     ):
         """High to low tom fill."""
-        instruments = [
-            DrumInstrument.MID_TOM,
-            DrumInstrument.MID_TOM,
-            DrumInstrument.FLOOR_TOM,
-            DrumInstrument.FLOOR_TOM,
-        ]
+        instruments = self._get_instruments()
 
         for i in range(min(num_notes, len(instruments))):
             pos = start_pos + (i * self.subdivision)
@@ -458,12 +496,7 @@ class TomFill(PatternTemplate):
         self, builder: PatternBuilder, start_pos: float, num_notes: int
     ):
         """Low to high tom fill."""
-        instruments = [
-            DrumInstrument.FLOOR_TOM,
-            DrumInstrument.FLOOR_TOM,
-            DrumInstrument.MID_TOM,
-            DrumInstrument.MID_TOM,
-        ]
+        instruments = self._get_instruments()
 
         for i in range(min(num_notes, len(instruments))):
             pos = start_pos + (i * self.subdivision)
