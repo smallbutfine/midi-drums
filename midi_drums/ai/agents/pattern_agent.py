@@ -356,7 +356,10 @@ class PatternCompositionAgent:
 
                     # Rule 2: Minimum 8 sections — auto-expand underspecified structures
                     _MIN_SECTIONS = 8
-                    if parsed_structure and len(parsed_structure) < _MIN_SECTIONS:
+                    if (
+                        parsed_structure
+                        and len(parsed_structure) < _MIN_SECTIONS
+                    ):
                         logger.info(
                             f"Structure has {len(parsed_structure)} sections, below minimum {_MIN_SECTIONS}. "
                             f"Auto-expanding for variety."
@@ -380,7 +383,8 @@ class PatternCompositionAgent:
 
                         # Find which arcs already exist and remove them
                         remaining_arcs = [
-                            arc for arc in _DEFAULT_SONG_ARC
+                            arc
+                            for arc in _DEFAULT_SONG_ARC
                             if not any(arc[0] == n for n in existing_names)
                         ]
 
@@ -399,17 +403,24 @@ class PatternCompositionAgent:
                         _BAR_VARIANTS = {4: [4, 6, 8], 8: [8, 12]}
                         bar_counts = [bars for _, bars in parsed_structure]
                         from collections import Counter
+
                         bar_freq = Counter(bar_counts)
                         most_common_bar = bar_freq.most_common(1)[0][0]
 
                         # If more than half the sections use the same bar count, introduce variety
-                        if len(parsed_structure) >= 4 and bar_freq[most_common_bar] > len(parsed_structure) * 0.6:
+                        if (
+                            len(parsed_structure) >= 4
+                            and bar_freq[most_common_bar]
+                            > len(parsed_structure) * 0.6
+                        ):
                             logger.info(
                                 f"High bar-count uniformity ({most_common_bar} bars in {bar_freq[most_common_bar]} sections). "
                                 f"Introducing variety."
                             )
                             new_structure = []
-                            used_bars: dict[str, set[int]] = {}  # section_type -> set of used bar counts
+                            used_bars: dict[str, set[int]] = (
+                                {}
+                            )  # section_type -> set of used bar counts
                             for name, bars in parsed_structure:
                                 if name not in used_bars:
                                     used_bars[name] = set()
@@ -421,7 +432,9 @@ class PatternCompositionAgent:
                                         used_bars[name].add(candidate)
                                         break
                                 else:
-                                    new_structure.append((name, bars))  # fallback to original
+                                    new_structure.append(
+                                        (name, bars)
+                                    )  # fallback to original
                             parsed_structure = new_structure
 
             # Normalize drummer name: "danny carey" → "carey", etc.
@@ -664,7 +677,11 @@ class PatternCompositionAgent:
         prompt = (
             f"Generate a drum pattern: {description}\n"
             f"Section: {section}, Bars: {bars}, Tempo: {tempo} BPM.\n"
-            + (f"Apply drummer style: {drummer_style}.\n" if drummer_style else "")
+            + (
+                f"Apply drummer style: {drummer_style}.\n"
+                if drummer_style
+                else ""
+            )
             + "Use generate_pattern tool, then apply_drummer_style if specified. Return pattern ID only."
         )
 
@@ -673,7 +690,9 @@ class PatternCompositionAgent:
         final_response = result.get("output", "")
 
         if not pattern_cache:
-            logger.error("Agent did not generate any patterns for NL description")
+            logger.error(
+                "Agent did not generate any patterns for NL description"
+            )
             raise ValueError(
                 f"Failed to generate pattern from prompt. Response: {final_response[:200]}"
             )
@@ -682,12 +701,16 @@ class PatternCompositionAgent:
         # If drummer was applied, the final cached pattern has the drummer suffix
         if drummer_style:
             styled_id = f"{last_pattern_id}_{drummer_style}"
-            pattern = self.pattern_cache.get(styled_id) or self.pattern_cache.get(last_pattern_id)
+            pattern = self.pattern_cache.get(
+                styled_id
+            ) or self.pattern_cache.get(last_pattern_id)
         else:
             pattern = self.pattern_cache.get(last_pattern_id)
 
         if pattern is None:
-            raise ValueError(f"Pattern {last_pattern_id} not found in agent cache")
+            raise ValueError(
+                f"Pattern {last_pattern_id} not found in agent cache"
+            )
 
         # Extract metadata from response
         genre = "rock"
