@@ -97,9 +97,9 @@ local PYTHON_EXE = "C:/path/to/midi_drums/.venv/Scripts/pythonw.exe"
 local SIDECAR_PATH = nil
 
 -- Defaults pre-filled in the template generation dialog
-local DEFAULT_GENRE   = "metal"
-local DEFAULT_STYLE   = "doom"
-local DEFAULT_MAPPING = "ezdrummer3"
+local DEFAULT_GENRE   = "rock"
+local DEFAULT_STYLE   = "classic"
+local DEFAULT_MAPPING = "gm_drums"
 
 -- Default tempo pre-filled in the AI generation dialog
 local DEFAULT_AI_TEMPO = "120"

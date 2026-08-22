@@ -403,6 +403,15 @@ Examples:
             "to create matching timeline regions."
         ),
     )
+    prompt_parser.add_argument(
+        "--mapping",
+        default="ezdrummer3",
+        choices=["ezdrummer3", "gm_drums", "addictive_drums", "bfd3", "modo_drums", "ml_drums", "studio_drummer3"],
+        help=(
+            "MIDI note mapping preset (default: ezdrummer3). "
+            "Use 'addictive_drums' for Addictive Drums 2 native keymap."
+        ),
+    )
 
     return parser
 
@@ -966,6 +975,7 @@ def handle_prompt_command(args) -> None:
     save_metadata = getattr(args, "save_metadata", False)
     rpp_path = getattr(args, "rpp", None)
     write_sidecar = getattr(args, "write_sidecar", None)
+    mapping = getattr(args, "mapping", "ezdrummer3")
 
     # Derive a filesystem-safe slug from --output stem or the first 4 prompt words
     if args.output:
@@ -1009,12 +1019,12 @@ def handle_prompt_command(args) -> None:
 
             if song_cache:
                 last_id = song_cache[-1]
-                success = ai.export_song(last_id, output_path)
+                success = ai.export_song(last_id, output_path, mapping=mapping)
                 song_obj = ai.get_song_from_agent(last_id)
             elif pattern_cache:
                 last_id = pattern_cache[-1]
                 success = ai.export_pattern(
-                    last_id, output_path, tempo=args.tempo
+                    last_id, output_path, tempo=args.tempo, mapping=mapping
                 )
                 song_obj = None
             else:
@@ -1040,7 +1050,7 @@ def handle_prompt_command(args) -> None:
                     return "".join(c if c.isalnum() or c == "_" else "" for c in name)
 
                 parts_dir.mkdir(exist_ok=True)
-                engine = MIDIEngine()
+                engine = MIDIEngine(DrumKit.from_preset(mapping))
                 seen_names: set[str] = set()
                 for i, section in enumerate(song_obj.sections):
                     stem = _san(section.name).lower()

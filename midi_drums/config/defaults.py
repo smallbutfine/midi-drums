@@ -18,8 +18,8 @@ VALID_MAPPINGS: tuple[str, ...] = (
 
 # ── Default CLI values ─────────────────────────────────────────────
 DEFAULT_TEMPO: int = 120
-DEFAULT_GENRE: str = "metal"
-DEFAULT_STYLE: str = "doom"
+DEFAULT_GENRE: str = "rock"
+DEFAULT_STYLE: str = "classic"
 DEFAULT_SECTION: str = "verse"
 DEFAULT_COMPLEXITY: float = 0.5
 
@@ -29,6 +29,8 @@ REAPER_DEFAULTS = {
     "style": DEFAULT_STYLE,
     "mapping": DEFAULT_MAPPING,
 }
+
+# Keep in sync with the Lua script config block.
 
 
 __all__ = [
