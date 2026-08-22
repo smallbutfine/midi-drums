@@ -955,6 +955,12 @@ def handle_prompt_command(args) -> None:
     if not config.api_key:
         _print_ai_setup_help(config.provider.value)
 
+    # ── ensure UTF-8 output (Windows charmap can't encode LLM unicode) ────────
+    for target in (sys.stdout, sys.stderr):
+        if target is None or getattr(target, "encoding", "utf-8") == "utf-8":
+            continue
+        target.reconfigure(encoding="utf-8")
+
     # ── resolve output paths ─────────────────────────────────────────────────
     description = args.text
     save_metadata = getattr(args, "save_metadata", False)
