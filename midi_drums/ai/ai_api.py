@@ -5,7 +5,6 @@ generation using both Pydantic AI (type-safe) and Langchain (agent-based)
 approaches.
 """
 
-import asyncio
 from pathlib import Path
 
 from midi_drums.ai.agents.pattern_agent import PatternCompositionAgent

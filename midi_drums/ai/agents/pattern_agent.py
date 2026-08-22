@@ -346,6 +346,84 @@ class PatternCompositionAgent:
                         bars = _SECTION_BARS.get(name, 4)
                     parsed_structure.append((name, bars))
 
+                    # ── HARD ENFORCEMENT: force-longer, more varied structures ────────
+                    # Rule 1: Must have explicit structure (not "default")
+                    if not parsed_structure or len(parsed_structure) < 3:
+                        logger.warning(
+                            f"Structure too short ({len(parsed_structure) if parsed_structure else 'none'} sections). "
+                            f"Forcing expansion to minimum 8 sections."
+                        )
+
+                    # Rule 2: Minimum 8 sections — auto-expand underspecified structures
+                    _MIN_SECTIONS = 8
+                    if parsed_structure and len(parsed_structure) < _MIN_SECTIONS:
+                        logger.info(
+                            f"Structure has {len(parsed_structure)} sections, below minimum {_MIN_SECTIONS}. "
+                            f"Auto-expanding for variety."
+                        )
+
+                        # Extract existing section names to avoid duplication in expansion
+                        existing_names = [name for name, _ in parsed_structure]
+
+                        # Build an expanded structure: keep original + add missing song-structure beats
+                        _DEFAULT_SONG_ARC = [
+                            ("intro", 8),
+                            ("verse", 8),
+                            ("chorus", 12),
+                            ("verse", 8),
+                            ("chorus", 12),
+                            ("bridge", 4),
+                            ("hook", 4),
+                            ("drum_solo", 8),
+                            ("outro", 8),
+                        ]
+
+                        # Find which arcs already exist and remove them
+                        remaining_arcs = [
+                            arc for arc in _DEFAULT_SONG_ARC
+                            if not any(arc[0] == n for n in existing_names)
+                        ]
+
+                        # Add missing arcs until we reach minimum
+                        expansion_needed = _MIN_SECTIONS - len(parsed_structure)
+                        for arc in remaining_arcs[:expansion_needed]:
+                            parsed_structure.append(arc)
+
+                        logger.info(
+                            f"Expanded structure from {len(parsed_structure) - expansion_needed} to "
+                            f"{len(parsed_structure)} sections."
+                        )
+
+                    # Rule 3: Enforce variety in bar counts — replace repeated bars with variants
+                    if parsed_structure:
+                        _BAR_VARIANTS = {4: [4, 6, 8], 8: [8, 12]}
+                        bar_counts = [bars for _, bars in parsed_structure]
+                        from collections import Counter
+                        bar_freq = Counter(bar_counts)
+                        most_common_bar = bar_freq.most_common(1)[0][0]
+
+                        # If more than half the sections use the same bar count, introduce variety
+                        if len(parsed_structure) >= 4 and bar_freq[most_common_bar] > len(parsed_structure) * 0.6:
+                            logger.info(
+                                f"High bar-count uniformity ({most_common_bar} bars in {bar_freq[most_common_bar]} sections). "
+                                f"Introducing variety."
+                            )
+                            new_structure = []
+                            used_bars: dict[str, set[int]] = {}  # section_type -> set of used bar counts
+                            for name, bars in parsed_structure:
+                                if name not in used_bars:
+                                    used_bars[name] = set()
+                                # Pick variant bars that haven't been used for this section type yet
+                                candidates = _BAR_VARIANTS.get(bars, [bars])
+                                for candidate in candidates:
+                                    if candidate not in used_bars[name]:
+                                        new_structure.append((name, candidate))
+                                        used_bars[name].add(candidate)
+                                        break
+                                else:
+                                    new_structure.append((name, bars))  # fallback to original
+                            parsed_structure = new_structure
+
             # Normalize drummer name: "danny carey" → "carey", etc.
             _DRUMMER_NAMES = [
                 "halpern",
