@@ -559,6 +559,85 @@ class PatternCompositionAgent:
         """
         return self.song_cache.get(song_id)
 
+    def pattern_from_text_sync(
+        self,
+        description: str,
+        section: str = "verse",
+        tempo: int = 120,
+        bars: int = 4,
+        drummer_style: str | None = None,
+    ) -> tuple[Pattern, dict]:
+        """Single-shot NL-to-pattern composition via Langchain agent.
+
+        Uses the same tools as `compose()`, but structured to return (Pattern, metadata)
+        matching DrumGeneratorAI's generate_pattern_from_text interface.
+
+        Args:
+            description: Natural language pattern description
+            section: Song section type (verse, chorus, etc.)
+            tempo: Tempo in BPM
+            bars: Number of bars
+            drummer_style: Optional drummer name to apply
+
+        Returns:
+            Tuple of (Pattern, metadata dict with genre/style/drummer/confidence)
+        """
+        # Build the prompt for single-shot pattern composition
+        prompt = (
+            f"Generate a drum pattern: {description}\n"
+            f"Section: {section}, Bars: {bars}, Tempo: {tempo} BPM.\n"
+            + (f"Apply drummer style: {drummer_style}.\n" if drummer_style else "")
+            + "Use generate_pattern tool, then apply_drummer_style if specified. Return pattern ID only."
+        )
+
+        result = self.compose(prompt)
+        pattern_cache = result.get("pattern_cache", [])
+        final_response = result.get("output", "")
+
+        if not pattern_cache:
+            logger.error("Agent did not generate any patterns for NL description")
+            raise ValueError(
+                f"Failed to generate pattern from prompt. Response: {final_response[:200]}"
+            )
+
+        last_pattern_id = pattern_cache[-1]
+        # If drummer was applied, the final cached pattern has the drummer suffix
+        if drummer_style:
+            styled_id = f"{last_pattern_id}_{drummer_style}"
+            pattern = self.pattern_cache.get(styled_id) or self.pattern_cache.get(last_pattern_id)
+        else:
+            pattern = self.pattern_cache.get(last_pattern_id)
+
+        if pattern is None:
+            raise ValueError(f"Pattern {last_pattern_id} not found in agent cache")
+
+        # Extract metadata from response
+        genre = "rock"
+        style = "classic"
+        confidence = 0.9
+        suggestions: list[str] = []
+
+        if drummer_style:
+            suggestions.append(
+                f"Drummer {drummer_style} style applied for signature characteristics."
+            )
+
+        metadata = {
+            "characteristics": {
+                "genre": genre,
+                "style": style,
+                "confidence": confidence,
+                "suggestions": suggestions,
+            },
+            "pattern_name": pattern.name,
+        }
+
+        logger.success(
+            f"NL pattern generated: {pattern.name} (ID: {last_pattern_id}, {len(pattern.beats)} beats)"
+        )
+
+        return pattern, metadata
+
     def export_pattern(
         self,
         pattern_or_id: Pattern | str,

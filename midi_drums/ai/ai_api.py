@@ -12,7 +12,6 @@ from midi_drums.ai.agents.pattern_agent import PatternCompositionAgent
 from midi_drums.ai.backends import AIBackendConfig
 from midi_drums.ai.pattern_generator import PydanticPatternGenerator
 from midi_drums.ai.schemas import (
-    PatternGenerationRequest,
     PatternGenerationResponse,
 )
 from midi_drums.core.models.pattern import Pattern
@@ -89,7 +88,7 @@ class DrumGeneratorAI:
             )
         return self._agent
 
-    async def generate_pattern_from_text(
+    def generate_pattern_from_text(
         self,
         description: str,
         section: str = "verse",
@@ -97,11 +96,12 @@ class DrumGeneratorAI:
         bars: int = 4,
         complexity: float = 0.5,
         drummer_style: str | None = None,
-    ) -> tuple[Pattern, PatternGenerationResponse]:
-        """Generate drum pattern from natural language using Pydantic AI.
+    ) -> tuple[Pattern, "PatternGenerationResponse"]:
+        """Generate drum pattern from natural language using Langchain agent.
 
-        This method uses type-safe Pydantic AI to analyze the description
-        and generate a validated, structured pattern.
+        This method uses a Langchain agent that can reason about musical
+        structure and generate patterns via tool-calling — not Pydantic AI's
+        classification approach.
 
         Args:
             description: Natural language pattern description
@@ -121,19 +121,41 @@ class DrumGeneratorAI:
             ...     tempo=110,
             ...     bars=4
             ... )
-            >>> print(f"Genre: {info.characteristics.genre}")
-            >>> print(f"Confidence: {info.confidence}")
         """
-        request = PatternGenerationRequest(
+        # Delegate to Langchain agent (NOT Pydantic AI)
+        pattern, metadata = self.agent.pattern_from_text_sync(
             description=description,
             section=section,
             tempo=tempo,
             bars=bars,
-            complexity=complexity,
             drummer_style=drummer_style,
         )
 
-        return await self.pydantic_generator.generate_pattern_async(request)
+        # Build PatternGenerationResponse from agent metadata
+        from midi_drums.ai.schemas import (
+            PatternCharacteristics,
+            PatternGenerationResponse,
+        )
+
+        characteristics = PatternCharacteristics(
+            genre=metadata["characteristics"]["genre"],
+            style=metadata["characteristics"]["style"],
+            intensity=complexity,  # map complexity → intensity
+            use_double_bass=False,
+            use_ghost_notes=False,
+            use_syncopation=False,
+            primary_cymbal="hihat",
+            reasoning=f"Generated from prompt: {description}",
+        )
+
+        response = PatternGenerationResponse(
+            pattern_name=metadata["pattern_name"],
+            characteristics=characteristics,
+            confidence=metadata["characteristics"]["confidence"],
+            suggestions=metadata["characteristics"]["suggestions"],
+        )
+
+        return pattern, response
 
     def generate_pattern_from_text_sync(
         self,
@@ -146,7 +168,8 @@ class DrumGeneratorAI:
     ) -> tuple[Pattern, PatternGenerationResponse]:
         """Synchronous version of generate_pattern_from_text.
 
-        Uses asyncio.run() to provide a sync interface to async generation.
+        Since we now use Langchain agent (synchronous tools), this calls the async
+        method directly — no asyncio.run needed.
 
         Args:
             description: Natural language pattern description
@@ -159,10 +182,9 @@ class DrumGeneratorAI:
         Returns:
             Tuple of (Pattern, PatternGenerationResponse with metadata)
         """
-        return asyncio.run(
-            self.generate_pattern_from_text(
-                description, section, tempo, bars, complexity, drummer_style
-            )
+        # Just call directly — no async I/O needed anymore
+        return self.generate_pattern_from_text(
+            description, section, tempo, bars, complexity, drummer_style
         )
 
     def compose_with_agent(self, request: str) -> dict:
