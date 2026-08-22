@@ -36,10 +36,19 @@ SYSTEM_PROMPT = (
     "IMPORTANT — valid drummer names (use EXACTLY these strings):\n"
     "  halpern, haake, chadsmith, carey, bonham, chambers, copeland, dee, hoglan, peart, porcaro, rich, roeder, weckl\n\n"
     "Never pass a style like 'death metal' or 'heavy metal' — use 'death' or 'heavy'.\n\n"
+    "CRITICAL RULES for song structure (when using create_song):\n"
+    "1. ALWAYS specify an explicit structure — NEVER use the value \"default\".\n"
+    "2. Create structures with at least 8-10 sections minimum (intro, verse x2, chorus x2, bridge, breakdown/solo, outro).\n"
+    "3. Use varied bar counts: prefer 4, 6, 8, and 12 — never use the same bar count for every section.\n"
+    "4. Include diverse section types: intro, verse, chorus, bridge, breakdown, hook, interlude, solo, guitar_solo, drum_solo, outro.\n"
+    "5. Make sure each song has a clear arc — e.g.:\n"
+    "   'intro: 8, verse: 8, chorus: 12, verse: 8, chorus: 12, bridge: 4, hook: 4, drum_solo: 8, outro: 8'\n"
+    "6. Never repeat the same pattern for two consecutive sections — each section should be different.\n\n"
     "When composing a song, follow this exact workflow:\n"
     "1. Infer genre, style, tempo, structure, and drummer from the user's description\n"
-    "2. Call create_song with the full section list AND the drummer name (if specified)\n"
-    "3. Briefly summarise what was created and reference the ID",
+    "2. ALWAYS provide an explicit multi-section structure (see rules above) to create_song\n"
+    "3. Call create_song with the full section list AND the drummer name (if specified)\n"
+    "4. Briefly summarise what was created and reference the ID",
 )
 
 
@@ -264,7 +273,13 @@ class PatternCompositionAgent:
                     jazz  → swing | bebop | fusion | latin | ballad | hard_bop | contemporary
                     funk  → classic | pfunk | shuffle | new_orleans | fusion | minimal | heavy
                 tempo: Tempo in BPM (40-300)
-                structure: Song structure description or "default"
+                structure: Explicit multi-section format as comma-separated sections.
+                    Format: "section_name: bars, section_name: bars, ..."
+                    Examples:
+                        - "intro: 8, verse: 8, chorus: 12, bridge: 4, outro: 8"
+                        - "intro: 4, verse: 8, chorus: 8, verse: 8, chorus: 8, solo: 8, outro: 4"
+                    MUST contain at least 8 sections with varied bar counts (4/6/8/12).
+                    NEVER use the literal string "default" — always provide an explicit structure.
                 drummer: Drummer personality to apply — one of:
                     halpern | haake | chadsmith | carey | bonham | chambers | copeland | dee | hoglan | peart |
                     porcaro | rich | roeder | weckl
