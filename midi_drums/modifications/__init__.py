@@ -22,7 +22,9 @@ from midi_drums.modifications.drummer_mods import (
     MechanicalPrecision,
     MinimalCreativity,
     ModificationRegistry,
+    OddTimeAdaptation,
     PocketStretching,
+    PolyrhythmApplication,
     ShuffleFeelApplication,
     SpeedPrecision,
     TripletVocabulary,
@@ -45,6 +47,8 @@ __all__ = [
     "SpeedPrecision",
     "TwistedAccents",
     "MechanicalPrecision",
+    "PolyrhythmApplication",
+    "OddTimeAdaptation",
     # Registry
     "ModificationRegistry",
 ]

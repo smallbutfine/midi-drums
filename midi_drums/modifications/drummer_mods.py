@@ -18,6 +18,7 @@ from dataclasses import dataclass
 from midi_drums.config import TIMING, VELOCITY
 from midi_drums.core.models.pattern import Beat, Pattern
 from midi_drums.core.value_objects.drum_instrument import DrumInstrument
+from midi_drums.core.value_objects.time_signature import TimeSignature
 from midi_drums.core.value_objects.timekeeping import (
     PROMOTABLE_TIMEKEEPING_CYMBALS,
 )
@@ -832,6 +833,162 @@ class MechanicalPrecision(DrummerModification):
             time_signature=pattern.time_signature,
             subdivision=pattern.subdivision,
             swing_ratio=pattern.swing_ratio,
+            metadata={**pattern.metadata, "modification": self.name},
+        )
+
+
+@dataclass
+class PolyrhythmApplication(DrummerModification):
+    """Apply polyrhythmic layering (Haake/Meshuggah style).
+
+    Creates cross-metric patterns by playing different subdivision counts
+    across limbs simultaneously — the signature of Meshuggha-era Haake.
+    E.g., kick plays 5 notes while snare plays 4 over one bar (5-over-4 polyrhythm).
+
+    This creates the mathematically complex, sparse-yet-devastating groove
+    that defines djent and modern progressive metal.
+
+    Example:
+        PolyrrhythmApplication(
+            kick_subdivisions=5, snare_subdivisions=4,
+            bar_length=1.0  # per-bar basis in 4/4
+        ).apply(pattern, intensity=0.8)
+    """
+
+    kick_subdivisions: int = 7   # how many kicks across one bar
+    snare_subdivisions: int = 4  # how many snares across one bar  
+    tom_subdivisions: int = 5
+    intensity: float = 0.8
+
+    @property
+    def name(self) -> str:
+        return "polyrhythm"
+
+    def apply(self, pattern: Pattern, intensity: float = 1.0) -> Pattern:
+        """Layer polynrhythmic subdivisions across kick/snare/tom."""
+        modified_beats = list(pattern.beats)
+        bar_length = TIMING.HALF * 2  # 4/4 = 4 beats
+        effective_intensity = self.intensity * intensity
+
+        if effective_intensity < 0.1:
+            return pattern  # skip
+
+        # Generate new kick hits at custom subdivision count
+        kick_interval = bar_length / self.kick_subdivisions
+        for i in range(self.kick_subdivisions):
+            pos = round(i * kick_interval, 6)
+            modified_beats.append(
+                Beat(
+                    position=pos,
+                    instrument=DrumInstrument.KICK,
+                    velocity=int(VELOCITY.KICK_HEAVY * (0.9 + effective_intensity * 0.1)),
+                    duration=TIMING.SIXTEENTH,
+                    ghost_note=False,
+                    accent=i % 2 == 0,
+                )
+            )
+
+        # Generate new snare hits at different subdivision count
+        snare_interval = bar_length / self.snare_subdivisions
+        for i in range(self.snare_subdivisions):
+            pos = round(i * snare_interval, 6)
+            modified_beats.append(
+                Beat(
+                    position=pos,
+                    instrument=DrumInstrument.SNARE,
+                    velocity=int(VELOCITY.SNARE_HEAVY),
+                    duration=TIMING.EIGHTH,
+                    ghost_note=False,
+                    accent=i % 2 == 0,
+                )
+            )
+
+        # Generate tom accents at yet another subdivision (5-over-4-over-7)
+        if self.tom_subdivisions > 0:
+            tom_interval = bar_length / max(1, self.tom_subdivisions)
+            for i in range(self.tom_subdivisions):
+                pos = round(i * tom_interval + tom_interval / 2, 6)  # offset
+                modified_beats.append(
+                    Beat(
+                        position=pos,
+                        instrument=DrumInstrument.MID_TOM if i % 2 == 0 else DrumInstrument.FLOOR_TOM,
+                        velocity=int(VELOCITY.TOM_HEAVY + random.randint(-5, 5)),
+                        duration=TIMING.SIXTEENTH,
+                        ghost_note=False,
+                        accent=i % 3 == 0,
+                    )
+                )
+
+        # Sort by position for proper sequencing
+        modified_beats.sort(key=lambda b: (b.position, b.instrument.value))
+
+        return Pattern(
+            name=f"{pattern.name}_polyrhythm",
+            beats=modified_beats,
+            time_signature=pattern.time_signature,
+            subdivision=pattern.subdivision,
+            swing_ratio=pattern.swing_ratio,
+            metadata={**pattern.metadata, "modification": self.name},
+        )
+
+
+@dataclass
+class OddTimeAdaptation(DrummerModification):
+    """Adapt patterns to odd time signatures (Matt Halpern/Periphery style).
+
+    Takes a 4/4 pattern and maps its hits onto an odd-meter grid
+    (typically 7/8 or 11/8), creating the syncopated, off-kilter feel
+    that defines progressive djent grooves.
+
+    This doesn't change the underlying time signature in the output MIDI,
+    but it relocates hit positions to create odd-phrasing within 4/4 space.
+
+    Example:
+        OddTimeAdaptation(numerator=7, bar_length=1.0).apply(pattern, intensity=0.8)
+    """
+
+    numerator: int = 7  # odd meter (5, 7, or 11)
+    bar_length: float = 4.0  # total bar duration to map over
+    swing_ratio: float = 0.0  # default no swing for metal
+
+    @property
+    def name(self) -> str:
+        return "odd_time"
+
+    def apply(self, pattern: Pattern, intensity: float = 1.0) -> Pattern:
+        """Remap hit positions to odd-phrasing within 4/4 grid."""
+        if intensity < 0.1:
+            return pattern
+
+        # Calculate the ratio between odd meter and normal 4-beat bar
+        ratio = self.numerator / 4.0
+
+        modified_beats = []
+        for beat in pattern.beats:
+            # Map original position to odd-meter space
+            pos_in_odd = beat.position * ratio
+
+            # Wrap around if beyond bar length
+            new_pos = pos_in_odd % self.bar_length
+
+            modified_beats.append(
+                Beat(
+                    position=new_pos,
+                    instrument=beat.instrument,
+                    velocity=beat.velocity,
+                    duration=beat.duration,
+                    ghost_note=beat.ghost_note,
+                    accent=beat.accent,
+                    instrument_promoted=beat.instrument_promoted,
+                )
+            )
+
+        return Pattern(
+            name=f"{pattern.name}_odd7",
+            beats=modified_beats,
+            time_signature=TimeSignature(numerator=self.numerator, denominator=8),
+            subdivision=pattern.subdivision,
+            swing_ratio=self.swing_ratio,
             metadata={**pattern.metadata, "modification": self.name},
         )
 

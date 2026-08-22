@@ -5,6 +5,8 @@ from midi_drums.plugins.drummers.carey import CareyPlugin
 from midi_drums.plugins.drummers.chambers import ChambersPlugin
 from midi_drums.plugins.drummers.copeland import CopelandPlugin
 from midi_drums.plugins.drummers.dee import DeePlugin
+from midi_drums.plugins.drummers.haake import HaakePlugin
+from midi_drums.plugins.drummers.halpern import HalpernPlugin
 from midi_drums.plugins.drummers.hoglan import HoglanPlugin
 from midi_drums.plugins.drummers.peart import PeartPlugin
 from midi_drums.plugins.drummers.porcaro import PorcaroPlugin
@@ -18,6 +20,8 @@ __all__ = [
     "ChambersPlugin",
     "CopelandPlugin",
     "DeePlugin",
+    "HaakePlugin",
+    "HalpernPlugin",
     "HoglanPlugin",
     "PeartPlugin",
     "PorcaroPlugin",

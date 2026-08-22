@@ -21,7 +21,7 @@
 
 ## 🎯 Overview
 
-MIDI Drums Generator is a Python system that creates professional-quality drum tracks in MIDI format. Built on a modular, plugin-based architecture with **bar-by-bar pattern evolution** (Engine V2) as the default, it supports 5 musical genres, 11 drummer imitations + 1 composite, and configurable song structures — with realistic humanization, intensity curves, natural-language AI generation, Additive Drums 2 keymap support, and direct Reaper DAW integration.
+MIDI Drums Generator is a Python system that creates professional-quality drum tracks in MIDI format. Built on a modular, plugin-based architecture with **bar-by-bar pattern evolution** (Engine V2) as the default, it supports 5 musical genres, 13 drummer imitations + 1 composite, and configurable song structures — with realistic humanization, intensity curves, natural-language AI generation, Additive Drums 2 keymap support, and direct Reaper DAW integration.
 
 ### ✨ Key Features
 
@@ -32,8 +32,8 @@ MIDI Drums Generator is a Python system that creates professional-quality drum t
   - **Funk**: Classic, P-Funk, Shuffle, New Orleans, Fusion, Minimal, Heavy
   - **Electronic**: House, Techno, Drum & Bass, Dubstep
   - **Expandable**: Plugin architecture for more genres
-- 🥁 **Drummer Imitation** — 11 legendary styles + 1 composite
-  - Bonham, Porcaro, Weckl, Chambers, Roeder, Dee, Hoglan, Peart, Rich, Copeland, Carey
+- 🥁 **Drummer Imitation** — 13 legendary styles + 1 composite
+  - Bonham, Porcaro, Weckl, Chambers, Roeder, Dee, Hoglan, Peart, Rich, Copeland, Carey, Haake, Halpern
   - DoomBlues composite (Roeder + Porcaro + Chambers)
   - Signature fills and playing techniques based on research
   - Compatible across multiple genres with authentic styles

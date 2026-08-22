@@ -97,6 +97,8 @@ def test_discover_plugins_loads_all_builtin_drummers():
         "chambers",
         "copeland",
         "dee",
+        "haake",  # Thomas Haake - Meshuggah polyrhythmic djent style
+        "halpern",  # Matt Halpern - Periphery odd-time/djent style
         "hoglan",
         "peart",
         "porcaro",

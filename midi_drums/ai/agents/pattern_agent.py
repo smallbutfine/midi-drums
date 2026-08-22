@@ -33,7 +33,7 @@ SYSTEM_PROMPT = (
     "  jazz  : swing, bebop, fusion, latin, ballad, hard_bop, contemporary\n"
     "  funk  : classic, pfunk, shuffle, new_orleans, fusion, minimal, heavy\n\n"
     "IMPORTANT — valid drummer names (use EXACTLY these strings):\n"
-    "  carey, bonham, chambers, copeland, dee, hoglan, peart, porcaro, rich, roeder, weckl\n\n"
+    "  halpern, haake, carey, bonham, chambers, copeland, dee, hoglan, peart, porcaro, rich, roeder, weckl\n\n"
     "Never pass a style like 'death metal' or 'heavy metal' — use 'death' or 'heavy'.\n\n"
     "When composing a song, follow this exact workflow:\n"
     "1. Infer genre, style, tempo, structure, and drummer from the user's description\n"
@@ -216,7 +216,7 @@ class PatternCompositionAgent:
 
             Args:
                 pattern_id: ID of pattern to modify (from generate_pattern)
-                drummer: Drummer style (bonham, porcaro, weckl, chambers, roeder, dee, hoglan)
+                drummer: Drummer style (halpern, haake, carey, bonham, chambers, copeland, dee, hoglan, peart, porcaro, rich, roeder, weckl)
 
             Returns:
                 Description of styled pattern with new ID
@@ -265,7 +265,7 @@ class PatternCompositionAgent:
                 tempo: Tempo in BPM (40-300)
                 structure: Song structure description or "default"
                 drummer: Drummer personality to apply — one of:
-                    carey | bonham | chambers | copeland | dee | hoglan | peart |
+                    halpern | haake | carey | bonham | chambers | copeland | dee | hoglan | peart |
                     porcaro | rich | roeder | weckl
 
             Returns:
@@ -320,7 +320,7 @@ class PatternCompositionAgent:
 
             # Normalize drummer name: "danny carey" → "carey", etc.
             _DRUMMER_NAMES = [
-                "carey", "bonham", "chambers", "copeland", "dee",
+                "halpern", "haake", "carey", "bonham", "chambers", "copeland", "dee",
                 "hoglan", "peart", "porcaro", "rich", "roeder", "weckl",
             ]
             resolved_drummer: str | None = None

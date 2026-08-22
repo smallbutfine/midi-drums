@@ -1,5 +1,15 @@
-Generating from prompt: 'roeder and doom metal with use of ghost notes and double base kick drum, use a lot of cymbals epic complex diverse'
+Generating from prompt: 'haake and doom metal with use of ghost notes and double base kick drum, use a lot of cymbals epic complex diverse'
 Provider : ollama/qwen3.6
-Output dir: output/roeder_and_doom_metal/
+Output dir: output/haake_and_doom_metal/
 Composing song via agent…
+Created an epic doom metal song at 75 BPM featuring Mikenis Haake's signature drummer style — characterized by complex ghost note patterns, relentless double bass kick drum work, and expansive cymbal textures for a dark, atmospheric yet technically intricate sound.
 
+**Song ID: `song_0`**  
+Structure: intro (4 bars) → verse (8 bars) → chorus (8 bars) → verse (8 bars) → bridge (4 bars) → instrumental break (8 bars) → chorus (8 bars) → outro (8 bars)
+
+Use this ID to export to MIDI.
+  Parts      : output\haake_and_doom_metal\parts/ (8 files)
+  Metadata   : output\haake_and_doom_metal\metadata.json
+
+Done!
+  Output : output\haake_and_doom_metal\haake_and_doom_metal.mid
