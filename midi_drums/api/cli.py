@@ -1032,10 +1032,28 @@ def handle_prompt_command(args) -> None:
             if parts_dir is not None and song_obj:
                 from midi_drums.export.midi.engine import MIDIEngine
 
+                # Sanitize section names so they are filesystem-safe on all platforms.
+                # AI agent can produce raw description fragments like "heavy cymbal swells] [
+                # verse 1: doom riff ..." as section.name — these contain [ ] : and other
+                # illegal Windows filename characters.
+                def _san(name: str) -> str:
+                    return "".join(c if c.isalnum() or c == "_" else "" for c in name)
+
                 parts_dir.mkdir(exist_ok=True)
                 engine = MIDIEngine()
+                seen_names: set[str] = set()
                 for i, section in enumerate(song_obj.sections):
-                    part_file = parts_dir / f"{i:02d}_{section.name}.mid"
+                    stem = _san(section.name).lower()
+                    if not stem:
+                        stem = f"section_{i}"
+                    # deduplicate (e.g. two "verse" sections)
+                    candidate = stem
+                    counter = 1
+                    while candidate in seen_names:
+                        candidate = f"{stem}_{counter}"
+                        counter += 1
+                    seen_names.add(candidate)
+                    part_file = parts_dir / f"{i:02d}_{candidate}.mid"
                     engine.save_pattern_midi(
                         section.pattern, part_file, tempo=song_obj.tempo
                     )

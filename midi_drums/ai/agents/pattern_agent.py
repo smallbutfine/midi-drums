@@ -290,11 +290,27 @@ class PatternCompositionAgent:
             }
             parsed_structure = None
             if structure and structure.lower() != "default":
+                _SECTION_TYPE_ORDER: list[str] = [
+                    "intro", "verse", "chorus", "bridge", "breakdown",
+                    "outro", "pre_chorus", "interlude", "hook",
+                ]
+
                 parsed_structure = []
                 for part in structure.split(","):
-                    name = part.strip().lower()
-                    if not name:
+                    raw = part.strip().lower()
+                    if not raw:
                         continue
+                    # Extract the first known section type keyword from the fragment
+                    # e.g. "heavy cymbal swells] [verse 1: doom riff" → "verse"
+                    name = None
+                    for kw in _SECTION_TYPE_ORDER:
+                        if kw in raw:
+                            name = kw
+                            break
+                    if name is None:
+                        # fallback: take the first word (strip punctuation/brackets)
+                        word = raw.split()[0] if raw.split() else ""
+                        name = "".join(c for c in word if c.isalnum()) or "section"
                     # solo_slow, solo_build, solo_midtempo → 8 bars each
                     if name.startswith("solo"):
                         bars = 8
