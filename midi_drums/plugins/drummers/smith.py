@@ -169,7 +169,7 @@ class SmithPlugin(DrummerPlugin):
             if random.random() < 0.7:
                 builder.pattern.add_beat(
                     pos, DrumInstrument.SNARE,
-                    VELOCITY.SNARE_GHOST + random.randint(0, 15),
+                    min(VELOCITY.SNARE_GHOST + random.randint(0, 15), 127),
                 )
 
         # Tight closed hi-hat (driving the groove)
@@ -198,7 +198,7 @@ class SmithPlugin(DrummerPlugin):
 
         # Heavy snare backbeats with ghost notes between
         builder.snare(TIMING.QUARTER, VELOCITY.SNARE_HEAVY)
-        builder.snare(TIMING.HALF * 3, VELOCITY.SNARE_HEAVY + 5)
+        builder.snare(TIMING.HALF * 3, min(VELOCITY.SNARE_HEAVY + 5, 127))
 
         # Ghost note net between beats (dense for funk feel)
         for i in range(1, 8):
@@ -213,7 +213,7 @@ class SmithPlugin(DrummerPlugin):
         for i in range(4):
             builder.pattern.add_beat(
                 TIMING.HALF * i, DrumInstrument.OPEN_HH,
-                VELOCITY.HIHAT_NORMAL + 5 + random.randint(-3, 8),
+                min(VELOCITY.HIHAT_NORMAL + 5 + random.randint(-3, 8), 127),
             )
 
         return builder.build()
@@ -237,8 +237,8 @@ class SmithPlugin(DrummerPlugin):
         builder.kick(TIMING.HALF * 3, VELOCITY.KICK_HEAVY)
 
         # Heavy snare backbeats
-        builder.snare(TIMING.QUARTER, VELOCITY.SNARE_HEAVY + 5)
-        builder.snare(TIMING.HALF * 3, VELOCITY.SNARE_HEAVY + 3)
+        builder.snare(TIMING.QUARTER, min(VELOCITY.SNARE_HEAVY + 5, 127))
+        builder.snare(TIMING.HALF * 3, min(VELOCITY.SNARE_HEAVY + 3, 127))
 
         # Ghost note fill on the transition (bars 2-3 approach)
         for i in range(4):
@@ -298,11 +298,11 @@ class SmithPlugin(DrummerPlugin):
 
         # Heavy kick foundation (hard rock context)
         for i in range(4):
-            builder.kick(TIMING.HALF * i, VELOCITY.KICK_HEAVY + 5)
+            builder.kick(TIMING.HALF * i, min(VELOCITY.KICK_HEAVY + 5, 127))
 
         # Massive snare on every bar boundary with heavy accent
-        builder.snare(0.0, VELOCITY.SNARE_HEAVY + 10)
-        builder.snare(TIMING.HALF * 2, VELOCITY.SNARE_HEAVY + 8)
+        builder.snare(0.0, min(VELOCITY.SNARE_HEAVY + 10, 127))
+        builder.snare(TIMING.HALF * 2, min(VELOCITY.SNARE_HEAVY + 8, 127))
         builder.snare(TIMING.HALF * 3, VELOCITY.SNARE_HEAVY)
 
         # Tom cascade: rapid descent from rack to floor (the signature fill)
@@ -317,7 +317,7 @@ class SmithPlugin(DrummerPlugin):
         ]
         for pos, inst in tom_sequence:
             builder.pattern.add_beat(
-                pos, inst, VELOCITY.TOM_HEAVY + random.randint(0, 12),
+                pos, inst, min(VELOCITY.TOM_HEAVY + random.randint(0, 12), 127),
             )
 
         # Crash accents after fills (chicken on top)
@@ -357,7 +357,7 @@ class SmithPlugin(DrummerPlugin):
             pos = TIMING.SIXTEENTH * i
             if i % 4 == 0:
                 # Accent on floor tom edge (deep tone)
-                builder.tom_edge(pos, "FLOOR", VELOCITY.TOM_HEAVY + random.randint(-5, 12))
+                builder.tom_edge(pos, "FLOOR", min(VELOCITY.TOM_HEAVY + random.randint(-5, 12), 127))
             elif i % 3 == 0:
                 # Ghost note snare rim
                 builder.pattern.add_beat(
@@ -387,7 +387,7 @@ class SmithPlugin(DrummerPlugin):
         builder = PatternBuilder("smith_one_drop_live")
 
         # One-drop: kick only on 1 (deep pocket foundation)
-        builder.kick(0.0, VELOCITY.KICK_HEAVY + 5)
+        builder.kick(0.0, min(VELOCITY.KICK_HEAVY + 5, 127))
 
         # Double-bass accent during transition (Chad's flair)
         builder.kick(TIMING.HALF + TIMING.EIGHTH, VELOCITY.KICK_NORMAL)
@@ -433,11 +433,11 @@ class SmithPlugin(DrummerPlugin):
         for i in range(16):
             pos = TIMING.SIXTEENTH * i
             if i % 4 == 0:
-                builder.snare(pos, VELOCITY.SNARE_HEAVY + random.randint(0, 8))
+                builder.snare(pos, min(VELOCITY.SNARE_HEAVY + random.randint(0, 8), 127))
             elif i % 2 == 0:
                 builder.pattern.add_beat(
                     pos, DrumInstrument.MID_TOM if i < 8 else DrumInstrument.FLOOR_TOM,
-                    VELOCITY.TOM_HEAVY + random.randint(-5, 12),
+                    min(VELOCITY.TOM_HEAVY + random.randint(-5, 12), 127),
                 )
 
         # Cymbal crash punctuation at fill transition points
