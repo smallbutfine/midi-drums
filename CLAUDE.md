@@ -8,7 +8,7 @@ This is a comprehensive MIDI drum generation system with a modular, plugin-based
 
 ### Key Features
 - **Multi-Genre Support**: Metal (7 styles), Rock (7 styles), Jazz (7 styles), Funk (7 styles), Electronic (4 styles)
-- **Drummer Imitation**: 13 drummer plugins + 1 composite (Bonham, Porcaro, Weckl, Chambers, Roeder, Dee, Hoglan, Peart, Rich, Copeland, Carey, Haake, Halpern) plus DoomBlues composite
+- **Drummer Imitation**: 14 drummer plugins + 1 composite (Bonham, Porcaro, Weckl, Chambers, Roeder, Dee, Hoglan, Peart, Rich, Copeland, Carey, Haake, Halpern, Chad Smith) plus DoomBlues composite
 - **Fill Library**: 64+ verified signature fills across all drummers (8 per drummer for most), researched from documented techniques and recorded songs
 - **AD2 Keymap**: Full Additive Drums 2 keymap wiring — tight HH, crash_choked, ride_bell, tom_edge variants across all genres
 - **Song Structure**: Configurable sections (verse, chorus, bridge, breakdown, intro, outro)

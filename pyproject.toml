@@ -12,7 +12,7 @@ classifiers = [
     "Topic :: Multimedia :: Sound/Audio :: MIDI",
 ]
 version = "0.2.0"
-description = "Bar-by-bar MIDI drum track generator with Engine V2 evolution, 13 drummer imitations + composite, AD2 keymap support, AI-assisted composition, and Reaper DAW integration"
+description = "Bar-by-bar MIDI drum track generator with Engine V2 evolution, 14 drummer imitations + composite, AD2 keymap support, AI-assisted composition, and Reaper DAW integration"
 dependencies = [
     "midiutil>=1.2.1",
     "numpy>=1.24.0",

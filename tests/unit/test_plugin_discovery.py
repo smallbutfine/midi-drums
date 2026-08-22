@@ -95,6 +95,7 @@ def test_discover_plugins_loads_all_builtin_drummers():
         "bonham",
         "carey",
         "chambers",
+        "chadsmith",  # Chad Smith - RHCP funk-rock groove mastery
         "copeland",
         "dee",
         "haake",  # Thomas Haake - Meshuggah polyrhythmic djent style

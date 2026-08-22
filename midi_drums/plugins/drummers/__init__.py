@@ -12,6 +12,7 @@ from midi_drums.plugins.drummers.peart import PeartPlugin
 from midi_drums.plugins.drummers.porcaro import PorcaroPlugin
 from midi_drums.plugins.drummers.rich import RichPlugin
 from midi_drums.plugins.drummers.roeder import RoederPlugin
+from midi_drums.plugins.drummers.smith import SmithPlugin
 from midi_drums.plugins.drummers.weckl import WecklPlugin
 
 __all__ = [
@@ -27,5 +28,6 @@ __all__ = [
     "PorcaroPlugin",
     "RichPlugin",
     "RoederPlugin",
+    "SmithPlugin",
     "WecklPlugin",
 ]
