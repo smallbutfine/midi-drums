@@ -44,7 +44,7 @@ class TestCreateSongDrumKitPrecedence:
 
         api.create_song("metal", "heavy", tempo=140)
 
-        assert api.generator.drum_kit.name == "EZDrummer 3 Kit"
+        assert api.generator.drum_kit.name == "General MIDI Drums"
 
     def test_explicit_none_drum_kit_falls_back_to_mapping(self):
         """A caller-supplied drum_kit=None must not be treated as an

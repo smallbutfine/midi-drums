@@ -4,7 +4,7 @@ This module provides centralized constants and configuration values used
 throughout the system, eliminating magic numbers and improving maintainability.
 
 Quick Start:
-    from midi_drums.config import VELOCITY, TIMING, DEFAULTS
+    from midi_drums.config import VELOCITY, TIMING, DEFAULTS, DEFAULT_MAPPING
 
     # Use velocity constants
     builder.kick(0.0, VELOCITY.KICK_NORMAL)
@@ -29,6 +29,17 @@ from midi_drums.config.constants import (
     VelocityRanges,
 )
 
+# ── Top-level defaults (imported for convenience) ──────────────────
+from midi_drums.config.defaults import (
+    DEFAULT_MAPPING,
+    VALID_MAPPINGS,
+    DEFAULT_TEMPO,
+    DEFAULT_GENRE,
+    DEFAULT_STYLE,
+    DEFAULT_SECTION,
+    DEFAULT_COMPLEXITY,
+)
+
 __all__ = [
     # Singleton instances (most commonly used)
     "VELOCITY",
@@ -39,4 +50,12 @@ __all__ = [
     "TimingConstants",
     "GenerationDefaults",
     "VelocityPresets",
+    # Defaults
+    "DEFAULT_MAPPING",
+    "VALID_MAPPINGS",
+    "DEFAULT_TEMPO",
+    "DEFAULT_GENRE",
+    "DEFAULT_STYLE",
+    "DEFAULT_SECTION",
+    "DEFAULT_COMPLEXITY",
 ]

@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
+from midi_drums.config.defaults import DEFAULT_MAPPING
 from midi_drums.core.models.kit import DrumKit
 from midi_drums.core.models.pattern import Pattern
 from midi_drums.core.models.song import Song
@@ -23,7 +24,7 @@ class DrumGeneratorAPI:
         style: str = "default",
         tempo: int = 120,
         name: str | None = None,
-        mapping: str = "ezdrummer3",
+        mapping: str = DEFAULT_MAPPING,
         mapping_file: str | Path | None = None,
         **kwargs,
     ) -> Song:
@@ -69,7 +70,7 @@ class DrumGeneratorAPI:
         genre: str,
         section: str = "verse",
         style: str = "default",
-        mapping: str = "ezdrummer3",
+        mapping: str = DEFAULT_MAPPING,
         **kwargs,
     ) -> Pattern | None:
         """Generate a single drum pattern.
@@ -103,7 +104,7 @@ class DrumGeneratorAPI:
         pattern: Pattern,
         filename: str | Path,
         tempo: int = 120,
-        mapping: str = "ezdrummer3",
+        mapping: str = DEFAULT_MAPPING,
     ) -> None:
         """Save pattern as MIDI file.
 
@@ -163,7 +164,7 @@ class DrumGeneratorAPI:
         style: str = "heavy",
         tempo: int = 155,
         complexity: float = 0.7,
-        mapping: str = "ezdrummer3",
+        mapping: str = DEFAULT_MAPPING,
     ) -> Song:
         """Create a metal song with common parameters."""
         return self.create_song(
@@ -182,7 +183,7 @@ class DrumGeneratorAPI:
         filename: str | Path,
         style: str = "default",
         tempo: int = 120,
-        mapping: str = "ezdrummer3",
+        mapping: str = DEFAULT_MAPPING,
     ) -> None:
         """Quickly generate and export a song.
 

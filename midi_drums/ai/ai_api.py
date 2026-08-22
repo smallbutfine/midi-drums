@@ -202,6 +202,7 @@ class DrumGeneratorAI:
         pattern: Pattern | str,
         output_path: str | Path,
         tempo: int = 120,
+        mapping: str = "ezdrummer3",
     ) -> bool:
         """Export pattern to MIDI file.
 
@@ -209,6 +210,7 @@ class DrumGeneratorAI:
             pattern: Pattern object or pattern ID from agent
             output_path: Path for MIDI output
             tempo: Tempo in BPM
+            mapping: MIDI note mapping preset
 
         Returns:
             True if successful, False otherwise
@@ -222,23 +224,27 @@ class DrumGeneratorAI:
 
         # Handle pattern ID from agent
         if isinstance(pattern, str):
-            return self.agent.export_pattern(pattern, output_path, tempo)
+            return self.agent.export_pattern(
+                pattern, output_path, tempo=tempo, mapping=mapping
+            )
 
         # Handle Pattern object from Pydantic generator
         from pathlib import Path
 
+        from midi_drums.core.models.kit import DrumKit
         from midi_drums.export.midi.engine import MIDIEngine
 
-        engine = MIDIEngine()
+        engine = MIDIEngine(DrumKit.from_preset(mapping))
         engine.save_pattern_midi(pattern, Path(output_path), tempo)
         return True
 
-    def export_song(self, song: Song | str, output_path: str | Path) -> bool:
+    def export_song(self, song: Song | str, output_path: str | Path, mapping: str = "ezdrummer3") -> bool:
         """Export song to MIDI file.
 
         Args:
             song: Song object or song ID from agent
             output_path: Path for MIDI output
+            mapping: MIDI note mapping preset
 
         Returns:
             True if successful, False otherwise
@@ -253,14 +259,15 @@ class DrumGeneratorAI:
 
         # Handle song ID from agent
         if isinstance(song, str):
-            return self.agent.export_song(song, output_path)
+            return self.agent.export_song(song, output_path, mapping=mapping)
 
         # Handle Song object
         from pathlib import Path
 
+        from midi_drums.core.models.kit import DrumKit
         from midi_drums.export.midi.engine import MIDIEngine
 
-        engine = MIDIEngine()
+        engine = MIDIEngine(DrumKit.from_preset(mapping))
         engine.save_song_midi(song, Path(output_path))
         return True
 

@@ -12,6 +12,7 @@ from typing import Any
 from loguru import logger
 
 from midi_drums.ai.backends import AIBackendConfig, AIBackendFactory
+from midi_drums.config.defaults import DEFAULT_MAPPING
 from midi_drums.core.models.pattern import Pattern
 from midi_drums.core.models.song import Song
 from midi_drums.generation.engines.drum_generator import DrumGenerator
@@ -522,6 +523,7 @@ class PatternCompositionAgent:
         pattern_or_id: Pattern | str,
         output_path: str,
         tempo: int = 120,
+        mapping: str = DEFAULT_MAPPING,
     ) -> bool:
         """Export a pattern (by ID or object) to MIDI file.
 
@@ -529,10 +531,12 @@ class PatternCompositionAgent:
             pattern_or_id: Pattern object or pattern ID string from agent cache
             output_path: Destination file path for MIDI output
             tempo: Tempo in BPM used for MIDI export
+            mapping: MIDI note mapping preset (default: DEFAULT_MAPPING)
 
         Returns:
             True if export succeeded, False otherwise
         """
+        from midi_drums.core.models.kit import DrumKit
         from midi_drums.export.midi.engine import MIDIEngine
 
         if isinstance(pattern_or_id, str):
@@ -544,7 +548,7 @@ class PatternCompositionAgent:
             pattern = pattern_or_id
 
         try:
-            engine = MIDIEngine()
+            engine = MIDIEngine(DrumKit.from_preset(mapping))
             engine.save_pattern_midi(pattern, Path(output_path), tempo)
             logger.success(f"Pattern exported to: {output_path}")
             return True
@@ -556,16 +560,19 @@ class PatternCompositionAgent:
         self,
         song_or_id: Song | str,
         output_path: str,
+        mapping: str = DEFAULT_MAPPING,
     ) -> bool:
         """Export a song (by ID or object) to MIDI file.
 
         Args:
             song_or_id: Song object or song ID string from agent cache
             output_path: Destination file path for MIDI output
+            mapping: MIDI note mapping preset (default: DEFAULT_MAPPING)
 
         Returns:
             True if export succeeded, False otherwise
         """
+        from midi_drums.core.models.kit import DrumKit
         from midi_drums.export.midi.engine import MIDIEngine
 
         if isinstance(song_or_id, str):
@@ -577,7 +584,7 @@ class PatternCompositionAgent:
             song = song_or_id
 
         try:
-            engine = MIDIEngine()
+            engine = MIDIEngine(DrumKit.from_preset(mapping))
             engine.save_song_midi(song, Path(output_path))
             logger.success(f"Song exported to: {output_path}")
             return True
