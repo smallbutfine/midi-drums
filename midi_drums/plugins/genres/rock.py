@@ -302,7 +302,9 @@ class RockGenrePlugin(GenrePlugin):
         )
         return [f1, f2, f3]
 
-    def _flavors_breakdown(self, style: str, complexity: float) -> list[Pattern]:
+    def _flavors_breakdown(
+        self, style: str, complexity: float
+    ) -> list[Pattern]:
         name = f"rock_{style}_breakdown"
         # 1: sparse syncopated groove
         f1 = (
@@ -631,7 +633,9 @@ class RockGenrePlugin(GenrePlugin):
                         hihat_subdivision=TIMING.HALF,
                     )
                 )
-                .add(CrashAccents(positions=[0.0, 1.0, 2.0, 3.0], intensity=0.9))
+                .add(
+                    CrashAccents(positions=[0.0, 1.0, 2.0, 3.0], intensity=0.9)
+                )
                 .build(bars=1, complexity=c)
             )
         elif style == "hard":

@@ -245,8 +245,16 @@ class CopelandPlugin(DrummerPlugin):
         # Skank groove packed into one beat (fills render within a single beat)
         # Downbeat rim + off-beat hi-hats compressed to 16th-note spacing
         builder.pattern.add_beat(0.0, DrumInstrument.RIM, VELOCITY.SNARE_NORMAL)
-        builder.pattern.add_beat(TIMING.SIXTEENTH * 2, DrumInstrument.CLOSED_HH, VELOCITY.HIHAT_NORMAL)
-        builder.pattern.add_beat(TIMING.SIXTEENTH * 3, DrumInstrument.OPEN_HH_1, VELOCITY.HIHAT_ACCENT)
+        builder.pattern.add_beat(
+            TIMING.SIXTEENTH * 2,
+            DrumInstrument.CLOSED_HH,
+            VELOCITY.HIHAT_NORMAL,
+        )
+        builder.pattern.add_beat(
+            TIMING.SIXTEENTH * 3,
+            DrumInstrument.OPEN_HH_1,
+            VELOCITY.HIHAT_ACCENT,
+        )
         # Closing crash accent at resolution (within render window)
         builder.crash(TIMING.DOTTED_EIGHTH, VELOCITY.CRASH_ACCENT)
         return builder.build()
@@ -264,18 +272,24 @@ class CopelandPlugin(DrummerPlugin):
             pos = TIMING.THIRTY_SECOND * i  # 8 hits within <1.0 bar
             if i % 3 == 0:
                 builder.pattern.add_beat(
-                    pos, DrumInstrument.FLOOR_TOM,
+                    pos,
+                    DrumInstrument.FLOOR_TOM,
                     min(VELOCITY.TOM_HEAVY + random.randint(5, 10), 127),
                 )
             elif i % 2 == 0:
-                builder.pattern.add_beat(pos, DrumInstrument.MID_TOM,
-                    VELOCITY.TOM_NORMAL + random.randint(-3, 5))
+                builder.pattern.add_beat(
+                    pos,
+                    DrumInstrument.MID_TOM,
+                    VELOCITY.TOM_NORMAL + random.randint(-3, 5),
+                )
             else:
-                builder.pattern.add_beat(pos, DrumInstrument.FLOOR_TOM,
-                    VELOCITY.TOM_LIGHT)
+                builder.pattern.add_beat(
+                    pos, DrumInstrument.FLOOR_TOM, VELOCITY.TOM_LIGHT
+                )
         # Cross-stick punctuation at resolution (within fill window)
         builder.pattern.add_beat(
-            TIMING.DOTTED_EIGHTH, DrumInstrument.RIM, VELOCITY.SNARE_NORMAL)
+            TIMING.DOTTED_EIGHTH, DrumInstrument.RIM, VELOCITY.SNARE_NORMAL
+        )
         return builder.build()
 
     def _create_every_breath_ghost_interlock(self) -> Pattern:
@@ -293,13 +307,15 @@ class CopelandPlugin(DrummerPlugin):
             pos = TIMING.THIRTY_SECOND * i
             if random.random() < 0.5:
                 builder.pattern.add_beat(
-                    pos, DrumInstrument.SNARE,
+                    pos,
+                    DrumInstrument.SNARE,
                     min(VELOCITY.SNARE_GHOST + random.randint(0, 10), 127),
                 )
         for i in range(8):
             if i % 2 == 1:  # On the off-beats
                 builder.pattern.add_beat(
-                    TIMING.THIRTY_SECOND * i, DrumInstrument.CLOSED_HH,
+                    TIMING.THIRTY_SECOND * i,
+                    DrumInstrument.CLOSED_HH,
                     VELOCITY.HIHAT_ACCENT + random.randint(-3, 5),
                 )
         return builder.build()

@@ -191,7 +191,9 @@ class DeePlugin(DrummerPlugin):
             elif instr_name == "snare":
                 builder.snare(offset, min(vel, 127))
             else:
-                builder.pattern.add_beat(offset, DrumInstrument.CHINA, min(vel, 127))
+                builder.pattern.add_beat(
+                    offset, DrumInstrument.CHINA, min(vel, 127)
+                )
         return builder.build()
 
     def _create_motorkhead_gallop_fill(self) -> Pattern:
@@ -228,11 +230,17 @@ class DeePlugin(DrummerPlugin):
             if i < 2:
                 builder.snare(pos, VELOCITY.SNARE_HEAVY)
             elif i < 4:
-                builder.pattern.add_beat(pos, DrumInstrument.MID_TOM,
-                    min(VELOCITY.TOM_ACCENT + (i - 2) * 5, 127))
+                builder.pattern.add_beat(
+                    pos,
+                    DrumInstrument.MID_TOM,
+                    min(VELOCITY.TOM_ACCENT + (i - 2) * 5, 127),
+                )
             else:
-                builder.pattern.add_beat(pos, DrumInstrument.FLOOR_TOM,
-                    min(VELOCITY.TOM_HEAVY + (i - 4) * 5, 127))
+                builder.pattern.add_beat(
+                    pos,
+                    DrumInstrument.FLOOR_TOM,
+                    min(VELOCITY.TOM_HEAVY + (i - 4) * 5, 127),
+                )
         # Crash accent on resolution
         builder.crash(TIMING.DOTTED_EIGHTH, VELOCITY.CRASH_HEAVY)
         return builder.build()
@@ -249,9 +257,16 @@ class DeePlugin(DrummerPlugin):
         cascade_sequence = [
             (0.0, DrumInstrument.MID_TOM, VELOCITY.TOM_ACCENT),
             (TIMING.EIGHTH, DrumInstrument.MID_TOM, VELOCITY.TOM_HEAVY),
-            (TIMING.HALF, DrumInstrument.FLOOR_TOM, min(VELOCITY.TOM_HEAVY + 10, 127)),
-            (TIMING.DOTTED_EIGHTH, DrumInstrument.FLOOR_TOM,
-                min(VELOCITY.TOM_HEAVY + 15, 127)),
+            (
+                TIMING.HALF,
+                DrumInstrument.FLOOR_TOM,
+                min(VELOCITY.TOM_HEAVY + 10, 127),
+            ),
+            (
+                TIMING.DOTTED_EIGHTH,
+                DrumInstrument.FLOOR_TOM,
+                min(VELOCITY.TOM_HEAVY + 15, 127),
+            ),
         ]
         for pos, inst, vel in cascade_sequence:
             builder.pattern.add_beat(pos, inst, min(vel, 127))

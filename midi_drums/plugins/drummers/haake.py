@@ -14,7 +14,6 @@ This plugin implements his style using composable modifications:
 - MechanicalPrecision: Machine-like timing and velocity consistency
 """
 
-
 from midi_drums.config import TIMING, VELOCITY
 from midi_drums.core.models.pattern import Pattern
 from midi_drums.core.models.song import Fill
@@ -32,7 +31,7 @@ class HaakePlugin(DrummerPlugin):
 
     Characteristics:
     - Polynrhythmic layering (simultaneous different meters across limbs)
-    - Machine-like precision and inhuman consistency  
+    - Machine-like precision and inhuman consistency
     - Sparse but devastating pattern density
     - Odd time signature adaptation to 4/4 framework
     - Palm-muted gallop patterns synced to guitars
@@ -44,7 +43,10 @@ class HaakePlugin(DrummerPlugin):
 
     def __init__(self):
         self.polyrhythm = PolyrhythmApplication(
-            kick_subdivisions=7, snare_subdivisions=4, tom_subdivisions=5, intensity=0.6
+            kick_subdivisions=7,
+            snare_subdivisions=4,
+            tom_subdivisions=5,
+            intensity=0.6,
         )
         self.precision = MechanicalPrecision(quantize_amount=1.0)
 
@@ -137,13 +139,17 @@ class HaakePlugin(DrummerPlugin):
         left_interval = TIMING.HALF * 2 / 7
         for i in range(7):
             pos = round(i * left_interval, 6)
-            builder.pattern.add_beat(pos, DrumInstrument.MID_TOM, VELOCITY.TOM_HEAVY)
+            builder.pattern.add_beat(
+                pos, DrumInstrument.MID_TOM, VELOCITY.TOM_HEAVY
+            )
 
         # Right hand: 5 hits offset (creates 7-over-5 interlock)
         right_interval = TIMING.HALF * 2 / 5
         for i in range(5):
             pos = round(i * right_interval + right_interval / 2, 6)
-            builder.pattern.add_beat(pos, DrumInstrument.FLOOR_TOM, VELOCITY.TOM_ACCENT)
+            builder.pattern.add_beat(
+                pos, DrumInstrument.FLOOR_TOM, VELOCITY.TOM_ACCENT
+            )
 
         # Sparse double-kick foundation on the "one" and syncopated
         builder.kick(0.0, VELOCITY.KICK_HEAVY)
@@ -176,7 +182,9 @@ class HaakePlugin(DrummerPlugin):
             TIMING.HALF * 4 / 5, DrumInstrument.TOM_EDGE_MID, VELOCITY.TOM_HEAVY
         )
         builder.pattern.add_beat(
-            TIMING.HALF * 8 / 5, DrumInstrument.TOM_EDGE_FLOOR, VELOCITY.TOM_ACCENT
+            TIMING.HALF * 8 / 5,
+            DrumInstrument.TOM_EDGE_FLOOR,
+            VELOCITY.TOM_ACCENT,
         )
 
         # Sparse hi-hat (not busy — sparse is key to Haake's style)
@@ -197,7 +205,9 @@ class HaakePlugin(DrummerPlugin):
         # 11-note pattern stretched across 4 bars (creates odd-meter feel)
         for i in range(11):
             pos = round(i * TIMING.HALF * 2 * 4 / 11, 6)
-            builder.kick(pos, VELOCITY.KICK_HEAVY if i % 3 == 0 else VELOCITY.KICK_NORMAL)
+            builder.kick(
+                pos, VELOCITY.KICK_HEAVY if i % 3 == 0 else VELOCITY.KICK_NORMAL
+            )
 
         # Snare on the "implied" downbeats of the odd meter (not obvious)
         snare_pos = [0.0, 1.82, 3.64, 5.45]  # 11/8 subdivisions in 4/4
@@ -207,7 +217,9 @@ class HaakePlugin(DrummerPlugin):
         # Tom fills at odd positions (syncopated)
         for i in range(4):
             tom_pos = round(TIMING.HALF * 2 + i * TIMING.QUARTER + 0.3, 6)
-            builder.pattern.add_beat(tom_pos, DrumInstrument.MID_TOM, VELOCITY.TOM_ACCENT)
+            builder.pattern.add_beat(
+                tom_pos, DrumInstrument.MID_TOM, VELOCITY.TOM_ACCENT
+            )
 
         return builder.build()
 
@@ -234,7 +246,15 @@ class HaakePlugin(DrummerPlugin):
         # Tom accents at yet another subdivision (7 over bar)
         for i in range(7):
             pos = round(i * TIMING.HALF * 2 / 7 + 0.1, 6)
-            builder.pattern.add_beat(pos, DrumInstrument.FLOOR_TOM if i % 2 == 0 else DrumInstrument.MID_TOM, VELOCITY.TOM_NORMAL)
+            builder.pattern.add_beat(
+                pos,
+                (
+                    DrumInstrument.FLOOR_TOM
+                    if i % 2 == 0
+                    else DrumInstrument.MID_TOM
+                ),
+                VELOCITY.TOM_NORMAL,
+            )
 
         return builder.build()
 
@@ -273,7 +293,9 @@ class HaakePlugin(DrummerPlugin):
         # 7-hit kick pattern (polyrhythmic) at blast speed
         for i in range(7):
             pos = round(i * TIMING.SIXTEENTH / 2, 6)
-            builder.kick(pos, VELOCITY.KICK_HEAVY if i % 2 == 0 else VELOCITY.KICK_NORMAL)
+            builder.kick(
+                pos, VELOCITY.KICK_HEAVY if i % 2 == 0 else VELOCITY.KICK_NORMAL
+            )
 
         # 5-hit snare pattern (offset from kick) at blast speed
         for i in range(5):
@@ -283,7 +305,9 @@ class HaakePlugin(DrummerPlugin):
         # Ride cymbal accents every 3rd hit (creates 3-over-7 feel)
         for i in range(3):
             pos = round(i * TIMING.HALF * 2 / 3, 6)
-            builder.pattern.add_beat(pos, DrumInstrument.RIDE, VELOCITY.CHINA_ACCENT)
+            builder.pattern.add_beat(
+                pos, DrumInstrument.RIDE, VELOCITY.CHINA_ACCENT
+            )
 
         return builder.build()
 
@@ -300,15 +324,22 @@ class HaakePlugin(DrummerPlugin):
         # Sparse kick (only 3 hits in the bar — devastating when they land)
         builder.kick(0.0, VELOCITY.KICK_ACCENT)
         builder.kick(TIMING.HALF * 1.5, VELOCITY.KICK_HEAVY)
-        builder.kick(TIMING.DOTTED_EIGHTH * 3, min(VELOCITY.KICK_NORMAL + 12, 127))
+        builder.kick(
+            TIMING.DOTTED_EIGHTH * 3, min(VELOCITY.KICK_NORMAL + 12, 127)
+        )
 
         # Snare on the off-beats (unexpected placement creates tension)
         builder.snare(TIMING.EIGHTH + TIMING.SIXTEENTH, VELOCITY.SNARE_ACCENT)
-        builder.snare(TIMING.HALF + TIMING.EIGHTH_TRIPLET, min(VELOCITY.SNARE_HEAVY + 2, 127))
+        builder.snare(
+            TIMING.HALF + TIMING.EIGHTH_TRIPLET,
+            min(VELOCITY.SNARE_HEAVY + 2, 127),
+        )
 
         # Single devastating tom accent (sparse but impactful)
         builder.pattern.add_beat(
-            TIMING.DOTTED_EIGHTH * 2, DrumInstrument.FLOOR_TOM, VELOCITY.TOM_ACCENT
+            TIMING.DOTTED_EIGHTH * 2,
+            DrumInstrument.FLOOR_TOM,
+            VELOCITY.TOM_ACCENT,
         )
 
         return builder.build()
@@ -322,19 +353,23 @@ class HaakePlugin(DrummerPlugin):
         """
         builder = PatternBuilder("haake_bleed_polyrhythm")
 
-        # Kick backbone: traditional but sparse  
+        # Kick backbone: traditional but sparse
         builder.kick(0.0, VELOCITY.KICK_HEAVY)
         builder.kick(TIMING.HALF, min(VELOCITY.KICK_NORMAL + 10, 127))
 
         # Ride accents on odd subdivisions (creates polyrhythmic tension)
         for i in range(5):
             pos = round(i * TIMING.HALF * 2 / 5 + 0.1, 6)
-            builder.pattern.add_beat(pos, DrumInstrument.RIDE, VELOCITY.CHINA_ACCENT - 10)
+            builder.pattern.add_beat(
+                pos, DrumInstrument.RIDE, VELOCITY.CHINA_ACCENT - 10
+            )
 
         # Crash accents placed between beat positions (unconventional)
         for i in range(3):
             pos = round(TIMING.HALF + i * TIMING.QUARTER + 0.25, 6)
-            builder.pattern.add_beat(pos, DrumInstrument.CRASH, VELOCITY.CHINA_ACCENT - 15)
+            builder.pattern.add_beat(
+                pos, DrumInstrument.CRASH, VELOCITY.CHINA_ACCENT - 15
+            )
 
         # Snare on backbeats (anchoring the polyrhythm)
         builder.snare(TIMING.QUARTER, VELOCITY.SNARE_HEAVY)
@@ -343,5 +378,5 @@ class HaakePlugin(DrummerPlugin):
         return builder.build()
 
 
-# backward-compat alias for existing test imports  
+# backward-compat alias for existing test imports
 HaakePluginRefactored = HaakePlugin

@@ -142,10 +142,12 @@ class ComposerV2:
                 # Drummer plugins (e.g., Weckl's linear coordination) may remove kicks,
                 # but every bar needs at least one kick and one snare to sound musical.
                 has_kick = any(
-                    b.instrument == DrumInstrument.KICK for b in drummed_pattern.beats
+                    b.instrument == DrumInstrument.KICK
+                    for b in drummed_pattern.beats
                 )
                 has_snare = any(
-                    b.instrument == DrumInstrument.SNARE for b in drummed_pattern.beats
+                    b.instrument == DrumInstrument.SNARE
+                    for b in drummed_pattern.beats
                 )
                 if not has_kick:
                     from midi_drums.config import VELOCITY
@@ -366,13 +368,18 @@ class ComposerV2:
 
         has_kick = any(b.instrument == DrumInstrument.KICK for b in built.beats)
         has_snare_backbeat = any(
-            b.instrument == DrumInstrument.SNARE and abs(b.position - beats_per_bar / 2) < 0.1
+            b.instrument == DrumInstrument.SNARE
+            and abs(b.position - beats_per_bar / 2) < 0.1
             for b in built.beats
         )
 
         if not has_kick:
             built.beats.append(
-                Beat(position=0.0, instrument=DrumInstrument.KICK, velocity=int(VELOCITY.KICK_HEAVY))
+                Beat(
+                    position=0.0,
+                    instrument=DrumInstrument.KICK,
+                    velocity=int(VELOCITY.KICK_HEAVY),
+                )
             )
         if not has_snare_backbeat:
             built.beats.append(
@@ -395,10 +402,14 @@ class ComposerV2:
 
             # Use the first available flavor that has beats, or fall back to defaults
             if all_flavors:
-                available = [f for f in all_flavors if f is not None and f.beats]
+                available = [
+                    f for f in all_flavors if f is not None and f.beats
+                ]
                 if available:
                     source = available[0]
-                    builder2 = PatternBuilder(f"{section_name}_bar{bar_index}_fallback")
+                    builder2 = PatternBuilder(
+                        f"{section_name}_bar{bar_index}_fallback"
+                    )
                     for beat in source.beats[:16]:  # cap at first bar's hits
                         if beat.position < beats_per_bar:
                             builder2.pattern.add_beat(
@@ -407,18 +418,31 @@ class ComposerV2:
                                 max(1, min(127, beat.velocity)),
                             )
                     built = builder2.build()
-            
+
             # Ultimate fallback: kick on 1 + snare on 3
             if not built.beats:
                 from midi_drums.config import VELOCITY
+
                 built = Pattern(f"{section_name}_bar{bar_index}_minimal")
                 built.beats.append(
-                    Beat(position=0.0, instrument=DrumInstrument.KICK, velocity=int(VELOCITY.KICK_HEAVY))
+                    Beat(
+                        position=0.0,
+                        instrument=DrumInstrument.KICK,
+                        velocity=int(VELOCITY.KICK_HEAVY),
+                    )
                 )
                 built.beats.append(
-                    Beat(position=2.0, instrument=DrumInstrument.SNARE, velocity=int(VELOCITY.SNARE_ACCENT))
+                    Beat(
+                        position=2.0,
+                        instrument=DrumInstrument.SNARE,
+                        velocity=int(VELOCITY.SNARE_ACCENT),
+                    )
                 )
-                built.time_signature = base_pattern.time_signature if base_pattern else TimeSignature()
+                built.time_signature = (
+                    base_pattern.time_signature
+                    if base_pattern
+                    else TimeSignature()
+                )
 
         return built
 
@@ -497,10 +521,18 @@ class ComposerV2:
             from midi_drums.config import VELOCITY
 
             combined.beats.append(
-                Beat(position=0, instrument=DrumInstrument.KICK, velocity=int(VELOCITY.KICK_HEAVY))
+                Beat(
+                    position=0,
+                    instrument=DrumInstrument.KICK,
+                    velocity=int(VELOCITY.KICK_HEAVY),
+                )
             )
             combined.beats.append(
-                Beat(position=2, instrument=DrumInstrument.SNARE, velocity=int(VELOCITY.SNARE_ACCENT))
+                Beat(
+                    position=2,
+                    instrument=DrumInstrument.SNARE,
+                    velocity=int(VELOCITY.SNARE_ACCENT),
+                )
             )
 
         # Ensure minimum velocity for snare hits — ghost notes at vel < 40
@@ -509,8 +541,13 @@ class ComposerV2:
 
         min_snare_vel = int(VELOCITY.SNARE_NORMAL * 0.5)  # ~57 (half of normal)
         for beat in combined.beats:
-            if beat.instrument == DrumInstrument.SNARE and beat.velocity < min_snare_vel:
-                beat.velocity = max(min_snare_vel, beat.velocity + 15)  # boost gently
+            if (
+                beat.instrument == DrumInstrument.SNARE
+                and beat.velocity < min_snare_vel
+            ):
+                beat.velocity = max(
+                    min_snare_vel, beat.velocity + 15
+                )  # boost gently
 
         # Set time signature from first bar
         combined.time_signature = (

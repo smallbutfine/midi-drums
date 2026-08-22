@@ -37,7 +37,7 @@ SYSTEM_PROMPT = (
     "  halpern, haake, chadsmith, carey, bonham, chambers, copeland, dee, hoglan, peart, porcaro, rich, roeder, weckl\n\n"
     "Never pass a style like 'death metal' or 'heavy metal' — use 'death' or 'heavy'.\n\n"
     "CRITICAL RULES for song structure (when using create_song):\n"
-    "1. ALWAYS specify an explicit structure — NEVER use the value \"default\".\n"
+    '1. ALWAYS specify an explicit structure — NEVER use the value "default".\n'
     "2. Create structures with at least 8-10 sections minimum (intro, verse x2, chorus x2, bridge, breakdown/solo, outro).\n"
     "3. Use varied bar counts: prefer 4, 6, 8, and 12 — never use the same bar count for every section.\n"
     "4. Include diverse section types: intro, verse, chorus, bridge, breakdown, hook, interlude, solo, guitar_solo, drum_solo, outro.\n"
@@ -260,7 +260,10 @@ class PatternCompositionAgent:
 
         @tool
         def create_song(
-            genre: str, style: str, tempo: int = 120, structure: str = "default",
+            genre: str,
+            style: str,
+            tempo: int = 120,
+            structure: str = "default",
             drummer: str | None = None,
         ) -> str:
             """Create a complete multi-section song.
@@ -307,8 +310,15 @@ class PatternCompositionAgent:
             parsed_structure = None
             if structure and structure.lower() != "default":
                 _SECTION_TYPE_ORDER: list[str] = [
-                    "intro", "verse", "chorus", "bridge", "breakdown",
-                    "outro", "pre_chorus", "interlude", "hook",
+                    "intro",
+                    "verse",
+                    "chorus",
+                    "bridge",
+                    "breakdown",
+                    "outro",
+                    "pre_chorus",
+                    "interlude",
+                    "hook",
                 ]
 
                 parsed_structure = []
@@ -326,7 +336,9 @@ class PatternCompositionAgent:
                     if name is None:
                         # fallback: take the first word (strip punctuation/brackets)
                         word = raw.split()[0] if raw.split() else ""
-                        name = "".join(c for c in word if c.isalnum()) or "section"
+                        name = (
+                            "".join(c for c in word if c.isalnum()) or "section"
+                        )
                     # solo_slow, solo_build, solo_midtempo → 8 bars each
                     if name.startswith("solo"):
                         bars = 8
@@ -336,8 +348,20 @@ class PatternCompositionAgent:
 
             # Normalize drummer name: "danny carey" → "carey", etc.
             _DRUMMER_NAMES = [
-                "halpern", "haake", "chadsmith", "carey", "bonham", "chambers", "copeland", "dee",
-                "hoglan", "peart", "porcaro", "rich", "roeder", "weckl",
+                "halpern",
+                "haake",
+                "chadsmith",
+                "carey",
+                "bonham",
+                "chambers",
+                "copeland",
+                "dee",
+                "hoglan",
+                "peart",
+                "porcaro",
+                "rich",
+                "roeder",
+                "weckl",
             ]
             resolved_drummer: str | None = None
             if drummer:
@@ -378,7 +402,9 @@ class PatternCompositionAgent:
             if len(song.sections) > 5:
                 section_desc += f", +{len(song.sections) - 5} more"
 
-            drummer_note = f" (drummer: {resolved_drummer})" if resolved_drummer else ""
+            drummer_note = (
+                f" (drummer: {resolved_drummer})" if resolved_drummer else ""
+            )
             return (
                 f"Created {genre}/{style} song at {tempo} BPM{drummer_note} "
                 f"(ID: {song_id}, {len(song.sections)} sections: {section_desc}). "

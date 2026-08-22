@@ -267,7 +267,9 @@ class MetalGenrePlugin(GenrePlugin):
         )
         return [f1, f2, f3]
 
-    def _flavors_breakdown(self, style: str, complexity: float) -> list[Pattern]:
+    def _flavors_breakdown(
+        self, style: str, complexity: float
+    ) -> list[Pattern]:
         name = f"metal_{style}_breakdown"
         # Flavor 1: sparse syncopated groove
         f1 = (

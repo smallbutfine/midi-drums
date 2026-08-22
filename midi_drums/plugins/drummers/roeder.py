@@ -134,7 +134,9 @@ class RoederPlugin(DrummerPlugin):
         builder = PatternBuilder("roeder_labyrinthine")
         # Non-linear accent placement
         builder.kick(0.0, VELOCITY.KICK_HEAVY)
-        builder.tom_edge(TIMING.EIGHTH + TIMING.SIXTEENTH, "4", VELOCITY.TOM_ACCENT)
+        builder.tom_edge(
+            TIMING.EIGHTH + TIMING.SIXTEENTH, "4", VELOCITY.TOM_ACCENT
+        )
         builder.snare(TIMING.HALF, VELOCITY.SNARE_LIGHT)
         builder.kick(TIMING.DOTTED_EIGHTH * 2, VELOCITY.KICK_NORMAL)
         builder.tom_edge(
@@ -170,7 +172,9 @@ class RoederPlugin(DrummerPlugin):
         builder = PatternBuilder("roeder_minimal_kit")
         # Single rack + single floor tom setup (per interview)
         builder.kick(0.0, VELOCITY.KICK_HEAVY)
-        builder.pattern.add_beat(TIMING.HALF, DrumInstrument.MID_TOM, VELOCITY.TOM_HEAVY)
+        builder.pattern.add_beat(
+            TIMING.HALF, DrumInstrument.MID_TOM, VELOCITY.TOM_HEAVY
+        )
         builder.snare(TIMING.HALF * 3, VELOCITY.SNARE_ACCENT)
         builder.pattern.add_beat(
             TIMING.DOTTED_EIGHTH,
@@ -189,7 +193,11 @@ class RoederPlugin(DrummerPlugin):
         phases = [
             (0.0, DrumInstrument.FLOOR_TOM, VELOCITY.TOM_ACCENT),
             (TIMING.HALF, DrumInstrument.FLOOR_TOM, VELOCITY.TOM_HEAVY),
-            (TIMING.HALF * 2, None, min(VELOCITY.KICK_HEAVY + random.randint(-5, 10), 127)),
+            (
+                TIMING.HALF * 2,
+                None,
+                min(VELOCITY.KICK_HEAVY + random.randint(-5, 10), 127),
+            ),
             (TIMING.HALF * 3, None, min(VELOCITY.KICK_HEAVY + 5, 127)),
         ]
         for offset, inst, vel in phases:
@@ -197,8 +205,10 @@ class RoederPlugin(DrummerPlugin):
                 builder.tom(offset, inst.value, vel)
             else:
                 builder.kick(offset, vel)
-        builder.snare(TIMING.HALF * 4 - TIMING.SIXTEENTH,
-            min(VELOCITY.SNARE_ACCENT + 15, 127))
+        builder.snare(
+            TIMING.HALF * 4 - TIMING.SIXTEENTH,
+            min(VELOCITY.SNARE_ACCENT + 15, 127),
+        )
         return builder.build()
 
     def _create_wounds_sludge_interlock(self) -> Pattern:
@@ -211,18 +221,21 @@ class RoederPlugin(DrummerPlugin):
         interlock = [
             (0.0, DrumInstrument.FLOOR_TOM, VELOCITY.TOM_HEAVY),
             (TIMING.HALF, "KICK", VELOCITY.KICK_HEAVY),
-            (TIMING.HALF * 2, DrumInstrument.MID_TOM,
-                min(VELOCITY.TOM_HEAVY + random.randint(-5, 10), 127)),
-            (TIMING.HALF * 3, "KICK",
-                min(VELOCITY.KICK_HEAVY + 8, 127)),
+            (
+                TIMING.HALF * 2,
+                DrumInstrument.MID_TOM,
+                min(VELOCITY.TOM_HEAVY + random.randint(-5, 10), 127),
+            ),
+            (TIMING.HALF * 3, "KICK", min(VELOCITY.KICK_HEAVY + 8, 127)),
         ]
         for offset, inst_or_name, vel in interlock:
             if inst_or_name == "KICK":
                 builder.kick(offset, vel)
             else:
                 builder.pattern.add_beat(offset, inst_or_name, min(vel, 127))
-        builder.crash(TIMING.HALF * 3 + TIMING.EIGHTH_TRIPLET,
-            VELOCITY.CRASH_HEAVY)
+        builder.crash(
+            TIMING.HALF * 3 + TIMING.EIGHTH_TRIPLET, VELOCITY.CRASH_HEAVY
+        )
         return builder.build()
 
     def _create_pain_of_always_ambient_fill(self) -> Pattern:
@@ -235,10 +248,16 @@ class RoederPlugin(DrummerPlugin):
         for i in range(4):
             pos = TIMING.HALF * i
             builder.hihat(pos, VELOCITY.HIHAT_ACCENT + 10)
-        builder.tom(TIMING.EIGHTH_TRIPLET, DrumInstrument.FLOOR_TOM.value,
-            VELOCITY.TOM_LIGHT)
-        builder.tom(TIMING.HALF * 3 + TIMING.EIGHTH_TRIPLET,
-            DrumInstrument.MID_TOM.value, VELOCITY.TOM_ACCENT)
+        builder.tom(
+            TIMING.EIGHTH_TRIPLET,
+            DrumInstrument.FLOOR_TOM.value,
+            VELOCITY.TOM_LIGHT,
+        )
+        builder.tom(
+            TIMING.HALF * 3 + TIMING.EIGHTH_TRIPLET,
+            DrumInstrument.MID_TOM.value,
+            VELOCITY.TOM_ACCENT,
+        )
         builder.crash(TIMING.DOTTED_EIGHTH, min(VELOCITY.CRASH_HEAVY - 10, 127))
         return builder.build()
 
@@ -251,12 +270,13 @@ class RoederPlugin(DrummerPlugin):
         builder = PatternBuilder("roeder_times_of_grace_tremolo")
         for i in range(16):
             pos = TIMING.THIRTY_SECOND * i
-            builder.kick(pos, min(VELOCITY.KICK_HEAVY + random.randint(-5, 10), 127))
+            builder.kick(
+                pos, min(VELOCITY.KICK_HEAVY + random.randint(-5, 10), 127)
+            )
         for i in range(4):
             pos = TIMING.HALF * i
             inst = "FLOOR" if i < 2 else "MID"
-            builder.tom(pos, inst,
-                min(VELOCITY.TOM_HEAVY + (i * 5), 127))
+            builder.tom(pos, inst, min(VELOCITY.TOM_HEAVY + (i * 5), 127))
         return builder.build()
 
 

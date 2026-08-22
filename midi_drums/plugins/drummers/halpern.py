@@ -45,7 +45,10 @@ class HalpernPlugin(DrummerPlugin):
     def __init__(self):
         self.odd_time = OddTimeAdaptation(numerator=7, bar_length=4.0)
         self.polyrhythm = PolyrhythmApplication(
-            kick_subdivisions=5, snare_subdivisions=4, tom_subdivisions=7, intensity=0.5
+            kick_subdivisions=5,
+            snare_subdivisions=4,
+            tom_subdivisions=7,
+            intensity=0.5,
         )
 
     @property
@@ -137,7 +140,9 @@ class HalpernPlugin(DrummerPlugin):
         # 7/8 groove mapped into 4/4 space (creates odd-phrasing)
         for i in range(7):
             pos = round(i * TIMING.HALF * 2 / 7, 6)
-            builder.kick(pos, VELOCITY.KICK_HEAVY if i % 3 == 0 else VELOCITY.KICK_NORMAL)
+            builder.kick(
+                pos, VELOCITY.KICK_HEAVY if i % 3 == 0 else VELOCITY.KICK_NORMAL
+            )
 
         # Snare accents on odd subdivisions
         for i in range(4):
@@ -147,7 +152,9 @@ class HalpernPlugin(DrummerPlugin):
         # Tom-edge accents (mimicking synthetic tom rims used live)
         for i in range(3):
             pos = round(TIMING.HALF + i * TIMING.QUARTER, 6)
-            builder.pattern.add_beat(pos, DrumInstrument.TOM_EDGE_MID, VELOCITY.TOM_HEAVY)
+            builder.pattern.add_beat(
+                pos, DrumInstrument.TOM_EDGE_MID, VELOCITY.TOM_HEAVY
+            )
 
         # Sparse hi-hat (mimicking electronic cymbal triggers)
         for i in range(4):
@@ -167,16 +174,27 @@ class HalpernPlugin(DrummerPlugin):
         # Tom cascade: 5 hits on rack (top), 4 on mid, 3 on floor (simultaneous)
         for i in range(5):
             pos = round(i * TIMING.HALF * 2 / 5, 6)
-            builder.pattern.add_beat(pos, DrumInstrument.MID_TOM, VELOCITY.TOM_HEAVY)
+            builder.pattern.add_beat(
+                pos, DrumInstrument.MID_TOM, VELOCITY.TOM_HEAVY
+            )
 
         for i in range(4):
             pos = round(i * TIMING.HALF * 2 / 4 + 0.1, 6)
-            builder.pattern.add_beat(pos, DrumInstrument.FLOOR_TOM, VELOCITY.TOM_ACCENT)
+            builder.pattern.add_beat(
+                pos, DrumInstrument.FLOOR_TOM, VELOCITY.TOM_ACCENT
+            )
 
         # Double-kick foundation
         for i in range(7):
             pos = round(i * TIMING.HALF * 2 / 7, 6)
-            builder.kick(pos, VELOCITY.KICK_HEAVY if i % 2 == 0 else min(VELOCITY.KICK_NORMAL + 5, 127))
+            builder.kick(
+                pos,
+                (
+                    VELOCITY.KICK_HEAVY
+                    if i % 2 == 0
+                    else min(VELOCITY.KICK_NORMAL + 5, 127)
+                ),
+            )
 
         return builder.build()
 
@@ -201,12 +219,18 @@ class HalpernPlugin(DrummerPlugin):
         # Dense snare ghost notes (odd subdivision)
         for i in range(11):
             pos = round(i * TIMING.HALF * 2 / 11 + 0.05, 6)
-            builder.pattern.add_beat(pos, DrumInstrument.SNARE, VELOCITY.SNARE_GHOST + random.randint(0, 8))
+            builder.pattern.add_beat(
+                pos,
+                DrumInstrument.SNARE,
+                VELOCITY.SNARE_GHOST + random.randint(0, 8),
+            )
 
         # Tom accents on off-beats
         for i in range(3):
             pos = round(TIMING.HALF + i * TIMING.QUARTER + 0.25, 6)
-            builder.pattern.add_beat(pos, DrumInstrument.FLOOR_TOM, VELOCITY.TOM_HEAVY)
+            builder.pattern.add_beat(
+                pos, DrumInstrument.FLOOR_TOM, VELOCITY.TOM_HEAVY
+            )
 
         return builder.build()
 
@@ -226,12 +250,24 @@ class HalpernPlugin(DrummerPlugin):
         # Tom accents with long decay (mimicking deep toms)
         for i in range(5):
             pos = round(TIMING.EIGHTH + i * TIMING.QUARTER, 6)
-            builder.pattern.add_beat(pos, DrumInstrument.MID_TOM if i % 2 == 0 else DrumInstrument.FLOOR_TOM, VELOCITY.TOM_HEAVY)
+            builder.pattern.add_beat(
+                pos,
+                (
+                    DrumInstrument.MID_TOM
+                    if i % 2 == 0
+                    else DrumInstrument.FLOOR_TOM
+                ),
+                VELOCITY.TOM_HEAVY,
+            )
 
         # Dense cymbal swells (simulating atmospheric pads)
         for i in range(16):
             pos = TIMING.SIXTEENTH * i
-            builder.pattern.add_beat(pos, DrumInstrument.CRASH, VELOCITY.CHINA_ACCENT - random.randint(5, 20))
+            builder.pattern.add_beat(
+                pos,
+                DrumInstrument.CRASH,
+                VELOCITY.CHINA_ACCENT - random.randint(5, 20),
+            )
 
         # Snare on unexpected beats (creates tension)
         builder.snare(TIMING.HALF * 1.5, min(VELOCITY.SNARE_HEAVY + 5, 127))
@@ -260,12 +296,16 @@ class HalpernPlugin(DrummerPlugin):
         # Tom fills at the "cracks" of the riff (fills the gaps)
         for i in range(4):
             pos = round(TIMING.HALF * 0.5 + i * TIMING.QUARTER * 1.5, 6)
-            builder.pattern.add_beat(pos, DrumInstrument.FLOOR_TOM, VELOCITY.TOM_ACCENT)
+            builder.pattern.add_beat(
+                pos, DrumInstrument.FLOOR_TOM, VELOCITY.TOM_ACCENT
+            )
 
         # Ride cymbal accents (simulating atmospheric pads)
         for i in range(4):
             pos = round(TIMING.EIGHTH * i + TIMING.SIXTEENTH, 6)
-            builder.pattern.add_beat(pos, DrumInstrument.RIDE, VELOCITY.CHINA_ACCENT - 10)
+            builder.pattern.add_beat(
+                pos, DrumInstrument.RIDE, VELOCITY.CHINA_ACCENT - 10
+            )
 
         return builder.build()
 
@@ -281,17 +321,34 @@ class HalpernPlugin(DrummerPlugin):
         # Dense snare pattern at 11/8 speed (mapped to 4/4)
         for i in range(11):
             pos = round(i * TIMING.HALF * 2 / 11, 6)
-            builder.snare(pos, VELOCITY.SNARE_HEAVY if i % 3 == 0 else min(VELOCITY.SNARE_NORMAL + 5, 127))
+            builder.snare(
+                pos,
+                (
+                    VELOCITY.SNARE_HEAVY
+                    if i % 3 == 0
+                    else min(VELOCITY.SNARE_NORMAL + 5, 127)
+                ),
+            )
 
         # Double-kick foundation (synced to snare pattern)
         for i in range(7):
             pos = round(i * TIMING.HALF * 2 / 7, 6)
-            builder.kick(pos, VELOCITY.KICK_HEAVY if i % 2 == 0 else VELOCITY.KICK_NORMAL)
+            builder.kick(
+                pos, VELOCITY.KICK_HEAVY if i % 2 == 0 else VELOCITY.KICK_NORMAL
+            )
 
         # Tom accents (sparse but cutting through dense snare pattern)
         for i in range(4):
             pos = round(TIMING.HALF + i * TIMING.QUARTER, 6)
-            builder.pattern.add_beat(pos, DrumInstrument.MID_TOM if i % 2 == 0 else DrumInstrument.FLOOR_TOM, VELOCITY.TOM_HEAVY)
+            builder.pattern.add_beat(
+                pos,
+                (
+                    DrumInstrument.MID_TOM
+                    if i % 2 == 0
+                    else DrumInstrument.FLOOR_TOM
+                ),
+                VELOCITY.TOM_HEAVY,
+            )
 
         return builder.build()
 
@@ -314,7 +371,9 @@ class HalpernPlugin(DrummerPlugin):
         # Transition to 7/8 groove (slowly decelerating)
         for i in range(7):
             pos = round(TIMING.HALF * 2 - TIMING.QUARTER + i * TIMING.EIGHTH, 6)
-            builder.kick(pos, VELOCITY.KICK_NORMAL if i % 3 == 0 else VELOCITY.KICK_HEAVY)
+            builder.kick(
+                pos, VELOCITY.KICK_NORMAL if i % 3 == 0 else VELOCITY.KICK_HEAVY
+            )
 
         # Odd-time snare accents (mimicking riff alignment)
         for i in range(4):
@@ -335,12 +394,20 @@ class HalpernPlugin(DrummerPlugin):
         # Tom cascade: 11 hits on rack (top) over bar length
         for i in range(11):
             pos = round(i * TIMING.HALF * 2 / 11, 6)
-            builder.pattern.add_beat(pos, DrumInstrument.MID_TOM, VELOCITY.TOM_HEAVY if i % 4 == 0 else VELOCITY.TOM_NORMAL)
+            builder.pattern.add_beat(
+                pos,
+                DrumInstrument.MID_TOM,
+                VELOCITY.TOM_HEAVY if i % 4 == 0 else VELOCITY.TOM_NORMAL,
+            )
 
         # Tom cascade: 7 hits on floor (bottom) offset from rack pattern
         for i in range(7):
             pos = round(i * TIMING.HALF * 2 / 7 + TIMING.SIXTEENTH, 6)
-            builder.pattern.add_beat(pos, DrumInstrument.FLOOR_TOM, VELOCITY.TOM_ACCENT if i % 2 == 0 else VELOCITY.TOM_HEAVY)
+            builder.pattern.add_beat(
+                pos,
+                DrumInstrument.FLOOR_TOM,
+                VELOCITY.TOM_ACCENT if i % 2 == 0 else VELOCITY.TOM_HEAVY,
+            )
 
         # Double-kick foundation (sparse to allow polyrhythm to breathe)
         for i in range(4):

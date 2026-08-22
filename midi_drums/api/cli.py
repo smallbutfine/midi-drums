@@ -406,7 +406,15 @@ Examples:
     prompt_parser.add_argument(
         "--mapping",
         default="ezdrummer3",
-        choices=["ezdrummer3", "gm_drums", "addictive_drums", "bfd3", "modo_drums", "ml_drums", "studio_drummer3"],
+        choices=[
+            "ezdrummer3",
+            "gm_drums",
+            "addictive_drums",
+            "bfd3",
+            "modo_drums",
+            "ml_drums",
+            "studio_drummer3",
+        ],
         help=(
             "MIDI note mapping preset (default: ezdrummer3). "
             "Use 'addictive_drums' for Addictive Drums 2 native keymap."
@@ -1047,7 +1055,9 @@ def handle_prompt_command(args) -> None:
                 # verse 1: doom riff ..." as section.name — these contain [ ] : and other
                 # illegal Windows filename characters.
                 def _san(name: str) -> str:
-                    return "".join(c if c.isalnum() or c == "_" else "" for c in name)
+                    return "".join(
+                        c if c.isalnum() or c == "_" else "" for c in name
+                    )
 
                 parts_dir.mkdir(exist_ok=True)
                 engine = MIDIEngine(DrumKit.from_preset(mapping))
@@ -1119,7 +1129,9 @@ def handle_prompt_command(args) -> None:
                         "composition_notes": result.get("output", ""),
                     },
                 }
-                meta_path.write_text(json.dumps(meta, indent=2), encoding="utf-8")
+                meta_path.write_text(
+                    json.dumps(meta, indent=2), encoding="utf-8"
+                )
                 print(f"  Metadata   : {meta_path}")
 
             # ── optional sidecar for REAPER Lua integration ──────────────────
@@ -1200,7 +1212,9 @@ def handle_prompt_command(args) -> None:
                 }
                 if info.suggestions:
                     meta["generation"]["suggestions"] = info.suggestions
-                meta_path.write_text(json.dumps(meta, indent=2), encoding="utf-8")
+                meta_path.write_text(
+                    json.dumps(meta, indent=2), encoding="utf-8"
+                )
                 print(f"  Metadata   : {meta_path}")
 
             # ── optional sidecar for REAPER Lua integration ──────────────────

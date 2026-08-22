@@ -139,12 +139,17 @@ class BonhamPlugin(DrummerPlugin):
             (0.0, DrumInstrument.MID_TOM),
             (TIMING.EIGHTH_TRIPLET, DrumInstrument.FLOOR_TOM),
             (TIMING.EIGHTH_TRIPLET * 2, DrumInstrument.MID_TOM),
-            (TIMING.EIGHTH_TRIPLET * 3 + TIMING.SIXTEENTH, DrumInstrument.SNARE),
+            (
+                TIMING.EIGHTH_TRIPLET * 3 + TIMING.SIXTEENTH,
+                DrumInstrument.SNARE,
+            ),
             (TIMING.QUARTER + TIMING.SIXTEENTH, DrumInstrument.MID_TOM),
             (TIMING.HALF, DrumInstrument.KICK),
         ]
         for pos, inst in sequence:
-            builder.pattern.add_beat(pos, inst, VELOCITY.TOM_HEAVY + random.randint(-5, 10))
+            builder.pattern.add_beat(
+                pos, inst, VELOCITY.TOM_HEAVY + random.randint(-5, 10)
+            )
         return builder.build()
 
     def _create_gtbt_triplet_fill(self) -> Pattern:
@@ -169,7 +174,11 @@ class BonhamPlugin(DrummerPlugin):
         builder = PatternBuilder("bonham_hand_drumming")
         # Varied tom hits simulating hand strikes
         for pos in [0.0, 0.25, 0.5, 0.75, 1.0, 1.25, 1.5, 1.75]:
-            inst = DrumInstrument.MID_TOM if pos % 0.5 == 0 else DrumInstrument.FLOOR_TOM
+            inst = (
+                DrumInstrument.MID_TOM
+                if pos % 0.5 == 0
+                else DrumInstrument.FLOOR_TOM
+            )
             velocity = VELOCITY.TOM_HEAVY + random.randint(-8, 12)
             builder.pattern.add_beat(pos, inst, velocity)
         return builder.build()
@@ -192,7 +201,8 @@ class BonhamPlugin(DrummerPlugin):
                 builder.kick(pos, VELOCITY.KICK_HEAVY)
             if i % 4 == 0:
                 builder.pattern.add_beat(
-                    pos, DrumInstrument.MID_TOM,
+                    pos,
+                    DrumInstrument.MID_TOM,
                     min(VELOCITY.TOM_ACCENT + random.randint(-5, 10), 127),
                 )
         return builder.build()
@@ -218,7 +228,8 @@ class BonhamPlugin(DrummerPlugin):
             pos = TIMING.QUARTER * 2 + i * TIMING.SIXTEENTH
             inst = DrumInstrument.MID_TOM if i < 2 else DrumInstrument.FLOOR_TOM
             builder.pattern.add_beat(
-                pos, inst,
+                pos,
+                inst,
                 VELOCITY.TOM_HEAVY - (i * 5),
             )
         return builder.build()
@@ -238,7 +249,9 @@ class BonhamPlugin(DrummerPlugin):
         # Half-time feel with triplet bass drum ("Fool in the Rain" precursor)
         for i in range(6):
             pos = TIMING.EIGHTH_TRIPLET * i
-            velocity = VELOCITY.KICK_LIGHT if i % 2 == 0 else VELOCITY.KICK_HEAVY
+            velocity = (
+                VELOCITY.KICK_LIGHT if i % 2 == 0 else VELOCITY.KICK_HEAVY
+            )
             builder.kick(pos, min(velocity, 127))
         # Backbeat on beat 3 (half-time position)
         builder.snare(TIMING.HALF * 3, VELOCITY.SNARE_HEAVY)
@@ -259,7 +272,9 @@ class BonhamPlugin(DrummerPlugin):
         for i in range(12):
             pos = i * TIMING.EIGHTH_TRIPLET / 3  # sixteenth-note triplets
             if i % 2 == 0:
-                builder.kick(pos, min(VELOCITY.KICK_HEAVY + random.randint(-5, 10), 127))
+                builder.kick(
+                    pos, min(VELOCITY.KICK_HEAVY + random.randint(-5, 10), 127)
+                )
             else:
                 builder.snare(pos, VELOCITY.SNARE_HEAVY)
         return builder.build()

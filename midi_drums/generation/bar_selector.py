@@ -88,7 +88,9 @@ class BarSelector:
                 Beat(
                     position=new_position,
                     instrument=beat.instrument,
-                    velocity=max(1, new_velocity),  # minimum velocity floor of 1
+                    velocity=max(
+                        1, new_velocity
+                    ),  # minimum velocity floor of 1
                     duration=beat.duration,
                     ghost_note=beat.ghost_note,
                     accent=beat.accent,
@@ -107,13 +109,20 @@ class BarSelector:
         from midi_drums.config import VELOCITY
 
         for beat in new_beats:
-            if beat.instrument in (
-                DrumInstrument.KICK,
-                DrumInstrument.SNARE,
-            ) and beat.velocity < 40:
+            if (
+                beat.instrument
+                in (
+                    DrumInstrument.KICK,
+                    DrumInstrument.SNARE,
+                )
+                and beat.velocity < 40
+            ):
                 beat.velocity = max(
-                    int(VELOCITY.KICK_NORMAL) if beat.instrument == DrumInstrument.KICK
-                    else int(VELOCITY.SNARE_NORMAL),
+                    (
+                        int(VELOCITY.KICK_NORMAL)
+                        if beat.instrument == DrumInstrument.KICK
+                        else int(VELOCITY.SNARE_NORMAL)
+                    ),
                     beat.velocity,
                 )
 

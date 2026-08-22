@@ -855,8 +855,8 @@ class PolyrhythmApplication(DrummerModification):
         ).apply(pattern, intensity=0.8)
     """
 
-    kick_subdivisions: int = 7   # how many kicks across one bar
-    snare_subdivisions: int = 4  # how many snares across one bar  
+    kick_subdivisions: int = 7  # how many kicks across one bar
+    snare_subdivisions: int = 4  # how many snares across one bar
     tom_subdivisions: int = 5
     intensity: float = 0.8
 
@@ -881,7 +881,9 @@ class PolyrhythmApplication(DrummerModification):
                 Beat(
                     position=pos,
                     instrument=DrumInstrument.KICK,
-                    velocity=int(VELOCITY.KICK_HEAVY * (0.9 + effective_intensity * 0.1)),
+                    velocity=int(
+                        VELOCITY.KICK_HEAVY * (0.9 + effective_intensity * 0.1)
+                    ),
                     duration=TIMING.SIXTEENTH,
                     ghost_note=False,
                     accent=i % 2 == 0,
@@ -911,8 +913,14 @@ class PolyrhythmApplication(DrummerModification):
                 modified_beats.append(
                     Beat(
                         position=pos,
-                        instrument=DrumInstrument.MID_TOM if i % 2 == 0 else DrumInstrument.FLOOR_TOM,
-                        velocity=int(VELOCITY.TOM_HEAVY + random.randint(-5, 5)),
+                        instrument=(
+                            DrumInstrument.MID_TOM
+                            if i % 2 == 0
+                            else DrumInstrument.FLOOR_TOM
+                        ),
+                        velocity=int(
+                            VELOCITY.TOM_HEAVY + random.randint(-5, 5)
+                        ),
                         duration=TIMING.SIXTEENTH,
                         ghost_note=False,
                         accent=i % 3 == 0,
@@ -986,7 +994,9 @@ class OddTimeAdaptation(DrummerModification):
         return Pattern(
             name=f"{pattern.name}_odd7",
             beats=modified_beats,
-            time_signature=TimeSignature(numerator=self.numerator, denominator=8),
+            time_signature=TimeSignature(
+                numerator=self.numerator, denominator=8
+            ),
             subdivision=pattern.subdivision,
             swing_ratio=self.swing_ratio,
             metadata={**pattern.metadata, "modification": self.name},

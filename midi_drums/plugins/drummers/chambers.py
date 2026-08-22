@@ -134,7 +134,15 @@ class ChambersPlugin(DrummerPlugin):
             pos = i * TIMING.EIGHTH
             open_flag = i % 4 in [1, 3]
             velocity = 75 + random.randint(-5, 8)
-            builder.pattern.add_beat(pos, DrumInstrument.OPEN_HH if open_flag else DrumInstrument.CLOSED_HH, velocity)
+            builder.pattern.add_beat(
+                pos,
+                (
+                    DrumInstrument.OPEN_HH
+                    if open_flag
+                    else DrumInstrument.CLOSED_HH
+                ),
+                velocity,
+            )
         return builder.build()
 
     def _create_fast_chops_showcase(self) -> Pattern:
@@ -152,7 +160,10 @@ class ChambersPlugin(DrummerPlugin):
             builder.kick(pos, VELOCITY.KICK_NORMAL + i * 3)
         # Snare hand-chops before beat 3
         for i in range(4):
-            builder.snare(TIMING.QUARTER * 2 + i * TIMING.SIXTEENTH, VELOCITY.SNARE_LIGHT + random.randint(0, 10))
+            builder.snare(
+                TIMING.QUARTER * 2 + i * TIMING.SIXTEENTH,
+                VELOCITY.SNARE_LIGHT + random.randint(0, 10),
+            )
         return builder.build()
 
     def _create_pocket_stretch_demo(self) -> Pattern:
@@ -221,7 +232,8 @@ class ChambersPlugin(DrummerPlugin):
             pos = TIMING.EIGHTH * i
             if random.random() < 0.65:
                 builder.pattern.add_beat(
-                    pos, DrumInstrument.SNARE,
+                    pos,
+                    DrumInstrument.SNARE,
                     VELOCITY.SNARE_GHOST + random.randint(0, 12),
                 )
         return builder.build()
@@ -239,9 +251,9 @@ class ChambersPlugin(DrummerPlugin):
         builder = PatternBuilder("chambers_funky_drummer_kick")
         # Double-kick pattern synced with bass-guitar feel
         kick_pattern = [
-            (0.0, VELOCITY.KICK_HEAVY),           # The one
+            (0.0, VELOCITY.KICK_HEAVY),  # The one
             (TIMING.EIGHTH + TIMING.SIXTEENTH, VELOCITY.KICK_NORMAL),
-            (TIMING.HALF, VELOCITY.KICK_HEAVY),    # Half-note syncopation
+            (TIMING.HALF, VELOCITY.KICK_HEAVY),  # Half-note syncopation
             (TIMING.HALF + TIMING.EIGHTH_TRIPLET, VELOCITY.KICK_LIGHT),
             (TIMING.HALF * 3, VELOCITY.KICK_NORMAL),
         ]
@@ -269,18 +281,23 @@ class ChambersPlugin(DrummerPlugin):
             pos = TIMING.SIXTEENTH * i
             if i % 4 == 0:
                 # Accent hit on floor tom
-                builder.tom(pos, DrumInstrument.FLOOR_TOM.value,
+                builder.tom(
+                    pos,
+                    DrumInstrument.FLOOR_TOM.value,
                     VELOCITY.TOM_HEAVY + random.randint(-5, 10),
                 )
             elif i % 2 == 0:
                 # Ghost note on mid tom
                 builder.pattern.add_beat(
-                    pos, DrumInstrument.MID_TOM,
+                    pos,
+                    DrumInstrument.MID_TOM,
                     VELOCITY.SNARE_GHOST + random.randint(0, 8),
                 )
             else:
                 # Rim/edge ghost on mid tom
-                builder.tom_edge(pos, "MID",
+                builder.tom_edge(
+                    pos,
+                    "MID",
                     VELOCITY.SNARE_GHOST + random.randint(-3, 5),
                 )
         return builder.build()
@@ -305,7 +322,8 @@ class ChambersPlugin(DrummerPlugin):
             pos = TIMING.EIGHTH * i
             if random.random() < 0.5:
                 builder.pattern.add_beat(
-                    pos, DrumInstrument.SNARE,
+                    pos,
+                    DrumInstrument.SNARE,
                     VELOCITY.SNARE_GHOST + random.randint(0, 10),
                 )
         # Tight closed hi-hat

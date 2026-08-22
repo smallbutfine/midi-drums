@@ -303,7 +303,9 @@ class FunkGenrePlugin(GenrePlugin):
         )
         return [f1, f2, f3]
 
-    def _flavors_breakdown(self, style: str, complexity: float) -> list[Pattern]:
+    def _flavors_breakdown(
+        self, style: str, complexity: float
+    ) -> list[Pattern]:
         name = f"funk_{style}_breakdown"
         # 1: sparse minimal groove
         groove_b1 = BasicGroove(
@@ -651,10 +653,16 @@ class FunkGenrePlugin(GenrePlugin):
                     TemplateComposer(name)
                     .add(
                         FunkGhostNotes(
-                            density=0.7, emphasize_one=False, main_snare_positions=[1.0, 3.0]
+                            density=0.7,
+                            emphasize_one=False,
+                            main_snare_positions=[1.0, 3.0],
                         )
                     )
-                    .add(JazzRidePattern(swing_ratio=0.35, accent_pattern="standard"))
+                    .add(
+                        JazzRidePattern(
+                            swing_ratio=0.35, accent_pattern="standard"
+                        )
+                    )
                     .build(bars=1, complexity=c)
                 )
             case "new_orleans":
@@ -675,7 +683,11 @@ class FunkGenrePlugin(GenrePlugin):
                 return (
                     TemplateComposer(name)
                     .add(FunkGhostNotes(density=0.8, emphasize_one=False))
-                    .add(JazzRidePattern(swing_ratio=0.2, accent_pattern="standard"))
+                    .add(
+                        JazzRidePattern(
+                            swing_ratio=0.2, accent_pattern="standard"
+                        )
+                    )
                     .add(
                         BasicGroove(
                             kick_positions=[0.0, 1.0, 2.0, 3.0],
@@ -759,10 +771,16 @@ class FunkGenrePlugin(GenrePlugin):
             case "fusion":
                 return (
                     TemplateComposer(name)
-                    .add(JazzRidePattern(swing_ratio=0.2, accent_pattern="standard"))
+                    .add(
+                        JazzRidePattern(
+                            swing_ratio=0.2, accent_pattern="standard"
+                        )
+                    )
                     .add(
                         FunkGhostNotes(
-                            density=0.5, emphasize_one=False, main_snare_positions=[1.0, 3.0]
+                            density=0.5,
+                            emphasize_one=False,
+                            main_snare_positions=[1.0, 3.0],
                         )
                     )
                     .add(TomFill(pattern="around", start_position=3.0))
@@ -796,7 +814,11 @@ class FunkGenrePlugin(GenrePlugin):
             case "shuffle":
                 return (
                     TemplateComposer(name)
-                    .add(JazzRidePattern(swing_ratio=0.33, accent_pattern="standard"))
+                    .add(
+                        JazzRidePattern(
+                            swing_ratio=0.33, accent_pattern="standard"
+                        )
+                    )
                     .build(bars=1, complexity=bridge_complexity)
                 )
             # Fallback for any unhandled style

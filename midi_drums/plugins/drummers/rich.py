@@ -227,7 +227,9 @@ class RichPlugin(DrummerPlugin):
         for i in range(4):
             pos = TIMING.SIXTEENTH * i
             velocity = VELOCITY.HIHAT_NORMAL + 5
-            builder.pattern.add_beat(pos, DrumInstrument.OPEN_HH_1, min(velocity, 127))
+            builder.pattern.add_beat(
+                pos, DrumInstrument.OPEN_HH_1, min(velocity, 127)
+            )
         # Final crash accent at resolution (within fill window)
         builder.crash(TIMING.DOTTED_EIGHTH, min(VELOCITY.CRASH_ACCENT, 127))
         return builder.build()
@@ -244,10 +246,13 @@ class RichPlugin(DrummerPlugin):
         for i in range(8):
             pos = TIMING.THIRTY_SECOND * i  # 8 hits within <1.0 bar
             if i % 2 == 0:
-                builder.pattern.add_beat(pos, DrumInstrument.RIM,
-                    VELOCITY.SNARE_LIGHT)
+                builder.pattern.add_beat(
+                    pos, DrumInstrument.RIM, VELOCITY.SNARE_LIGHT
+                )
             else:
-                builder.snare(pos, min(VELOCITY.SNARE_NORMAL + random.randint(0, 5), 127))
+                builder.snare(
+                    pos, min(VELOCITY.SNARE_NORMAL + random.randint(0, 5), 127)
+                )
         # Resolution crash (within fill window)
         builder.crash(TIMING.DOTTED_EIGHTH, min(VELOCITY.CRASH_ACCENT, 127))
         return builder.build()
@@ -304,7 +309,8 @@ class RichPlugin(DrummerPlugin):
             else:
                 # LRLR pattern: floor tom → mid tom → snare → tom edge
                 builder.pattern.add_beat(
-                    offset, DrumInstrument.FLOOR_TOM,
+                    offset,
+                    DrumInstrument.FLOOR_TOM,
                     VELOCITY.TOM_HEAVY,
                 )
                 builder.pattern.add_beat(
@@ -313,7 +319,8 @@ class RichPlugin(DrummerPlugin):
                     VELOCITY.TOM_ACCENT,
                 )
                 builder.snare(
-                    offset + TIMING.THIRTY_SECOND * 2, min(VELOCITY.SNARE_HEAVY, 127)
+                    offset + TIMING.THIRTY_SECOND * 2,
+                    min(VELOCITY.SNARE_HEAVY, 127),
                 )
                 builder.tom_edge(
                     offset + TIMING.THIRTY_SECOND * 3,

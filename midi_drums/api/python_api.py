@@ -661,7 +661,9 @@ class DrumGeneratorAPI:
             "color_groups": color_groups,
             "regions": regions,
         }
-        Path(path).write_text(json.dumps(data, indent=2, sort_keys=True), encoding="utf-8")
+        Path(path).write_text(
+            json.dumps(data, indent=2, sort_keys=True), encoding="utf-8"
+        )
 
     def export_song_timeline_json(self, song: Song, path: str | Path) -> None:
         """Write a flat, resolved tempo/region timeline for a song.

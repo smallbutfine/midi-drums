@@ -238,7 +238,12 @@ class DrumGeneratorAI:
         engine.save_pattern_midi(pattern, Path(output_path), tempo)
         return True
 
-    def export_song(self, song: Song | str, output_path: str | Path, mapping: str = "ezdrummer3") -> bool:
+    def export_song(
+        self,
+        song: Song | str,
+        output_path: str | Path,
+        mapping: str = "ezdrummer3",
+    ) -> bool:
         """Export song to MIDI file.
 
         Args:

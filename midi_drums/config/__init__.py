@@ -31,13 +31,13 @@ from midi_drums.config.constants import (
 
 # ── Top-level defaults (imported for convenience) ──────────────────
 from midi_drums.config.defaults import (
-    DEFAULT_MAPPING,
-    VALID_MAPPINGS,
-    DEFAULT_TEMPO,
-    DEFAULT_GENRE,
-    DEFAULT_STYLE,
-    DEFAULT_SECTION,
     DEFAULT_COMPLEXITY,
+    DEFAULT_GENRE,
+    DEFAULT_MAPPING,
+    DEFAULT_SECTION,
+    DEFAULT_STYLE,
+    DEFAULT_TEMPO,
+    VALID_MAPPINGS,
 )
 
 __all__ = [

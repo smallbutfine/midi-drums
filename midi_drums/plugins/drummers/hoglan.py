@@ -249,7 +249,9 @@ class HoglanPlugin(DrummerPlugin):
         # Uniform 32nd-note snare roll (mechanical precision)
         for i in range(16):
             pos = TIMING.THIRTY_SECOND * i
-            builder.snare(pos, VELOCITY.SNARE_HEAVY)  # All hits at same velocity
+            builder.snare(
+                pos, VELOCITY.SNARE_HEAVY
+            )  # All hits at same velocity
         return builder.build()
 
     def _create_dethklok_wall_of_sound(self) -> Pattern:
@@ -267,7 +269,9 @@ class HoglanPlugin(DrummerPlugin):
             if i % 2 == 0:
                 builder.snare(pos, VELOCITY.SNARE_HEAVY)
         # Massive crash on the final hit
-        builder.crash(TIMING.DOTTED_EIGHTH * 2, min(VELOCITY.CRASH_HEAVY + 10, 127))
+        builder.crash(
+            TIMING.DOTTED_EIGHTH * 2, min(VELOCITY.CRASH_HEAVY + 10, 127)
+        )
         return builder.build()
 
     def _create_fear_factory_industrial_fill(self) -> Pattern:
@@ -282,7 +286,11 @@ class HoglanPlugin(DrummerPlugin):
         for i in range(16):
             pos = TIMING.SIXTEENTH * i
             variant = "3" if i % 2 == 0 else "4"
-            builder.tom_edge(pos, variant, min(VELOCITY.TOM_ACCENT + random.randint(-3, 8), 127))
+            builder.tom_edge(
+                pos,
+                variant,
+                min(VELOCITY.TOM_ACCENT + random.randint(-3, 8), 127),
+            )
         # Double-kick underpinning on beats 1 and 3
         builder.kick(0.0, min(VELOCITY.KICK_HEAVY, 127))
         builder.kick(TIMING.HALF, min(VELOCITY.KICK_HEAVY, 127))

@@ -267,7 +267,9 @@ class JazzGenrePlugin(GenrePlugin):
         )
         return [f1, f2, f3]
 
-    def _flavors_breakdown(self, style: str, complexity: float) -> list[Pattern]:
+    def _flavors_breakdown(
+        self, style: str, complexity: float
+    ) -> list[Pattern]:
         name = f"jazz_{style}_breakdown"
         c = max(0.0, complexity - 0.3)
         # 1: sparse ballad ride only
@@ -382,13 +384,17 @@ class JazzGenrePlugin(GenrePlugin):
         if style in ["ballad"]:
             return (
                 TemplateComposer(name)
-                .add(JazzRidePattern(swing_ratio=0.33, accent_pattern="standard"))
+                .add(
+                    JazzRidePattern(swing_ratio=0.33, accent_pattern="standard")
+                )
                 .build(bars=1, complexity=intro_complexity)
             )
         else:
             return (
                 TemplateComposer(name)
-                .add(JazzRidePattern(swing_ratio=0.33, accent_pattern="standard"))
+                .add(
+                    JazzRidePattern(swing_ratio=0.33, accent_pattern="standard")
+                )
                 .add(
                     BasicGroove(
                         kick_positions=[0.0, 2.0],
@@ -406,7 +412,9 @@ class JazzGenrePlugin(GenrePlugin):
         if style == "swing":
             return (
                 TemplateComposer(name)
-                .add(JazzRidePattern(swing_ratio=0.33, accent_pattern="standard"))
+                .add(
+                    JazzRidePattern(swing_ratio=0.33, accent_pattern="standard")
+                )
                 .add(
                     FunkGhostNotes(
                         density=0.3,
@@ -432,7 +440,9 @@ class JazzGenrePlugin(GenrePlugin):
         elif style == "fusion":
             return (
                 TemplateComposer(name)
-                .add(JazzRidePattern(swing_ratio=0.2, accent_pattern="standard"))
+                .add(
+                    JazzRidePattern(swing_ratio=0.2, accent_pattern="standard")
+                )
                 .add(
                     FunkGhostNotes(
                         density=0.4,
@@ -471,7 +481,9 @@ class JazzGenrePlugin(GenrePlugin):
         elif style == "ballad":
             return (
                 TemplateComposer(name)
-                .add(JazzRidePattern(swing_ratio=0.33, accent_pattern="standard"))
+                .add(
+                    JazzRidePattern(swing_ratio=0.33, accent_pattern="standard")
+                )
                 .build(bars=1, complexity=max(0.0, complexity - 0.3))
             )
         elif style == "hard_bop":
@@ -491,7 +503,9 @@ class JazzGenrePlugin(GenrePlugin):
         else:  # contemporary
             return (
                 TemplateComposer(name)
-                .add(JazzRidePattern(swing_ratio=0.2, accent_pattern="standard"))
+                .add(
+                    JazzRidePattern(swing_ratio=0.2, accent_pattern="standard")
+                )
                 .add(
                     FunkGhostNotes(
                         density=0.5,
@@ -574,7 +588,9 @@ class JazzGenrePlugin(GenrePlugin):
         elif style == "ballad":
             return (
                 TemplateComposer(name)
-                .add(JazzRidePattern(swing_ratio=0.33, accent_pattern="standard"))
+                .add(
+                    JazzRidePattern(swing_ratio=0.33, accent_pattern="standard")
+                )
                 .add(
                     FunkGhostNotes(
                         density=0.3,
@@ -617,7 +633,9 @@ class JazzGenrePlugin(GenrePlugin):
         if style in ["fusion", "contemporary"]:
             return (
                 TemplateComposer(name)
-                .add(JazzRidePattern(swing_ratio=0.2, accent_pattern="standard"))
+                .add(
+                    JazzRidePattern(swing_ratio=0.2, accent_pattern="standard")
+                )
                 .add(
                     FunkGhostNotes(
                         density=0.4,
@@ -631,7 +649,9 @@ class JazzGenrePlugin(GenrePlugin):
         else:
             return (
                 TemplateComposer(name)
-                .add(JazzRidePattern(swing_ratio=0.33, accent_pattern="standard"))
+                .add(
+                    JazzRidePattern(swing_ratio=0.33, accent_pattern="standard")
+                )
                 .add(TomFill(pattern="ascending", start_position=3.0))
                 .build(bars=1, complexity=bridge_complexity)
             )

@@ -64,7 +64,10 @@ class TestDrummerSignatureFillsWiredIntoGeneration:
         """
         generator = DrumGenerator()
 
-        with patch("midi_drums.generation.composer_v2.random.choice", return_value="bonham"):
+        with patch(
+            "midi_drums.generation.composer_v2.random.choice",
+            return_value="bonham",
+        ):
             song = generator.create_song(
                 genre="rock",
                 style="classic",
