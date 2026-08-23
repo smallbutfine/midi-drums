@@ -143,7 +143,11 @@ class RockGenrePlugin(GenrePlugin):
                 )
             )
             # AD2: CRASH_HEAVY for rock crash fill accents
-            .add(CrashAccents(positions=[0.0, 2.0], intensity=0.9, crash_type="heavy"))
+            .add(
+                CrashAccents(
+                    positions=[0.0, 2.0], intensity=0.9, crash_type="heavy"
+                )
+            )
             .build(bars=1, complexity=0.5)
         )
         fills.append(
@@ -188,7 +192,11 @@ class RockGenrePlugin(GenrePlugin):
                     hihat_subdivision=TIMING.QUARTER,
                 )
             )
-            .add(CrashAccents(positions=[0.0], intensity=1.0, crash_type="splash"))
+            .add(
+                CrashAccents(
+                    positions=[0.0], intensity=1.0, crash_type="splash"
+                )
+            )
             .build(bars=1, complexity=c)
         )
         # 2: double-kick build with crash at bar end
@@ -201,7 +209,11 @@ class RockGenrePlugin(GenrePlugin):
                     hihat_subdivision=TIMING.HALF,
                 )
             )
-            .add(CrashAccents(positions=[3.0], intensity=1.0, crash_type="splash"))
+            .add(
+                CrashAccents(
+                    positions=[3.0], intensity=1.0, crash_type="splash"
+                )
+            )
             .build(bars=1, complexity=c)
         )
         # 3: crash-sparse with tom fill at end (use light crash to keep intro gentle)
@@ -214,7 +226,11 @@ class RockGenrePlugin(GenrePlugin):
                     hihat_subdivision=TIMING.HALF,
                 )
             )
-            .add(CrashAccents(positions=[0.0, 1.5, 3.0], intensity=0.7, crash_type="light"))
+            .add(
+                CrashAccents(
+                    positions=[0.0, 1.5, 3.0], intensity=0.7, crash_type="light"
+                )
+            )
             .build(bars=1, complexity=c)
         )
         return [f1, f2, f3]
@@ -272,7 +288,11 @@ class RockGenrePlugin(GenrePlugin):
                     hihat_subdivision=TIMING.EIGHTH,
                 )
             )
-            .add(CrashAccents(positions=[0.0, 2.0], intensity=1.0, crash_type="heavy"))
+            .add(
+                CrashAccents(
+                    positions=[0.0, 2.0], intensity=1.0, crash_type="heavy"
+                )
+            )
             .build(bars=1, complexity=c)
         )
         # 2: gallop kick pattern
@@ -285,7 +305,9 @@ class RockGenrePlugin(GenrePlugin):
                     hihat_subdivision=TIMING.EIGHTH,
                 )
             )
-            .add(CrashAccents(positions=[0.0], intensity=1.0, crash_type="heavy"))
+            .add(
+                CrashAccents(positions=[0.0], intensity=1.0, crash_type="heavy")
+            )
             .build(bars=1, complexity=c)
         )
         # 3: crash-rich with ride-like cymbal timekeeping
@@ -298,7 +320,13 @@ class RockGenrePlugin(GenrePlugin):
                     hihat_subdivision=TIMING.HALF,
                 )
             )
-            .add(CrashAccents(positions=[0.0, 1.0, 2.0, 3.0], intensity=0.8, crash_type="heavy"))
+            .add(
+                CrashAccents(
+                    positions=[0.0, 1.0, 2.0, 3.0],
+                    intensity=0.8,
+                    crash_type="heavy",
+                )
+            )
             .build(bars=1, complexity=c)
         )
         return [f1, f2, f3]
@@ -317,7 +345,9 @@ class RockGenrePlugin(GenrePlugin):
                     hihat_subdivision=TIMING.HALF,
                 )
             )
-            .add(TomFill(pattern="descending", start_position=3.0, use_edge=True))
+            .add(
+                TomFill(pattern="descending", start_position=3.0, use_edge=True)
+            )
             .build(bars=1, complexity=complexity)
         )
         # 2: heavy stomp on every beat
@@ -331,7 +361,9 @@ class RockGenrePlugin(GenrePlugin):
                 )
             )
             # AD2: CRASH_HEAVY for rock breakdown stomp
-            .add(CrashAccents(positions=[0.0], intensity=1.0, crash_type="heavy"))
+            .add(
+                CrashAccents(positions=[0.0], intensity=1.0, crash_type="heavy")
+            )
             .build(bars=1, complexity=complexity)
         )
         # 3: half-time slow groove
@@ -402,10 +434,15 @@ class RockGenrePlugin(GenrePlugin):
         f1 = (
             TemplateComposer(f"{name}_f1")
             # AD2: TomFill with edge tom for rock outro aggression
-            .add(TomFill(pattern="descending", start_position=0.0, use_edge=True))
+            .add(
+                TomFill(pattern="descending", start_position=0.0, use_edge=True)
+            )
             # AD2: CRASH_HEAVY for epic rock outro ending
-            .add(CrashAccents(positions=[3.75], intensity=1.0, crash_type="heavy"))
-            .build(bars=1, complexity=c)
+            .add(
+                CrashAccents(
+                    positions=[3.75], intensity=1.0, crash_type="heavy"
+                )
+            ).build(bars=1, complexity=c)
         )
         # 2: sparse hits fading out
         f2 = (
@@ -418,17 +455,22 @@ class RockGenrePlugin(GenrePlugin):
                 )
             )
             # AD2: CRASH_LIGHT for fading rock outro
-            .add(CrashAccents(positions=[3.5], intensity=0.6, crash_type="light"))
+            .add(
+                CrashAccents(positions=[3.5], intensity=0.6, crash_type="light")
+            )
             .build(bars=1, complexity=c)
         )
         # 3: ascending tom finale with heavy crash
         f3 = (
             TemplateComposer(f"{name}_f3")
             # AD2: TomFill with edge tom for ascending fill aggression
-            .add(TomFill(pattern="ascending", start_position=0.0, use_edge=True))
+            .add(
+                TomFill(pattern="ascending", start_position=0.0, use_edge=True)
+            )
             # AD2: CRASH_HEAVY for epic rock outro finale
-            .add(CrashAccents(positions=[3.5], intensity=1.0, crash_type="heavy"))
-            .build(bars=1, complexity=c)
+            .add(
+                CrashAccents(positions=[3.5], intensity=1.0, crash_type="heavy")
+            ).build(bars=1, complexity=c)
         )
         return [f1, f2, f3]
 
@@ -468,7 +510,11 @@ class RockGenrePlugin(GenrePlugin):
                     hihat_subdivision=TIMING.EIGHTH,
                 )
             )
-            .add(CrashAccents(positions=[0.0], intensity=0.9, crash_type="splash"))
+            .add(
+                CrashAccents(
+                    positions=[0.0], intensity=0.9, crash_type="splash"
+                )
+            )
             .build(bars=1, complexity=intro_complexity)
         )
 
@@ -517,7 +563,9 @@ class RockGenrePlugin(GenrePlugin):
                     )
                 )
                 # AD2: TomFill with edge tom for alternative verse aggression
-                .add(TomFill(pattern="around", start_position=3.0, use_edge=True))
+                .add(
+                    TomFill(pattern="around", start_position=3.0, use_edge=True)
+                )
                 .build(bars=1, complexity=complexity)
             )
         elif style == "progressive":
@@ -543,7 +591,11 @@ class RockGenrePlugin(GenrePlugin):
                     )
                 )
                 # AD2: CRASH_HEAVY for punk verse power
-                .add(CrashAccents(positions=[0.0], intensity=0.9, crash_type="heavy"))
+                .add(
+                    CrashAccents(
+                        positions=[0.0], intensity=0.9, crash_type="heavy"
+                    )
+                )
                 .build(bars=1, complexity=max(0.0, complexity + 0.1))
             )
         elif style == "hard":
@@ -557,7 +609,11 @@ class RockGenrePlugin(GenrePlugin):
                     )
                 )
                 # AD2: CRASH_HEAVY for hard rock verse power
-                .add(CrashAccents(positions=[0.0], intensity=0.9, crash_type="heavy"))
+                .add(
+                    CrashAccents(
+                        positions=[0.0], intensity=0.9, crash_type="heavy"
+                    )
+                )
                 .build(bars=1, complexity=max(0.0, complexity + 0.1))
             )
         else:  # pop
@@ -588,7 +644,11 @@ class RockGenrePlugin(GenrePlugin):
                         hihat_subdivision=TIMING.EIGHTH,
                     )
                 )
-                .add(CrashAccents(positions=[0.0, 2.0], intensity=1.0, crash_type="heavy"))
+                .add(
+                    CrashAccents(
+                        positions=[0.0, 2.0], intensity=1.0, crash_type="heavy"
+                    )
+                )
                 .build(bars=1, complexity=c)
             )
         elif style == "blues":
@@ -620,7 +680,11 @@ class RockGenrePlugin(GenrePlugin):
                     )
                 )
                 # AD2: CRASH_HEAVY for alternative chorus
-                .add(CrashAccents(positions=[0.0], intensity=1.0, crash_type="heavy"))
+                .add(
+                    CrashAccents(
+                        positions=[0.0], intensity=1.0, crash_type="heavy"
+                    )
+                )
                 .build(bars=1, complexity=c)
             )
         elif style == "progressive":
@@ -634,7 +698,11 @@ class RockGenrePlugin(GenrePlugin):
                     )
                 )
                 # AD2: CRASH_HEAVY for progressive chorus
-                .add(CrashAccents(positions=[0.0], intensity=1.0, crash_type="heavy"))
+                .add(
+                    CrashAccents(
+                        positions=[0.0], intensity=1.0, crash_type="heavy"
+                    )
+                )
                 .build(bars=1, complexity=c)
             )
         elif style == "punk":
@@ -649,7 +717,11 @@ class RockGenrePlugin(GenrePlugin):
                 )
                 .add(
                     # AD2: CRASH_HEAVY for punk chorus (all crash hits = maximum power)
-                    CrashAccents(positions=[0.0, 1.0, 2.0, 3.0], intensity=0.9, crash_type="heavy")
+                    CrashAccents(
+                        positions=[0.0, 1.0, 2.0, 3.0],
+                        intensity=0.9,
+                        crash_type="heavy",
+                    )
                 )
                 .build(bars=1, complexity=c)
             )
@@ -664,7 +736,11 @@ class RockGenrePlugin(GenrePlugin):
                     )
                 )
                 # AD2: CRASH_HEAVY for hard rock chorus
-                .add(CrashAccents(positions=[0.0, 2.0], intensity=1.0, crash_type="heavy"))
+                .add(
+                    CrashAccents(
+                        positions=[0.0, 2.0], intensity=1.0, crash_type="heavy"
+                    )
+                )
                 .build(bars=1, complexity=c)
             )
         else:  # pop
@@ -678,7 +754,11 @@ class RockGenrePlugin(GenrePlugin):
                     )
                 )
                 # AD2: CRASH_LIGHT for clean pop chorus
-                .add(CrashAccents(positions=[0.0], intensity=0.8, crash_type="light"))
+                .add(
+                    CrashAccents(
+                        positions=[0.0], intensity=0.8, crash_type="light"
+                    )
+                )
                 .build(bars=1, complexity=c)
             )
 
@@ -695,7 +775,9 @@ class RockGenrePlugin(GenrePlugin):
                 )
             )
             # AD2: TomFill with edge tom for rock breakdown fill aggression
-            .add(TomFill(pattern="descending", start_position=3.0, use_edge=True))
+            .add(
+                TomFill(pattern="descending", start_position=3.0, use_edge=True)
+            )
             .build(bars=1, complexity=complexity)
         )
 

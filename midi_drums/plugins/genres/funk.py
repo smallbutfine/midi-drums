@@ -25,20 +25,20 @@ from midi_drums.plugins.interfaces.genre_plugin import GenrePlugin
 # AD2 tight hi-hat variants per funk style (CORE feature for pocket depth)
 # These replace standard closed HH with tighter timbral variants
 _FUNK_TIGHT_HH_BY_STYLE = {
-    "classic": "tight_b",      # TIGHT_HH_B (56) - medium tight pocket
-    "pfunk": "tight_b",        # TIGHT_HH_B (56) - medium tight for deep pocket
-    "shuffle": "tight_c",      # TIGHT_HH_C (58) - tightest control (Purdie shuffle)
+    "classic": "tight_b",  # TIGHT_HH_B (56) - medium tight pocket
+    "pfunk": "tight_b",  # TIGHT_HH_B (56) - medium tight for deep pocket
+    "shuffle": "tight_c",  # TIGHT_HH_C (58) - tightest control (Purdie shuffle)
     "new_orleans": "tight_a",  # TIGHT_HH_A (54) - looser, bouncy second line feel
-    "fusion": "tight_b",       # TIGHT_HH_B (56) - medium-tight fusion pocket
-    "minimal": "tight_c",      # TIGHT_HH_C (58) - tightest for minimal control
-    "heavy": "tight_c",        # TIGHT_HH_C (58) - tightest for rock-funk hybrid
+    "fusion": "tight_b",  # TIGHT_HH_B (56) - medium-tight fusion pocket
+    "minimal": "tight_c",  # TIGHT_HH_C (58) - tightest for minimal control
+    "heavy": "tight_c",  # TIGHT_HH_C (58) - tightest for rock-funk hybrid
 }
 
 # AD2 crash type mapping per style/section context
 _FUNK_CRASH_BY_STYLE = {
     "classic": "splash",  # bright shimmer on "the one" chorus downbeat
-    "pfunk": "heavy",     # powerful p-funk crashes
-    "shuffle": "light",   # subtle shuffle crashes
+    "pfunk": "heavy",  # powerful p-funk crashes
+    "shuffle": "light",  # subtle shuffle crashes
     "new_orleans": "splash",
     "fusion": "heavy",
     "minimal": None,
@@ -164,7 +164,9 @@ class FunkGenrePlugin(GenrePlugin):
                 )
             )
             # AD2: CRASH_HEAVY for funk fill crash accents
-            .add(CrashAccents(positions=[0.0], intensity=0.9, crash_type="heavy"))
+            .add(
+                CrashAccents(positions=[0.0], intensity=0.9, crash_type="heavy")
+            )
             .build(bars=1, complexity=0.6)
         )
         fills.append(
@@ -209,7 +211,11 @@ class FunkGenrePlugin(GenrePlugin):
                 )
             )
             # AD2: CRASH_SPLASH for funk intro buildup ending
-            .add(CrashAccents(positions=[3.5], intensity=1.0, crash_type="splash"))
+            .add(
+                CrashAccents(
+                    positions=[3.5], intensity=1.0, crash_type="splash"
+                )
+            )
             .build(bars=1, complexity=max(0.0, complexity - 0.2))
         )
         # 2: sparse attack with building snare fills
@@ -236,7 +242,9 @@ class FunkGenrePlugin(GenrePlugin):
                 )
             )
             # AD2: CRASH_HEAVY for funk intro stomp
-            .add(CrashAccents(positions=[0.0], intensity=1.0, crash_type="heavy"))
+            .add(
+                CrashAccents(positions=[0.0], intensity=1.0, crash_type="heavy")
+            )
             .build(bars=1, complexity=max(0.0, complexity - 0.3))
         )
         return [f1, f2, f3]
@@ -302,7 +310,11 @@ class FunkGenrePlugin(GenrePlugin):
             .add(FunkGhostNotes(density=0.8, emphasize_one=True))
             .add(groove_c1)
             # AD2: CRASH_HEAVY for funk chorus flavor crashes
-            .add(CrashAccents(positions=[0.0, 2.0], intensity=0.9, crash_type="heavy"))
+            .add(
+                CrashAccents(
+                    positions=[0.0, 2.0], intensity=0.9, crash_type="heavy"
+                )
+            )
             .build(bars=1, complexity=c)
         )
         # 2: crash-heavy with half-time shuffle
@@ -316,7 +328,13 @@ class FunkGenrePlugin(GenrePlugin):
             .add(JazzRidePattern(swing_ratio=0.6, accent_pattern="standard"))
             .add(groove_c2)
             # AD2: CRASH_LIGHT for shuffle chorus flavor crashes
-            .add(CrashAccents(positions=[0.0, 1.0, 2.0, 3.0], intensity=0.7, crash_type="light"))
+            .add(
+                CrashAccents(
+                    positions=[0.0, 1.0, 2.0, 3.0],
+                    intensity=0.7,
+                    crash_type="light",
+                )
+            )
             .build(bars=1, complexity=c)
         )
         # 3: straight-eighth with dense kick patterns
@@ -438,7 +456,9 @@ class FunkGenrePlugin(GenrePlugin):
             TemplateComposer(f"{name}_f2")
             .add(groove_o2)
             # AD2: TomFill with edge tom for funk outro fill accents
-            .add(TomFill(pattern="descending", start_position=3.0, use_edge=True))
+            .add(
+                TomFill(pattern="descending", start_position=3.0, use_edge=True)
+            )
             .build(bars=1, complexity=c)
         )
         # 3: sparse tom roll finale with crash
@@ -446,7 +466,11 @@ class FunkGenrePlugin(GenrePlugin):
             TemplateComposer(f"{name}_f3")
             .add(TomFill(pattern="descending", start_position=0.0))
             # AD2: CRASH_SPLASH for funk outro finale ending
-            .add(CrashAccents(positions=[3.75], intensity=1.0, crash_type="splash"))
+            .add(
+                CrashAccents(
+                    positions=[3.75], intensity=1.0, crash_type="splash"
+                )
+            )
             .build(bars=1, complexity=c)
         )
         return [f1, f2, f3]
@@ -666,7 +690,13 @@ class FunkGenrePlugin(GenrePlugin):
                         )
                     )
                     # AD2: CRASH_SPLASH for bright shimmer on "the one" downbeat
-                    .add(CrashAccents(positions=[0.0, 2.0], intensity=0.9, crash_type="splash"))
+                    .add(
+                        CrashAccents(
+                            positions=[0.0, 2.0],
+                            intensity=0.9,
+                            crash_type="splash",
+                        )
+                    )
                     .build(bars=1, complexity=c)
                 )
             case "pfunk":
@@ -681,7 +711,11 @@ class FunkGenrePlugin(GenrePlugin):
                         )
                     )
                     # AD2: CRASH_HEAVY for powerful p-funk chorus crashes
-                    .add(CrashAccents(positions=[0.0], intensity=1.0, crash_type="heavy"))
+                    .add(
+                        CrashAccents(
+                            positions=[0.0], intensity=1.0, crash_type="heavy"
+                        )
+                    )
                     .build(bars=1, complexity=c)
                 )
             case "shuffle":
@@ -713,7 +747,11 @@ class FunkGenrePlugin(GenrePlugin):
                         )
                     )
                     # AD2: CRASH_SPLASH for bright second line feel
-                    .add(CrashAccents(positions=[0.0], intensity=0.85, crash_type="splash"))
+                    .add(
+                        CrashAccents(
+                            positions=[0.0], intensity=0.85, crash_type="splash"
+                        )
+                    )
                     .build(bars=1, complexity=c)
                 )
             case "fusion":
@@ -733,7 +771,11 @@ class FunkGenrePlugin(GenrePlugin):
                         )
                     )
                     # AD2: CRASH_HEAVY for fusion energy burst
-                    .add(CrashAccents(positions=[0.0], intensity=0.95, crash_type="heavy"))
+                    .add(
+                        CrashAccents(
+                            positions=[0.0], intensity=0.95, crash_type="heavy"
+                        )
+                    )
                     .build(bars=1, complexity=c)
                 )
             case "minimal":
@@ -761,7 +803,13 @@ class FunkGenrePlugin(GenrePlugin):
                         )
                     )
                     # AD2: CRASH_HEAVY for rock-funk hybrid power
-                    .add(CrashAccents(positions=[0.0, 2.0], intensity=1.0, crash_type="heavy"))
+                    .add(
+                        CrashAccents(
+                            positions=[0.0, 2.0],
+                            intensity=1.0,
+                            crash_type="heavy",
+                        )
+                    )
                     .build(bars=1, complexity=c)
                 )
         return (
@@ -879,7 +927,11 @@ class FunkGenrePlugin(GenrePlugin):
             .add(FunkGhostNotes(density=0.3, emphasize_one=False))
             .add(TomFill(pattern="descending", start_position=0.0))
             # AD2: CRASH_SPLASH for bright funk outro endings
-            .add(CrashAccents(positions=[3.75], intensity=1.0, crash_type="splash"))
+            .add(
+                CrashAccents(
+                    positions=[3.75], intensity=1.0, crash_type="splash"
+                )
+            )
             .build(bars=1, complexity=outro_complexity)
         )
 

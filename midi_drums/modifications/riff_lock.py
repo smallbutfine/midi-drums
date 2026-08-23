@@ -36,7 +36,9 @@ class RiffLockTransform(DrummerModification):
     lock_strength: float = 1.0
     max_displacement_beats: float = 0.25
 
-    def apply(self, pattern: Pattern, intensity_pt: tuple | None = None) -> Pattern:
+    def apply(
+        self, pattern: Pattern, intensity_pt: tuple | None = None
+    ) -> Pattern:
         """Return a new ``Pattern`` with kicks locked to riff accents.
 
         For each riff accent with strength >= threshold, finds the nearest kick
@@ -55,14 +57,23 @@ class RiffLockTransform(DrummerModification):
         if self.lock_strength <= 0 or not self.riff_accents.accents:
             # No locking requested — return a copy untouched
             import copy  # noqa: PLC0415
+
             return copy.deepcopy(pattern)
 
         new_pattern = Pattern(f"{pattern.name}_riff_locked")
-        new_pattern.beats = [copy.copy(b) for b in pattern.beats] if hasattr(pattern, "beats") else []
-        new_pattern.metadata = dict(pattern.metadata) if pattern.metadata else {}
+        new_pattern.beats = (
+            [copy.copy(b) for b in pattern.beats]
+            if hasattr(pattern, "beats")
+            else []
+        )
+        new_pattern.metadata = (
+            dict(pattern.metadata) if pattern.metadata else {}
+        )
         new_pattern.metadata["riff_locked"] = True
 
-        kicks = [b for b in new_pattern.beats if b.instrument == DrumInstrument.KICK]
+        kicks = [
+            b for b in new_pattern.beats if b.instrument == DrumInstrument.KICK
+        ]
         kicks.sort(key=lambda k: k.position)
 
         beats_per_bar = self.riff_accents.beats_per_bar
@@ -76,7 +87,9 @@ class RiffLockTransform(DrummerModification):
             min_dist = float("inf")
 
             for kick in kicks:
-                dist = self._beat_distance(kick.position, accent.position, beats_per_bar)
+                dist = self._beat_distance(
+                    kick.position, accent.position, beats_per_bar
+                )
                 if dist < min_dist and dist <= self.max_displacement_beats:
                     min_dist = dist
                     closest_kick = kick
@@ -96,7 +109,13 @@ class RiffLockTransform(DrummerModification):
                 for i, existing in enumerate(new_pattern.beats):
                     if existing.instrument != DrumInstrument.KICK:
                         continue
-                    if self._beat_distance(existing.position, new_kick.position, beats_per_bar) > min_dist and new_kick.position < existing.position + 0.5:
+                    if (
+                        self._beat_distance(
+                            existing.position, new_kick.position, beats_per_bar
+                        )
+                        > min_dist
+                        and new_kick.position < existing.position + 0.5
+                    ):
                         new_pattern.beats.insert(i, new_kick)
                         inserted = True
                         break
@@ -104,7 +123,9 @@ class RiffLockTransform(DrummerModification):
                     new_pattern.beats.append(new_kick)
             else:
                 # Pull the kick toward the accent position by lock_strength * distance
-                displacement = (accent.position - closest_kick.position) * self.lock_strength
+                displacement = (
+                    accent.position - closest_kick.position
+                ) * self.lock_strength
 
                 # Wrap within bar bounds
                 new_position = closest_kick.position + displacement
@@ -115,16 +136,20 @@ class RiffLockTransform(DrummerModification):
 
                 closest_kick.position = new_position
                 # Increase velocity based on accent strength
-                closest_kick.velocity = int(max(
-                    closest_kick.velocity,
-                    VELOCITY.KICK_MEDIUM * (0.5 + 0.5 * accent.strength)
-                ))
+                closest_kick.velocity = int(
+                    max(
+                        closest_kick.velocity,
+                        VELOCITY.KICK_MEDIUM * (0.5 + 0.5 * accent.strength),
+                    )
+                )
                 closest_kick.accent = True
 
         return new_pattern
 
     @staticmethod
-    def _beat_distance(pos_a: float, pos_b: float, beats_per_bar: float) -> float:
+    def _beat_distance(
+        pos_a: float, pos_b: float, beats_per_bar: float
+    ) -> float:
         """Circular distance between two beat positions within a bar."""
         dist1 = abs(pos_a - pos_b)
         dist2 = beats_per_bar - dist1
@@ -146,5 +171,7 @@ def lock_to_riff(
     Returns:
         New pattern with kicks locked to riff accents.
     """
-    transform = RiffLockTransform(riff_accents=riff_accents, lock_strength=lock_strength)
+    transform = RiffLockTransform(
+        riff_accents=riff_accents, lock_strength=lock_strength
+    )
     return transform.apply(pattern)

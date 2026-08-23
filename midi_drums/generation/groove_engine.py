@@ -159,9 +159,7 @@ class GrooveEngine:
         """Get the groove profile for a drummer (or default if unknown)."""
         if not drummer_name:
             return _DEFAULT_PROFILE
-        return _GROOVE_PROFILES.get(
-            drummer_name.lower(), _DEFAULT_PROFILE
-        )
+        return _GROOVE_PROFILES.get(drummer_name.lower(), _DEFAULT_PROFILE)
 
     def get_bar_offset_ms(
         self,
@@ -203,8 +201,8 @@ class GrooveEngine:
         total_magnitude = swing_magnitude_ms * energy_factor * section_modifier
 
         # Compute displacement with drummer's timing bias as the center
-        return (
-            profile.timing_bias_ms + (self._rng.uniform(-0.5, 0.5) * total_magnitude)
+        return profile.timing_bias_ms + (
+            self._rng.uniform(-0.5, 0.5) * total_magnitude
         )
 
     def apply(

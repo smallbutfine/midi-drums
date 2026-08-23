@@ -186,13 +186,15 @@ class TripletVocabulary(DrummerModification):
         if self.triplet_probability >= 0.99:
             scale_factor = 1.0  # Force-add mode: never scale down
         elif beat_count <= 6:
-            scale_factor = 1.0      # Very sparse → full triplets
+            scale_factor = 1.0  # Very sparse → full triplets
         elif beat_count <= 14:
-            scale_factor = 0.6      # Medium → moderate
+            scale_factor = 0.6  # Medium → moderate
         else:
-            scale_factor = 0.3      # Dense → minimal additions
+            scale_factor = 0.3  # Dense → minimal additions
 
-        effective_probability = self.triplet_probability * intensity * scale_factor
+        effective_probability = (
+            self.triplet_probability * intensity * scale_factor
+        )
 
         # Look for opportunities to add triplets (beat 4 of each bar)
         duration = pattern.duration_bars()
@@ -282,11 +284,11 @@ class GhostNoteLayer(DrummerModification):
         else:
             _bc = len(pattern.beats)
             if _bc <= 6:
-                scale_factor = 1.0      # Very sparse → full ghost notes
+                scale_factor = 1.0  # Very sparse → full ghost notes
             elif _bc <= 14:
-                scale_factor = 0.6      # Medium → moderate
+                scale_factor = 0.6  # Medium → moderate
             else:
-                scale_factor = 0.3      # Dense → minimal
+                scale_factor = 0.3  # Dense → minimal
 
         main_snare_positions = {
             b.position
@@ -297,7 +299,9 @@ class GhostNoteLayer(DrummerModification):
         # Count available ghost-note positions per bar (non-snare sixteenths)
         effective_density = self.density * intensity * scale_factor
         # Cap: never add more ghost notes than half the existing beat count
-        max_ghosts_per_bar = max(2, int((16 - len(main_snare_positions)) * effective_density))
+        max_ghosts_per_bar = max(
+            2, int((16 - len(main_snare_positions)) * effective_density)
+        )
         ghost_counts = {}  # track per bar
 
         # Add ghost notes on 16ths that don't have main snares
@@ -318,7 +322,10 @@ class GhostNoteLayer(DrummerModification):
                     continue
 
                 # Probabilistically add ghost note
-                if random.random() < effective_density and ghost_counts[bar] < max_ghosts_per_bar:
+                if (
+                    random.random() < effective_density
+                    and ghost_counts[bar] < max_ghosts_per_bar
+                ):
                     modified_beats.append(
                         Beat(
                             position=pos,
@@ -552,11 +559,11 @@ class FastChopsTriplets(DrummerModification):
         else:
             _bc = len(pattern.beats)
             if _bc <= 6:
-                scale_factor = 1.0      # Very sparse → full chops
+                scale_factor = 1.0  # Very sparse → full chops
             elif _bc <= 14:
-                scale_factor = 0.6      # Medium → moderate
+                scale_factor = 0.6  # Medium → moderate
             else:
-                scale_factor = 0.3      # Dense → minimal
+                scale_factor = 0.3  # Dense → minimal
 
         effective_probability = self.probability * intensity * scale_factor
 

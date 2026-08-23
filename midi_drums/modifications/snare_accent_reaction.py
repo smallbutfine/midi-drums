@@ -15,7 +15,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Literal
 
-from midi_drums.config import VELOCITY, TIMING
+from midi_drums.config import TIMING, VELOCITY
 from midi_drums.core.models.pattern import Beat, Pattern
 from midi_drums.core.value_objects.drum_instrument import DrumInstrument
 from midi_drums.core.value_objects.riff_accent import RiffAccentMap
@@ -38,7 +38,9 @@ class SnareAccentReaction(DrummerModification):
     threshold: float = 0.85
     collapse_tolerance_beats: float = 0.125
 
-    def apply(self, pattern: Pattern, intensity_pt: tuple | None = None) -> Pattern:
+    def apply(
+        self, pattern: Pattern, intensity_pt: tuple | None = None
+    ) -> Pattern:
         """Return a new ``Pattern`` with snare reactions to riff accents.
 
         Args:
@@ -49,6 +51,7 @@ class SnareAccentReaction(DrummerModification):
             New ``Pattern`` with snare modifications based on mode.
         """
         import copy  # noqa: PLC0415
+
         new_pattern = copy.deepcopy(pattern)
 
         if self.mode == "off" or not self.riff_accents.accents:
@@ -64,7 +67,10 @@ class SnareAccentReaction(DrummerModification):
 
                 # Find nearest non-ghost snare beat
                 for beat in new_pattern.beats:
-                    if (beat.instrument != DrumInstrument.SNARE or beat.ghost_note):
+                    if (
+                        beat.instrument != DrumInstrument.SNARE
+                        or beat.ghost_note
+                    ):
                         continue
 
                     dist = abs(beat.position - accent.position)
@@ -72,13 +78,27 @@ class SnareAccentReaction(DrummerModification):
                     wrapped_dist = min(dist, beats_per_bar - dist)
                     if wrapped_dist <= self.collapse_tolerance_beats:
                         # Calculate the velocity ceiling (loudest snare in pattern or default)
-                        snare_velocities = [b.velocity for b in new_pattern.beats
-                                           if b.instrument == DrumInstrument.SNARE and not b.ghost_note]
-                        velocity_ceiling = max(snare_velocities) if snare_velocities else VELOCITY.SNARE_ACCENT
+                        snare_velocities = [
+                            b.velocity
+                            for b in new_pattern.beats
+                            if b.instrument == DrumInstrument.SNARE
+                            and not b.ghost_note
+                        ]
+                        velocity_ceiling = (
+                            max(snare_velocities)
+                            if snare_velocities
+                            else VELOCITY.SNARE_ACCENT
+                        )
 
                         # Boost toward the ceiling, weighted by accent strength
-                        current_boost = int((velocity_ceiling - beat.velocity) * accent.strength * 0.7)
-                        beat.velocity = min(beat.velocity + current_boost, velocity_ceiling)
+                        current_boost = int(
+                            (velocity_ceiling - beat.velocity)
+                            * accent.strength
+                            * 0.7
+                        )
+                        beat.velocity = min(
+                            beat.velocity + current_boost, velocity_ceiling
+                        )
                         break  # One accent per beat max
 
         elif self.mode == "stab":
@@ -90,19 +110,35 @@ class SnareAccentReaction(DrummerModification):
                 # Check if an existing snare is already near this accent
                 has_nearby_snare = False
                 for beat in new_pattern.beats:
-                    if (beat.instrument == DrumInstrument.SNARE or
-                        abs(beat.position - accent.position) <= self.collapse_tolerance_beats):
-                        wrapped = min(abs(beat.position - accent.position), beats_per_bar - abs(beat.position - accent.position))
+                    if (
+                        beat.instrument == DrumInstrument.SNARE
+                        or abs(beat.position - accent.position)
+                        <= self.collapse_tolerance_beats
+                    ):
+                        wrapped = min(
+                            abs(beat.position - accent.position),
+                            beats_per_bar
+                            - abs(beat.position - accent.position),
+                        )
                         if wrapped <= self.collapse_tolerance_beats:
                             # Collapse into the existing snare (reinforce instead of new hit)
                             has_nearby_snare = True
-                            current_boost = int((VELOCITY.SNARE_ACCENT - beat.velocity) * accent.strength * 0.5)
-                            beat.velocity = min(beat.velocity + current_boost, VELOCITY.SNARE_ACCENT)
+                            current_boost = int(
+                                (VELOCITY.SNARE_ACCENT - beat.velocity)
+                                * accent.strength
+                                * 0.5
+                            )
+                            beat.velocity = min(
+                                beat.velocity + current_boost,
+                                VELOCITY.SNARE_ACCENT,
+                            )
                             break
 
                 if not has_nearby_snare:
                     # Insert a new unison snare hit at the kick's position
-                    stab_velocity = int(VELOCITY.KICK_HEAVY * 0.85 * accent.strength)
+                    stab_velocity = int(
+                        VELOCITY.KICK_HEAVY * 0.85 * accent.strength
+                    )
                     new_snare = Beat(
                         position=accent.position,
                         instrument=DrumInstrument.SNARE,
@@ -115,7 +151,14 @@ class SnareAccentReaction(DrummerModification):
                     inserted = False
                     for i, existing in enumerate(new_pattern.beats):
                         if existing.instrument == DrumInstrument.SNARE:
-                            if self._beat_distance(existing.position, new_snare.position, beats_per_bar) > 0.5:
+                            if (
+                                self._beat_distance(
+                                    existing.position,
+                                    new_snare.position,
+                                    beats_per_bar,
+                                )
+                                > 0.5
+                            ):
                                 new_pattern.beats.insert(i + 1, new_snare)
                                 inserted = True
                                 break
@@ -125,7 +168,9 @@ class SnareAccentReaction(DrummerModification):
         return new_pattern
 
     @staticmethod
-    def _beat_distance(pos_a: float, pos_b: float, beats_per_bar: float) -> float:
+    def _beat_distance(
+        pos_a: float, pos_b: float, beats_per_bar: float
+    ) -> float:
         """Circular distance between beat positions within a bar."""
         dist1 = abs(pos_a - pos_b)
         dist2 = beats_per_bar - dist1

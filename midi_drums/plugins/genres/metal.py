@@ -163,7 +163,11 @@ class MetalGenrePlugin(GenrePlugin):
                     hihat_subdivision=TIMING.QUARTER,
                 )
             )
-            .add(CrashAccents(positions=[0.0], intensity=1.0, crash_type="splash"))
+            .add(
+                CrashAccents(
+                    positions=[0.0], intensity=1.0, crash_type="splash"
+                )
+            )
             .build(bars=1, complexity=complexity)
         )
         # Flavor 2: double-kick build with crash at end (use light crash for buildup)
@@ -176,7 +180,9 @@ class MetalGenrePlugin(GenrePlugin):
                     hihat_subdivision=TIMING.HALF,
                 )
             )
-            .add(CrashAccents(positions=[3.0], intensity=1.0, crash_type="light"))
+            .add(
+                CrashAccents(positions=[3.0], intensity=1.0, crash_type="light")
+            )
             .build(bars=1, complexity=complexity)
         )
         # Flavor 3: crash-sparse with tom fill (use light crashes to build tension)
@@ -189,7 +195,11 @@ class MetalGenrePlugin(GenrePlugin):
                     hihat_subdivision=TIMING.HALF,
                 )
             )
-            .add(CrashAccents(positions=[0.0, 1.5, 3.0], intensity=0.7, crash_type="light"))
+            .add(
+                CrashAccents(
+                    positions=[0.0, 1.5, 3.0], intensity=0.7, crash_type="light"
+                )
+            )
             .build(bars=1, complexity=complexity)
         )
         return [f1, f2, f3]
@@ -244,7 +254,11 @@ class MetalGenrePlugin(GenrePlugin):
         f1 = (
             TemplateComposer(f"{name}_c_blast")
             .add(BlastBeat(style="traditional", intensity=1.0))
-            .add(CrashAccents(positions=[0.0, 2.0], intensity=1.0, crash_type="heavy"))
+            .add(
+                CrashAccents(
+                    positions=[0.0, 2.0], intensity=1.0, crash_type="heavy"
+                )
+            )
             .build(bars=1, complexity=c)
         )
         # Flavor 2: gallop + crash on every quarter (HEAVY crashes for wall of sound)
@@ -257,7 +271,13 @@ class MetalGenrePlugin(GenrePlugin):
                     pattern_type="gallop",
                 )
             )
-            .add(CrashAccents(positions=[0.0, 1.0, 2.0, 3.0], intensity=0.85, crash_type="heavy"))
+            .add(
+                CrashAccents(
+                    positions=[0.0, 1.0, 2.0, 3.0],
+                    intensity=0.85,
+                    crash_type="heavy",
+                )
+            )
             .build(bars=1, complexity=c)
         )
         # Flavor 3: heavy double-bass wall with HEAVY crash (maximum crushing impact)
@@ -270,7 +290,9 @@ class MetalGenrePlugin(GenrePlugin):
                     pattern_type="continuous",
                 )
             )
-            .add(CrashAccents(positions=[0.0], intensity=1.0, crash_type="heavy"))
+            .add(
+                CrashAccents(positions=[0.0], intensity=1.0, crash_type="heavy")
+            )
             .build(bars=1, complexity=c)
         )
         return [f1, f2, f3]
@@ -289,7 +311,9 @@ class MetalGenrePlugin(GenrePlugin):
                     hihat_subdivision=TIMING.HALF,
                 )
             )
-            .add(TomFill(pattern="descending", start_position=3.0, use_edge=True))
+            .add(
+                TomFill(pattern="descending", start_position=3.0, use_edge=True)
+            )
             .build(bars=1, complexity=complexity)
         )
         # Flavor 2: heavy stomp with HEAVY crash (crushing impact)
@@ -302,7 +326,9 @@ class MetalGenrePlugin(GenrePlugin):
                     hihat_subdivision=TIMING.QUARTER,
                 )
             )
-            .add(CrashAccents(positions=[0.0], intensity=1.0, crash_type="heavy"))
+            .add(
+                CrashAccents(positions=[0.0], intensity=1.0, crash_type="heavy")
+            )
             .build(bars=1, complexity=complexity)
         )
         # Flavor 3: half-time slow groove with EDGE tom accents
@@ -333,7 +359,9 @@ class MetalGenrePlugin(GenrePlugin):
                     hihat_subdivision=TIMING.HALF,
                 )
             )
-            .add(TomFill(pattern="descending", start_position=0.0, use_edge=True))
+            .add(
+                TomFill(pattern="descending", start_position=0.0, use_edge=True)
+            )
             .build(bars=1, complexity=c)
         )
         # Flavor 2: sparse groove with fill (LIGHT crash for subtle transition)
@@ -359,7 +387,9 @@ class MetalGenrePlugin(GenrePlugin):
                     hihat_subdivision=TIMING.EIGHTH,
                 )
             )
-            .add(CrashAccents(positions=[3.5], intensity=0.8, crash_type="light"))
+            .add(
+                CrashAccents(positions=[3.5], intensity=0.8, crash_type="light")
+            )
             .build(bars=1, complexity=c)
         )
         return [f1, f2, f3]
@@ -370,9 +400,15 @@ class MetalGenrePlugin(GenrePlugin):
         # Flavor 1: descending tom + crash
         f1 = (
             TemplateComposer(f"{name}_o_desc")
-            .add(TomFill(pattern="descending", start_position=0.0, use_edge=True))
+            .add(
+                TomFill(pattern="descending", start_position=0.0, use_edge=True)
+            )
             # AD2: CRASH_HEAVY for epic metal outro ending
-            .add(CrashAccents(positions=[3.75], intensity=1.0, crash_type="heavy"))
+            .add(
+                CrashAccents(
+                    positions=[3.75], intensity=1.0, crash_type="heavy"
+                )
+            )
             .build(bars=1, complexity=c)
         )
         # Flavor 2: sparse hits fading out with light crash
@@ -386,15 +422,21 @@ class MetalGenrePlugin(GenrePlugin):
                 )
             )
             # AD2: CRASH_LIGHT for fading metal outro
-            .add(CrashAccents(positions=[3.5], intensity=0.6, crash_type="light"))
+            .add(
+                CrashAccents(positions=[3.5], intensity=0.6, crash_type="light")
+            )
             .build(bars=1, complexity=c)
         )
         # Flavor 3: tom roll finale with heavy crash
         f3 = (
             TemplateComposer(f"{name}_o_rollo")
-            .add(TomFill(pattern="ascending", start_position=0.0, use_edge=True))
+            .add(
+                TomFill(pattern="ascending", start_position=0.0, use_edge=True)
+            )
             # AD2: CRASH_HEAVY for epic metal outro finale
-            .add(CrashAccents(positions=[3.5], intensity=1.0, crash_type="heavy"))
+            .add(
+                CrashAccents(positions=[3.5], intensity=1.0, crash_type="heavy")
+            )
             .build(bars=1, complexity=c)
         )
         return [f1, f2, f3]
@@ -435,7 +477,11 @@ class MetalGenrePlugin(GenrePlugin):
                         hihat_subdivision=TIMING.HALF,
                     )
                 )
-                .add(CrashAccents(positions=[0.0], intensity=1.0, crash_type="splash"))
+                .add(
+                    CrashAccents(
+                        positions=[0.0], intensity=1.0, crash_type="splash"
+                    )
+                )
                 .build(bars=1, complexity=complexity)
             )
         else:
@@ -448,7 +494,11 @@ class MetalGenrePlugin(GenrePlugin):
                         hihat_subdivision=TIMING.QUARTER,
                     )
                 )
-                .add(CrashAccents(positions=[0.0], intensity=1.0, crash_type="splash"))
+                .add(
+                    CrashAccents(
+                        positions=[0.0], intensity=1.0, crash_type="splash"
+                    )
+                )
                 .build(bars=1, complexity=complexity)
             )
 
@@ -555,7 +605,11 @@ class MetalGenrePlugin(GenrePlugin):
             return (
                 TemplateComposer(name)
                 .add(BlastBeat(style="traditional", intensity=1.0))
-                .add(CrashAccents(positions=[0.0, 2.0], intensity=1.0, crash_type="heavy"))
+                .add(
+                    CrashAccents(
+                        positions=[0.0, 2.0], intensity=1.0, crash_type="heavy"
+                    )
+                )
                 .build(bars=1, complexity=chorus_complexity)
             )
         elif style == "power":
@@ -575,7 +629,11 @@ class MetalGenrePlugin(GenrePlugin):
                         hihat_subdivision=TIMING.QUARTER,
                     )
                 )
-                .add(CrashAccents(positions=[0.0, 2.0], intensity=1.0, crash_type="heavy"))
+                .add(
+                    CrashAccents(
+                        positions=[0.0, 2.0], intensity=1.0, crash_type="heavy"
+                    )
+                )
                 .build(bars=1, complexity=chorus_complexity)
             )
         elif style == "doom":
@@ -588,7 +646,11 @@ class MetalGenrePlugin(GenrePlugin):
                         hihat_subdivision=TIMING.EIGHTH,
                     )
                 )
-                .add(CrashAccents(positions=[0.0], intensity=1.0, crash_type="heavy"))
+                .add(
+                    CrashAccents(
+                        positions=[0.0], intensity=1.0, crash_type="heavy"
+                    )
+                )
                 .build(bars=1, complexity=chorus_complexity)
             )
         else:  # heavy, progressive, thrash, breakdown
@@ -608,7 +670,11 @@ class MetalGenrePlugin(GenrePlugin):
                         hihat_subdivision=TIMING.QUARTER,
                     )
                 )
-                .add(CrashAccents(positions=[0.0], intensity=1.0, crash_type="heavy"))
+                .add(
+                    CrashAccents(
+                        positions=[0.0], intensity=1.0, crash_type="heavy"
+                    )
+                )
                 .build(bars=1, complexity=chorus_complexity)
             )
 
@@ -624,7 +690,9 @@ class MetalGenrePlugin(GenrePlugin):
                     hihat_subdivision=TIMING.HALF,
                 )
             )
-            .add(TomFill(pattern="descending", start_position=3.0, use_edge=True))
+            .add(
+                TomFill(pattern="descending", start_position=3.0, use_edge=True)
+            )
             .build(bars=1, complexity=complexity)
         )
 

@@ -410,7 +410,9 @@ Examples:
         "riff",
         help="Generate riff-locked beats: audio riff → kick-on-riff accents",
     )
-    riff_parser.add_argument("audio_path", help="Path to audio riff file (WAV/MP3)")
+    riff_parser.add_argument(
+        "audio_path", help="Path to audio riff file (WAV/MP3)"
+    )
     riff_parser.add_argument("--genre", default="rock")
     riff_parser.add_argument("--style", default="classic")
     riff_parser.add_argument("--drummer", default=None)
@@ -420,7 +422,9 @@ Examples:
     riff_parser.add_argument("--grid", default="16th")
     riff_parser.add_argument("--lock-strength", type=float, default=1.0)
     riff_parser.add_argument("--mapping", default=None)
-    riff_parser.add_argument("--snare-mode", choices=["off", "reinforce", "stab"], default="off")
+    riff_parser.add_argument(
+        "--snare-mode", choices=["off", "reinforce", "stab"], default="off"
+    )
     riff_parser.add_argument("--snare-threshold", type=float, default=0.85)
     riff_parser.add_argument("--offset-beats", type=float, default=0)
     riff_parser.add_argument("--audio-offset", type=float, default=0)
@@ -1326,7 +1330,9 @@ def handle_riff_command(args, generator) -> None:
     try:
         from midi_drums.analysis.audio_analysis import analyze_onsets
         from midi_drums.modifications.riff_lock import RiffLockTransform
-        from midi_drums.modifications.snare_accent_reaction import SnareAccentReaction
+        from midi_drums.modifications.snare_accent_reaction import (
+            SnareAccentReaction,
+        )
     except ImportError as e:
         print(
             f"\nRFI dependencies are not installed: {e}\n"
@@ -1336,23 +1342,30 @@ def handle_riff_command(args, generator) -> None:
         sys.exit(1)
 
     print(f"Analyzing riff: {args.audio_path}")
-    accent_map = analyze_onsets(args.audio_path, bpm=args.bpm, beats_per_bar=4.0)
+    accent_map = analyze_onsets(
+        args.audio_path, bpm=args.bpm, beats_per_bar=4.0
+    )
     print(f"  → Detected {len(accent_map.accents)} accents")
 
     song = generator.create_song(
-        genre=args.genre, style=args.style,
-        structure=[(args.section, args.bars)], tempo=args.bpm, drummer=args.drummer,
+        genre=args.genre,
+        style=args.style,
+        structure=[(args.section, args.bars)],
+        tempo=args.bpm,
+        drummer=args.drummer,
     )
     if not song.sections:
         print("Failed to generate base pattern.", file=sys.stderr)
         sys.exit(1)
 
-    riff_locked = RiffLockTransform(riff_accents=accent_map, lock_strength=args.lock_strength).apply(
-        song.sections[0].pattern
-    )
+    riff_locked = RiffLockTransform(
+        riff_accents=accent_map, lock_strength=args.lock_strength
+    ).apply(song.sections[0].pattern)
     if args.snare_mode != "off":
         riff_locked = SnareAccentReaction(
-            riff_accents=accent_map, mode=args.snare_mode, threshold=args.snare_threshold,
+            riff_accents=accent_map,
+            mode=args.snare_mode,
+            threshold=args.snare_threshold,
         ).apply(riff_locked)
         print(f"  → Snare reaction mode: {args.snare_mode}")
 
@@ -1376,11 +1389,15 @@ def main():
 
         # Derive output filename
         slug = args.name or f"{args.genre}_{args.style}"
-        slug = "".join(c if c.isalnum() or c == "_" else "_" for c in slug.lower())
+        slug = "".join(
+            c if c.isalnum() or c == "_" else "_" for c in slug.lower()
+        )
         output_path = args.output or f"{slug}.mid"
 
         print(f"Generating song: genre={args.genre}, style={args.style}")
-        print(f"Tempo: {args.tempo} BPM | Complexity: {args.complexity} | Mapping: {args.mapping}")
+        print(
+            f"Tempo: {args.tempo} BPM | Complexity: {args.complexity} | Mapping: {args.mapping}"
+        )
         print(f"Output: {output_path}")
 
         song = generator.create_song(

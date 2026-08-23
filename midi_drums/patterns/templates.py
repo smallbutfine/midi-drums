@@ -277,7 +277,9 @@ class JazzRidePattern(PatternTemplate):
     swing_ratio: float = 0.33
     accent_pattern: str = "standard"  # "standard", "elvin", "tony"
     use_bell: bool = False
-    use_shaft: bool = False  # AD2 ride shaft hit for metallic harshness (metal/rock)
+    use_shaft: bool = (
+        False  # AD2 ride shaft hit for metallic harshness (metal/rock)
+    )
 
     def generate(self, builder: PatternBuilder, **kwargs) -> PatternBuilder:
         bars = kwargs.get("bars", 1)
@@ -390,7 +392,7 @@ class CrashAccents(PatternTemplate):
 
     Adds crash cymbals at strategic positions for emphasis.
     Supports AD2 extended crash types for timbral variety:
-        - "light": CRASH_LIGHT (77) — verses, softer sections  
+        - "light": CRASH_LIGHT (77) — verses, softer sections
         - "heavy": CRASH_HEAVY (89) — choruses, power sections
         - "splash": CRASH_SPLASH (93) — fills, bright endings
     """
@@ -398,7 +400,9 @@ class CrashAccents(PatternTemplate):
     positions: list[float] = field(default_factory=lambda: [0.0])
     use_china: bool = False
     intensity: float = 1.0
-    crash_type: str | None = None  # "light", "heavy", "splash" or None for standard CRASH
+    crash_type: str | None = (
+        None  # "light", "heavy", "splash" or None for standard CRASH
+    )
 
     def generate(self, builder: PatternBuilder, **kwargs) -> PatternBuilder:
         bars = kwargs.get("bars", 1)
@@ -442,7 +446,9 @@ class TomFill(PatternTemplate):
     pattern: str = "descending"  # "descending", "ascending", "around"
     subdivision: float = TIMING.SIXTEENTH
     start_position: float = 3.0  # Usually bar 4
-    use_edge: bool = False  # Use TOM_EDGE variants for sharper attack (rock/metal)
+    use_edge: bool = (
+        False  # Use TOM_EDGE variants for sharper attack (rock/metal)
+    )
 
     def generate(self, builder: PatternBuilder, **kwargs) -> PatternBuilder:
         bars = kwargs.get("bars", 1)

@@ -61,11 +61,18 @@ def analyze_onsets(
     y, sr = librosa.load(path, sr=22050, mono=True)
 
     # Compute onset envelope and detect onsets
-    onset_env = librosa.onset.onset_strength(y=y, sr=sr, frame_length=frame_length, hop_length=hop_length)
-    onset_frames = librosa.util.amp_to_db(onset_env) > librosa.util.peak_tonality(onset_env, top_k=10) * 3
+    onset_env = librosa.onset.onset_strength(
+        y=y, sr=sr, frame_length=frame_length, hop_length=hop_length
+    )
+    onset_frames = (
+        librosa.util.amp_to_db(onset_env)
+        > librosa.util.peak_tonality(onset_env, top_k=10) * 3
+    )
 
     # Convert frame indices to times (seconds)
-    onsets_beat_times = librosa.frames_to_time(np.where(onset_frames)[0], sr=sr, hop_length=hop_length)
+    onsets_beat_times = librosa.frames_to_time(
+        np.where(onset_frames)[0], sr=sr, hop_length=hop_length
+    )
 
     # Calculate beat positions within the bar
     seconds_per_beat = 60.0 / bpm
@@ -77,16 +84,24 @@ def analyze_onsets(
         beat_position = position_in_bar / seconds_per_beat
 
         # Use onset strength as normalized strength
-        frame_idx = librosa.time_to_frames(onset_time, sr=sr, hop_length=hop_length)
+        frame_idx = librosa.time_to_frames(
+            onset_time, sr=sr, hop_length=hop_length
+        )
         if 0 <= frame_idx < len(onset_env):
             raw_strength = float(onset_env[frame_idx])
             # Normalize to 0-1 range using a simple heuristic
-            strength = min(1.0, max(0.0, (raw_strength + 30) / 40))  # shift by -30dB floor
+            strength = min(
+                1.0, max(0.0, (raw_strength + 30) / 40)
+            )  # shift by -30dB floor
 
         if beat_position >= 0 and strength >= onset_threshold:
-            accent_map_accents.append(RiffAccent(position=beat_position, strength=strength))
+            accent_map_accents.append(
+                RiffAccent(position=beat_position, strength=strength)
+            )
 
-    return RiffAccentMap(accents=tuple(accent_map_accents), beats_per_bar=beats_per_bar)
+    return RiffAccentMap(
+        accents=tuple(accent_map_accents), beats_per_bar=beats_per_bar
+    )
 
 
 def detect_beats(
@@ -127,7 +142,10 @@ def detect_beats(
 
     # Use onset strength as confidence for each beat
     onset_env = librosa.onset.onset_strength(y=y, sr=sr)
-    onset_times = librosa.frames_to_time(np.where(librosa.util.peak_pick(onset_env, 1, 1, 1, 0, 50, 0.1))[0], sr=sr)
+    onset_times = librosa.frames_to_time(
+        np.where(librosa.util.peak_pick(onset_env, 1, 1, 1, 0, 50, 0.1))[0],
+        sr=sr,
+    )
 
     seconds_per_beat = 60.0 / estimated_bpm
     accents = []
@@ -136,7 +154,11 @@ def detect_beats(
         if 0 <= pos < beats_per_bar:
             # Use onset strength as accent strength (normalized)
             frame_idx = int(t * sr / 512) if 512 > 0 else 0
-            strength = float(min(1.0, max(0.0, (onset_env[frame_idx] + 30) / 40))) if frame_idx < len(onset_env) else 0.5
+            strength = (
+                float(min(1.0, max(0.0, (onset_env[frame_idx] + 30) / 40)))
+                if frame_idx < len(onset_env)
+                else 0.5
+            )
             accents.append(RiffAccent(position=pos, strength=strength))
 
     return RiffAccentMap(accents=tuple(accents), beats_per_bar=beats_per_bar)

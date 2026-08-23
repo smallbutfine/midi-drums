@@ -217,7 +217,10 @@ class ComposerV2:
                         groove_offsets_ms.append(offset)
 
                 section = Section(
-                    section_name, combined, bars, fills=fills,
+                    section_name,
+                    combined,
+                    bars,
+                    fills=fills,
                     groove_offsets_ms=groove_offsets_ms or None,
                 )
                 song.add_section(section)

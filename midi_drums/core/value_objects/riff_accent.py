@@ -24,9 +24,13 @@ class RiffAccent:
 
     def __post_init__(self) -> None:
         if self.position < 0:
-            raise ValueError(f"position cannot be negative, got {self.position}")
+            raise ValueError(
+                f"position cannot be negative, got {self.position}"
+            )
         if not 0.0 <= self.strength <= 1.0:
-            raise ValueError(f"strength must be between 0.0 and 1.0, got {self.strength}")
+            raise ValueError(
+                f"strength must be between 0.0 and 1.0, got {self.strength}"
+            )
 
 
 @dataclass(frozen=True)
@@ -46,7 +50,9 @@ class RiffAccentMap:
 
     def __post_init__(self) -> None:
         if self.beats_per_bar <= 0:
-            raise ValueError(f"beats_per_bar must be positive, got {self.beats_per_bar}")
+            raise ValueError(
+                f"beats_per_bar must be positive, got {self.beats_per_bar}"
+            )
         for accent in self.accents:
             if not 0.0 <= accent.position < self.beats_per_bar:
                 raise ValueError(

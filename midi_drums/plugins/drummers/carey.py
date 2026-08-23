@@ -65,13 +65,13 @@ class CareyPlugin(DrummerPlugin):
         beat_count = len(pattern.beats)
         max_new_beats = 12
         if beat_count <= 4:
-            scale_factor = 1.0      # Very sparse → full density
+            scale_factor = 1.0  # Very sparse → full density
         elif beat_count <= 8:
-            scale_factor = 0.75     # Medium sparse → slightly reduced
+            scale_factor = 0.75  # Medium sparse → slightly reduced
         elif beat_count <= 16:
-            scale_factor = 0.5      # Dense → half density to preserve structure
+            scale_factor = 0.5  # Dense → half density to preserve structure
         else:
-            scale_factor = 0.3      # Very dense → minimal additions
+            scale_factor = 0.3  # Very dense → minimal additions
 
         max_new_beats = int(max_new_beats * scale_factor)
         current_count = [0]  # Use list for mutability in closures
