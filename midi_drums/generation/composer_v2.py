@@ -22,6 +22,7 @@ from midi_drums.core.value_objects.generation_parameters import (
 from midi_drums.core.value_objects.time_signature import TimeSignature
 from midi_drums.generation.bar_selector import BarSelector
 from midi_drums.generation.fill_library.picker import FillContext, FillPicker
+from midi_drums.generation.groove_engine import GrooveEngine
 from midi_drums.generation.intensity_curve import (
     IntensityCurve,
     interpolate_curve,
@@ -41,6 +42,7 @@ class ComposerV2:
         self._rng = random.Random(seed)
         self.bar_selector = BarSelector(seed=seed)
         self.fill_picker = FillPicker(seed=seed)
+        self.groove_engine = GrooveEngine(seed=seed)
 
     def create_song(
         self,
@@ -170,9 +172,21 @@ class ComposerV2:
                         )
                     )
 
+                # GrooveEngine — per-bar timing displacement based on drummer feel
+                # (additive to BarSelector's per-note micro-jitter)
+                groove_params = {
+                    "pattern": drummed_pattern,
+                    "bar_index": bar_index,
+                    "tempo": tempo,  # from create_song() signature
+                    "intensity_pt": intensity_pt,
+                    "section_name": section_name,
+                    "drummer_name": params.drummer,
+                }
+                grooved_pattern = self.groove_engine.apply(**groove_params)
+
                 # Final bar-level modulation (density, complexity, etc.)
                 final_pattern = self.bar_selector.generate_for_bar(
-                    drummed_pattern,
+                    grooved_pattern,
                     bar_index,
                     bars,
                     intensity_pt,
