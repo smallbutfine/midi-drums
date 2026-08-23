@@ -103,13 +103,6 @@ class TestDrummerSignatureFillsWiredIntoGeneration:
         signature fill's notes reach the generated MIDI output."""
         generator = DrumGenerator()
 
-        # Section.should_add_fill() calls random.random() twice per bar:
-        # once to decide whether a fill happens at all (must be less than
-        # fill_frequency) and once for the trigger_probability-weighted
-        # pick among section.fills. Returning a value just below 1.0 for
-        # both, with fill_frequency=1.0, deterministically selects the
-        # *last* fill in Peart's exclusive candidate list -
-        # peart_china_punctuation.
         with patch("random.random", return_value=0.999999):
             song = generator.create_song(
                 genre="rock",
@@ -118,17 +111,18 @@ class TestDrummerSignatureFillsWiredIntoGeneration:
                 fill_frequency=1.0,
                 structure=[("verse", 1)],
             )
-            midi = generator.midi_engine.song_to_midi(song)
+            midi_buf = generator.midi_engine.song_to_midi(song)
 
+        # Read back through mido to verify note data
+        import io
+        from mido import MidiFile
+        m = MidiFile(file=io.BytesIO(midi_buf.getvalue()))
         china_note = generator.drum_kit.get_midi_note(DrumInstrument.CHINA)
 
         note_ons = [
-            event
-            for track in midi.tracks
-            for event in track.eventList
-            if type(event).__name__ == "NoteOn"
+            msg for t in m.tracks for msg in t if msg.type == "note_on"
         ]
-        china_notes = [e for e in note_ons if e.pitch == china_note]
+        china_notes = [e for e in note_ons if e.note == china_note]
 
         assert china_notes, (
             "expected Peart's china_punctuation signature fill to render "

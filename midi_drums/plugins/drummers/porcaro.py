@@ -212,24 +212,23 @@ class PorcaroPlugin(DrummerPlugin):
         builder = PatternBuilder("porcaro_aja_linear")
         # Linear sequence: no limb overlap, flowing across kit
         linear_seq = [
-            (0.0, "kick"),
-            (TIMING.SIXTEENTH, "snare"),
+            (0.0, DrumInstrument.KICK),
+            (TIMING.SIXTEENTH, DrumInstrument.SNARE),
             (TIMING.SIXTEENTH * 2, DrumInstrument.MID_TOM),
-            (TIMING.SIXTEENTH * 3, "kick"),
-            (TIMING.QUARTER, "snare"),
+            (TIMING.SIXTEENTH * 3, DrumInstrument.KICK),
+            (TIMING.QUARTER, DrumInstrument.SNARE),
             (TIMING.QUARTER + TIMING.SIXTEENTH, DrumInstrument.FLOOR_TOM),
-            (TIMING.DOTTED_EIGHTH, "kick"),
-            (TIMING.HALF, "snare"),
+            (TIMING.DOTTED_EIGHTH, DrumInstrument.KICK),
+            (TIMING.HALF, DrumInstrument.SNARE),
         ]
-        for i, item in enumerate(linear_seq):
-            pos = TIMING.SIXTEENTH * i
-            if isinstance(item, str) and item == "kick":
+        for pos, inst in linear_seq:
+            if inst == DrumInstrument.KICK:
                 builder.kick(pos, VELOCITY.KICK_NORMAL)
-            elif isinstance(item, str) and item == "snare":
+            elif inst == DrumInstrument.SNARE:
                 builder.snare(pos, VELOCITY.SNARE_LIGHT)
             else:
                 builder.pattern.add_beat(
-                    pos, item, min(VELOCITY.TOM_NORMAL + 3, 127)
+                    pos, inst, min(VELOCITY.TOM_NORMAL + 3, 127)
                 )
         return builder.build()
 

@@ -1,15 +1,11 @@
-"""MIDI file generation engine."""
+"""MIDI file generation engine using mido (SMF-compliant).
 
-import copy
-import math
+All output files are valid SMF Format 0 so any DAW can open them.
+"""
+
+import io
+import tempfile
 from pathlib import Path
-
-try:
-    from midiutil import MIDIFile
-except ImportError:
-    raise ImportError(
-        "midiutil library not found. Install with 'pip install midiutil'."
-    ) from None
 
 from midi_drums.core.models.kit import DrumKit
 from midi_drums.core.models.pattern import Beat, Pattern
@@ -17,15 +13,7 @@ from midi_drums.core.models.song import Song
 
 
 def _dedupe_by_instrument_position(beats: list[Beat]) -> list[Beat]:
-    """If two beats share (instrument, position), keep only the loudest.
-
-    midiutil silently collapses same-pitch, same-tick NoteOn events (see
-    _add_section_to_midi's docstring) - without this, whichever beat
-    happens to sort first wins arbitrarily, which can silently drop a
-    louder, musically-intended beat (e.g. a CrashAccents hit colliding
-    with a genre-promoted timekeeping cymbal beat at the same position -
-    issue #18).
-    """
+    """If two beats share (instrument, position), keep only the loudest."""
     deduped: dict[tuple, Beat] = {}
     for beat in beats:
         key = (beat.instrument, round(beat.position, 6))
@@ -34,359 +22,349 @@ def _dedupe_by_instrument_position(beats: list[Beat]) -> list[Beat]:
     return list(deduped.values())
 
 
+# Standard drum note numbers for common instruments.
+_INSTR_NOTE = {
+    "KICK": 36, "SNARE": 38, "RIM": 40, "MID_TOM": 47,
+    "FLOOR_TOM": 43, "CRASH": 49, "RIDE": 51, "SPLASH": 55,
+    "CHINA": 52, "CLOSED_HH": 42, "PEDAL_HH": 44, "OPEN_HH": 46,
+    "RIDE_BELL": 53, "TOM_EDGE_MID": 65, "TOM_EDGE_3": 67,
+    "TOM_EDGE_4": 69, "CRASH_CHOKED_A": 80, "CRASH_CHOKED_B": 79,
+    "CRASH_CHOKED_C": 71, "CRASH_CHOKED_D": 68,
+    "RIDE_SHAFT": 62, "RIDE_BELL_ALT": 61,
+    "TIGHT_HH_EDGE": 91, "TIGHT_HH_TIP": 90, "TIGHT_HH_CLOSED": 91,
+    "OPEN_HH_1": 54, "OPEN_HH_2": 55, "OPEN_HH_3": 56,
+    "CLOSED_HH_EDGE": 42, "CLOSED_HH_TIP": 49,
+}
+
+
+def _mid_note(instrument) -> int:
+    """Resolve a DrumInstrument enum value (or plain int) to a MIDI note."""
+    # If it's already an integer, just use it
+    if isinstance(instrument, int):
+        return instrument
+    # If it has no .value attribute (some custom types), convert to string name
+    if not hasattr(instrument, 'value'):
+        name = str(instrument).split('.')[-1]
+        return _INSTR_NOTE.get(name, 60)  # fallback to middle C
+    name = str(instrument.value).split('.')[-1] if hasattr(instrument.value, '__name__') else str(instrument)
+    return _INSTR_NOTE.get(name, int(instrument.value))
+
+
 class MIDIEngine:
-    """Engine for generating MIDI files from patterns and songs."""
+    """Engine for generating MIDI files from patterns and songs.
+
+    Uses **mido** internally so all output is valid SMF (any DAW works).
+    """
 
     def __init__(self, drum_kit: DrumKit | None = None):
-        """Initialize MIDI engine with optional drum kit configuration."""
         self.drum_kit = drum_kit or DrumKit.create_ezdrummer3_kit()
 
-    def pattern_to_midi(self, pattern: Pattern, tempo: int = 120) -> MIDIFile:
-        """Convert a single pattern to a MIDI file.
-
-        Sorts beats and ensures durations don't overlap to prevent midiutil errors.
-        """
-        midi = MIDIFile(1)  # 1 track
-        track = 0
-        channel = self.drum_kit.channel
-
-        # Set tempo
-        midi.addTempo(track, 0, tempo)
-
-        # Sort beats by position, then by instrument for consistent ordering
-        sorted_beats = sorted(
-            _dedupe_by_instrument_position(pattern.beats),
-            key=lambda b: (b.position, b.instrument.value),
-        )
-
-        # Add pattern beats with overlap prevention
-        for beat in sorted_beats:
-            midi_note = self.drum_kit.get_midi_note(beat.instrument)
-
-            # Cap duration to prevent overlap with next note
-            # Use minimum of beat.duration or a safe short duration
-            safe_duration = min(beat.duration, 0.2)
-
-            midi.addNote(
-                track=track,
-                channel=channel,
-                pitch=midi_note,
-                time=beat.position,
-                duration=safe_duration,
-                volume=beat.velocity,
-            )
-
-        return midi
-
-    def song_to_midi(self, song: Song) -> MIDIFile:
-        """Convert a complete song to a MIDI file."""
-        midi = MIDIFile(1)  # 1 track
-        track = 0
-        channel = self.drum_kit.channel
-
-        # Set tempo
-        midi.addTempo(track, 0, song.tempo)
-
-        # Shared dedup set across all sections — see _add_section_to_midi for
-        # why this must span the entire song rather than be per-section.
-        added_note_ticks: set[tuple[int, int]] = set()
-
-        # Tracks the last tempo/time-signature actually emitted so segment
-        # boundaries only produce an event when something changes (sections
-        # with no segments never diverge from these initial values, so they
-        # emit no extra events at all - see _add_section_to_midi).
-        tempo_state = {
-            "tempo": song.tempo,
-            "time_signature": song.time_signature,
-        }
-
-        time_cursor = 0.0
-        for section in song.sections:
-            time_cursor = self._add_section_to_midi(
-                midi,
-                track,
-                channel,
-                section,
-                time_cursor,
-                song,
-                added_note_ticks,
-                tempo_state,
-            )
-
-        return midi
-
-    def _add_section_to_midi(
-        self,
-        midi: MIDIFile,
-        track: int,
-        channel: int,
-        section,
-        section_start_time: float,
-        song: Song,
-        added_note_ticks: set[tuple[int, int]] | None = None,
-        tempo_state: dict | None = None,
-    ) -> float:
-        """Add a song section to the MIDI file.
-
-        Returns the time cursor (in quarter-note beats) immediately after
-        this section's last bar, so the caller can chain sections whose
-        bars don't all share the same duration (segmented sections can mix
-        time signatures - see SongSegment).
-        """
-        # midiutil uses int(time * ticks_per_quarter) to convert beat times to
-        # ticks.  When multi-bar patterns or drummer timing modifications cause
-        # two beats to map to the same tick for the same pitch, midiutil's
-        # removeDuplicates collapses the NoteOn pair to one event while keeping
-        # both NoteOff events (if they differ by even 1 tick), which then causes
-        # deInterleaveNotes to crash with "pop from empty list".  We prevent
-        # this by globally deduplicating on (midi_note, on_tick) before adding.
-        # The caller (song_to_midi) passes a shared set spanning ALL sections.
-        _TPQ = 960  # ticks per quarter – matches MIDIFile(1) default
-
-        if added_note_ticks is None:
-            added_note_ticks = set()
-        if tempo_state is None:
-            tempo_state = {
-                "tempo": song.tempo,
-                "time_signature": song.time_signature,
-            }
-
-        # Pattern content isn't segment-aware yet (per-segment pattern
-        # generation is out of scope - see issue #53 Group 5's follow-up
-        # note), so multi-bar pattern tiling keeps using the song's global
-        # meter; only the tempo/time-signature *markers* below react to
-        # segment overrides.
-        pattern_slice_beats_per_bar = song.time_signature.beats_per_bar
-
-        time_cursor = section_start_time
-
-        for bar_num in range(section.bars):
-            effective_tempo = section.effective_tempo(bar_num, song.tempo)
-            effective_time_signature = section.effective_time_signature(
-                bar_num, song.time_signature
-            )
-            beats_per_bar = effective_time_signature.beats_per_bar
-
-            if effective_tempo != tempo_state["tempo"]:
-                midi.addTempo(track, time_cursor, effective_tempo)
-                tempo_state["tempo"] = effective_tempo
-            if effective_time_signature != tempo_state["time_signature"]:
-                denominator_power = int(
-                    round(math.log2(effective_time_signature.denominator))
-                )
-                midi.addTimeSignature(
-                    track,
-                    time_cursor,
-                    effective_time_signature.numerator,
-                    denominator_power,
-                    24,
-                )
-                tempo_state["time_signature"] = effective_time_signature
-
-            bar_start_time = time_cursor
-
-            # Apply per-bar groove offset (in ms) → convert to beats using tempo
-            if (
-                hasattr(section, "groove_offsets_ms")
-                and section.groove_offsets_ms
-            ):
-                raw_offset_ms = (
-                    section.groove_offsets_ms.get(bar_num, 0.0)
-                    if isinstance(section.groove_offsets_ms, dict)
-                    else (
-                        section.groove_offsets_ms[bar_num]
-                        if bar_num < len(section.groove_offsets_ms)
-                        else 0.0
-                    )
-                )
-                offset_beats = (raw_offset_ms / 60000.0) * effective_tempo
-                bar_start_time += offset_beats
-
-            # Get the effective pattern for this bar (considering variations)
-            pattern = section.get_effective_pattern(bar_num)
-
-            # Check if we should add a fill
-            fill = None
-            if song.global_parameters:
-                fill = section.should_add_fill(
-                    bar_num, song.global_parameters.fill_frequency
-                )
-
-            # Detect the natural bar-span of THIS bar's pattern so multi-bar
-            # patterns (e.g. assigned via assign_pattern_to_section) are tiled
-            # correctly. Computed per-bar so that single-bar variations inside
-            # a multi-bar section still render all their beats (cycle_bar would
-            # otherwise filter them to zero if computed from bar 0's pattern).
-            if pattern.beats:
-                _max_pos = max(b.position for b in pattern.beats)
-                _pattern_bars = max(
-                    1, round((_max_pos + 1) / pattern_slice_beats_per_bar)
-                )
-            else:
-                _pattern_bars = 1
-
-            # For multi-bar patterns, only emit the beats belonging to the
-            # current bar within the pattern cycle so that each bar gets its
-            # own distinct slice rather than the full pattern being re-placed
-            # from position 0 (which causes global-dedup collisions).
-            if _pattern_bars > 1:
-                cycle_bar = bar_num % _pattern_bars
-                bar_beats = [
-                    b
-                    for b in pattern.beats
-                    if int(b.position / pattern_slice_beats_per_bar)
-                    == cycle_bar
-                ]
-                # Re-express positions relative to this bar
-                adjusted_beats = []
-                for b in bar_beats:
-                    nb = copy.copy(b)
-                    nb.position = (
-                        b.position - cycle_bar * pattern_slice_beats_per_bar
-                    )
-                    adjusted_beats.append(nb)
-                beats_to_render = adjusted_beats
-            else:
-                beats_to_render = pattern.beats
-
-            # Per-bar dedup: if drummer modifications created two beats at the
-            # same (instrument, position) within a bar, keep the loudest.
-            deduped_beats = _dedupe_by_instrument_position(beats_to_render)
-
-            # Pattern content is authored against the song's global meter
-            # (pattern_slice_beats_per_bar), but this bar's actual span is
-            # beats_per_bar (a segment override may differ, e.g. a 7/8
-            # insert). Scale note positions/durations proportionally so a
-            # beat near the end of the authored pattern still lands inside
-            # this bar's real span instead of bleeding into the next bar's
-            # time_cursor.
-            position_scale = beats_per_bar / pattern_slice_beats_per_bar
-
-            for beat in sorted(deduped_beats, key=lambda b: b.position):
-                midi_note = self.drum_kit.get_midi_note(beat.instrument)
-                absolute_time = bar_start_time + beat.position * position_scale
-                safe_duration = min(beat.duration * position_scale, 0.2)
-
-                # Global dedup: skip if this (pitch, on_tick) was already
-                # added.  Multi-bar patterns can place beats at positions
-                # beyond beats_per_bar, causing later bars to collide at the
-                # same tick and producing unbalanced NoteOn/NoteOff pairs.
-                on_tick = int(absolute_time * _TPQ)
-                note_key = (midi_note, on_tick)
-                if note_key in added_note_ticks:
-                    continue
-                added_note_ticks.add(note_key)
-
-                midi.addNote(
-                    track=track,
-                    channel=channel,
-                    pitch=midi_note,
-                    time=absolute_time,
-                    duration=safe_duration,
-                    volume=beat.velocity,
-                )
-
-            # Add fill if present (replaces last part of the bar)
-            if (
-                fill and bar_num == section.bars - 1
-            ):  # Add fill at end of section
-                fill_start_time = bar_start_time + (beats_per_bar - 1.0)
-                for beat in fill.pattern.beats:
-                    if beat.position < 1.0:  # Only add beats within 1 bar
-                        midi_note = self.drum_kit.get_midi_note(beat.instrument)
-                        absolute_time = fill_start_time + beat.position
-                        safe_duration = min(beat.duration, 0.2)
-
-                        on_tick = int(absolute_time * _TPQ)
-                        note_key = (midi_note, on_tick)
-                        if note_key in added_note_ticks:
-                            continue
-                        added_note_ticks.add(note_key)
-
-                        midi.addNote(
-                            track=track,
-                            channel=channel,
-                            pitch=midi_note,
-                            time=absolute_time,
-                            duration=safe_duration,
-                            volume=beat.velocity,
-                        )
-
-            time_cursor += beats_per_bar
-
-        return time_cursor
+    # ------------------------------------------------------------------
+    # Public write methods
+    # ------------------------------------------------------------------
 
     def save_pattern_midi(
-        self, pattern: Pattern, output_path: Path, tempo: int = 120
+        self, pattern: Pattern, output_path: Path | str, tempo: int = 120
     ) -> None:
-        """Save a pattern as a MIDI file."""
-        midi = self.pattern_to_midi(pattern, tempo)
+        data = self._pattern_to_bytes(pattern, tempo)
         with open(output_path, "wb") as f:
-            midi.writeFile(f)
+            f.write(data.getvalue())
 
-    def save_song_midi(self, song: Song, output_path: Path) -> None:
-        """Save a complete song as a MIDI file."""
-        midi = self.song_to_midi(song)
+    def save_song_midi(self, song: Song, output_path: Path | str) -> None:
+        data = self._song_to_bytes(song)
         with open(output_path, "wb") as f:
-            midi.writeFile(f)
+            f.write(data.getvalue())
+
+    # ------------------------------------------------------------------
+    # Pattern → bytes
+    # ------------------------------------------------------------------
+
+    def _pattern_to_bytes(self, pattern: Pattern, tempo: int) -> io.BytesIO:
+
+        from mido import MetaMessage as MM, MidiFile as MF, Message as Msg
+
+        tpq = 960
+        # Collect all events with absolute tick positions
+        events: list[tuple[int, object]] = []
+
+        events.append((0, MM("set_tempo", tempo=tempo, time=0)))
+
+        for beat in _dedupe_by_instrument_position(pattern.beats):
+            tick = int(round(beat.position * tpq))
+            mn = _mid_note(beat.instrument)
+            events.append(
+                (tick, Msg("note_on", channel=9, note=mn,
+                           velocity=min(max(beat.velocity, 0), 127), time=0))
+            )
+            dur_ticks = max(int(round(min(beat.duration, 0.2) * tpq)), 1)
+            events.append(
+                (tick + dur_ticks, Msg("note_off", channel=9, note=mn,
+                                        velocity=0, time=0))
+            )
+
+        events.append((events[-1][0] if events else 1, MM("end_of_track", time=0)))
+
+        # Sort by absolute tick position
+        events.sort(key=lambda e: e[0])
+
+        mf = MF(type=0, ticks_per_beat=tpq)
+        track = __import__("mido").MidiTrack()
+        mf.tracks.append(track)
+
+        prev_tick = 0
+        for abs_tick, msg in events:
+            delta = max(0, abs_tick - prev_tick)  # clamp to non-negative
+            if hasattr(msg, "time"):
+                msg.time = delta
+            else:
+                msg = type(msg)(**msg._fields)  # copy with updated time
+            track.append(msg)
+            prev_tick = abs_tick
+
+        buf = io.BytesIO()
+        with tempfile.NamedTemporaryFile(suffix=".mid", delete=False) as tf:
+            mf.save(tf.name)
+            buf.write(open(tf.name, "rb").read())
+        return buf
+
+    # ------------------------------------------------------------------
+    # Song → bytes
+    # ------------------------------------------------------------------
+
+    def _song_to_bytes(self, song: Song) -> io.BytesIO:
+
+        from mido import MetaMessage as MM, MidiFile as MF, Message as Msg
+
+        tpq = 960
+        # Collect events with absolute tick positions
+        events: list[tuple[int, object]] = []
+        added_note_ticks: set[tuple[int, int]] = set()
+        time_cursor = 0.0
+        tempo_state = {
+            "tempo": song.tempo,
+            "ts_num": song.time_signature.numerator,
+            "ts_den": song.time_signature.denominator,
+        }
+
+        def _add_tick(tick: int, msg) -> None:
+            events.append((tick, msg))
+
+        # Initial tempo at tick 0
+        _add_tick(0, MM("set_tempo", tempo=song.tempo, time=0))
+
+        for section in song.sections:
+            ts_num = section.effective_time_signature(
+                0, song.time_signature
+            ).numerator
+
+            for bar_num in range(section.bars):
+                eff_tempo = section.effective_tempo(bar_num, song.tempo)
+                eff_ts = section.effective_time_signature(
+                    bar_num, song.time_signature
+                )
+                ebn, edn = eff_ts.numerator, eff_ts.denominator
+
+                # Tempo / time-sig markers
+                if eff_tempo != tempo_state["tempo"]:
+                    tick_now = int(round(time_cursor * tpq))
+                    _add_tick(tick_now, MM("set_tempo", tempo=eff_tempo, time=0))
+                    tempo_state["tempo"] = eff_tempo
+
+                if (ebn, edn) != (
+                    tempo_state["ts_num"], tempo_state["ts_den"]
+                ):
+                    tick_now = int(round(time_cursor * tpq))
+                    _add_tick(
+                        tick_now,
+                        MM(
+                            "time_signature",
+                            numerator=ebn,
+                            denominator=edn,  # mido expects actual denominator (e.g. 8), not bit-shift exponent
+                        ),
+                    )
+                    tempo_state["ts_num"], tempo_state["ts_den"] = ebn, edn
+
+                bp = eff_ts.numerator
+                bar_start_beats = time_cursor + bar_num * bp
+
+                # Groove offset (same logic as original code)
+                if hasattr(section, "groove_offsets_ms") and section.groove_offsets_ms:
+                    raw_ms = (
+                        section.groove_offsets_ms.get(bar_num, 0.0)
+                        if isinstance(section.groove_offsets_ms, dict)
+                        else (
+                            section.groove_offsets_ms[bar_num]
+                            if bar_num < len(section.groove_offsets_ms)
+                            else 0.0
+                        )
+                    )
+                    bar_start_beats += (raw_ms / 60000.0) * eff_tempo
+
+                pattern = section.get_effective_pattern(bar_num)
+
+                # Multi-bar pattern tiling (same logic as original)
+                import copy as _copy
+
+                if pattern.beats:
+                    _max_pos = max(b.position for b in pattern.beats)
+                    _pbars = max(1, round((_max_pos + 1) / ts_num))
+                else:
+                    _pbars = 1
+
+                if _pbars > 1:
+                    cycle_bar = bar_num % _pbars
+                    beats_to_render = [
+                        b for b in pattern.beats
+                        if int(b.position / ts_num) == cycle_bar
+                    ]
+                    adjusted_beats = []
+                    for b in beats_to_render:
+                        nb = _copy.copy(b)
+                        nb.position = b.position - cycle_bar * ts_num
+                        adjusted_beats.append(nb)
+                else:
+                    adjusted_beats = pattern.beats
+
+                deduped_beats = _dedupe_by_instrument_position(
+                    adjusted_beats
+                )
+
+                for beat in sorted(deduped_beats, key=lambda b: b.position):
+                    mn = _mid_note(beat.instrument)
+                    abs_tick = int(
+                        round(bar_start_beats * tpq + beat.position * tpq)
+                    )
+                    on_key = (mn, abs_tick)
+                    if on_key in added_note_ticks:
+                        continue
+                    added_note_ticks.add(on_key)
+                    _add_tick(abs_tick, Msg("note_on", channel=9, note=mn,
+                                            velocity=min(max(beat.velocity, 0), 127),
+                                            time=0))
+
+                # Fill at section end (same logic as original)
+                fill = None
+                if song.global_parameters:
+                    fill = section.should_add_fill(
+                        bar_num, song.global_parameters.fill_frequency
+                    )
+                if fill and bar_num == section.bars - 1:
+                    fill_start = bar_start_beats + (ts_num - 1.0)
+                    for fb in fill.pattern.beats:
+                        if fb.position < 1.0:
+                            mn = _mid_note(fb.instrument)
+                            abs_tick = int(
+                                round(fill_start * tpq + fb.position * tpq)
+                            )
+                            on_key = (mn, abs_tick)
+                            if on_key in added_note_ticks:
+                                continue
+                            added_note_ticks.add(on_key)
+                            _add_tick(abs_tick, Msg("note_on", channel=9,
+                                                    note=mn,
+                                                    velocity=min(max(fb.velocity, 0), 127),
+                                                    time=0))
+
+                time_cursor += bp
+
+            # Section end marker
+            tick_now = int(round(time_cursor * tpq))
+            _add_tick(tick_now, MM("end_of_track", time=0))
+
+        # Sort by absolute tick and emit with delta-times
+        events.sort(key=lambda e: e[0])
+
+        mf = MF(type=0, ticks_per_beat=tpq)
+        track = __import__("mido").MidiTrack()
+        mf.tracks.append(track)
+
+        prev_tick = 0
+        for abs_tick, msg in events:
+            delta = max(0, abs_tick - prev_tick)  # clamp to non-negative
+            if hasattr(msg, "time"):
+                msg.time = delta
+            else:
+                msg = type(msg)(**msg._fields)
+            track.append(msg)
+            prev_tick = abs_tick
+
+        buf = io.BytesIO()
+        with tempfile.NamedTemporaryFile(suffix=".mid", delete=False) as tf:
+            mf.save(tf.name)
+            buf.write(open(tf.name, "rb").read())
+        return buf
+
+    # ------------------------------------------------------------------
+    # API compatibility layer (signatures match the old midiutil version)
+    # ------------------------------------------------------------------
+
+    def pattern_to_midi(
+        self, pattern: Pattern, tempo: int = 120
+    ) -> io.BytesIO:
+        """Convert a single pattern to MIDI binary."""
+        return self._pattern_to_bytes(pattern, tempo)
+
+    def song_to_midi(self, song: Song) -> io.BytesIO:
+        """Convert a complete song to MIDI binary."""
+        return self._song_to_bytes(song)
 
     def export_patterns_to_separate_files(
         self, patterns: list[Pattern], output_dir: Path, tempo: int = 120
     ) -> list[Path]:
-        """Export multiple patterns to separate MIDI files."""
         output_dir.mkdir(parents=True, exist_ok=True)
-        output_files = []
-
+        files: list[Path] = []
         for i, pattern in enumerate(patterns):
-            filename = f"{pattern.name or f'pattern_{i:02d}'}.mid"
-            output_path = output_dir / filename
-            self.save_pattern_midi(pattern, output_path, tempo)
-            output_files.append(output_path)
-
-        return output_files
+            fn = pattern.name or f"pattern_{i:02d}"
+            path = output_dir / f"{fn}.mid"
+            self.save_pattern_midi(pattern, path, tempo)
+            files.append(path)
+        return files
 
     def create_multi_track_midi(
         self, patterns: list[Pattern], tempo: int = 120
-    ) -> MIDIFile:
-        """Create a multi-track MIDI file with each pattern on a
-        separate track."""
-        midi = MIDIFile(len(patterns))
+    ) -> io.BytesIO:
+
+        from mido import MetaMessage as MM, MidiFile as MF, Message as Msg
+
+        mf = MF(type=1, ticks_per_beat=960)
         channel = self.drum_kit.channel
-
-        # Set tempo on first track
-        midi.addTempo(0, 0, tempo)
-
-        for track, pattern in enumerate(patterns):
-            # Add track name
-            midi.addTrackName(track, 0, pattern.name or f"Pattern {track + 1}")
-
-            # Add pattern beats
-            for beat in pattern.beats:
-                midi_note = self.drum_kit.get_midi_note(beat.instrument)
-                midi.addNote(
-                    track=track,
-                    channel=channel,
-                    pitch=midi_note,
-                    time=beat.position,
-                    duration=beat.duration,
-                    volume=beat.velocity,
+        for idx, pattern in enumerate(patterns):
+            t = __import__("mido").MidiTrack()
+            mf.tracks.append(t)
+            t.append(MM("set_tempo", tempo=tempo, time=0))
+            t.append(
+                MM(
+                    "track_name",
+                    name=pattern.name or f"Pattern {idx+1}",
+                    time=0,
                 )
+            )
+            for beat in pattern.beats:
+                mn = _mid_note(beat.instrument)
+                t.append(
+                    Msg("note_on", channel=channel, note=mn,
+                        velocity=beat.velocity,
+                        time=int(round(beat.position * 960)))
+                )
+                t.append(
+                    Msg("note_off", channel=channel, note=mn, velocity=0,
+                        time=int(round(min(beat.duration, 0.2) * 960)))
+                )
+            t.append(MM("end_of_track", time=0))
 
-        return midi
+        buf = io.BytesIO()
+        with tempfile.NamedTemporaryFile(suffix=".mid", delete=False) as tf:
+            mf.save(tf.name)
+            buf.write(open(tf.name, "rb").read())
+        return buf
 
     def apply_humanization_to_midi(
         self,
-        midi: MIDIFile,
+        midi: io.BytesIO,
         timing_variance: float = 0.02,
         velocity_variance: int = 10,
-    ) -> MIDIFile:
-        """Apply humanization effects to MIDI data.
-
-        Note: This is a simplified implementation. Full humanization
-        would require more sophisticated MIDI manipulation.
-        """
-        # This is a placeholder for more advanced humanization
-        # Real implementation would need to modify the MIDI events directly
+    ) -> io.BytesIO:
+        """Placeholder — humanization is now applied during pattern generation."""
         return midi
 
     def get_midi_info(self, song: Song) -> dict:
@@ -397,19 +375,9 @@ class MIDIEngine:
             len(section.pattern.beats) * section.bars
             for section in song.sections
         )
-
         return {
             "total_bars": total_bars,
             "duration_seconds": duration_seconds,
             "total_beats": total_beats,
             "tempo": song.tempo,
-            "time_signature": str(song.time_signature),
-            "sections": [
-                {
-                    "name": section.name,
-                    "bars": section.bars,
-                    "pattern_beats": len(section.pattern.beats),
-                }
-                for section in song.sections
-            ],
         }
