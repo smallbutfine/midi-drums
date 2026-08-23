@@ -405,6 +405,29 @@ Examples:
         help="Filter presets to a specific genre (e.g. metal, jazz)",
     )
 
+    # Riff lock command (requires midi_drums[rfi] extras)
+    riff_parser = subparsers.add_parser(
+        "riff",
+        help="Generate riff-locked beats: audio riff → kick-on-riff accents",
+    )
+    riff_parser.add_argument("audio_path", help="Path to audio riff file (WAV/MP3)")
+    riff_parser.add_argument("--genre", default="rock", help="Genre (e.g. rock, metal)")
+    riff_parser.add_argument("--style", default="classic", help="Style within genre")
+    riff_parser.add_argument("--drummer", default=None, help="Drummer style")
+    riff_parser.add_argument("--bpm", type=int, default=120, help="Tempo in BPM")
+    riff_parser.add_argument("--section", default="verse", help="Section type")
+    riff_parser.add_argument("--bars", type=int, default=4, help="Bars to generate")
+    riff_parser.add_argument("--grid", default="16th", help="Grid resolution (8th, 16th, etc.)")
+    riff_parser.add_argument("--lock-strength", type=float, default=1.0, help="Lock strength 0-1")
+    riff_parser.add_argument("--mapping", default=None, help="MIDI mapping preset")
+    riff_parser.add_argument("--snare-mode", choices=["off", "reinforce", "stab"], default="off",
+                           help="Snare reaction to riff accents")
+    riff_parser.add_argument("--snare-threshold", type=float, default=0.85, help="Minimum accent strength for snare stab")
+    riff_parser.add_argument("--offset-beats", type=float, default=0, help="Beat offset for bar alignment correction")
+    riff_parser.add_argument("--audio-offset", type=float, default=0, help="Audio onset offset in seconds")
+    riff_parser.add_argument("--audio-duration", type=float, default=None, help="Audio duration to analyze")
+    riff_parser.add_argument("-o", "--output", help="Output MIDI file")
+
     # AI prompt command
     prompt_parser = subparsers.add_parser(
         "prompt",
@@ -1023,9 +1046,99 @@ def handle_prompt_command(args) -> None:
             "\nAI dependencies are not installed, my dudes.\n"
             "Install them with:\n"
             "  uv sync --group ai\n"
-            "  # or: pip install 'midi-drums[ai]'\n",
-            file=sys.stderr,
         )
+        sys.exit(1)
+
+
+def handle_riff_command(args, generator: DrumGenerator) -> None:
+    """Handle the 'riff' command — riff-locked beat generation.
+
+    Analyzes audio file for rhythmic accents using librosa onset detection,
+    then generates a drum pattern with kicks locked to those accents.
+    Snare reaction (reinforce/stab) is optional.
+    """
+    # ── guard: rfi extras installed? ─────────────────────────────────────────
+    try:
+        from midi_drums.analysis.audio_analysis import analyze_onsets  # noqa: PLC0415
+        from midi_drums.modifications.riff_lock import RiffLockTransform  # noqa: PLC0415
+        from midi_drums.modifications.snare_accent_reaction import SnareAccentReaction  # noqa: PLC0415
+    except ImportError as e:
+        print(
+            f"\nRFI dependencies are not installed: {e}\n"
+            "Install them with:\n"
+            "  uv sync --group rfi\n"
+        )
+        sys.exit(1)
+
+    # Step 1: Analyze the audio for onsets
+    print(f"Analyzing riff: {args.audio_path}")
+    try:
+        accent_map = analyze_onsets(
+            args.audio_path,
+            bpm=args.bpm,
+            beats_per_bar=4.0,
+        )
+        print(f"  → Detected {len(accent_map.accents)} accents")
+        for acc in accent_map.accents[:5]:
+            print(f"     position={acc.position:.3f} strength={acc.strength:.2f}")
+        if len(accent_map.accents) > 5:
+            print(f"     ... and {len(accent_map.accents) - 5} more")
+    except Exception as e:
+        print(f"Error analyzing audio: {e}", file=sys.stderr)
+        sys.exit(1)
+
+    # Step 2: Generate base pattern via genre plugin
+    print("\nGenerating riff-locked beat...")
+    try:
+        from midi_drums.core.models.pattern import Pattern
+        from midi_drums.core.models.song import Section
+
+        # Use the generator to create a base pattern for this genre/style/section
+        section = Section(
+            name=args.section,
+            pattern=Pattern(f"riff_base_{args.genre}_{args.style}"),
+            bars=args.bars,
+        )
+
+        # Generate via genre plugin (uses composer_v2 internally)
+        song = generator.create_song(
+            genre=args.genre,
+            style=args.style,
+            structure=[(args.section, args.bars)],
+            tempo=args.bpm,
+            drummer=args.drummer,
+        )
+
+        if not song.sections:
+            print("Failed to generate base pattern.", file=sys.stderr)
+            sys.exit(1)
+
+        # Get the generated pattern and apply riff locking
+        base_pattern = song.sections[0].pattern
+
+        # Step 3: Apply riff lock transform (kick → accents)
+        riff_locked = RiffLockTransform(
+            riff_accents=accent_map,
+            lock_strength=args.lock_strength,
+        ).apply(base_pattern)
+
+        # Step 4: Optionally apply snare reaction
+        if args.snare_mode != "off":
+            riff_locked = SnareAccentReaction(
+                riff_accents=accent_map,
+                mode=args.snare_mode,
+                threshold=args.snare_threshold,
+            ).apply(riff_locked)
+            print(f"  → Snare reaction mode: {args.snare_mode}")
+
+        # Step 5: Export MIDI
+        output_path = args.output or "riff_output.mid"
+        generator.export_pattern_midi(riff_locked, output_path, tempo=args.bpm)
+        print(f"\n✓ Done! Output: {output_path}")
+
+    except Exception as e:
+        import traceback  # noqa: PLC0415
+        print(f"Error generating riff-locked beat:\n{e}\n{traceback.format_exc()}", file=sys.stderr)
         sys.exit(1)
 
     # ── guard: env vars configured? ───────────────────────────────────────────
@@ -1340,6 +1453,10 @@ def main():
 
     if args.command == "prompt":
         handle_prompt_command(args)
+        return
+
+    if args.command == "riff":
+        handle_riff_command(args, generator)
         return
 
     # Initialize generator
