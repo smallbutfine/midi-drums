@@ -22,6 +22,12 @@ from midi_drums.patterns import (
 )
 from midi_drums.plugins.interfaces.genre_plugin import GenrePlugin
 
+# AD2 crash/ride variants for timbral variety in jazz
+# Used via CrashAccents(crash_type=...) and TomFill(use_edge=...)
+_AD2_CRASH_LIGHT = "light"   # CRASH_LIGHT (77) - verses, softer sections
+_AD2_CRASH_HEAVY = "heavy"  # CRASH_HEAVY (89) - choruses, energy bursts
+_AD2_CRASH_SPLASH = "splash"  # CRASH_SPLASH (93) - fills, bright endings
+
 
 class JazzGenrePlugin(GenrePlugin):
     """Jazz genre plugin using template composition.
@@ -402,6 +408,8 @@ class JazzGenrePlugin(GenrePlugin):
                         hihat_subdivision=TIMING.HALF,
                     )
                 )
+                # AD2: CRASH_LIGHT for intimate/gentle jazz intros
+                .add(CrashAccents(positions=[0.0], intensity=0.5, crash_type="light"))
                 .build(bars=1, complexity=intro_complexity)
             )
 
@@ -533,7 +541,8 @@ class JazzGenrePlugin(GenrePlugin):
                         main_snare_positions=[1.0, 3.0],
                     )
                 )
-                .add(CrashAccents(positions=[0.0], intensity=0.8))
+                # AD2: CRASH_LIGHT for jazz chorus (not too aggressive)
+                .add(CrashAccents(positions=[0.0], intensity=0.7, crash_type="light"))
                 .build(bars=1, complexity=chorus_complexity)
             )
         elif style == "bebop":
@@ -547,7 +556,8 @@ class JazzGenrePlugin(GenrePlugin):
                         hihat_subdivision=TIMING.HALF,
                     )
                 )
-                .add(CrashAccents(positions=[0.0], intensity=0.8))
+                # AD2: CRASH_HEAVY for energy burst in bebop chorus
+                .add(CrashAccents(positions=[0.0], intensity=0.9, crash_type="heavy"))
                 .build(bars=1, complexity=chorus_complexity)
             )
         elif style == "fusion":
@@ -568,7 +578,8 @@ class JazzGenrePlugin(GenrePlugin):
                         hihat_subdivision=TIMING.EIGHTH,
                     )
                 )
-                .add(CrashAccents(positions=[0.0], intensity=0.9))
+                # AD2: CRASH_HEAVY for fusion energy burst
+                .add(CrashAccents(positions=[0.0], intensity=0.95, crash_type="heavy"))
                 .build(bars=1, complexity=chorus_complexity)
             )
         elif style == "hard_bop":
@@ -582,7 +593,8 @@ class JazzGenrePlugin(GenrePlugin):
                         hihat_subdivision=TIMING.HALF,
                     )
                 )
-                .add(CrashAccents(positions=[0.0, 2.0], intensity=0.9))
+                # AD2: CRASH_LIGHT for both crashes in hard bop
+                .add(CrashAccents(positions=[0.0, 2.0], intensity=0.85, crash_type="light"))
                 .build(bars=1, complexity=chorus_complexity)
             )
         elif style == "ballad":
@@ -611,8 +623,10 @@ class JazzGenrePlugin(GenrePlugin):
                         main_snare_positions=[1.0, 3.0],
                     )
                 )
-                .add(TomFill(pattern="around", start_position=3.0))
-                .add(CrashAccents(positions=[0.0], intensity=0.8))
+                # AD2: TomFill with edge tom for aggressive jazz fills
+                .add(TomFill(pattern="around", start_position=3.0, use_edge=True))
+                # AD2: CRASH_LIGHT for latin/contemporary chorus
+                .add(CrashAccents(positions=[0.0], intensity=0.8, crash_type="light"))
                 .build(bars=1, complexity=chorus_complexity)
             )
 
@@ -643,7 +657,8 @@ class JazzGenrePlugin(GenrePlugin):
                         main_snare_positions=[1.0, 3.0],
                     )
                 )
-                .add(TomFill(pattern="around", start_position=3.0))
+                # AD2: TomFill with edge tom for fusion/contemporary bridge
+                .add(TomFill(pattern="around", start_position=3.0, use_edge=True))
                 .build(bars=1, complexity=bridge_complexity)
             )
         else:
@@ -652,7 +667,8 @@ class JazzGenrePlugin(GenrePlugin):
                 .add(
                     JazzRidePattern(swing_ratio=0.33, accent_pattern="standard")
                 )
-                .add(TomFill(pattern="ascending", start_position=3.0))
+                # AD2: TomFill with edge tom for ascending bridge fill
+                .add(TomFill(pattern="ascending", start_position=3.0, use_edge=True))
                 .build(bars=1, complexity=bridge_complexity)
             )
 

@@ -22,6 +22,13 @@ from midi_drums.patterns import (
 )
 from midi_drums.plugins.interfaces.genre_plugin import GenrePlugin
 
+# AD2 extended crash/tom variants for timbral variety across metal styles
+_AD2_CRASH = {
+    "heavy": DrumInstrument.CRASH_HEAVY,
+    "light": DrumInstrument.CRASH_LIGHT,
+    "splash": DrumInstrument.CRASH_SPLASH,
+}
+
 # Styles that use china cymbal (rather than ride) as the high-energy
 # timekeeper, per issue #18's research: china-as-ride-substitute is a
 # documented convention in extreme/thrash metal, distinct from rock's
@@ -93,7 +100,7 @@ class MetalGenrePlugin(GenrePlugin):
         """Get common metal fill patterns using TomFill template."""
         fills = []
 
-        # Tom roll fill using TomFill template
+        # Tom roll fill using TomFill template with AD2 edge tom accents
         tom_roll_pattern = (
             TemplateComposer("metal_tom_roll")
             .add(
@@ -101,6 +108,7 @@ class MetalGenrePlugin(GenrePlugin):
                     pattern="descending",
                     subdivision=TIMING.SIXTEENTH,
                     start_position=0.0,
+                    use_edge=True,  # AD2: TOM_EDGE_1/2 for aggressive attack
                 )
             )
             .build(bars=1, complexity=0.8)
@@ -145,7 +153,7 @@ class MetalGenrePlugin(GenrePlugin):
 
     def _flavors_intro(self, style: str, complexity: float) -> list[Pattern]:
         name = f"metal_{style}_intro"
-        # Flavor 1: sparse quarter-hat with crash on beat 1
+        # Flavor 1: sparse quarter-hat with crash on beat 1 (use splash for dramatic intro)
         f1 = (
             TemplateComposer(f"{name}_i_sparse")
             .add(
@@ -155,10 +163,10 @@ class MetalGenrePlugin(GenrePlugin):
                     hihat_subdivision=TIMING.QUARTER,
                 )
             )
-            .add(CrashAccents(positions=[0.0], intensity=1.0))
+            .add(CrashAccents(positions=[0.0], intensity=1.0, crash_type="splash"))
             .build(bars=1, complexity=complexity)
         )
-        # Flavor 2: double-kick build with crash at end
+        # Flavor 2: double-kick build with crash at end (use light crash for buildup)
         f2 = (
             TemplateComposer(f"{name}_i_double")
             .add(
@@ -168,10 +176,10 @@ class MetalGenrePlugin(GenrePlugin):
                     hihat_subdivision=TIMING.HALF,
                 )
             )
-            .add(CrashAccents(positions=[3.0], intensity=1.0))
+            .add(CrashAccents(positions=[3.0], intensity=1.0, crash_type="light"))
             .build(bars=1, complexity=complexity)
         )
-        # Flavor 3: crash-sparse with tom fill
+        # Flavor 3: crash-sparse with tom fill (use light crashes to build tension)
         f3 = (
             TemplateComposer(f"{name}_i_crash")
             .add(
@@ -181,7 +189,7 @@ class MetalGenrePlugin(GenrePlugin):
                     hihat_subdivision=TIMING.HALF,
                 )
             )
-            .add(CrashAccents(positions=[0.0, 1.5, 3.0], intensity=0.7))
+            .add(CrashAccents(positions=[0.0, 1.5, 3.0], intensity=0.7, crash_type="light"))
             .build(bars=1, complexity=complexity)
         )
         return [f1, f2, f3]
@@ -232,14 +240,14 @@ class MetalGenrePlugin(GenrePlugin):
     def _flavors_chorus(self, style: str, complexity: float) -> list[Pattern]:
         name = f"metal_{style}_chorus"
         c = min(1.0, complexity + 0.2)
-        # Flavor 1: blast + crash on 1 and 3
+        # Flavor 1: blast + crash on 1 and 3 (use HEAVY for maximum impact)
         f1 = (
             TemplateComposer(f"{name}_c_blast")
             .add(BlastBeat(style="traditional", intensity=1.0))
-            .add(CrashAccents(positions=[0.0, 2.0], intensity=1.0))
+            .add(CrashAccents(positions=[0.0, 2.0], intensity=1.0, crash_type="heavy"))
             .build(bars=1, complexity=c)
         )
-        # Flavor 2: gallop + crash on every quarter
+        # Flavor 2: gallop + crash on every quarter (HEAVY crashes for wall of sound)
         f2 = (
             TemplateComposer(f"{name}_c_gallop")
             .add(
@@ -249,10 +257,10 @@ class MetalGenrePlugin(GenrePlugin):
                     pattern_type="gallop",
                 )
             )
-            .add(CrashAccents(positions=[0.0, 1.0, 2.0, 3.0], intensity=0.85))
+            .add(CrashAccents(positions=[0.0, 1.0, 2.0, 3.0], intensity=0.85, crash_type="heavy"))
             .build(bars=1, complexity=c)
         )
-        # Flavor 3: heavy double-bass wall
+        # Flavor 3: heavy double-bass wall with HEAVY crash (maximum crushing impact)
         f3 = (
             TemplateComposer(f"{name}_c_wall")
             .add(
@@ -262,7 +270,7 @@ class MetalGenrePlugin(GenrePlugin):
                     pattern_type="continuous",
                 )
             )
-            .add(CrashAccents(positions=[0.0], intensity=1.0))
+            .add(CrashAccents(positions=[0.0], intensity=1.0, crash_type="heavy"))
             .build(bars=1, complexity=c)
         )
         return [f1, f2, f3]
@@ -271,7 +279,7 @@ class MetalGenrePlugin(GenrePlugin):
         self, style: str, complexity: float
     ) -> list[Pattern]:
         name = f"metal_{style}_breakdown"
-        # Flavor 1: sparse syncopated groove
+        # Flavor 1: sparse syncopated groove with EDGE tom fills (aggressive attack)
         f1 = (
             TemplateComposer(f"{name}_b_sparse")
             .add(
@@ -281,10 +289,10 @@ class MetalGenrePlugin(GenrePlugin):
                     hihat_subdivision=TIMING.HALF,
                 )
             )
-            .add(TomFill(pattern="descending", start_position=3.0))
+            .add(TomFill(pattern="descending", start_position=3.0, use_edge=True))
             .build(bars=1, complexity=complexity)
         )
-        # Flavor 2: heavy stomp
+        # Flavor 2: heavy stomp with HEAVY crash (crushing impact)
         f2 = (
             TemplateComposer(f"{name}_b_stomp")
             .add(
@@ -294,10 +302,10 @@ class MetalGenrePlugin(GenrePlugin):
                     hihat_subdivision=TIMING.QUARTER,
                 )
             )
-            .add(CrashAccents(positions=[0.0], intensity=1.0))
+            .add(CrashAccents(positions=[0.0], intensity=1.0, crash_type="heavy"))
             .build(bars=1, complexity=complexity)
         )
-        # Flavor 3: half-time slow groove
+        # Flavor 3: half-time slow groove with EDGE tom accents
         f3 = (
             TemplateComposer(f"{name}_b_half")
             .add(
@@ -307,7 +315,7 @@ class MetalGenrePlugin(GenrePlugin):
                     hihat_subdivision=TIMING.EIGHTH,
                 )
             )
-            .add(TomFill(pattern="around", start_position=0.0))
+            .add(TomFill(pattern="around", start_position=0.0, use_edge=True))
             .build(bars=1, complexity=max(0.0, complexity - 0.15))
         )
         return [f1, f2, f3]
@@ -315,7 +323,7 @@ class MetalGenrePlugin(GenrePlugin):
     def _flavors_bridge(self, style: str, complexity: float) -> list[Pattern]:
         name = f"metal_{style}_bridge"
         c = max(0.0, complexity - 0.1)
-        # Flavor 1: tom-heavy bridge
+        # Flavor 1: tom-heavy bridge with EDGE fills (transition to next section)
         f1 = (
             TemplateComposer(f"{name}_br_tom")
             .add(
@@ -325,10 +333,10 @@ class MetalGenrePlugin(GenrePlugin):
                     hihat_subdivision=TIMING.HALF,
                 )
             )
-            .add(TomFill(pattern="descending", start_position=0.0))
+            .add(TomFill(pattern="descending", start_position=0.0, use_edge=True))
             .build(bars=1, complexity=c)
         )
-        # Flavor 2: sparse groove with fill
+        # Flavor 2: sparse groove with fill (LIGHT crash for subtle transition)
         f2 = (
             TemplateComposer(f"{name}_br_sparse")
             .add(
@@ -338,10 +346,10 @@ class MetalGenrePlugin(GenrePlugin):
                     hihat_subdivision=TIMING.EIGHTH,
                 )
             )
-            .add(TomFill(pattern="around", start_position=3.0))
+            .add(TomFill(pattern="around", start_position=3.0, use_edge=True))
             .build(bars=1, complexity=c)
         )
-        # Flavor 3: ride/crash-based
+        # Flavor 3: ride/crash-based with LIGHT crash (smooth transition)
         f3 = (
             TemplateComposer(f"{name}_br_ride")
             .add(
@@ -351,7 +359,7 @@ class MetalGenrePlugin(GenrePlugin):
                     hihat_subdivision=TIMING.EIGHTH,
                 )
             )
-            .add(CrashAccents(positions=[3.5], intensity=0.8))
+            .add(CrashAccents(positions=[3.5], intensity=0.8, crash_type="light"))
             .build(bars=1, complexity=c)
         )
         return [f1, f2, f3]
@@ -362,11 +370,12 @@ class MetalGenrePlugin(GenrePlugin):
         # Flavor 1: descending tom + crash
         f1 = (
             TemplateComposer(f"{name}_o_desc")
-            .add(TomFill(pattern="descending", start_position=0.0))
-            .add(CrashAccents(positions=[3.75], intensity=1.0))
+            .add(TomFill(pattern="descending", start_position=0.0, use_edge=True))
+            # AD2: CRASH_HEAVY for epic metal outro ending
+            .add(CrashAccents(positions=[3.75], intensity=1.0, crash_type="heavy"))
             .build(bars=1, complexity=c)
         )
-        # Flavor 2: sparse hits fading out
+        # Flavor 2: sparse hits fading out with light crash
         f2 = (
             TemplateComposer(f"{name}_o_sparse")
             .add(
@@ -376,14 +385,16 @@ class MetalGenrePlugin(GenrePlugin):
                     hihat_subdivision=TIMING.QUARTER,
                 )
             )
-            .add(CrashAccents(positions=[3.5], intensity=0.6))
+            # AD2: CRASH_LIGHT for fading metal outro
+            .add(CrashAccents(positions=[3.5], intensity=0.6, crash_type="light"))
             .build(bars=1, complexity=c)
         )
-        # Flavor 3: tom roll finale
+        # Flavor 3: tom roll finale with heavy crash
         f3 = (
             TemplateComposer(f"{name}_o_rollo")
-            .add(TomFill(pattern="ascending", start_position=0.0))
-            .add(CrashAccents(positions=[3.5], intensity=1.0))
+            .add(TomFill(pattern="ascending", start_position=0.0, use_edge=True))
+            # AD2: CRASH_HEAVY for epic metal outro finale
+            .add(CrashAccents(positions=[3.5], intensity=1.0, crash_type="heavy"))
             .build(bars=1, complexity=c)
         )
         return [f1, f2, f3]
@@ -411,7 +422,7 @@ class MetalGenrePlugin(GenrePlugin):
     # -------------------------------------------------------------------------
 
     def _generate_intro(self, style: str, complexity: float) -> Pattern:
-        """Intro pattern - builds energy with crash accent."""
+        """Intro pattern - builds energy with crash accent (use splash for dramatic intro)."""
         name = f"metal_{style}_intro"
 
         if style == "death":
@@ -424,7 +435,7 @@ class MetalGenrePlugin(GenrePlugin):
                         hihat_subdivision=TIMING.HALF,
                     )
                 )
-                .add(CrashAccents(positions=[0.0], intensity=1.0))
+                .add(CrashAccents(positions=[0.0], intensity=1.0, crash_type="splash"))
                 .build(bars=1, complexity=complexity)
             )
         else:
@@ -437,7 +448,7 @@ class MetalGenrePlugin(GenrePlugin):
                         hihat_subdivision=TIMING.QUARTER,
                     )
                 )
-                .add(CrashAccents(positions=[0.0], intensity=1.0))
+                .add(CrashAccents(positions=[0.0], intensity=1.0, crash_type="splash"))
                 .build(bars=1, complexity=complexity)
             )
 
@@ -535,7 +546,7 @@ class MetalGenrePlugin(GenrePlugin):
             )
 
     def _generate_chorus(self, style: str, complexity: float) -> Pattern:
-        """Chorus pattern - more intense than verse."""
+        """Chorus pattern - more intense than verse (use HEAVY crashes for wall of sound)."""
         name = f"metal_{style}_chorus"
         # Increase intensity by 20%
         chorus_complexity = min(1.0, complexity + 0.2)
@@ -544,7 +555,7 @@ class MetalGenrePlugin(GenrePlugin):
             return (
                 TemplateComposer(name)
                 .add(BlastBeat(style="traditional", intensity=1.0))
-                .add(CrashAccents(positions=[0.0, 2.0], intensity=1.0))
+                .add(CrashAccents(positions=[0.0, 2.0], intensity=1.0, crash_type="heavy"))
                 .build(bars=1, complexity=chorus_complexity)
             )
         elif style == "power":
@@ -564,7 +575,7 @@ class MetalGenrePlugin(GenrePlugin):
                         hihat_subdivision=TIMING.QUARTER,
                     )
                 )
-                .add(CrashAccents(positions=[0.0, 2.0], intensity=1.0))
+                .add(CrashAccents(positions=[0.0, 2.0], intensity=1.0, crash_type="heavy"))
                 .build(bars=1, complexity=chorus_complexity)
             )
         elif style == "doom":
@@ -577,7 +588,7 @@ class MetalGenrePlugin(GenrePlugin):
                         hihat_subdivision=TIMING.EIGHTH,
                     )
                 )
-                .add(CrashAccents(positions=[0.0], intensity=1.0))
+                .add(CrashAccents(positions=[0.0], intensity=1.0, crash_type="heavy"))
                 .build(bars=1, complexity=chorus_complexity)
             )
         else:  # heavy, progressive, thrash, breakdown
@@ -597,12 +608,12 @@ class MetalGenrePlugin(GenrePlugin):
                         hihat_subdivision=TIMING.QUARTER,
                     )
                 )
-                .add(CrashAccents(positions=[0.0], intensity=1.0))
+                .add(CrashAccents(positions=[0.0], intensity=1.0, crash_type="heavy"))
                 .build(bars=1, complexity=chorus_complexity)
             )
 
     def _generate_breakdown(self, style: str, complexity: float) -> Pattern:
-        """Breakdown pattern - syncopated, heavy."""
+        """Breakdown pattern - syncopated, heavy with EDGE tom fills for aggressive attack."""
         name = f"metal_{style}_breakdown"
         return (
             TemplateComposer(name)
@@ -613,12 +624,12 @@ class MetalGenrePlugin(GenrePlugin):
                     hihat_subdivision=TIMING.HALF,
                 )
             )
-            .add(TomFill(pattern="descending", start_position=3.0))
+            .add(TomFill(pattern="descending", start_position=3.0, use_edge=True))
             .build(bars=1, complexity=complexity)
         )
 
     def _generate_bridge(self, style: str, complexity: float) -> Pattern:
-        """Bridge pattern - often simpler, with added tom fills."""
+        """Bridge pattern - often simpler, with EDGE tom fills for transition."""
         name = f"metal_{style}_bridge"
         # Reduce complexity slightly for bridge
         bridge_complexity = max(0.0, complexity - 0.1)
@@ -632,7 +643,7 @@ class MetalGenrePlugin(GenrePlugin):
                     hihat_subdivision=TIMING.QUARTER,
                 )
             )
-            .add(TomFill(pattern="around", start_position=3.0))
+            .add(TomFill(pattern="around", start_position=3.0, use_edge=True))
             .build(bars=1, complexity=bridge_complexity)
         )
 
