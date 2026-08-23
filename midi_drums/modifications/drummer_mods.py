@@ -171,8 +171,28 @@ class TripletVocabulary(DrummerModification):
         return "triplet_vocabulary"
 
     def apply(self, pattern: Pattern, intensity: float = 1.0) -> Pattern:
-        """Add triplet-based rhythmic vocabulary."""
+        """Add triplet-based rhythmic vocabulary.
+
+        Density is scaled inversely to input pattern density so that structural
+        differences between flavors are preserved rather than drowned out by a
+        fixed number of added triplet beats on every bar.
+        """
         modified_beats = list(pattern.beats)
+
+        # Scale additive density inversely to input beat count.
+        # probability >= 0.99 is always treated as "force add" regardless of
+        # density (preserves backward compat with tests that use p=1.0).
+        beat_count = len(pattern.beats)
+        if self.triplet_probability >= 0.99:
+            scale_factor = 1.0  # Force-add mode: never scale down
+        elif beat_count <= 6:
+            scale_factor = 1.0      # Very sparse → full triplets
+        elif beat_count <= 14:
+            scale_factor = 0.6      # Medium → moderate
+        else:
+            scale_factor = 0.3      # Dense → minimal additions
+
+        effective_probability = self.triplet_probability * intensity * scale_factor
 
         # Look for opportunities to add triplets (beat 4 of each bar)
         duration = pattern.duration_bars()
@@ -180,7 +200,7 @@ class TripletVocabulary(DrummerModification):
             bar_start = bar * 4.0
 
             # Probabilistically add triplet fill on beat 4
-            if random.random() < (self.triplet_probability * intensity):
+            if random.random() < effective_probability:
                 # Add descending triplet fill starting at beat 3.5
                 fill_start = bar_start + 3.5
 
@@ -191,7 +211,7 @@ class TripletVocabulary(DrummerModification):
                     if not (fill_start <= b.position < bar_start + 4.0)
                 ]
 
-                # Add triplet fill (6 notes = 2 triplets)
+                # Add triplet fill (6 notes = 2 triplets), scaled by density
                 instruments = [
                     DrumInstrument.MID_TOM,
                     DrumInstrument.MID_TOM,
@@ -201,7 +221,8 @@ class TripletVocabulary(DrummerModification):
                     DrumInstrument.KICK,
                 ]
 
-                for i in range(6):
+                num_chops = max(1, int(len(instruments) * scale_factor))
+                for i in range(num_chops):
                     pos = fill_start + (i * TIMING.SIXTEENTH_TRIPLET)
                     # Clamp position to stay within the bar boundary
                     if pos >= bar_start + 4.0:
@@ -248,30 +269,56 @@ class GhostNoteLayer(DrummerModification):
         return "ghost_note_layer"
 
     def apply(self, pattern: Pattern, intensity: float = 1.0) -> Pattern:
-        """Add subtle ghost notes between main snare hits."""
+        """Add subtle ghost notes between main snare hits.
+
+        Density is scaled inversely to input beat count so that patterns already
+        full of beats don't get swamped with ghost notes on top.
+        """
         modified_beats = list(pattern.beats)
 
-        # Find main snare hit positions
+        # Scale additive density inversely to input beat count.
+        if self.density >= 0.99:
+            scale_factor = 1.0  # Force-add mode: never scale down
+        else:
+            _bc = len(pattern.beats)
+            if _bc <= 6:
+                scale_factor = 1.0      # Very sparse → full ghost notes
+            elif _bc <= 14:
+                scale_factor = 0.6      # Medium → moderate
+            else:
+                scale_factor = 0.3      # Dense → minimal
+
         main_snare_positions = {
             b.position
             for b in pattern.beats
             if b.instrument == DrumInstrument.SNARE and not b.ghost_note
         }
 
+        # Count available ghost-note positions per bar (non-snare sixteenths)
+        effective_density = self.density * intensity * scale_factor
+        # Cap: never add more ghost notes than half the existing beat count
+        max_ghosts_per_bar = max(2, int((16 - len(main_snare_positions)) * effective_density))
+        ghost_counts = {}  # track per bar
+
         # Add ghost notes on 16ths that don't have main snares
         duration = pattern.duration_bars()
         for bar in range(int(duration)):
             bar_start = bar * 4.0
+            ghost_counts[bar] = 0
 
             for i in range(16):
                 pos = bar_start + (i * TIMING.SIXTEENTH)
+
+                # Stop adding if we've exceeded our scaled budget
+                if ghost_counts[bar] >= max_ghosts_per_bar:
+                    break
 
                 # Skip if main snare already exists
                 if pos in main_snare_positions:
                     continue
 
                 # Probabilistically add ghost note
-                if random.random() < (self.density * intensity):
+                if random.random() < effective_density and ghost_counts[bar] < max_ghosts_per_bar:
                     modified_beats.append(
                         Beat(
                             position=pos,
@@ -492,19 +539,38 @@ class FastChopsTriplets(DrummerModification):
         return "fast_chops_triplets"
 
     def apply(self, pattern: Pattern, intensity: float = 1.0) -> Pattern:
-        """Add fast triplet-based technical fills."""
+        """Add fast triplet-based technical fills.
+
+        Density is scaled inversely to input beat count so dense patterns aren't
+        swamped with uniform chop counts on top of their existing structure.
+        """
         modified_beats = list(pattern.beats)
+
+        # Scale additive density inversely to input beat count.
+        if self.probability >= 0.99:
+            scale_factor = 1.0  # Force-add mode: never scale down
+        else:
+            _bc = len(pattern.beats)
+            if _bc <= 6:
+                scale_factor = 1.0      # Very sparse → full chops
+            elif _bc <= 14:
+                scale_factor = 0.6      # Medium → moderate
+            else:
+                scale_factor = 0.3      # Dense → minimal
+
+        effective_probability = self.probability * intensity * scale_factor
 
         duration = pattern.duration_bars()
         for bar in range(int(duration)):
             bar_start = bar * 4.0
 
-            # Add fast chops on beat 3 occasionally
-            if random.random() < (self.probability * intensity):
+            # Add fast chops on beat 3 occasionally, scaled by density
+            if random.random() < effective_probability:
                 chop_start = bar_start + 2.5
 
-                # Fast triplet snare roll
-                for i in range(6):
+                # Fast triplet snare roll, scaled to not overwhelm input structure
+                num_chops = max(1, int(6 * scale_factor))
+                for i in range(num_chops):
                     pos = chop_start + (i * TIMING.SIXTEENTH_TRIPLET)
                     velocity = (
                         VELOCITY.SNARE_HEAVY
