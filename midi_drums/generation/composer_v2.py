@@ -100,6 +100,7 @@ class ComposerV2:
         for section_name, bars in structure:
             # Generate a unique pattern for each bar
             generated_bars: list[Pattern] = []
+            grooved_bar_metadata: dict[int, dict] = {}
 
             genre_plugin = self.plugin_manager.registry.get_genre_plugin(genre)
             if not genre_plugin:
@@ -183,6 +184,7 @@ class ComposerV2:
                     "drummer_name": params.drummer,
                 }
                 grooved_pattern = self.groove_engine.apply(**groove_params)
+                grooved_bar_metadata[bar_index] = grooved_pattern.metadata
 
                 # Final bar-level modulation (density, complexity, etc.)
                 final_pattern = self.bar_selector.generate_for_bar(
@@ -205,7 +207,19 @@ class ComposerV2:
                 # Determine fill placement based on section context
                 fills = self._generate_context_aware_fills(genre, params, bars)
 
-                section = Section(section_name, combined, bars, fills=fills)
+                # Collect per-bar groove offsets (ms) for MIDI timing application
+                groove_offsets_ms = []
+                for bar_idx in range(len(generated_bars)):
+                    offset = grooved_bar_metadata.get(bar_idx, {}).get(
+                        "groove_offset_ms"
+                    )
+                    if offset is not None:
+                        groove_offsets_ms.append(offset)
+
+                section = Section(
+                    section_name, combined, bars, fills=fills,
+                    groove_offsets_ms=groove_offsets_ms or None,
+                )
                 song.add_section(section)
 
         return song

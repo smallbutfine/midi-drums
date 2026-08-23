@@ -62,6 +62,7 @@ class Section:
     fills: list[Fill] = field(default_factory=list)
     section_parameters: dict[str, Any] = field(default_factory=dict)
     segments: list[SongSegment] = field(default_factory=list)
+    groove_offsets_ms: list[float] = field(default_factory=list)
 
     def __post_init__(self):
         """Validate that segment bars (if any) account for the whole section."""

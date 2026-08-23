@@ -1,21 +1,21 @@
 """GrooveEngine — per-bar timing displacement for authentic drummer feel.
 
-Replaces the "one-size-fits-all" approach where all drummers sound identical
-because their timing jitter is tiny and independent per-note.  Instead, each
-bar gets a macro-level timing shift that creates audible "laying back" or
-"pushing ahead" feel characteristic of each drummer's style.
+This engine calculates how much each bar should be shifted (positive = push ahead,
+negative = drag behind) based on the drummer's groove profile.  The displacement
+is stored as a **timing offset** rather than modifying beat positions directly —
+beat positions within the pattern skeleton stay intact so musical structure is
+preserved; only the global timing of when that bar starts relative to the song
+timeline changes.
 
-The groove layer is **additive** to the existing BarSelector micro-jitter:
-- GrooveEngine displacement (±30ms): entire bar moves as one unit → swing/feel
-- BarSelector per-note jitter (±3ms): tiny independent variation → naturalism
+Applied in composer_v2.py: each bar's offset is accumulated and the final
+offset for a section determines where that section's MIDI events start on the
+song timeline (shifted by Section.offset_ms).
 """
 
 from __future__ import annotations
 
 import random
 from dataclasses import dataclass
-
-from midi_drums.core.models.pattern import Beat
 
 
 @dataclass(frozen=True)
@@ -115,6 +115,18 @@ _GROOVE_PROFILES: dict[str, DrummerGrooveProfile] = {
         bias_range_ms=2.0,
         description="tight polyrhythmic (Halpern)",
     ),
+    "peart": DrummerGrooveProfile(
+        swing_ratio=0.10,  # Precise straight feel
+        timing_bias_ms=-1.0,  # Nearly dead-center, slight push
+        bias_range_ms=2.0,  # Very tight (Peart known for precision)
+        description="extreme precision (Peart)",
+    ),
+    "smith": DrummerGrooveProfile(
+        swing_ratio=0.30,  # Moderate rock/groove feel
+        timing_bias_ms=-3.0,  # Slight pocket lay-back
+        bias_range_ms=8.0,  # Dynamic push/pull for Red Hot style
+        description="funk-rock groove (Smith)",
+    ),
 }
 
 # Default profile for unknown drummers
@@ -127,17 +139,16 @@ _DEFAULT_PROFILE = DrummerGrooveProfile(
 
 
 class GrooveEngine:
-    """Applies per-bar timing displacement based on drummer groove profile.
+    """Calculates per-bar timing displacement based on drummer groove profile.
 
-    The engine produces a single displacement value (in milliseconds) per bar.
-    This displacement shifts **every** note in the bar as one unit (the "macro"
-    layer), while BarSelector's per-note jitter (±3ms) remains intact for the
-    "micro" naturalism layer.
+    The engine produces a single timing offset (in milliseconds) per bar that
+    should shift where the bar starts on the song timeline — NOT modify beat
+    positions within the pattern skeleton.  This preserves musical structure
+    while creating audible "laying back" or "pushing ahead" feel.
 
-    The displacement is modulated by:
-    1. Drummer groove profile (base swing + timing bias)
-    2. Section context (choruses = tighter, bridges = more dramatic)
-    3. Intensity curve (high energy = straighter, low energy = more swing)
+    The groove layer is **additive** to the existing BarSelector micro-jitter:
+    - GrooveEngine displacement (±30ms): entire bar shifts on timeline → swing/feel
+    - BarSelector per-note jitter (±3ms): tiny independent variation → naturalism
     """
 
     def __init__(self, seed: int | None = None):
@@ -152,28 +163,27 @@ class GrooveEngine:
             drummer_name.lower(), _DEFAULT_PROFILE
         )
 
-    def apply(
+    def get_bar_offset_ms(
         self,
-        pattern: Pattern,
         bar_index: int,
         tempo: int,
         intensity_pt: tuple | None = None,
         section_name: str | None = None,
         drummer_name: str | None = None,
-    ) -> Pattern:
-        """Shift every note in the bar by a drummer-specific timing displacement.
+    ) -> float:
+        """Calculate timing offset (ms) for this bar.
 
         Args:
-            pattern: Input pattern to displace.
             bar_index: 0-based bar position within the section.
-            tempo: Current tempo in BPM (for ms→beat conversion).
+            tempo: Current tempo in BPM (for modulation range).
             intensity_pt: (complexity_mult, velocity_bias, density_factor) from
                           the intensity curve; complexity affects swing magnitude.
             section_name: Section type for contextual modulation.
             drummer_name: Drummer style name (e.g., "bonham", "carey").
 
         Returns:
-            New Pattern with timing displacement applied (original unchanged).
+            Timing offset in milliseconds for this bar's start position on
+            the song timeline.  Positive = push ahead, negative = drag behind.
         """
         profile = self.get_profile(drummer_name)
 
@@ -193,44 +203,50 @@ class GrooveEngine:
         total_magnitude = swing_magnitude_ms * energy_factor * section_modifier
 
         # Compute displacement with drummer's timing bias as the center
-        jitter = self._rng.uniform(
-            -profile.bias_range_ms, profile.bias_range_ms
-        )
-        displacement_ms = (
+        return (
             profile.timing_bias_ms + (self._rng.uniform(-0.5, 0.5) * total_magnitude)
         )
 
-        # Convert ms to beat fraction using current tempo
-        beats_per_second = tempo / 60.0
-        displacement_beats = displacement_ms / 1000.0 * beats_per_second
+    def apply(
+        self,
+        pattern: "Pattern",  # noqa: F821 - type annotation only
+        bar_index: int,
+        tempo: int,
+        intensity_pt: tuple | None = None,
+        section_name: str | None = None,
+        drummer_name: str | None = None,
+    ) -> "Pattern":  # noqa: F821 - type annotation only
+        """Return pattern with a timing offset stored in metadata.
 
-        # Create shifted pattern (immutable — new object)
-        new_beats = []
-        for beat in pattern.beats:
-            new_position = beat.position + displacement_beats
+        Does NOT modify beat positions directly — that would create artificial
+        non-musical patterns where notes jump to wrong positions when wrapping
+        across bar boundaries.  Instead stores the offset on the pattern so
+        composer_v2 can accumulate and apply it globally per section.
 
-            # Handle bar boundary crossing: clamp to [0, beats_per_bar)
-            beats_per_bar = pattern.time_signature.beats_per_bar
-            if new_position < 0.0:
-                new_position += beats_per_bar  # Wrap around
-            elif new_position >= beats_per_bar:
-                new_position -= beats_per_bar  # Wrap around
+        Args:
+            pattern: Input pattern (unchanged except for metadata addition).
+            bar_index: 0-based bar position within the section.
+            tempo: Current tempo in BPM.
+            intensity_pt: Intensity curve point from this bar's position.
+            section_name: Section type name.
+            drummer_name: Drummer style name.
 
-            new_beats.append(
-                Beat(
-                    position=new_position,
-                    instrument=beat.instrument,
-                    velocity=beat.velocity,
-                    duration=beat.duration,
-                    ghost_note=beat.ghost_note,
-                    accent=beat.accent,
-                    instrument_promoted=beat.instrument_promoted,
-                )
-            )
+        Returns:
+            New pattern with metadata["groove_offset_ms"] set for this bar.
+        """
+        offset_ms = self.get_bar_offset_ms(
+            bar_index=bar_index,
+            tempo=tempo,
+            intensity_pt=intensity_pt,
+            section_name=section_name,
+            drummer_name=drummer_name,
+        )
 
-        shifted = pattern.copy()
-        shifted.beats = new_beats
-        return shifted
+        import copy  # noqa: PLC0415
+
+        new_pattern = copy.deepcopy(pattern)
+        new_pattern.metadata["groove_offset_ms"] = offset_ms
+        return new_pattern
 
     def _section_context_modifier(self, section_name: str | None) -> float:
         """Contextual modulation factor based on section type.

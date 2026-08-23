@@ -185,6 +185,17 @@ class MIDIEngine:
 
             bar_start_time = time_cursor
 
+            # Apply per-bar groove offset (in ms) → convert to beats using tempo
+            if hasattr(section, "groove_offsets_ms") and section.groove_offsets_ms:
+                raw_offset_ms = section.groove_offsets_ms.get(
+                    bar_num, 0.0
+                ) if isinstance(section.groove_offsets_ms, dict) else (
+                    section.groove_offsets_ms[bar_num] if bar_num < len(section.groove_offsets_ms)
+                    else 0.0
+                )
+                offset_beats = (raw_offset_ms / 60000.0) * effective_tempo
+                bar_start_time += offset_beats
+
             # Get the effective pattern for this bar (considering variations)
             pattern = section.get_effective_pattern(bar_num)
 
