@@ -308,23 +308,23 @@ class RichPlugin(DrummerPlugin):
                 )
             else:
                 # LRLR pattern: floor tom → mid tom → snare → tom edge
-                builder.pattern.add_beat(
-                    offset,
-                    DrumInstrument.FLOOR_TOM,
-                    VELOCITY.TOM_HEAVY,
-                )
-                builder.pattern.add_beat(
-                    offset + TIMING.THIRTY_SECOND,
-                    DrumInstrument.MID_TOM,
-                    VELOCITY.TOM_ACCENT,
-                )
-                builder.snare(
-                    offset + TIMING.THIRTY_SECOND * 2,
-                    min(VELOCITY.SNARE_HEAVY, 127),
-                )
-                builder.tom_edge(
-                    offset + TIMING.THIRTY_SECOND * 3,
-                    "MID",
-                    VELOCITY.TOM_LIGHT + random.randint(0, 5),
-                )
+                    builder.pattern.add_beat(
+                        offset,
+                        DrumInstrument.FLOOR_TOM,
+                        VELOCITY.TOM_HEAVY,
+                    )
+                    builder.pattern.add_beat(
+                        offset + TIMING.THIRTY_SECOND,
+                        DrumInstrument.MID_TOM,
+                        VELOCITY.TOM_ACCENT,
+                    )
+                    builder.snare(
+                        offset + TIMING.THIRTY_SECOND * 2,
+                        min(VELOCITY.SNARE_HEAVY, 127),
+                    )
+                    builder.tom_edge(
+                        offset + TIMING.THIRTY_SECOND * 3,
+                        "MID",
+                        VELOCITY.TOM_LIGHT + random.randint(0, 5),
+                    )
         return builder.build()
