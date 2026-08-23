@@ -19,12 +19,16 @@ def create_parser() -> argparse.ArgumentParser:
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 Examples:
+  # Generate a rock song using defaults (no subcommand needed)
+  midi-drums --song
+  midi-drums --song --tempo 140 --output rock.mid
+
   # Generate a metal song
-  python -m midi_drums.api.cli generate --genre metal --style death \\
+  python -m midi_drums.api.cli generate --genre metal --style death \
       --tempo 180 --output song.mid
 
   # Generate a single pattern
-  python -m midi_drums.api.cli pattern --genre jazz --section verse \\
+  python -m midi_drums.api.cli pattern --genre jazz --section verse \
       --output pattern.mid
 
   # List available options
@@ -32,11 +36,11 @@ Examples:
   python -m midi_drums.api.cli list styles --genre metal
 
   # Reaper integration — full export with MIDI
-  python -m midi_drums.api.cli reaper export --genre metal --style doom \\
+  python -m midi_drums.api.cli reaper export --genre metal --style doom \
       --tempo 120 --output doom.rpp --midi
 
   # Reaper integration — markers only, no MIDI (preset-only mode)
-  python -m midi_drums.api.cli reaper export --genre jazz --style swing \\
+  python -m midi_drums.api.cli reaper export --genre jazz --style swing \
       --tempo 160 --output jazz.rpp --preset-only
 
   # List available genre structure presets
@@ -44,13 +48,68 @@ Examples:
   python -m midi_drums.api.cli reaper presets --genre metal
 
   # Add markers from existing metadata
-  python -m midi_drums.api.cli reaper add-markers --song doom.mid \\
+  python -m midi_drums.api.cli reaper add-markers --song doom.mid \
       --output project.rpp
 
   # Generate a pattern from a natural language prompt
   python -m midi_drums prompt "funky groove with ghost notes and syncopation"
   python -m midi_drums prompt "aggressive death metal breakdown" --tempo 180 -o breakdown.mid
         """,
+    )
+
+    # Top-level flags (work without any subcommand)
+    parser.add_argument(
+        "--song",
+        action="store_true",
+        help=(
+            "Generate a complete song using default genre/style. "
+            "No subcommand needed — just --song and optional parameters."
+        ),
+    )
+    parser.add_argument(
+        "--genre",
+        default="rock",
+        help="Genre, e.g., metal, rock, jazz, funk (default: rock)",
+    )
+    parser.add_argument(
+        "--style",
+        default="classic",
+        help="Style within genre (default: classic)",
+    )
+    parser.add_argument("--tempo", type=int, default=120, help="Tempo in BPM")
+    parser.add_argument(
+        "--output", "-o", help="Output MIDI file (auto-named if omitted)"
+    )
+    parser.add_argument("--name", help="Song name")
+    parser.add_argument(
+        "--complexity",
+        type=float,
+        default=0.5,
+        help="Complexity level (0.0-1.0)",
+    )
+    parser.add_argument(
+        "--humanization",
+        type=float,
+        default=0.3,
+        help="Humanization level (0.0-1.0)",
+    )
+    parser.add_argument("--drummer", help="Drummer style to apply")
+    parser.add_argument(
+        "--mapping",
+        "--vst",
+        default="ezdrummer3",
+        help=(
+            "MIDI mapping preset (ezdrummer3, studio_drummer3, "
+            "addictive_drums, bfd3, gm_drums, modo_drums, ml_drums)"
+        ),
+    )
+    parser.add_argument(
+        "--mapping-file",
+        metavar="PATH",
+        help=(
+            "Path to a custom MIDI mapping JSON file (see "
+            "DrumKit.from_json). Takes precedence over --mapping/--vst."
+        ),
     )
 
     subparsers = parser.add_subparsers(
@@ -353,7 +412,9 @@ Examples:
     )
     prompt_parser.add_argument(
         "text",
-        help='Natural language description in quotes, e.g. "funky groove with ghost notes"',
+        nargs="?",
+        default=None,
+        help='Natural language description in quotes, e.g. "funky groove with ghost notes"\n             (optional — defaults to a simple groove when omitted)',
     )
     prompt_parser.add_argument(
         "--output", "-o", help="Output MIDI file (auto-named if omitted)"
@@ -979,7 +1040,7 @@ def handle_prompt_command(args) -> None:
         target.reconfigure(encoding="utf-8")
 
     # ── resolve output paths ─────────────────────────────────────────────────
-    description = args.text
+    description = args.text or "simple groove pattern"
     save_metadata = getattr(args, "save_metadata", False)
     rpp_path = getattr(args, "rpp", None)
     write_sidecar = getattr(args, "write_sidecar", None)
@@ -1242,6 +1303,36 @@ def main():
     """Main CLI entry point."""
     parser = create_parser()
     args = parser.parse_args()
+
+    # Top-level --song: generate a song with defaults (no subcommand needed)
+    if getattr(args, "song", False):
+        try:
+            generator = DrumGenerator()
+        except Exception as e:
+            print(f"Failed to initialize drum generator: {e}", file=sys.stderr)
+            sys.exit(1)
+
+        # Derive output filename
+        slug = args.name or f"{args.genre}_{args.style}"
+        slug = "".join(c if c.isalnum() or c == "_" else "_" for c in slug.lower())
+        output_path = args.output or f"{slug}.mid"
+
+        print(f"Generating song: genre={args.genre}, style={args.style}")
+        print(f"Tempo: {args.tempo} BPM | Complexity: {args.complexity} | Mapping: {args.mapping}")
+        print(f"Output: {output_path}")
+
+        song = generator.create_song(
+            genre=args.genre,
+            style=args.style or "default",
+            tempo=args.tempo,
+            complexity=args.complexity,
+            humanization=args.humanization,
+            drummer=args.drummer if args.drummer else None,
+        )
+
+        generator.export_midi(song, Path(output_path))
+        print(f"\nDone! Song exported to: {output_path}")
+        return
 
     if not args.command:
         parser.print_help()

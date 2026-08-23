@@ -58,8 +58,22 @@ class CareyPlugin(DrummerPlugin):
         styled_pattern = pattern.copy()
         styled_pattern.name = f"{pattern.name}_carey"
 
-        # Count new beats allowed (cap prevents density explosion)
+        # Scale additive density inversely to input pattern density.
+        # Sparse base patterns get MORE layers to fill out the groove;
+        # dense base patterns get FEWER layers so structural differences
+        # between flavors aren't drowned out by uniform additive beats.
+        beat_count = len(pattern.beats)
         max_new_beats = 12
+        if beat_count <= 4:
+            scale_factor = 1.0      # Very sparse → full density
+        elif beat_count <= 8:
+            scale_factor = 0.75     # Medium sparse → slightly reduced
+        elif beat_count <= 16:
+            scale_factor = 0.5      # Dense → half density to preserve structure
+        else:
+            scale_factor = 0.3      # Very dense → minimal additions
+
+        max_new_beats = int(max_new_beats * scale_factor)
         current_count = [0]  # Use list for mutability in closures
 
         def _track(n):
