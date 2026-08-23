@@ -310,6 +310,9 @@ Examples:
     )
     reaper_export.add_argument("--drummer", help="Drummer style to apply")
     reaper_export.add_argument(
+        "--mapping", default=None, help="MIDI mapping preset (ezdrummer3, addictive_drums, gm_drums, etc.)"
+    )
+    reaper_export.add_argument(
         "--template", help="Input Reaper template (.rpp) to use as base"
     )
     reaper_export.add_argument(
@@ -741,7 +744,9 @@ def handle_reaper_export_command(args, generator: DrumGenerator) -> None:
             # Full generation mode
             # ----------------------------------------------------------------
             # Create drum kit
-            drum_kit = DrumKit.from_preset("ezdrummer3")
+            drum_kit = DrumKit.from_preset(
+                args.mapping if args.mapping else "ezdrummer3"
+            )
 
             # Resolve tempo — use preset default when not supplied
             from midi_drums.export.reaper.models import get_genre_preset
