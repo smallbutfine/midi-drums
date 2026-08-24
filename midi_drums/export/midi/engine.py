@@ -58,14 +58,16 @@ _INSTR_NOTE = {
 
 
 def _mid_note(instrument) -> int:
-    """Resolve a DrumInstrument enum value (or plain int) to a MIDI note."""
-    # If it's already an integer, just use it
+    """Resolve a DrumInstrument enum value (or plain int) to a MIDI note.
+
+    This is the legacy fallback used only when no drum_kit context is
+    available (should be rare — prefer MIDIEngine._resolve_note).
+    """
     if isinstance(instrument, int):
         return instrument
-    # If it has no .value attribute (some custom types), convert to string name
     if not hasattr(instrument, "value"):
         name = str(instrument).split(".")[-1]
-        return _INSTR_NOTE.get(name, 60)  # fallback to middle C
+        return _INSTR_NOTE.get(name, 60)
     name = (
         str(instrument.value).split(".")[-1]
         if hasattr(instrument.value, "__name__")
@@ -82,6 +84,16 @@ class MIDIEngine:
 
     def __init__(self, drum_kit: DrumKit | None = None):
         self.drum_kit = drum_kit or DrumKit.create_ezdrummer3_kit()
+
+    # ------------------------------------------------------------------
+    # Note resolution
+    # ------------------------------------------------------------------
+
+    def _resolve_note(self, instrument) -> int:
+        """Resolve a DrumInstrument (or int) to a MIDI note using this engine's drum kit."""
+        if isinstance(instrument, int):
+            return instrument
+        return self.drum_kit.get_midi_note(instrument)
 
     # ------------------------------------------------------------------
     # Public write methods
@@ -117,7 +129,7 @@ class MIDIEngine:
 
         for beat in _dedupe_by_instrument_position(pattern.beats):
             tick = int(round(beat.position * tpq))
-            mn = _mid_note(beat.instrument)
+            mn = self._resolve_note(beat.instrument)
             events.append(
                 (
                     tick,
@@ -272,7 +284,7 @@ class MIDIEngine:
                 deduped_beats = _dedupe_by_instrument_position(adjusted_beats)
 
                 for beat in sorted(deduped_beats, key=lambda b: b.position):
-                    mn = _mid_note(beat.instrument)
+                    mn = self._resolve_note(beat.instrument)
                     abs_tick = int(
                         round(bar_start_beats * tpq + beat.position * tpq)
                     )
@@ -301,7 +313,7 @@ class MIDIEngine:
                     fill_start = bar_start_beats + (ts_num - 1.0)
                     for fb in fill.pattern.beats:
                         if fb.position < 1.0:
-                            mn = _mid_note(fb.instrument)
+                            mn = self._resolve_note(fb.instrument)
                             abs_tick = int(
                                 round(fill_start * tpq + fb.position * tpq)
                             )
@@ -395,7 +407,7 @@ class MIDIEngine:
                 )
             )
             for beat in pattern.beats:
-                mn = _mid_note(beat.instrument)
+                mn = self._resolve_note(beat.instrument)
                 t.append(
                     Msg(
                         "note_on",

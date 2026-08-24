@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
+from midi_drums.core.models.kit import DrumKit
 from midi_drums.core.models.song import Song
 from midi_drums.export.midi.engine import MIDIEngine
 from midi_drums.export.reaper.engine import ReaperEngine
@@ -34,10 +35,10 @@ class ReaperExporter:
         ... )
     """
 
-    def __init__(self):
+    def __init__(self, drum_kit: DrumKit | None = None):
         """Initialize Reaper exporter."""
         self.reaper_engine = ReaperEngine()
-        self.midi_engine = MIDIEngine()
+        self.midi_engine = MIDIEngine(drum_kit)
 
     def export_with_markers(
         self,

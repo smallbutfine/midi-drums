@@ -7,6 +7,7 @@ import os
 import sys
 from pathlib import Path
 
+from midi_drums.config.defaults import DEFAULT_MAPPING
 from midi_drums.core.models.kit import DrumKit
 from midi_drums.export.reaper.exporter import ReaperExporter
 from midi_drums.generation.engines.drum_generator import DrumGenerator
@@ -97,10 +98,11 @@ Examples:
     parser.add_argument(
         "--mapping",
         "--vst",
-        default="ezdrummer3",
+        default=DEFAULT_MAPPING,
         help=(
-            "MIDI mapping preset (ezdrummer3, studio_drummer3, "
-            "addictive_drums, bfd3, gm_drums, modo_drums, ml_drums)"
+            f"MIDI mapping preset (default: {DEFAULT_MAPPING}, also "
+            "ezdrummer3, studio_drummer3, addictive_drums, bfd3, gm_drums, "
+            "modo_drums, ml_drums)"
         ),
     )
     parser.add_argument(
@@ -166,11 +168,11 @@ Examples:
     gen_parser.add_argument(
         "--mapping",
         "--vst",
-        default="ezdrummer3",
+        default=DEFAULT_MAPPING,
         help=(
-            "MIDI mapping preset (ezdrummer3, studio_drummer3, "
-            "addictive_drums, bfd3, gm_drums, modo_drums, ml_drums, "
-            "metal, jazz)"
+            f"MIDI mapping preset (default: {DEFAULT_MAPPING}, also "
+            "ezdrummer3, studio_drummer3, addictive_drums, bfd3, gm_drums, "
+            "modo_drums, ml_drums, metal, jazz)"
         ),
     )
     gen_parser.add_argument(
@@ -238,11 +240,11 @@ Examples:
     pattern_parser.add_argument(
         "--mapping",
         "--vst",
-        default="ezdrummer3",
+        default=DEFAULT_MAPPING,
         help=(
-            "MIDI mapping preset (ezdrummer3, studio_drummer3, "
-            "addictive_drums, bfd3, gm_drums, modo_drums, ml_drums, "
-            "metal, jazz)"
+            f"MIDI mapping preset (default: {DEFAULT_MAPPING}, also "
+            "ezdrummer3, studio_drummer3, addictive_drums, bfd3, gm_drums, "
+            "modo_drums, ml_drums, metal, jazz)"
         ),
     )
     pattern_parser.add_argument(
@@ -497,7 +499,7 @@ Examples:
     )
     prompt_parser.add_argument(
         "--mapping",
-        default="ezdrummer3",
+        default=DEFAULT_MAPPING,
         choices=[
             "ezdrummer3",
             "gm_drums",
@@ -508,8 +510,8 @@ Examples:
             "studio_drummer3",
         ],
         help=(
-            "MIDI note mapping preset (default: ezdrummer3). "
-            "Use 'addictive_drums' for Addictive Drums 2 native keymap."
+            f"MIDI note mapping preset (default: {DEFAULT_MAPPING}). "
+            "Use 'addictive_drums' for Additive Drums 2 native keymap."
         ),
     )
 
@@ -718,9 +720,12 @@ def handle_reaper_export_command(args, generator: DrumGenerator) -> None:
             # ----------------------------------------------------------------
             # Preset-only mode: no MIDI generation
             # ----------------------------------------------------------------
+            drum_kit = DrumKit.from_preset(
+                args.mapping if args.mapping else DEFAULT_MAPPING
+            )
             from midi_drums.export.reaper.models import get_genre_preset
 
-            exporter = ReaperExporter()
+            exporter = ReaperExporter(drum_kit)
             preset = exporter.export_with_genre_preset(
                 genre=args.genre,
                 style=args.style,
@@ -776,7 +781,7 @@ def handle_reaper_export_command(args, generator: DrumGenerator) -> None:
             song.metadata["genre"] = args.genre
             song.metadata["style"] = args.style
 
-            exporter = ReaperExporter()
+            exporter = ReaperExporter(drum_kit)
             exporter.export_with_markers(
                 song=song,
                 output_rpp=str(output_path),
@@ -935,7 +940,10 @@ def handle_reaper_add_markers_command(args, generator: DrumGenerator) -> None:
         )
 
         # Export to Reaper
-        exporter = ReaperExporter()
+        drum_kit = DrumKit.from_preset(
+            args.mapping if args.mapping else DEFAULT_MAPPING
+        )
+        exporter = ReaperExporter(drum_kit)
         exporter.export_with_markers(
             song=song,
             output_rpp=args.output,
@@ -1077,7 +1085,7 @@ def handle_prompt_command(args) -> None:
     save_metadata = getattr(args, "save_metadata", False)
     rpp_path = getattr(args, "rpp", None)
     write_sidecar = getattr(args, "write_sidecar", None)
-    mapping = getattr(args, "mapping", "ezdrummer3")
+    mapping = getattr(args, "mapping", DEFAULT_MAPPING)
 
     # Derive a filesystem-safe slug from --output stem or the first 4 prompt words
     if args.output:
@@ -1181,7 +1189,8 @@ def handle_prompt_command(args) -> None:
                 from midi_drums.export.reaper.exporter import ReaperExporter
 
                 Path(rpp_path).parent.mkdir(parents=True, exist_ok=True)
-                ReaperExporter().export_complete(
+                drum_kit = DrumKit.from_preset(mapping)
+                ReaperExporter(drum_kit).export_complete(
                     song_obj, rpp_path, output_path
                 )
                 print(f"  Reaper     : {rpp_path}")
@@ -1275,7 +1284,8 @@ def handle_prompt_command(args) -> None:
                     ],
                     metadata={"genre": chars.genre, "style": chars.style},
                 )
-                ReaperExporter().export_complete(
+                drum_kit = DrumKit.from_preset(mapping)
+                ReaperExporter(drum_kit).export_complete(
                     song_obj, rpp_path, output_path
                 )
                 print(f"  Reaper     : {rpp_path}")

@@ -252,6 +252,8 @@ class DrumGeneratorAPI:
         complexity: float = 0.5,
         humanization: float = 0.3,
         drummer: str | None = None,
+        mapping: str = DEFAULT_MAPPING,
+        drum_kit: DrumKit | None = None,
     ) -> dict:
         """Generate drums and create a Reaper project with genre-smart markers.
 
@@ -299,6 +301,10 @@ class DrumGeneratorAPI:
         preset = get_genre_preset(genre, style)
         resolved_tempo = tempo if tempo is not None else preset.default_tempo
 
+        # Use explicit drum_kit or derive from mapping
+        if drum_kit is None:
+            drum_kit = DrumKit.from_preset(mapping)
+
         # Generate song with audio patterns
         song = self.create_song(
             genre=genre,
@@ -307,6 +313,7 @@ class DrumGeneratorAPI:
             complexity=complexity,
             humanization=humanization,
             drummer=drummer,
+            drum_kit=drum_kit,
         )
         # Attach genre metadata so the exporter can pick section colors
         song.metadata["genre"] = genre
@@ -315,7 +322,7 @@ class DrumGeneratorAPI:
         rpp_path = Path(output_rpp).resolve()
         midi_path = rpp_path.with_suffix(".mid") if with_midi else None
 
-        exporter = ReaperExporter()
+        exporter = ReaperExporter(drum_kit)
         exporter.export_complete(
             song=song,
             output_rpp=str(rpp_path),
@@ -337,6 +344,7 @@ class DrumGeneratorAPI:
         tempo: int | None = None,
         output_rpp: str = "project.rpp",
         input_rpp: str | None = None,
+        mapping: str = DEFAULT_MAPPING,
     ) -> str:
         """Create a Reaper project with genre-smart structure markers only.
 
@@ -365,7 +373,8 @@ class DrumGeneratorAPI:
         """
         from midi_drums.export.reaper.exporter import ReaperExporter
 
-        exporter = ReaperExporter()
+        drum_kit = DrumKit.from_preset(mapping)
+        exporter = ReaperExporter(drum_kit)
         exporter.export_with_genre_preset(
             genre=genre,
             style=style,
