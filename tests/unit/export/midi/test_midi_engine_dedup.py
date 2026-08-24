@@ -132,9 +132,7 @@ class TestSongToMidiDedup:
 
         from midi_drums.core.models.song import Section, Song
 
-        beat = Beat(
-            position=0.0, instrument=DrumInstrument.KICK, velocity=100
-        )
+        beat = Beat(position=0.0, instrument=DrumInstrument.KICK, velocity=100)
         p1 = Pattern(name="p1", beats=[beat])
         p2 = Pattern(name="p2", beats=[beat])  # same note at t=0
 
@@ -152,7 +150,8 @@ class TestSongToMidiDedup:
 
         m = MidiFile(file=io.BytesIO(buf.getvalue()))
         kick_tick0 = [
-            msg for t in m.tracks
+            msg
+            for t in m.tracks
             for msg in t
             if msg.type == "note_on" and msg.note == 36 and msg.time == 0
         ]
@@ -164,8 +163,12 @@ class TestSongToMidiDedup:
 
         from midi_drums.core.models.song import Section, Song
 
-        beat_kick = Beat(position=0.0, instrument=DrumInstrument.KICK, velocity=100)
-        beat_snare = Beat(position=0.0, instrument=DrumInstrument.SNARE, velocity=105)
+        beat_kick = Beat(
+            position=0.0, instrument=DrumInstrument.KICK, velocity=100
+        )
+        beat_snare = Beat(
+            position=0.0, instrument=DrumInstrument.SNARE, velocity=105
+        )
         p1 = Pattern(name="p1", beats=[beat_kick])
 
         song = Song(
@@ -173,7 +176,11 @@ class TestSongToMidiDedup:
             tempo=120,
             sections=[
                 Section(name="a", bars=1, pattern=p1),
-                Section(name="b", bars=1, pattern=Pattern(name="p2", beats=[beat_snare])),
+                Section(
+                    name="b",
+                    bars=1,
+                    pattern=Pattern(name="p2", beats=[beat_snare]),
+                ),
             ],
         )
 
@@ -182,17 +189,20 @@ class TestSongToMidiDedup:
 
         m = MidiFile(file=io.BytesIO(buf.getvalue()))
         notes_tick0 = [
-            msg for t in m.tracks
+            msg
+            for t in m.tracks
             for msg in t
             if msg.type == "note_on" and msg.time == 0
         ]
         # Only KICK (section a) has delta=0; SNARE (section b) is later.
         # What matters: both different notes survive the global dedup.
         all_notes = [
-            msg for t in m.tracks
-            for msg in t
-            if msg.type == "note_on"
+            msg for t in m.tracks for msg in t if msg.type == "note_on"
         ]
-        assert any(msg.note == 36 for msg in notes_tick0), "KICK should be at tick 0"
+        assert any(
+            msg.note == 36 for msg in notes_tick0
+        ), "KICK should be at tick 0"
         note_nums = {msg.note for msg in all_notes}
-        assert 38 in note_nums, "SNARE should also survive dedup (different pitch)"
+        assert (
+            38 in note_nums
+        ), "SNARE should also survive dedup (different pitch)"

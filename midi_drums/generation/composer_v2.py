@@ -615,13 +615,18 @@ class ComposerV2:
             return pattern
 
         max_pos = max(b.position for b in pattern.beats)
-        ts_num = params.time_signature.beats_per_bar if hasattr(params, 'time_signature') and params.time_signature else 4
+        ts_num = (
+            params.time_signature.beats_per_bar
+            if hasattr(params, "time_signature") and params.time_signature
+            else 4
+        )
         total_bars = int(max_pos / ts_num) + 1
 
         if total_bars <= 1:
             return pattern  # single-bar patterns don't have the tiling issue
 
         from copy import deepcopy
+
         result = deepcopy(pattern)
 
         for bar in range(total_bars):
@@ -632,42 +637,74 @@ class ComposerV2:
             if not bar_beats:
                 # Completely empty bar — add a basic groove
                 result.beats.append(
-                    Beat(position=start, instrument=DrumInstrument.KICK,
-                         velocity=int(VELOCITY.KICK_HEAVY))
+                    Beat(
+                        position=start,
+                        instrument=DrumInstrument.KICK,
+                        velocity=int(VELOCITY.KICK_HEAVY),
+                    )
                 )
                 result.beats.append(
-                    Beat(position=start + ts_num / 2, instrument=DrumInstrument.SNARE,
-                         velocity=int(VELOCITY.SNARE_ACCENT))
+                    Beat(
+                        position=start + ts_num / 2,
+                        instrument=DrumInstrument.SNARE,
+                        velocity=int(VELOCITY.SNARE_ACCENT),
+                    )
                 )
                 for q in range(ts_num):
                     result.beats.append(
-                        Beat(position=start + q, instrument=DrumInstrument.CLOSED_HH,
-                             velocity=int(VELOCITY.HIHAT_NORMAL))
+                        Beat(
+                            position=start + q,
+                            instrument=DrumInstrument.CLOSED_HH,
+                            velocity=int(VELOCITY.HIHAT_NORMAL),
+                        )
                     )
                 continue
 
             # Check coverage per quarter
-            quarters_covered = set(int((b.position - start) % ts_num) for b in bar_beats)
+            quarters_covered = set(
+                int((b.position - start) % ts_num) for b in bar_beats
+            )
 
-            missing_quarters = [q for q in range(ts_num) if q not in quarters_covered]
-            has_kick = any(b.instrument == DrumInstrument.KICK for b in bar_beats)
+            missing_quarters = [
+                q for q in range(ts_num) if q not in quarters_covered
+            ]
+            has_kick = any(
+                b.instrument == DrumInstrument.KICK for b in bar_beats
+            )
 
             # Add missing core instruments at quarter boundaries
             if not has_kick and missing_quarters:
                 result.beats.append(
-                    Beat(position=start + missing_quarters[0], instrument=DrumInstrument.KICK,
-                         velocity=int(VELOCITY.KICK_HEAVY))
+                    Beat(
+                        position=start + missing_quarters[0],
+                        instrument=DrumInstrument.KICK,
+                        velocity=int(VELOCITY.KICK_HEAVY),
+                    )
                 )
-                missing_quarters = [q for q in range(ts_num) if int((start + q - start) % ts_num) not in set(int((b.position - start) % ts_num) for b in bar_beats)]
+                missing_quarters = [
+                    q
+                    for q in range(ts_num)
+                    if int((start + q - start) % ts_num)
+                    not in set(
+                        int((b.position - start) % ts_num) for b in bar_beats
+                    )
+                ]
 
             # Ensure at least one note per quarter (hi-hat ghost fill)
-            current_qs = set(int((b.position - start) % ts_num) for b in result.beats if start <= b.position < end)
+            current_qs = set(
+                int((b.position - start) % ts_num)
+                for b in result.beats
+                if start <= b.position < end
+            )
             for q in missing_quarters:
                 pos = start + q
                 # Prefer hi-hat for sparse coverage — keeps the core rhythm visible
                 result.beats.append(
-                    Beat(position=pos, instrument=DrumInstrument.CLOSED_HH,
-                         velocity=int(VELOCITY.HIHAT_WHISPER))
+                    Beat(
+                        position=pos,
+                        instrument=DrumInstrument.CLOSED_HH,
+                        velocity=int(VELOCITY.HIHAT_WHISPER),
+                    )
                 )
                 current_qs.add(q)
 
@@ -685,13 +722,18 @@ class ComposerV2:
         This is applied per-bar BEFORE combination — the combined _enforce_min_density
         still runs as a safety net for multi-bar flavor gaps.
         """
-        from midi_drums.config import VELOCITY
         from copy import deepcopy
+
+        from midi_drums.config import VELOCITY
 
         if not pattern.beats:
             return pattern
 
-        ts_num = params.time_signature.beats_per_bar if hasattr(params, 'time_signature') and params.time_signature else 4
+        ts_num = (
+            params.time_signature.beats_per_bar
+            if hasattr(params, "time_signature") and params.time_signature
+            else 4
+        )
 
         # Find the bar this pattern belongs to (section-relative start)
         min_pos = min(b.position for b in pattern.beats)
@@ -699,7 +741,9 @@ class ComposerV2:
         bar_end = bar_start + ts_num
 
         result = deepcopy(pattern)
-        bar_beats = [b for b in result.beats if bar_start <= b.position < bar_end]
+        bar_beats = [
+            b for b in result.beats if bar_start <= b.position < bar_end
+        ]
 
         if len(bar_beats) >= 4:
             return pattern  # sufficient density
@@ -710,22 +754,35 @@ class ComposerV2:
         # Add missing core instruments
         if not has_kick:
             result.beats.append(
-                Beat(position=bar_start, instrument=DrumInstrument.KICK,
-                     velocity=int(VELOCITY.KICK_HEAVY))
+                Beat(
+                    position=bar_start,
+                    instrument=DrumInstrument.KICK,
+                    velocity=int(VELOCITY.KICK_HEAVY),
+                )
             )
         if not has_snare and ts_num >= 4:
             result.beats.append(
-                Beat(position=bar_start + ts_num / 2, instrument=DrumInstrument.SNARE,
-                     velocity=int(VELOCITY.SNARE_ACCENT))
+                Beat(
+                    position=bar_start + ts_num / 2,
+                    instrument=DrumInstrument.SNARE,
+                    velocity=int(VELOCITY.SNARE_ACCENT),
+                )
             )
 
         # Fill missing quarters with hi-hat ghost notes (very low velocity)
-        current_qs = set(int((b.position - bar_start) % ts_num) for b in result.beats if bar_start <= b.position < bar_end)
+        current_qs = set(
+            int((b.position - bar_start) % ts_num)
+            for b in result.beats
+            if bar_start <= b.position < bar_end
+        )
         for q in range(ts_num):
             if q not in current_qs:
                 result.beats.append(
-                    Beat(position=bar_start + q, instrument=DrumInstrument.CLOSED_HH,
-                         velocity=int(VELOCITY.HIHAT_WHISPER))
+                    Beat(
+                        position=bar_start + q,
+                        instrument=DrumInstrument.CLOSED_HH,
+                        velocity=int(VELOCITY.HIHAT_WHISPER),
+                    )
                 )
 
         return result

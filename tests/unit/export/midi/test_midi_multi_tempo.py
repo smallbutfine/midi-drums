@@ -35,7 +35,11 @@ def _read_midob(midi_bytes: "bytes | io.BytesIO") -> list[dict]:
 
     from mido import MidiFile
 
-    buf = midi_bytes.getvalue() if isinstance(midi_bytes, io.BytesIO) else midi_bytes
+    buf = (
+        midi_bytes.getvalue()
+        if isinstance(midi_bytes, io.BytesIO)
+        else midi_bytes
+    )
     m = MidiFile(file=io.BytesIO(buf))
     # Flatten all tracks
     events: list[dict] = []
@@ -74,8 +78,9 @@ class TestNonSegmentedSongUnchanged:
 
         engine = MIDIEngine()
         buf = engine.song_to_midi(song)
-        from mido import MidiFile
         import io
+
+        from mido import MidiFile
 
         m = MidiFile(file=io.BytesIO(buf.getvalue()))
         assert m.type == 0
@@ -202,8 +207,9 @@ class TestPatternToMidiValidOutput:
         engine = MIDIEngine()
         buf = engine.pattern_to_midi(pattern, tempo=120)
 
-        from mido import MidiFile
         import io
+
+        from mido import MidiFile
 
         m = MidiFile(file=io.BytesIO(buf.getvalue()))
         assert m.type == 0

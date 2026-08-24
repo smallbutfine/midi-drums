@@ -24,16 +24,36 @@ def _dedupe_by_instrument_position(beats: list[Beat]) -> list[Beat]:
 
 # Standard drum note numbers for common instruments.
 _INSTR_NOTE = {
-    "KICK": 36, "SNARE": 38, "RIM": 40, "MID_TOM": 47,
-    "FLOOR_TOM": 43, "CRASH": 49, "RIDE": 51, "SPLASH": 55,
-    "CHINA": 52, "CLOSED_HH": 42, "PEDAL_HH": 44, "OPEN_HH": 46,
-    "RIDE_BELL": 53, "TOM_EDGE_MID": 65, "TOM_EDGE_3": 67,
-    "TOM_EDGE_4": 69, "CRASH_CHOKED_A": 80, "CRASH_CHOKED_B": 79,
-    "CRASH_CHOKED_C": 71, "CRASH_CHOKED_D": 68,
-    "RIDE_SHAFT": 62, "RIDE_BELL_ALT": 61,
-    "TIGHT_HH_EDGE": 91, "TIGHT_HH_TIP": 90, "TIGHT_HH_CLOSED": 91,
-    "OPEN_HH_1": 54, "OPEN_HH_2": 55, "OPEN_HH_3": 56,
-    "CLOSED_HH_EDGE": 42, "CLOSED_HH_TIP": 49,
+    "KICK": 36,
+    "SNARE": 38,
+    "RIM": 40,
+    "MID_TOM": 47,
+    "FLOOR_TOM": 43,
+    "CRASH": 49,
+    "RIDE": 51,
+    "SPLASH": 55,
+    "CHINA": 52,
+    "CLOSED_HH": 42,
+    "PEDAL_HH": 44,
+    "OPEN_HH": 46,
+    "RIDE_BELL": 53,
+    "TOM_EDGE_MID": 65,
+    "TOM_EDGE_3": 67,
+    "TOM_EDGE_4": 69,
+    "CRASH_CHOKED_A": 80,
+    "CRASH_CHOKED_B": 79,
+    "CRASH_CHOKED_C": 71,
+    "CRASH_CHOKED_D": 68,
+    "RIDE_SHAFT": 62,
+    "RIDE_BELL_ALT": 61,
+    "TIGHT_HH_EDGE": 91,
+    "TIGHT_HH_TIP": 90,
+    "TIGHT_HH_CLOSED": 91,
+    "OPEN_HH_1": 54,
+    "OPEN_HH_2": 55,
+    "OPEN_HH_3": 56,
+    "CLOSED_HH_EDGE": 42,
+    "CLOSED_HH_TIP": 49,
 }
 
 
@@ -43,10 +63,14 @@ def _mid_note(instrument) -> int:
     if isinstance(instrument, int):
         return instrument
     # If it has no .value attribute (some custom types), convert to string name
-    if not hasattr(instrument, 'value'):
-        name = str(instrument).split('.')[-1]
+    if not hasattr(instrument, "value"):
+        name = str(instrument).split(".")[-1]
         return _INSTR_NOTE.get(name, 60)  # fallback to middle C
-    name = str(instrument.value).split('.')[-1] if hasattr(instrument.value, '__name__') else str(instrument)
+    name = (
+        str(instrument.value).split(".")[-1]
+        if hasattr(instrument.value, "__name__")
+        else str(instrument)
+    )
     return _INSTR_NOTE.get(name, int(instrument.value))
 
 
@@ -81,7 +105,9 @@ class MIDIEngine:
 
     def _pattern_to_bytes(self, pattern: Pattern, tempo: int) -> io.BytesIO:
 
-        from mido import MetaMessage as MM, MidiFile as MF, Message as Msg
+        from mido import Message as Msg
+        from mido import MetaMessage as MM
+        from mido import MidiFile as MF
 
         tpq = 960
         # Collect all events with absolute tick positions
@@ -93,16 +119,28 @@ class MIDIEngine:
             tick = int(round(beat.position * tpq))
             mn = _mid_note(beat.instrument)
             events.append(
-                (tick, Msg("note_on", channel=9, note=mn,
-                           velocity=min(max(beat.velocity, 0), 127), time=0))
+                (
+                    tick,
+                    Msg(
+                        "note_on",
+                        channel=9,
+                        note=mn,
+                        velocity=min(max(beat.velocity, 0), 127),
+                        time=0,
+                    ),
+                )
             )
             dur_ticks = max(int(round(min(beat.duration, 0.2) * tpq)), 1)
             events.append(
-                (tick + dur_ticks, Msg("note_off", channel=9, note=mn,
-                                        velocity=0, time=0))
+                (
+                    tick + dur_ticks,
+                    Msg("note_off", channel=9, note=mn, velocity=0, time=0),
+                )
             )
 
-        events.append((events[-1][0] if events else 1, MM("end_of_track", time=0)))
+        events.append(
+            (events[-1][0] if events else 1, MM("end_of_track", time=0))
+        )
 
         # Sort by absolute tick position
         events.sort(key=lambda e: e[0])
@@ -133,7 +171,9 @@ class MIDIEngine:
 
     def _song_to_bytes(self, song: Song) -> io.BytesIO:
 
-        from mido import MetaMessage as MM, MidiFile as MF, Message as Msg
+        from mido import Message as Msg
+        from mido import MetaMessage as MM
+        from mido import MidiFile as MF
 
         tpq = 960
         # Collect events with absolute tick positions
@@ -167,12 +207,12 @@ class MIDIEngine:
                 # Tempo / time-sig markers
                 if eff_tempo != tempo_state["tempo"]:
                     tick_now = int(round(time_cursor * tpq))
-                    _add_tick(tick_now, MM("set_tempo", tempo=eff_tempo, time=0))
+                    _add_tick(
+                        tick_now, MM("set_tempo", tempo=eff_tempo, time=0)
+                    )
                     tempo_state["tempo"] = eff_tempo
 
-                if (ebn, edn) != (
-                    tempo_state["ts_num"], tempo_state["ts_den"]
-                ):
+                if (ebn, edn) != (tempo_state["ts_num"], tempo_state["ts_den"]):
                     tick_now = int(round(time_cursor * tpq))
                     _add_tick(
                         tick_now,
@@ -188,7 +228,10 @@ class MIDIEngine:
                 bar_start_beats = time_cursor + bar_num * bp
 
                 # Groove offset (same logic as original code)
-                if hasattr(section, "groove_offsets_ms") and section.groove_offsets_ms:
+                if (
+                    hasattr(section, "groove_offsets_ms")
+                    and section.groove_offsets_ms
+                ):
                     raw_ms = (
                         section.groove_offsets_ms.get(bar_num, 0.0)
                         if isinstance(section.groove_offsets_ms, dict)
@@ -214,7 +257,8 @@ class MIDIEngine:
                 if _pbars > 1:
                     cycle_bar = bar_num % _pbars
                     beats_to_render = [
-                        b for b in pattern.beats
+                        b
+                        for b in pattern.beats
                         if int(b.position / ts_num) == cycle_bar
                     ]
                     adjusted_beats = []
@@ -225,9 +269,7 @@ class MIDIEngine:
                 else:
                     adjusted_beats = pattern.beats
 
-                deduped_beats = _dedupe_by_instrument_position(
-                    adjusted_beats
-                )
+                deduped_beats = _dedupe_by_instrument_position(adjusted_beats)
 
                 for beat in sorted(deduped_beats, key=lambda b: b.position):
                     mn = _mid_note(beat.instrument)
@@ -238,9 +280,16 @@ class MIDIEngine:
                     if on_key in added_note_ticks:
                         continue
                     added_note_ticks.add(on_key)
-                    _add_tick(abs_tick, Msg("note_on", channel=9, note=mn,
-                                            velocity=min(max(beat.velocity, 0), 127),
-                                            time=0))
+                    _add_tick(
+                        abs_tick,
+                        Msg(
+                            "note_on",
+                            channel=9,
+                            note=mn,
+                            velocity=min(max(beat.velocity, 0), 127),
+                            time=0,
+                        ),
+                    )
 
                 # Fill at section end (same logic as original)
                 fill = None
@@ -260,10 +309,16 @@ class MIDIEngine:
                             if on_key in added_note_ticks:
                                 continue
                             added_note_ticks.add(on_key)
-                            _add_tick(abs_tick, Msg("note_on", channel=9,
-                                                    note=mn,
-                                                    velocity=min(max(fb.velocity, 0), 127),
-                                                    time=0))
+                            _add_tick(
+                                abs_tick,
+                                Msg(
+                                    "note_on",
+                                    channel=9,
+                                    note=mn,
+                                    velocity=min(max(fb.velocity, 0), 127),
+                                    time=0,
+                                ),
+                            )
 
                 time_cursor += bp
 
@@ -298,9 +353,7 @@ class MIDIEngine:
     # API compatibility layer (signatures match the old midiutil version)
     # ------------------------------------------------------------------
 
-    def pattern_to_midi(
-        self, pattern: Pattern, tempo: int = 120
-    ) -> io.BytesIO:
+    def pattern_to_midi(self, pattern: Pattern, tempo: int = 120) -> io.BytesIO:
         """Convert a single pattern to MIDI binary."""
         return self._pattern_to_bytes(pattern, tempo)
 
@@ -324,7 +377,9 @@ class MIDIEngine:
         self, patterns: list[Pattern], tempo: int = 120
     ) -> io.BytesIO:
 
-        from mido import MetaMessage as MM, MidiFile as MF, Message as Msg
+        from mido import Message as Msg
+        from mido import MetaMessage as MM
+        from mido import MidiFile as MF
 
         mf = MF(type=1, ticks_per_beat=960)
         channel = self.drum_kit.channel
@@ -342,13 +397,22 @@ class MIDIEngine:
             for beat in pattern.beats:
                 mn = _mid_note(beat.instrument)
                 t.append(
-                    Msg("note_on", channel=channel, note=mn,
+                    Msg(
+                        "note_on",
+                        channel=channel,
+                        note=mn,
                         velocity=beat.velocity,
-                        time=int(round(beat.position * 960)))
+                        time=int(round(beat.position * 960)),
+                    )
                 )
                 t.append(
-                    Msg("note_off", channel=channel, note=mn, velocity=0,
-                        time=int(round(min(beat.duration, 0.2) * 960)))
+                    Msg(
+                        "note_off",
+                        channel=channel,
+                        note=mn,
+                        velocity=0,
+                        time=int(round(min(beat.duration, 0.2) * 960)),
+                    )
                 )
             t.append(MM("end_of_track", time=0))
 

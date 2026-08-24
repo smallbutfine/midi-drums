@@ -115,13 +115,13 @@ class TestDrummerSignatureFillsWiredIntoGeneration:
 
         # Read back through mido to verify note data
         import io
+
         from mido import MidiFile
+
         m = MidiFile(file=io.BytesIO(midi_buf.getvalue()))
         china_note = generator.drum_kit.get_midi_note(DrumInstrument.CHINA)
 
-        note_ons = [
-            msg for t in m.tracks for msg in t if msg.type == "note_on"
-        ]
+        note_ons = [msg for t in m.tracks for msg in t if msg.type == "note_on"]
         china_notes = [e for e in note_ons if e.note == china_note]
 
         assert china_notes, (
