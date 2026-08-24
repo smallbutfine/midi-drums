@@ -143,7 +143,8 @@ class ComposerV2:
 
                 # Ensure core instruments are present regardless of drummer modifier.
                 # Drummer plugins (e.g., Weckl's linear coordination) may remove kicks,
-                # but every bar needs at least one kick and one snare to sound musical.
+                # but every bar needs at least one kick, one snare, and timekeeping
+                # cymbal to sound musical — a bar with only kick+snare sounds dead.
                 has_kick = any(
                     b.instrument == DrumInstrument.KICK
                     for b in drummed_pattern.beats
@@ -152,6 +153,16 @@ class ComposerV2:
                     b.instrument == DrumInstrument.SNARE
                     for b in drummed_pattern.beats
                 )
+                has_timekeeping_cymbal = any(
+                    b.instrument in (
+                        DrumInstrument.CLOSED_HH,
+                        DrumInstrument.OPEN_HH,
+                        DrumInstrument.RIDE,
+                        DrumInstrument.CRASH,
+                    )
+                    for b in drummed_pattern.beats
+                )
+
                 if not has_kick:
                     from midi_drums.config import VELOCITY
 
@@ -170,6 +181,17 @@ class ComposerV2:
                             position=2.0,
                             instrument=DrumInstrument.SNARE,
                             velocity=int(VELOCITY.SNARE_ACCENT),
+                        )
+                    )
+                # Ensure at least one timekeeping cymbal on a quarter beat
+                if not has_timekeeping_cymbal:
+                    from midi_drums.config import VELOCITY
+
+                    drummed_pattern.beats.append(
+                        Beat(
+                            position=0.0,
+                            instrument=DrumInstrument.CLOSED_HH,
+                            velocity=int(VELOCITY.HIHAT_NORMAL),
                         )
                     )
 
@@ -382,14 +404,78 @@ class ComposerV2:
         start_pos = target_bar * beats_per_bar
         end_pos = start_pos + beats_per_bar
 
+        extracted_beats: list[tuple[float, DrumInstrument, int]] = []
         for beat in base_pattern.beats:
             if start_pos <= beat.position < end_pos:
                 bar_pos = beat.position - start_pos
-                builder.pattern.add_beat(
+                extracted_beats.append((
                     bar_pos,
                     beat.instrument,
                     max(1, min(127, beat.velocity)),
-                )
+                ))
+
+        # CRITICAL: Ensure minimum content for this bar even if the multi-bar
+        # cycle extracted few/no beats (e.g., a sparse pattern bar).
+        # Without this, alternating bars can be near-empty before drummer mods.
+        from midi_drums.config import VELOCITY
+
+        has_kick = any(b[1] == DrumInstrument.KICK for b in extracted_beats)
+        has_snare_backbeat = any(
+            b[1] == DrumInstrument.SNARE
+            and abs(b[0] - beats_per_bar / 2) < 0.1
+            for b in extracted_beats
+        )
+        has_timekeeping_cymbal = any(
+            b[1] in (
+                DrumInstrument.CLOSED_HH,
+                DrumInstrument.OPEN_HH,
+                DrumInstrument.RIDE, 
+                DrumInstrument.CRASH,
+            )
+            for b in extracted_beats
+        )
+
+        # Always ensure kick on the downbeat if not present
+        if not has_kick:
+            extracted_beats.append((0.0, DrumInstrument.KICK, int(VELOCITY.KICK_HEAVY)))
+
+        # Always ensure snare on the backbeat if not present  
+        if not has_snare_backbeat:
+            extracted_beats.append((beats_per_bar / 2, DrumInstrument.SNARE, int(VELOCITY.SNARE_ACCENT)))
+
+        # Ensure at least one timekeeping cymbal exists - bars without any
+        # cymbal will sound dead/empty even with kick+snare present
+        if not has_timekeeping_cymbal:
+            # Add hi-hat on all quarters as minimum timekeeping
+            for q in range(4):
+                extracted_beats.append((
+                    q * beats_per_bar / 4,
+                    DrumInstrument.CLOSED_HH,
+                    VELOCITY.HIHAT_NORMAL,
+                ))
+        else:
+            # Ensure cymbal coverage across quarters too
+            cymbal_quarters: set[int] = set()
+            for pos, inst, _vel in extracted_beats:
+                if inst in (
+                    DrumInstrument.CLOSED_HH,
+                    DrumInstrument.OPEN_HH,
+                    DrumInstrument.RIDE,
+                    DrumInstrument.CRASH,
+                ):
+                    q = min(int(pos * 4), 3)
+                    cymbal_quarters.add(q)
+            for q in range(4):
+                if q not in cymbal_quarters:
+                    extracted_beats.append((
+                        q * beats_per_bar / 4,
+                        DrumInstrument.CLOSED_HH,
+                        VELOCITY.HIHAT_NORMAL,
+                    ))
+
+        # Add all collected beats to the builder
+        for bar_pos, inst, vel in extracted_beats:
+            builder.pattern.add_beat(bar_pos, inst, vel)
 
         built = builder.build()
 
@@ -449,34 +535,72 @@ class ComposerV2:
                     f"Bar {i} has zero beats — filling with a basic kick/snare pattern."
                 )
 
-        # Use a set to deduplicate hits at the same (position, instrument)
-        seen: set[tuple[float, str]] = set()
-
+        # Deduplicate hits at the same (position, instrument) WITHIN each bar.
+        # Across bars, positions are already unique (each bar occupies its own range),
+        # so no cross-bar dedup is needed — it would incorrectly remove legitimate beats.
         for bar_idx, bar in enumerate(bars):
+            fill_pos = bar_idx * beats_per_bar
+
             if not bar.beats:
-                # Fill empty bars with a minimal kick/snare pattern at this position
-                fill_pos = bar_idx * beats_per_bar + 0.0
+                # Fill empty bars with a complete pattern: all quarters
+                from midi_drums.config import VELOCITY
+
+                # Quarter 0 (downbeat): kick + hi-hat
                 combined.beats.append(
                     Beat(
                         position=fill_pos,
                         instrument=DrumInstrument.KICK,
+                        velocity=int(VELOCITY.KICK_HEAVY),
+                    )
+                )
+                combined.beats.append(
+                    Beat(
+                        position=fill_pos,
+                        instrument=DrumInstrument.CLOSED_HH,
                         velocity=80,
+                    )
+                )
+                # Quarter 1 (off-beat): hi-hat
+                combined.beats.append(
+                    Beat(
+                        position=fill_pos + beats_per_bar / 4,
+                        instrument=DrumInstrument.CLOSED_HH,
+                        velocity=60,
+                    )
+                )
+                # Quarter 2 (backbeat): snare + hi-hat
+                combined.beats.append(
+                    Beat(
+                        position=fill_pos + beats_per_bar / 2,
+                        instrument=DrumInstrument.SNARE,
+                        velocity=int(VELOCITY.SNARE_NORMAL),
                     )
                 )
                 combined.beats.append(
                     Beat(
                         position=fill_pos + beats_per_bar / 2,
-                        instrument=DrumInstrument.SNARE,
-                        velocity=100,
+                        instrument=DrumInstrument.CLOSED_HH,
+                        velocity=80,
+                    )
+                )
+                # Quarter 3 (off-beat): hi-hat
+                combined.beats.append(
+                    Beat(
+                        position=fill_pos + beats_per_bar * 3 / 4,
+                        instrument=DrumInstrument.CLOSED_HH,
+                        velocity=60,
                     )
                 )
                 continue
 
+            # Deduplicate WITHIN this bar only (positions are unique across bars)
+            seen_in_bar: set[tuple[float, str]] = set()
+
             for beat in bar.beats:
                 key = (round(beat.position, 4), beat.instrument.name)
-                if key in seen:
-                    continue  # deduplicate same instrument at same position
-                seen.add(key)
+                if key in seen_in_bar:
+                    continue  # deduplicate same instrument at same position within bar
+                seen_in_bar.add(key)
                 combined.beats.append(
                     Beat(
                         position=beat.position,
@@ -488,7 +612,43 @@ class ComposerV2:
                         instrument_promoted=beat.instrument_promoted,
                     )
                 )
-            total_beats += len(bar.beats)
+            total_beats += len(seen_in_bar)
+
+        # ---- Final safety net: fill any bars that still lack timekeeping cymbal ----
+        # This catches edge cases where drummer modifications stripped all cymbals.
+        # With the base pattern fix in _generate_base_bar, this rarely triggers.
+
+        for bar_idx in range(len(bars)):
+            bar_start = bar_idx * beats_per_bar
+            bar_end = bar_start + beats_per_bar
+            # Track which quarters have at least one cymbal note in this bar
+            cymbal_quarters_in_bar: set[int] = set()
+            for beat in combined.beats:
+                if bar_start <= beat.position < bar_end:
+                    if beat.instrument in (
+                        DrumInstrument.CLOSED_HH,
+                        DrumInstrument.OPEN_HH,
+                        DrumInstrument.RIDE,
+                        DrumInstrument.CRASH,
+                    ):
+                        # Map absolute position to quarter within this bar, with
+                        # proper rounding for beats very close to a boundary
+                        relative = beat.position - bar_start
+                        q = min(max(int(relative * 4 + 0.5), 0), 3)
+                        cymbal_quarters_in_bar.add(q)
+
+            # Add ghost hi-hat to any quarter missing a timekeeping cymbal
+            for q in range(4):
+                if q not in cymbal_quarters_in_bar:
+                    pos = bar_start + q * beats_per_bar / 4
+                    combined.beats.append(
+                        Beat(
+                            position=pos,
+                            instrument=DrumInstrument.CLOSED_HH,
+                            velocity=50,  # audible ghost hit (not too quiet)
+                            ghost_note=True,
+                        )
+                    )
 
         # If nothing was combined, use a basic default pattern
         if not combined.beats:
