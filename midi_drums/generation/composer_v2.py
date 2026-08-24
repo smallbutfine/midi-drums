@@ -431,60 +431,6 @@ class ComposerV2:
                 )
             )
 
-        # If this bar slice is completely empty, fall back to a minimal default pattern.
-        # The fallback must always produce beats — a section with an empty bar would
-        # leave a gap in the combined song that sounds like silence.
-        if not built.beats:
-            logger.warning(
-                f"Empty bar slice for {section_name} bar {bar_index}; "
-                "creating a minimal default pattern."
-            )
-            from midi_drums.config import VELOCITY
-
-            # Use the first available flavor that has beats, or fall back to defaults
-            if all_flavors:
-                available = [
-                    f for f in all_flavors if f is not None and f.beats
-                ]
-                if available:
-                    source = available[0]
-                    builder2 = PatternBuilder(
-                        f"{section_name}_bar{bar_index}_fallback"
-                    )
-                    for beat in source.beats[:16]:  # cap at first bar's hits
-                        if beat.position < beats_per_bar:
-                            builder2.pattern.add_beat(
-                                beat.position,
-                                beat.instrument,
-                                max(1, min(127, beat.velocity)),
-                            )
-                    built = builder2.build()
-
-            # Ultimate fallback: kick on 1 + snare on 3
-            if not built.beats:
-                from midi_drums.config import VELOCITY
-
-                built = Pattern(f"{section_name}_bar{bar_index}_minimal")
-                built.beats.append(
-                    Beat(
-                        position=0.0,
-                        instrument=DrumInstrument.KICK,
-                        velocity=int(VELOCITY.KICK_HEAVY),
-                    )
-                )
-                built.beats.append(
-                    Beat(
-                        position=2.0,
-                        instrument=DrumInstrument.SNARE,
-                        velocity=int(VELOCITY.SNARE_ACCENT),
-                    )
-                )
-                built.time_signature = (
-                    base_pattern.time_signature
-                    if base_pattern
-                    else TimeSignature()
-                )
-
         return built
 
     def _combine_bar_patterns(
