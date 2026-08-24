@@ -196,6 +196,12 @@ class ComposerV2:
                     previous_bars=generated_bars,
                 )
 
+                # Ensure this individual bar has enough content. Sparse base flavors
+                # (e.g., Roeder's minimalist patterns, sparse doom metal fills) can
+                # leave quarters [0-3] of a bar with almost no hits. Without this
+                # check, tiling multi-bar flavors creates periodic empty passages.
+                final_pattern = self._enforce_bar_density(final_pattern, params)
+
                 generated_bars.append(final_pattern)
 
             # If we have individual bar patterns, combine them into a section
@@ -203,6 +209,10 @@ class ComposerV2:
                 combined = self._combine_bar_patterns(
                     generated_bars, genre_plugin, params
                 )
+
+                # Enforce minimum density per cycle_bar so every bar gets enough content on all 4 quarters.
+                # Flavor 2 from RockGenrePlugin may only have 5 hits — after tiling this becomes a "silent" bar.
+                combined = self._enforce_min_density(combined, params)
 
                 # Determine fill placement based on section context
                 fills = self._generate_context_aware_fills(genre, params, bars)
@@ -585,6 +595,140 @@ class ComposerV2:
             bars[0].time_signature if bars else TimeSignature()
         )
         return combined
+
+    def _enforce_min_density(
+        self, pattern: Pattern, params: GenerationParameters
+    ) -> Pattern:
+        """Ensure every cycle_bar in a multi-bar pattern has enough content on all 4 quarters.
+
+        When the genre plugin's flavor rotation picks a sparse flavor (e.g. RockGenrePlugin's
+        Flavor 2 with only 5 hits), that bar ends up with notes concentrated in a single quarter.
+        After tiling, song_bars mapping to those cycle_bars become "silent" — no kick, snare,
+        or hihat on beats 1-3, only beat 4 (the last quarter) which catches late-position
+        notes from other bars.
+
+        This fix adds missing core instruments and hi-hat coverage per cycle_bar.
+        """
+        from midi_drums.config import VELOCITY
+
+        if not pattern.beats:
+            return pattern
+
+        max_pos = max(b.position for b in pattern.beats)
+        ts_num = params.time_signature.beats_per_bar if hasattr(params, 'time_signature') and params.time_signature else 4
+        total_bars = int(max_pos / ts_num) + 1
+
+        if total_bars <= 1:
+            return pattern  # single-bar patterns don't have the tiling issue
+
+        from copy import deepcopy
+        result = deepcopy(pattern)
+
+        for bar in range(total_bars):
+            start = bar * ts_num
+            end = start + ts_num
+            bar_beats = [b for b in result.beats if start <= b.position < end]
+
+            if not bar_beats:
+                # Completely empty bar — add a basic groove
+                result.beats.append(
+                    Beat(position=start, instrument=DrumInstrument.KICK,
+                         velocity=int(VELOCITY.KICK_HEAVY))
+                )
+                result.beats.append(
+                    Beat(position=start + ts_num / 2, instrument=DrumInstrument.SNARE,
+                         velocity=int(VELOCITY.SNARE_ACCENT))
+                )
+                for q in range(ts_num):
+                    result.beats.append(
+                        Beat(position=start + q, instrument=DrumInstrument.CLOSED_HH,
+                             velocity=int(VELOCITY.HIHAT_NORMAL))
+                    )
+                continue
+
+            # Check coverage per quarter
+            quarters_covered = set(int((b.position - start) % ts_num) for b in bar_beats)
+
+            missing_quarters = [q for q in range(ts_num) if q not in quarters_covered]
+            has_kick = any(b.instrument == DrumInstrument.KICK for b in bar_beats)
+
+            # Add missing core instruments at quarter boundaries
+            if not has_kick and missing_quarters:
+                result.beats.append(
+                    Beat(position=start + missing_quarters[0], instrument=DrumInstrument.KICK,
+                         velocity=int(VELOCITY.KICK_HEAVY))
+                )
+                missing_quarters = [q for q in range(ts_num) if int((start + q - start) % ts_num) not in set(int((b.position - start) % ts_num) for b in bar_beats)]
+
+            # Ensure at least one note per quarter (hi-hat ghost fill)
+            current_qs = set(int((b.position - start) % ts_num) for b in result.beats if start <= b.position < end)
+            for q in missing_quarters:
+                pos = start + q
+                # Prefer hi-hat for sparse coverage — keeps the core rhythm visible
+                result.beats.append(
+                    Beat(position=pos, instrument=DrumInstrument.CLOSED_HH,
+                         velocity=int(VELOCITY.HIHAT_WHISPER))
+                )
+                current_qs.add(q)
+
+        return result
+
+    def _enforce_bar_density(
+        self, pattern: Pattern, params: GenerationParameters
+    ) -> Pattern:
+        """Ensure an individual bar slice has minimum density.
+
+        Some genre flavors (especially sparse styles like doom metal or Roeder's
+        minimalist approach) may produce very few beats for a given bar slice.
+        Without this check, those bars sound empty compared to their neighbors.
+
+        This is applied per-bar BEFORE combination — the combined _enforce_min_density
+        still runs as a safety net for multi-bar flavor gaps.
+        """
+        from midi_drums.config import VELOCITY
+        from copy import deepcopy
+
+        if not pattern.beats:
+            return pattern
+
+        ts_num = params.time_signature.beats_per_bar if hasattr(params, 'time_signature') and params.time_signature else 4
+
+        # Find the bar this pattern belongs to (section-relative start)
+        min_pos = min(b.position for b in pattern.beats)
+        bar_start = int(min_pos / ts_num) * ts_num
+        bar_end = bar_start + ts_num
+
+        result = deepcopy(pattern)
+        bar_beats = [b for b in result.beats if bar_start <= b.position < bar_end]
+
+        if len(bar_beats) >= 4:
+            return pattern  # sufficient density
+
+        has_kick = any(b.instrument == DrumInstrument.KICK for b in bar_beats)
+        has_snare = any(b.instrument == DrumInstrument.SNARE for b in bar_beats)
+
+        # Add missing core instruments
+        if not has_kick:
+            result.beats.append(
+                Beat(position=bar_start, instrument=DrumInstrument.KICK,
+                     velocity=int(VELOCITY.KICK_HEAVY))
+            )
+        if not has_snare and ts_num >= 4:
+            result.beats.append(
+                Beat(position=bar_start + ts_num / 2, instrument=DrumInstrument.SNARE,
+                     velocity=int(VELOCITY.SNARE_ACCENT))
+            )
+
+        # Fill missing quarters with hi-hat ghost notes (very low velocity)
+        current_qs = set(int((b.position - bar_start) % ts_num) for b in result.beats if bar_start <= b.position < bar_end)
+        for q in range(ts_num):
+            if q not in current_qs:
+                result.beats.append(
+                    Beat(position=bar_start + q, instrument=DrumInstrument.CLOSED_HH,
+                         velocity=int(VELOCITY.HIHAT_WHISPER))
+                )
+
+        return result
 
     def _generate_context_aware_fills(
         self, genre: str, params: GenerationParameters, section_bars: int
