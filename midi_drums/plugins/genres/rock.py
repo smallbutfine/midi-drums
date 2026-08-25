@@ -52,6 +52,16 @@ class RockGenrePlugin(GenrePlugin):
             "pop",
         ]
 
+    DEFAULT_TEMPO_MAP: dict[str, int] = {
+        "classic": 110,
+        "blues": 100,
+        "alternative": 115,
+        "progressive": 120,
+        "punk": 180,
+        "hard": 125,
+        "pop": 110,
+    }
+
     @property
     def intensity_profile(self) -> dict[str, float]:
         """Rock genre intensity characteristics."""

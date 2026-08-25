@@ -60,6 +60,16 @@ class MetalGenrePlugin(GenrePlugin):
             "breakdown",
         ]
 
+    DEFAULT_TEMPO_MAP: dict[str, int] = {
+        "heavy": 140,
+        "death": 220,
+        "power": 170,
+        "progressive": 140,
+        "thrash": 240,
+        "doom": 75,
+        "breakdown": 100,
+    }
+
     @property
     def intensity_profile(self) -> dict[str, float]:
         """Metal genre intensity characteristics."""

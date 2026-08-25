@@ -53,6 +53,16 @@ class JazzGenrePlugin(GenrePlugin):
             "contemporary",
         ]
 
+    DEFAULT_TEMPO_MAP: dict[str, int] = {
+        "swing": 160,
+        "bebop": 240,
+        "fusion": 130,
+        "latin": 125,
+        "ballad": 75,
+        "hard_bop": 220,
+        "contemporary": 140,
+    }
+
     @property
     def intensity_profile(self) -> dict[str, float]:
         """Jazz genre intensity characteristics."""

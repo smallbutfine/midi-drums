@@ -151,3 +151,33 @@ class PluginManager:
     def get_genre_plugin(self, genre: str) -> GenrePlugin | None:
         """Get genre plugin by name."""
         return self.registry.get_genre_plugin(genre)
+
+    # ── Tempo defaults (lives in genre plugins via DEFAULT_TEMPO_MAP) ─
+
+    def get_default_tempo_map(
+        self, genre: str, style: str | None = None
+    ) -> int | dict[str, int] | None:
+        """Return default tempo(s) for a genre/style from the plugin.
+
+        If *style* is given and present in ``DEFAULT_TEMPO_MAP`` return the
+        integer BPM.  When *style* is omitted return the full map so callers
+        can query dynamically (useful when iterating all styles).
+
+        Returns ``None`` when no data exists for the genre.
+        """
+        plugin = self.registry.get_genre_plugin(genre)
+        if not plugin:
+            return None
+
+        tempo_map = getattr(plugin, "DEFAULT_TEMPO_MAP", None)
+        if not tempo_map:
+            return None
+
+        if style is not None and style in tempo_map:
+            return int(tempo_map[style])
+
+        # No specific style asked — return the full map for iteration,
+        # but if a specific (unknown) style was given, return None.
+        if style is not None:
+            return None
+        return dict(tempo_map)

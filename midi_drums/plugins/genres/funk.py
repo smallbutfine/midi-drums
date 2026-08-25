@@ -70,6 +70,16 @@ class FunkGenrePlugin(GenrePlugin):
             "heavy",
         ]
 
+    DEFAULT_TEMPO_MAP: dict[str, int] = {
+        "classic": 105,
+        "pfunk": 100,
+        "shuffle": 110,
+        "new_orleans": 110,
+        "fusion": 120,
+        "minimal": 100,
+        "heavy": 118,
+    }
+
     @property
     def intensity_profile(self) -> dict[str, float]:
         """Funk genre intensity characteristics."""

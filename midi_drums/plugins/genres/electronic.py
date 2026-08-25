@@ -53,6 +53,13 @@ class ElectronicGenrePlugin(GenrePlugin):
     def supported_styles(self) -> list[str]:
         return ["house", "techno", "drum_and_bass", "dubstep"]
 
+    DEFAULT_TEMPO_MAP: dict[str, int] = {
+        "house": 124,
+        "techno": 136,
+        "drum_and_bass": 174,
+        "dubstep": 140,
+    }
+
     @property
     def intensity_profile(self) -> dict[str, float]:
         """Electronic genre intensity characteristics."""
