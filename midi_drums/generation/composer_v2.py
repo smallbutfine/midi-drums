@@ -139,62 +139,6 @@ class ComposerV2:
                             base_bar_pattern
                         )
 
-                # Ensure core instruments are present regardless of drummer modifier.
-                # Drummer plugins (e.g., Weckl's linear coordination) may remove kicks,
-                # but every bar needs at least one kick, one snare, and timekeeping
-                # cymbal to sound musical — a bar with only kick+snare sounds dead.
-                has_kick = any(
-                    b.instrument == DrumInstrument.KICK
-                    for b in drummed_pattern.beats
-                )
-                has_snare = any(
-                    b.instrument == DrumInstrument.SNARE
-                    for b in drummed_pattern.beats
-                )
-                has_timekeeping_cymbal = any(
-                    b.instrument in (
-                        DrumInstrument.CLOSED_HH,
-                        DrumInstrument.OPEN_HH,
-                        DrumInstrument.RIDE,
-                        DrumInstrument.CRASH,
-                    )
-                    for b in drummed_pattern.beats
-                )
-
-                if not has_kick:
-                    from midi_drums.config import VELOCITY
-
-                    drummed_pattern.beats.append(
-                        Beat(
-                            position=0.0,
-                            instrument=DrumInstrument.KICK,
-                            velocity=int(VELOCITY.KICK_HEAVY),
-                        )
-                    )
-                if not has_snare:
-                    from midi_drums.config import VELOCITY
-
-                    drummed_pattern.beats.append(
-                        Beat(
-                            position=2.0,
-                            instrument=DrumInstrument.SNARE,
-                            velocity=int(VELOCITY.SNARE_ACCENT),
-                        )
-                    )
-                # Ensure at least one timekeeping cymbal on a quarter beat
-                if not has_timekeeping_cymbal:
-                    from midi_drums.config import VELOCITY
-
-                    drummed_pattern.beats.append(
-                        Beat(
-                            position=0.0,
-                            instrument=DrumInstrument.CLOSED_HH,
-                            velocity=int(VELOCITY.HIHAT_NORMAL),
-                        )
-                    )
-
-
-
                 # Final bar-level modulation (density, complexity, etc.)
                 final_pattern = self.bar_selector.generate_for_bar(
                     drummed_pattern,
@@ -455,35 +399,6 @@ class ComposerV2:
             builder.pattern.add_beat(bar_pos, inst, vel)
 
         built = builder.build()
-
-        # Ensure core instruments are always present — a pattern without at least
-        # one snare hit on the backbeat will sound hollow/empty regardless of other hits.
-        from midi_drums.config import VELOCITY
-
-        has_kick = any(b.instrument == DrumInstrument.KICK for b in built.beats)
-        has_snare_backbeat = any(
-            b.instrument == DrumInstrument.SNARE
-            and abs(b.position - beats_per_bar / 2) < 0.1
-            for b in built.beats
-        )
-
-        if not has_kick:
-            built.beats.append(
-                Beat(
-                    position=0.0,
-                    instrument=DrumInstrument.KICK,
-                    velocity=int(VELOCITY.KICK_HEAVY),
-                )
-            )
-        if not has_snare_backbeat:
-            built.beats.append(
-                Beat(
-                    position=beats_per_bar / 2,
-                    instrument=DrumInstrument.SNARE,
-                    velocity=int(VELOCITY.SNARE_ACCENT),
-                )
-            )
-
         return built
 
     def _combine_bar_patterns(
