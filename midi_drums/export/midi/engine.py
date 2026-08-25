@@ -265,7 +265,8 @@ class MIDIEngine:
 
                 if pattern.beats:
                     _max_pos = max(b.position for b in pattern.beats)
-                    _pbars = max(1, round((_max_pos + 1) / ts_num))
+                    import math
+                    _pbars = max(1, math.ceil((_max_pos + 1) / ts_num))
                 else:
                     _pbars = 1
 

@@ -341,9 +341,12 @@ class ComposerV2:
         from midi_drums.config import VELOCITY
 
         has_kick = any(b[1] == DrumInstrument.KICK for b in extracted_beats)
+        # Backbeat positions: odd beat indices (beats 2, 4, 6... 1-indexed) =
+        # positions 1.0, 3.0, 5.0... where traditional rock/metal backbeats land
+        backbeat_positions = [i for i in range(beats_per_bar) if i % 2 == 1]
         has_snare_backbeat = any(
             b[1] == DrumInstrument.SNARE
-            and abs(b[0] - beats_per_bar / 2) < 0.1
+            and any(abs(b[0] - bp) < 0.1 for bp in backbeat_positions)
             for b in extracted_beats
         )
         has_timekeeping_cymbal = any(
@@ -505,61 +508,6 @@ class ComposerV2:
                     )
                 )
             total_beats += len(seen_in_bar)
-
-        # ---- Final safety net: fill any bars that still lack timekeeping cymbal ----
-        # This catches edge cases where drummer modifications stripped all cymbals.
-        # With the base pattern fix in _generate_base_bar, this rarely triggers.
-
-        for bar_idx in range(len(bars)):
-            bar_start = bar_idx * beats_per_bar
-            bar_end = bar_start + beats_per_bar
-            # Track which quarters have at least one cymbal note in this bar
-            cymbal_quarters_in_bar: set[int] = set()
-            for beat in combined.beats:
-                if bar_start <= beat.position < bar_end:
-                    if beat.instrument in (
-                        DrumInstrument.CLOSED_HH,
-                        DrumInstrument.OPEN_HH,
-                        DrumInstrument.RIDE,
-                        DrumInstrument.CRASH,
-                    ):
-                        # Map absolute position to quarter within this bar, with
-                        # proper rounding for beats very close to a boundary
-                        relative = beat.position - bar_start
-                        q = min(max(int(relative * 4 + 0.5), 0), 3)
-                        cymbal_quarters_in_bar.add(q)
-
-        # No more ghost hi-hat filling — if a bar lacks timekeeping cymbal,
-        # _generate_base_bar already guarantees it. Adding ghost notes here only
-        # creates displaced clusters that clash with the groove displacement.
-
-        # If nothing was combined, use a basic default pattern
-        if not combined.beats:
-            logger.warning(
-                "No beats were combined for section — creating a basic kick/snare pattern."
-            )
-            from midi_drums.config import VELOCITY
-
-            combined.beats.append(
-                Beat(
-                    position=0,
-                    instrument=DrumInstrument.KICK,
-                    velocity=int(VELOCITY.KICK_HEAVY),
-                )
-            )
-            combined.beats.append(
-                Beat(
-                    position=2,
-                    instrument=DrumInstrument.SNARE,
-                    velocity=int(VELOCITY.SNARE_ACCENT),
-                )
-            )
-
-        # Remove the blanket velocity boost for low-velocity snare hits.
-        # Boosting ghost snares (e.g. vel ~30) by +15 turns them into audible
-        # regular snares, creating "bulks of 3" that feel displaced and cluttered.
-        # Drummer-modifier ghost notes should stay quiet — if a bar needs more
-        # density, _generate_base_bar already guarantees cymbal coverage.
 
         # Set time signature from first bar
         combined.time_signature = (
