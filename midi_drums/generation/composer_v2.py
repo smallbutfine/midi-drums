@@ -637,18 +637,9 @@ class ComposerV2:
                         q = min(max(int(relative * 4 + 0.5), 0), 3)
                         cymbal_quarters_in_bar.add(q)
 
-            # Add ghost hi-hat to any quarter missing a timekeeping cymbal
-            for q in range(4):
-                if q not in cymbal_quarters_in_bar:
-                    pos = bar_start + q * beats_per_bar / 4
-                    combined.beats.append(
-                        Beat(
-                            position=pos,
-                            instrument=DrumInstrument.CLOSED_HH,
-                            velocity=50,  # audible ghost hit (not too quiet)
-                            ghost_note=True,
-                        )
-                    )
+        # No more ghost hi-hat filling — if a bar lacks timekeeping cymbal,
+        # _generate_base_bar already guarantees it. Adding ghost notes here only
+        # creates displaced clusters that clash with the groove displacement.
 
         # If nothing was combined, use a basic default pattern
         if not combined.beats:
@@ -672,19 +663,11 @@ class ComposerV2:
                 )
             )
 
-        # Ensure minimum velocity for snare hits — ghost notes at vel < 40
-        # become nearly inaudible and defeat the purpose of pattern generation.
-        from midi_drums.config import VELOCITY
-
-        min_snare_vel = int(VELOCITY.SNARE_NORMAL * 0.5)  # ~57 (half of normal)
-        for beat in combined.beats:
-            if (
-                beat.instrument == DrumInstrument.SNARE
-                and beat.velocity < min_snare_vel
-            ):
-                beat.velocity = max(
-                    min_snare_vel, beat.velocity + 15
-                )  # boost gently
+        # Remove the blanket velocity boost for low-velocity snare hits.
+        # Boosting ghost snares (e.g. vel ~30) by +15 turns them into audible
+        # regular snares, creating "bulks of 3" that feel displaced and cluttered.
+        # Drummer-modifier ghost notes should stay quiet — if a bar needs more
+        # density, _generate_base_bar already guarantees cymbal coverage.
 
         # Set time signature from first bar
         combined.time_signature = (
