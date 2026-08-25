@@ -22,10 +22,13 @@ from midi_drums.core.value_objects.generation_parameters import (
 from midi_drums.core.value_objects.time_signature import TimeSignature
 from midi_drums.generation.bar_selector import BarSelector
 from midi_drums.generation.fill_library.picker import FillContext, FillPicker
-
 from midi_drums.generation.intensity_curve import (
     IntensityCurve,
     interpolate_curve,
+)
+from midi_drums.generation.macro_composer import (
+    MacroComposer,
+    get_section_grooves,
 )
 
 if TYPE_CHECKING:
@@ -53,16 +56,11 @@ class ComposerV2:
     ) -> Song:
         """Create a complete song with bar-by-bar pattern evolution.
 
-        Args:
-            genre: Genre name (e.g., 'metal', 'rock').
-            style: Style within genre (e.g., 'death', 'power').
-            tempo: Tempo in BPM.
-            structure: List of (section_name, bars) tuples.
-            **kwargs: Additional parameters for GenerationParameters
-                (complexity, drummer, humanization, dynamics, etc.).
-
-        Returns:
-            Complete Song object with unique patterns per bar.
+        Each bar within each section gets a unique pattern shaped by:
+        - Macro-composer phases (establish/maintain/build/turnaround)
+        - Section-specific groove libraries (6-8 grooves per section type)
+        - Intensity curves (section energy arcs)
+        - Drummer personality (per-bar variations specific to each drummer)
         """
         params = GenerationParameters(genre=genre, style=style, **kwargs)
 
@@ -105,6 +103,20 @@ class ComposerV2:
                 logger.warning(f"No genre plugin found for {genre}")
                 continue
 
+            # Macro-composer phase tracking (purposeful variation within section)
+            macro_composer = MacroComposer(seed=self._rng.randint(0, 10000))
+
+            # Register groove library for this section so select_groove() works
+            grooves = get_section_grooves(
+                genre_plugin, section_name, params.complexity, params.style
+            )
+            if grooves and len(grooves) >= 2:
+                try:
+                    macro_composer.groove_manager.register_groove_library(
+                        genre, section_name, grooves
+                    )
+                except ValueError:
+                    pass  # fewer than 2 grooves is invalid library — fall through below
             for bar_index in range(bars):
                 # Get intensity point for this bar position
                 curve = curve_map.get(section_name, IntensityCurve.PLATEAU)
@@ -114,20 +126,37 @@ class ComposerV2:
                     all_points, bar_index / max(1, bars - 1)
                 )
 
-                # Generate base pattern from genre plugin (skeleton)
-                # We'll modify it per-bar in the selector
-                # Generate base pattern directly - no separate params needed for skeleton
+                # Determine macro-composer phase for purposeful variation
+                phase = macro_composer.determine_phase(bar_index, bars)
 
-                # Generate a unique beat-by-beat skeleton for this bar
-                base_bar_pattern = self._generate_base_bar(
-                    genre_plugin, section_name, params, bar_index, intensity_pt
+                # Select from the registered groove library (phase-aware selection)
+                base_pattern = macro_composer.groove_manager.select_groove(
+                    genre=genre,
+                    section=section_name,
+                    phase=phase,
+                    rng=self._rng,
                 )
 
-                if not base_bar_pattern:
+                if not base_pattern:
+                    # No registered library — fall back to generate_pattern (no multi-bar variety)
+                    base_pattern = genre_plugin.generate_pattern(
+                        section_name,
+                        GenerationParameters(
+                            genre=genre,
+                            style=style,
+                            **{
+                                k: v
+                                for k, v in params.__dict__.items()
+                                if k not in ("genre", "style")
+                            },
+                        ),
+                    )
+
+                if not base_pattern:
                     continue
 
                 # Apply drummer style to this specific bar's skeleton
-                drummed_pattern = base_bar_pattern
+                drummed_pattern = base_pattern
                 if params.drummer:
                     drummer_plugin = (
                         self.plugin_manager.registry.get_drummer_plugin(
@@ -136,7 +165,7 @@ class ComposerV2:
                     )
                     if drummer_plugin:
                         drummed_pattern = drummer_plugin.apply_style(
-                            base_bar_pattern
+                            base_pattern
                         )
 
                 # Final bar-level modulation (density, complexity, etc.)
@@ -329,11 +358,13 @@ class ComposerV2:
         for beat in base_pattern.beats:
             if start_pos <= beat.position < end_pos:
                 bar_pos = beat.position - start_pos
-                extracted_beats.append((
-                    bar_pos,
-                    beat.instrument,
-                    max(1, min(127, beat.velocity)),
-                ))
+                extracted_beats.append(
+                    (
+                        bar_pos,
+                        beat.instrument,
+                        max(1, min(127, beat.velocity)),
+                    )
+                )
 
         # CRITICAL: Ensure minimum content for this bar even if the multi-bar
         # cycle extracted few/no beats (e.g., a sparse pattern bar).
@@ -350,10 +381,11 @@ class ComposerV2:
             for b in extracted_beats
         )
         has_timekeeping_cymbal = any(
-            b[1] in (
+            b[1]
+            in (
                 DrumInstrument.CLOSED_HH,
                 DrumInstrument.OPEN_HH,
-                DrumInstrument.RIDE, 
+                DrumInstrument.RIDE,
                 DrumInstrument.CRASH,
             )
             for b in extracted_beats
@@ -361,22 +393,32 @@ class ComposerV2:
 
         # Always ensure kick on the downbeat if not present
         if not has_kick:
-            extracted_beats.append((0.0, DrumInstrument.KICK, int(VELOCITY.KICK_HEAVY)))
+            extracted_beats.append(
+                (0.0, DrumInstrument.KICK, int(VELOCITY.KICK_HEAVY))
+            )
 
-        # Always ensure snare on the backbeat if not present  
+        # Always ensure snare on the backbeat if not present
         if not has_snare_backbeat:
-            extracted_beats.append((beats_per_bar / 2, DrumInstrument.SNARE, int(VELOCITY.SNARE_ACCENT)))
+            extracted_beats.append(
+                (
+                    beats_per_bar / 2,
+                    DrumInstrument.SNARE,
+                    int(VELOCITY.SNARE_ACCENT),
+                )
+            )
 
         # Ensure at least one timekeeping cymbal exists - bars without any
         # cymbal will sound dead/empty even with kick+snare present
         if not has_timekeeping_cymbal:
             # Add hi-hat on all quarters as minimum timekeeping
             for q in range(4):
-                extracted_beats.append((
-                    q * beats_per_bar / 4,
-                    DrumInstrument.CLOSED_HH,
-                    VELOCITY.HIHAT_NORMAL,
-                ))
+                extracted_beats.append(
+                    (
+                        q * beats_per_bar / 4,
+                        DrumInstrument.CLOSED_HH,
+                        VELOCITY.HIHAT_NORMAL,
+                    )
+                )
         else:
             # Ensure cymbal coverage across quarters too
             cymbal_quarters: set[int] = set()
@@ -391,11 +433,13 @@ class ComposerV2:
                     cymbal_quarters.add(q)
             for q in range(4):
                 if q not in cymbal_quarters:
-                    extracted_beats.append((
-                        q * beats_per_bar / 4,
-                        DrumInstrument.CLOSED_HH,
-                        VELOCITY.HIHAT_NORMAL,
-                    ))
+                    extracted_beats.append(
+                        (
+                            q * beats_per_bar / 4,
+                            DrumInstrument.CLOSED_HH,
+                            VELOCITY.HIHAT_NORMAL,
+                        )
+                    )
 
         # Add all collected beats to the builder
         for bar_pos, inst, vel in extracted_beats:

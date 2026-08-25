@@ -572,7 +572,8 @@ def handle_generate_command(args, generator: DrumGenerator) -> None:
             )
         else:
             resolved_tempo = (
-                args.tempo if args.tempo is not None
+                args.tempo
+                if args.tempo is not None
                 else _resolve_genre_default_bpm(args.genre, args.style)
             )
             song = generator.create_song(

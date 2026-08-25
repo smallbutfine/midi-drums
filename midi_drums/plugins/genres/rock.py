@@ -15,7 +15,9 @@ from midi_drums.core.value_objects.generation_parameters import (
 from midi_drums.patterns import (
     BasicGroove,
     CrashAccents,
+    FunkGhostNotes,
     JazzRidePattern,
+    RimshotGroove,
     TemplateComposer,
     TomFill,
 )
@@ -188,6 +190,1081 @@ class RockGenrePlugin(GenrePlugin):
         elif section == "outro":
             return self._flavors_outro(style, complexity)
         return []
+
+    def get_section_grooves(
+        self, section: str, complexity: float, style: str = "default"
+    ) -> list[Pattern]:
+        """Return style-aware groove library for this section.
+
+        Genuinely different patterns per style — not filters on a shared set:
+        - **classic** (110): Ride timekeeper, standard swing Bonham-style kick 1+2.5
+        - **blues** (100): Shuffle triplet behind-beat feel, rimshot backbeats
+        - **alternative** (115): Sparse kick placement, tight hats only, chorus crashes
+        - **progressive** (120): Odd-meter grooves, syncopated kicks, Elvin ride accents
+        - **punk** (180): Crash-as-timekeeper, four-on-floor, bare-bones skeleton
+        - **hard** (125): Driving power kick, heavy crash accents, tom fills
+        - **pop** (110): Tight hats w/ghost notes, accessible four-on-floor
+        """
+        c = complexity
+
+        if section == "verse":
+            # === CLASSIC ROCK: ride timekeeper, standard backbeat ===
+            if style == "classic":
+                return [
+                    # g1: Ride cymbal timekeeper — Bonham/Zeppelin classic verse
+                    TemplateComposer("rock_classic_verse_g1")
+                    .add(
+                        JazzRidePattern(
+                            swing_ratio=0.3, accent_pattern="standard"
+                        )
+                    )
+                    .add(
+                        BasicGroove(
+                            kick_positions=[0.0, 2.5],
+                            snare_positions=[1.0, 3.0],
+                            hihat_subdivision=TIMING.HALF,
+                        )
+                    )
+                    .build(bars=1, complexity=c),
+                    # g2: Ride + subtle kick variation — Bonham follow-guitar patterns
+                    TemplateComposer("rock_classic_verse_g2")
+                    .add(
+                        JazzRidePattern(
+                            swing_ratio=0.3, accent_pattern="standard"
+                        )
+                    )
+                    .add(
+                        BasicGroove(
+                            kick_positions=[0.0, 1.5, 2.0],
+                            snare_positions=[1.0, 3.0],
+                            hihat_subdivision=TIMING.HALF,
+                        )
+                    )
+                    .build(bars=1, complexity=c),
+                    # g3: Ride + open HH accents — deeper pocket with space
+                    TemplateComposer("rock_classic_verse_g3")
+                    .add(
+                        JazzRidePattern(
+                            swing_ratio=0.3, accent_pattern="standard"
+                        )
+                    )
+                    .add(
+                        BasicGroove(
+                            kick_positions=[0.0],
+                            snare_positions=[1.0, 3.0],
+                            hihat_subdivision=TIMING.HALF,
+                            use_open_hihat=True,
+                            open_hihat_positions=[2.0],
+                        )
+                    )
+                    .build(bars=1, complexity=max(0.0, c - 0.1)),
+                ]
+
+            # === BLUES ROCK: shuffle feel behind the beat, rimshot backbeats ===
+            if style == "blues":
+                return [
+                    # g1: Shuffle triplet subdivision with rimshot backbeat — SRV/Allman-style
+                    TemplateComposer("rock_blues_verse_g1")
+                    .add(
+                        RimshotGroove(use_tight_hh=False)
+                    )  # tight HH only for funk, not blues
+                    .add(
+                        BasicGroove(
+                            kick_positions=[0.0, 2.0],
+                            snare_positions=[],
+                            hihat_subdivision=TIMING.EIGHTH_TRIPLET,
+                        )
+                    )
+                    .build(bars=1, complexity=max(0.0, c - 0.1)),
+                    # g2: Behind-beat shuffle with open HH comping every other beat
+                    TemplateComposer("rock_blues_verse_g2")
+                    .add(
+                        BasicGroove(
+                            kick_positions=[0.0],
+                            snare_positions=[1.0, 3.0],
+                            hihat_subdivision=TIMING.EIGHTH_TRIPLET,
+                        )
+                    )
+                    .add(
+                        CrashAccents(
+                            positions=[2.5], intensity=0.6, crash_type="light"
+                        )
+                    )  # open HH accent on shuffle
+                    .build(bars=1, complexity=max(0.0, c - 0.1)),
+                    # g3: Shuffle groove with ghost notes — tighter pocket
+                    TemplateComposer("rock_blues_verse_g3")
+                    .add(FunkGhostNotes(density=0.5, emphasize_one=True))
+                    .add(
+                        BasicGroove(
+                            kick_positions=[0.0, 2.5],
+                            snare_positions=[],
+                            hihat_subdivision=TIMING.EIGHTH_TRIPLET,
+                        )
+                    )
+                    .build(bars=1, complexity=max(0.0, c)),
+                ]
+
+        elif section == "chorus":
+            # === CLASSIC ROCK CHORUS: ride timekeeper + heavy crashes ===
+            if style == "classic":
+                return [
+                    TemplateComposer("rock_classic_chorus_g1")
+                    .add(
+                        JazzRidePattern(swing_ratio=0.3, accent_pattern="elvin")
+                    )
+                    .add(
+                        BasicGroove(
+                            kick_positions=[0.0, 1.0, 2.0, 3.0],
+                            snare_positions=[1.0, 3.0],
+                            hihat_subdivision=TIMING.EIGHTH,
+                        )
+                    )
+                    .add(
+                        CrashAccents(
+                            positions=[0.0], intensity=1.0, crash_type="heavy"
+                        )
+                    )
+                    .build(bars=1, complexity=max(0.5, c + 0.1)),
+                    TemplateComposer("rock_classic_chorus_g2")
+                    .add(
+                        JazzRidePattern(
+                            swing_ratio=0.3, accent_pattern="standard"
+                        )
+                    )
+                    .add(
+                        BasicGroove(
+                            kick_positions=[0.0, 1.5, 2.0, 3.5],
+                            snare_positions=[1.0, 3.0],
+                            hihat_subdivision=TIMING.EIGHTH,
+                        )
+                    )
+                    .add(
+                        CrashAccents(
+                            positions=[0.0, 2.0],
+                            intensity=0.9,
+                            crash_type="heavy",
+                        )
+                    )
+                    .build(bars=1, complexity=max(0.5, c + 0.1)),
+                    TemplateComposer("rock_classic_chorus_g3")
+                    .add(
+                        BasicGroove(
+                            kick_positions=[0.0, 1.0, 2.0, 3.0],
+                            snare_positions=[1.0, 3.0],
+                            hihat_subdivision=TIMING.HALF,
+                        )
+                    )
+                    .add(
+                        CrashAccents(
+                            positions=[0.0], intensity=1.0, crash_type="heavy"
+                        )
+                    )
+                    .build(bars=1, complexity=max(0.6, c + 0.2)),
+                ]
+            # === BLUES ROCK CHORUS: half-time power chorus, rimshot backbeats ===
+            if style == "blues":
+                return [
+                    TemplateComposer("rock_blues_chorus_g1")
+                    .add(RimshotGroove(use_tight_hh=True))
+                    .add(
+                        BasicGroove(
+                            kick_positions=[0.0, 2.5],
+                            snare_positions=[],
+                            hihat_subdivision=TIMING.EIGHTH,
+                        )
+                    )
+                    .add(
+                        CrashAccents(
+                            positions=[0.0, 2.0],
+                            intensity=1.0,
+                            crash_type="heavy",
+                        )
+                    )
+                    .build(bars=1, complexity=max(0.5, c + 0.1)),
+                    TemplateComposer("rock_blues_chorus_g2")
+                    .add(
+                        BasicGroove(
+                            kick_positions=[0.0],
+                            snare_positions=[1.0, 3.0],
+                            hihat_subdivision=TIMING.EIGHTH,
+                        )
+                    )
+                    .add(
+                        CrashAccents(
+                            positions=[0.0], intensity=0.9, crash_type="heavy"
+                        )
+                    )
+                    .build(bars=1, complexity=max(0.5, c)),
+                ]
+            # === ALTERNATIVE ROCK CHORUS: crash-heavy explosion ===
+            if style == "alternative":
+                return [
+                    TemplateComposer("rock_alt_chorus_g1")
+                    .add(
+                        BasicGroove(
+                            kick_positions=[0.0, 1.0, 2.0, 3.0],
+                            snare_positions=[1.0, 3.0],
+                            hihat_subdivision=TIMING.EIGHTH,
+                        )
+                    )
+                    .add(
+                        CrashAccents(
+                            positions=[0.0], intensity=1.0, crash_type="heavy"
+                        )
+                    )
+                    .build(bars=1, complexity=max(0.5, c + 0.2)),
+                    TemplateComposer("rock_alt_chorus_g2")
+                    .add(
+                        BasicGroove(
+                            kick_positions=[0.0, 1.0, 2.0, 3.0],
+                            snare_positions=[1.0, 3.0],
+                            hihat_subdivision=TIMING.EIGHTH,
+                        )
+                    )
+                    .add(
+                        CrashAccents(
+                            positions=[0.0, 2.0],
+                            intensity=1.0,
+                            crash_type="heavy",
+                        )
+                    )
+                    .build(bars=1, complexity=max(0.5, c + 0.1)),
+                    TemplateComposer("rock_alt_chorus_g3")
+                    .add(FunkGhostNotes(density=0.8, emphasize_one=True))
+                    .add(
+                        BasicGroove(
+                            kick_positions=[0.0, 1.0, 2.0, 3.0],
+                            snare_positions=[1.0, 3.0],
+                            hihat_subdivision=TIMING.SIXTEENTH,
+                        )
+                    )
+                    .add(CrashAccents(positions=[0.0], intensity=1.0))
+                    .build(bars=1, complexity=max(0.5, c + 0.2)),
+                ]
+            # === PROGRESSIVE ROCK CHORUS: complex timekeeping, Elvin accents ===
+            if style == "progressive":
+                return [
+                    TemplateComposer("rock_prog_chorus_g1")
+                    .add(
+                        JazzRidePattern(
+                            swing_ratio=0.35, accent_pattern="elvin"
+                        )
+                    )
+                    .add(
+                        BasicGroove(
+                            kick_positions=[0.0, 1.0, 2.0, 3.0],
+                            snare_positions=[1.0, 3.0],
+                            hihat_subdivision=TIMING.EIGHTH,
+                        )
+                    )
+                    .add(
+                        CrashAccents(
+                            positions=[0.0, 2.0],
+                            intensity=0.9,
+                            crash_type="heavy",
+                        )
+                    )
+                    .build(bars=1, complexity=max(0.5, c + 0.2)),
+                    TemplateComposer("rock_prog_chorus_g2")
+                    .add(
+                        JazzRidePattern(swing_ratio=0.35, accent_pattern="tony")
+                    )
+                    .add(
+                        BasicGroove(
+                            kick_positions=[0.0, 1.5, 2.0, 3.5],
+                            snare_positions=[1.0, 3.0],
+                            hihat_subdivision=TIMING.EIGHTH,
+                        )
+                    )
+                    .add(
+                        CrashAccents(
+                            positions=[0.0], intensity=1.0, crash_type="heavy"
+                        )
+                    )
+                    .build(bars=1, complexity=max(0.5, c + 0.1)),
+                    TemplateComposer("rock_prog_chorus_g3")
+                    .add(FunkGhostNotes(density=0.7, emphasize_one=True))
+                    .add(
+                        BasicGroove(
+                            kick_positions=[0.0, 1.0, 2.0, 3.0],
+                            snare_positions=[1.0, 3.0],
+                            hihat_subdivision=TIMING.SIXTEENTH,
+                        )
+                    )
+                    .add(
+                        CrashAccents(
+                            positions=[0.0, 2.0],
+                            intensity=0.85,
+                            crash_type="heavy",
+                        )
+                    )
+                    .build(bars=1, complexity=max(0.6, c + 0.2)),
+                ]
+            # === PUNK CHORUS: four-on-floor power, crash every beat ===
+            if style == "punk":
+                return [
+                    TemplateComposer("rock_punk_chorus_g1")
+                    .add(
+                        BasicGroove(
+                            kick_positions=[0.0, 1.0, 2.0, 3.0],
+                            snare_positions=[1.0, 3.0],
+                            hihat_subdivision=TIMING.EIGHTH,
+                        )
+                    )
+                    .add(
+                        CrashAccents(
+                            positions=[0.0, 1.0, 2.0, 3.0],
+                            intensity=0.9,
+                            crash_type="heavy",
+                        )
+                    )
+                    .build(bars=1, complexity=max(0.6, c + 0.2)),
+                    TemplateComposer("rock_punk_chorus_g2")
+                    .add(
+                        BasicGroove(
+                            kick_positions=[0.0, 1.0, 2.0, 3.0],
+                            snare_positions=[1.0, 3.0],
+                            hihat_subdivision=TIMING.EIGHTH,
+                        )
+                    )
+                    .add(
+                        CrashAccents(
+                            positions=[0.0], intensity=1.0, crash_type="heavy"
+                        )
+                    )
+                    .build(bars=1, complexity=max(0.6, c + 0.1)),
+                    TemplateComposer("rock_punk_chorus_g3")
+                    .add(
+                        BasicGroove(
+                            kick_positions=[0.0, 1.0, 2.0, 3.0],
+                            snare_positions=[1.0, 3.0],
+                            hihat_subdivision=TIMING.EIGHTH,
+                        )
+                    )
+                    .build(bars=1, complexity=max(0.5, c)),
+                ]
+            # === HARD ROCK CHORUS: driving power kick + heavy crashes ===
+            if style == "hard":
+                return [
+                    TemplateComposer("rock_hard_chorus_g1")
+                    .add(
+                        BasicGroove(
+                            kick_positions=[0.0, 1.0, 2.0, 3.0],
+                            snare_positions=[1.0, 3.0],
+                            hihat_subdivision=TIMING.EIGHTH,
+                        )
+                    )
+                    .add(
+                        CrashAccents(
+                            positions=[0.0], intensity=1.0, crash_type="heavy"
+                        )
+                    )
+                    .build(bars=1, complexity=max(0.7, c + 0.3)),
+                    TemplateComposer("rock_hard_chorus_g2")
+                    .add(
+                        BasicGroove(
+                            kick_positions=[0.0, 1.0, 2.0, 3.0],
+                            snare_positions=[1.0, 3.0],
+                            hihat_subdivision=TIMING.EIGHTH,
+                        )
+                    )
+                    .add(
+                        CrashAccents(
+                            positions=[0.0, 2.0],
+                            intensity=1.0,
+                            crash_type="heavy",
+                        )
+                    )
+                    .build(bars=1, complexity=max(0.7, c + 0.2)),
+                    TemplateComposer("rock_hard_chorus_g3")
+                    .add(
+                        BasicGroove(
+                            kick_positions=[0.0, 1.0, 2.0, 3.0],
+                            snare_positions=[1.0, 3.0],
+                            hihat_subdivision=TIMING.EIGHTH,
+                        )
+                    )
+                    .add(TomFill(pattern="around", start_position=3.0))
+                    .add(
+                        CrashAccents(
+                            positions=[0.0], intensity=1.0, crash_type="heavy"
+                        )
+                    )
+                    .build(bars=1, complexity=max(0.7, c + 0.2)),
+                ]
+            # === POP ROCK CHORUS: accessible four-on-floor with ghost notes ===
+            if style == "pop":
+                return [
+                    TemplateComposer("rock_pop_chorus_g1")
+                    .add(FunkGhostNotes(density=0.7, emphasize_one=True))
+                    .add(
+                        BasicGroove(
+                            kick_positions=[0.0, 1.0, 2.0, 3.0],
+                            snare_positions=[1.0, 3.0],
+                            hihat_subdivision=TIMING.EIGHTH,
+                        )
+                    )
+                    .add(CrashAccents(positions=[0.0], intensity=0.9))
+                    .build(bars=1, complexity=max(0.5, c + 0.2)),
+                    TemplateComposer("rock_pop_chorus_g2")
+                    .add(
+                        BasicGroove(
+                            kick_positions=[0.0, 1.0, 2.0, 3.0],
+                            snare_positions=[1.0, 3.0],
+                            hihat_subdivision=TIMING.EIGHTH,
+                        )
+                    )
+                    .add(CrashAccents(positions=[0.0], intensity=0.85))
+                    .build(bars=1, complexity=max(0.5, c + 0.1)),
+                    TemplateComposer("rock_pop_chorus_g3")
+                    .add(FunkGhostNotes(density=0.8, emphasize_one=True))
+                    .add(
+                        BasicGroove(
+                            kick_positions=[0.0, 1.0, 2.0, 3.0],
+                            snare_positions=[1.0, 3.0],
+                            hihat_subdivision=TIMING.EIGHTH,
+                        )
+                    )
+                    .add(CrashAccents(positions=[0.0, 2.0], intensity=0.9))
+                    .build(bars=1, complexity=max(0.5, c + 0.2)),
+                ]
+
+        elif section == "bridge":
+            # === CLASSIC BRIDGE: ride-only, sparse feel ===
+            if style == "classic":
+                return [
+                    TemplateComposer("rock_classic_bridge_g1")
+                    .add(
+                        JazzRidePattern(
+                            swing_ratio=0.35, accent_pattern="elvin"
+                        )
+                    )
+                    .add(
+                        BasicGroove(
+                            kick_positions=[0.0],
+                            snare_positions=[],
+                            hihat_subdivision=TIMING.HALF,
+                        )
+                    )
+                    .build(bars=1, complexity=max(0.0, c - 0.2)),
+                    TemplateComposer("rock_classic_bridge_g2")
+                    .add(
+                        BasicGroove(
+                            kick_positions=[0.0, 2.0],
+                            snare_positions=[],
+                            hihat_subdivision=TIMING.HALF,
+                        )
+                    )
+                    .add(TomFill(pattern="around", start_position=3.0))
+                    .build(bars=1, complexity=max(0.0, c - 0.2)),
+                    TemplateComposer("rock_classic_bridge_g3")
+                    .add(
+                        BasicGroove(
+                            kick_positions=[0.0],
+                            snare_positions=[],
+                            hihat_subdivision=TIMING.HALF,
+                        )
+                    )
+                    .build(bars=1, complexity=max(0.0, c - 0.3)),
+                ]
+            # === BLUES BRIDGE: half-time with rimshots — blues/jam feel ===
+            if style == "blues":
+                return [
+                    TemplateComposer("rock_blues_bridge_g1")
+                    .add(RimshotGroove())
+                    .add(
+                        BasicGroove(
+                            kick_positions=[0.0],
+                            snare_positions=[],
+                            hihat_subdivision=TIMING.EIGHTH,
+                        )
+                    )
+                    .build(bars=1, complexity=max(0.0, c - 0.3)),
+                    TemplateComposer("rock_blues_bridge_g2")
+                    .add(
+                        BasicGroove(
+                            kick_positions=[0.0],
+                            snare_positions=[],
+                            hihat_subdivision=TIMING.EIGHTH,
+                        )
+                    )
+                    .add(TomFill(pattern="around", start_position=0.0))
+                    .build(bars=1, complexity=max(0.0, c - 0.2)),
+                ]
+            # === ALTERNATIVE BRIDGE: tense/industrial feel ===
+            if style == "alternative":
+                return [
+                    TemplateComposer("rock_alt_bridge_g1")
+                    .add(
+                        BasicGroove(
+                            kick_positions=[0.0, 2.5],
+                            snare_positions=[],
+                            hihat_subdivision=TIMING.SIXTEENTH,
+                        )
+                    )
+                    .build(bars=1, complexity=max(0.0, c - 0.1)),
+                    TemplateComposer("rock_alt_bridge_g2")
+                    .add(
+                        BasicGroove(
+                            kick_positions=[0.0],
+                            snare_positions=[],
+                            hihat_subdivision=TIMING.HALF,
+                        )
+                    )
+                    .add(TomFill(pattern="around", start_position=3.0))
+                    .build(bars=1, complexity=max(0.0, c - 0.2)),
+                    TemplateComposer("rock_alt_bridge_g3")
+                    .add(
+                        BasicGroove(
+                            kick_positions=[0.0],
+                            snare_positions=[],
+                            hihat_subdivision=TIMING.HALF,
+                        )
+                    )
+                    .build(bars=1, complexity=max(0.0, c - 0.3)),
+                ]
+            # === PROGRESSIVE BRIDGE: odd-meter timekeeping, Elvin ride ===
+            if style == "progressive":
+                return [
+                    TemplateComposer("rock_prog_bridge_g1")
+                    .add(
+                        JazzRidePattern(
+                            swing_ratio=0.35, accent_pattern="elvin"
+                        )
+                    )
+                    .add(
+                        BasicGroove(
+                            kick_positions=[0.0],
+                            snare_positions=[],
+                            hihat_subdivision=TIMING.HALF,
+                        )
+                    )
+                    .build(bars=1, complexity=max(0.0, c - 0.2)),
+                    TemplateComposer("rock_prog_bridge_g2")
+                    .add(
+                        JazzRidePattern(swing_ratio=0.35, accent_pattern="tony")
+                    )
+                    .add(
+                        BasicGroove(
+                            kick_positions=[0.0, 2.5],
+                            snare_positions=[],
+                            hihat_subdivision=TIMING.EIGHTH,
+                        )
+                    )
+                    .build(bars=1, complexity=max(0.0, c - 0.1)),
+                    TemplateComposer("rock_prog_bridge_g3")
+                    .add(
+                        BasicGroove(
+                            kick_positions=[0.0],
+                            snare_positions=[],
+                            hihat_subdivision=TIMING.EIGHTH,
+                        )
+                    )
+                    .add(TomFill(pattern="around", start_position=3.0))
+                    .build(bars=1, complexity=max(0.0, c - 0.2)),
+                ]
+            # === PUNK BRIDGE: sparse build to chorus ===
+            if style == "punk":
+                return [
+                    TemplateComposer("rock_punk_bridge_g1")
+                    .add(
+                        BasicGroove(
+                            kick_positions=[0.0],
+                            snare_positions=[],
+                            hihat_subdivision=TIMING.EIGHTH,
+                        )
+                    )
+                    .build(bars=1, complexity=max(0.0, c - 0.2)),
+                    TemplateComposer("rock_punk_bridge_g2")
+                    .add(
+                        BasicGroove(
+                            kick_positions=[0.0],
+                            snare_positions=[],
+                            hihat_subdivision=TIMING.HALF,
+                        )
+                    )
+                    .add(TomFill(pattern="ascending", start_position=3.0))
+                    .build(bars=1, complexity=max(0.0, c - 0.2)),
+                ]
+            # === HARD ROCK BRIDGE: building tension with tom fills ===
+            if style == "hard":
+                return [
+                    TemplateComposer("rock_hard_bridge_g1")
+                    .add(
+                        BasicGroove(
+                            kick_positions=[0.0],
+                            snare_positions=[],
+                            hihat_subdivision=TIMING.HALF,
+                        )
+                    )
+                    .add(TomFill(pattern="around", start_position=3.0))
+                    .build(bars=1, complexity=max(0.0, c - 0.2)),
+                    TemplateComposer("rock_hard_bridge_g2")
+                    .add(
+                        BasicGroove(
+                            kick_positions=[0.0],
+                            snare_positions=[],
+                            hihat_subdivision=TIMING.EIGHTH,
+                        )
+                    )
+                    .build(bars=1, complexity=max(0.0, c - 0.3)),
+                    TemplateComposer("rock_hard_bridge_g3")
+                    .add(
+                        BasicGroove(
+                            kick_positions=[0.0, 2.0],
+                            snare_positions=[],
+                            hihat_subdivision=TIMING.HALF,
+                        )
+                    )
+                    .add(TomFill(pattern="ascending", start_position=3.0))
+                    .build(bars=1, complexity=max(0.0, c - 0.1)),
+                ]
+            # === POP BRIDGE: sparse build, clean feel ===
+            if style == "pop":
+                return [
+                    TemplateComposer("rock_pop_bridge_g1")
+                    .add(
+                        BasicGroove(
+                            kick_positions=[0.0],
+                            snare_positions=[],
+                            hihat_subdivision=TIMING.HALF,
+                        )
+                    )
+                    .build(bars=1, complexity=max(0.0, c - 0.3)),
+                    TemplateComposer("rock_pop_bridge_g2")
+                    .add(
+                        BasicGroove(
+                            kick_positions=[0.0],
+                            snare_positions=[],
+                            hihat_subdivision=TIMING.EIGHTH,
+                        )
+                    )
+                    .add(TomFill(pattern="around", start_position=3.0))
+                    .build(bars=1, complexity=max(0.0, c - 0.2)),
+                    TemplateComposer("rock_pop_bridge_g3")
+                    .add(
+                        BasicGroove(
+                            kick_positions=[0.0],
+                            snare_positions=[],
+                            hihat_subdivision=TIMING.HALF,
+                        )
+                    )
+                    .build(bars=1, complexity=max(0.0, c - 0.3)),
+                ]
+
+        elif section == "intro":
+            # === CLASSIC INTRO: sparse ride + tom build ===
+            if style == "classic":
+                return [
+                    TemplateComposer("rock_classic_intro_g1")
+                    .add(
+                        BasicGroove(
+                            kick_positions=[0.0],
+                            snare_positions=[],
+                            hihat_subdivision=TIMING.QUARTER,
+                        )
+                    )
+                    .add(
+                        CrashAccents(
+                            positions=[3.75], intensity=1.0, crash_type="heavy"
+                        )
+                    )
+                    .build(bars=1, complexity=max(0.0, c - 0.3)),
+                    TemplateComposer("rock_classic_intro_g2")
+                    .add(
+                        JazzRidePattern(
+                            swing_ratio=0.3, accent_pattern="standard"
+                        )
+                    )
+                    .add(
+                        BasicGroove(
+                            kick_positions=[0.0],
+                            snare_positions=[],
+                            hihat_subdivision=TIMING.HALF,
+                        )
+                    )
+                    .add(CrashAccents(positions=[2.0], intensity=0.7))
+                    .build(bars=1, complexity=max(0.0, c - 0.3)),
+                    TemplateComposer("rock_classic_intro_g3")
+                    .add(
+                        BasicGroove(
+                            kick_positions=[0.0, 2.0],
+                            snare_positions=[],
+                            hihat_subdivision=TIMING.HALF,
+                        )
+                    )
+                    .add(TomFill(pattern="ascending", start_position=3.0))
+                    .build(bars=1, complexity=max(0.0, c - 0.3)),
+                ]
+            # === BLUES INTRO: sparse shuffle feel ===
+            if style == "blues":
+                return [
+                    TemplateComposer("rock_blues_intro_g1")
+                    .add(
+                        BasicGroove(
+                            kick_positions=[0.0],
+                            snare_positions=[],
+                            hihat_subdivision=TIMING.QUARTER,
+                        )
+                    )
+                    .add(
+                        CrashAccents(
+                            positions=[3.75], intensity=0.8, crash_type="light"
+                        )
+                    )
+                    .build(bars=1, complexity=max(0.0, c - 0.3)),
+                    TemplateComposer("rock_blues_intro_g2")
+                    .add(
+                        BasicGroove(
+                            kick_positions=[0.0],
+                            snare_positions=[],
+                            hihat_subdivision=TIMING.EIGHTH,
+                        )
+                    )
+                    .build(bars=1, complexity=max(0.0, c - 0.3)),
+                ]
+            # === ALTERNATIVE INTRO: sparse kick + tom roll ===
+            if style == "alternative":
+                return [
+                    TemplateComposer("rock_alt_intro_g1")
+                    .add(
+                        BasicGroove(
+                            kick_positions=[0.0],
+                            snare_positions=[],
+                            hihat_subdivision=TIMING.HALF,
+                        )
+                    )
+                    .add(TomFill(pattern="ascending", start_position=3.0))
+                    .build(bars=1, complexity=max(0.0, c - 0.3)),
+                    TemplateComposer("rock_alt_intro_g2")
+                    .add(
+                        BasicGroove(
+                            kick_positions=[0.0],
+                            snare_positions=[],
+                            hihat_subdivision=TIMING.EIGHTH,
+                        )
+                    )
+                    .build(bars=1, complexity=max(0.0, c - 0.3)),
+                ]
+            # === PROGRESSIVE INTRO: odd-meter feel ===
+            if style == "progressive":
+                return [
+                    TemplateComposer("rock_prog_intro_g1")
+                    .add(
+                        JazzRidePattern(
+                            swing_ratio=0.35, accent_pattern="elvin"
+                        )
+                    )
+                    .add(
+                        BasicGroove(
+                            kick_positions=[0.0],
+                            snare_positions=[],
+                            hihat_subdivision=TIMING.HALF,
+                        )
+                    )
+                    .build(bars=1, complexity=max(0.0, c - 0.3)),
+                    TemplateComposer("rock_prog_intro_g2")
+                    .add(
+                        BasicGroove(
+                            kick_positions=[0.0],
+                            snare_positions=[],
+                            hihat_subdivision=TIMING.EIGHTH,
+                        )
+                    )
+                    .add(
+                        CrashAccents(
+                            positions=[3.75], intensity=0.9, crash_type="heavy"
+                        )
+                    )
+                    .build(bars=1, complexity=max(0.0, c - 0.3)),
+                ]
+            # === PUNK INTRO: raw drum hit into song ===
+            if style == "punk":
+                return [
+                    TemplateComposer("rock_punk_intro_g1")
+                    .add(
+                        BasicGroove(
+                            kick_positions=[0.0],
+                            snare_positions=[],
+                            hihat_subdivision=TIMING.EIGHTH,
+                        )
+                    )
+                    .add(
+                        CrashAccents(
+                            positions=[3.75], intensity=1.0, crash_type="heavy"
+                        )
+                    )
+                    .build(bars=1, complexity=max(0.0, c - 0.3)),
+                    TemplateComposer("rock_punk_intro_g2")
+                    .add(
+                        BasicGroove(
+                            kick_positions=[0.0],
+                            snare_positions=[],
+                            hihat_subdivision=TIMING.HALF,
+                        )
+                    )
+                    .add(
+                        CrashAccents(
+                            positions=[3.75], intensity=1.0, crash_type="heavy"
+                        )
+                    )
+                    .build(bars=1, complexity=max(0.0, c - 0.3)),
+                ]
+            # === HARD ROCK INTRO: heavy build to first chord ===
+            if style == "hard":
+                return [
+                    TemplateComposer("rock_hard_intro_g1")
+                    .add(
+                        BasicGroove(
+                            kick_positions=[0.0],
+                            snare_positions=[],
+                            hihat_subdivision=TIMING.QUARTER,
+                        )
+                    )
+                    .add(TomFill(pattern="around", start_position=3.0))
+                    .add(
+                        CrashAccents(
+                            positions=[3.75], intensity=1.0, crash_type="heavy"
+                        )
+                    )
+                    .build(bars=1, complexity=max(0.0, c - 0.3)),
+                    TemplateComposer("rock_hard_intro_g2")
+                    .add(
+                        BasicGroove(
+                            kick_positions=[0.0],
+                            snare_positions=[],
+                            hihat_subdivision=TIMING.HALF,
+                        )
+                    )
+                    .add(
+                        CrashAccents(
+                            positions=[3.75], intensity=1.0, crash_type="heavy"
+                        )
+                    )
+                    .build(bars=1, complexity=max(0.0, c - 0.3)),
+                ]
+            # === POP INTRO: clean sparse build ===
+            if style == "pop":
+                return [
+                    TemplateComposer("rock_pop_intro_g1")
+                    .add(
+                        BasicGroove(
+                            kick_positions=[0.0],
+                            snare_positions=[],
+                            hihat_subdivision=TIMING.EIGHTH,
+                        )
+                    )
+                    .build(bars=1, complexity=max(0.0, c - 0.3)),
+                    TemplateComposer("rock_pop_intro_g2")
+                    .add(
+                        BasicGroove(
+                            kick_positions=[0.0],
+                            snare_positions=[],
+                            hihat_subdivision=TIMING.HALF,
+                        )
+                    )
+                    .add(TomFill(pattern="ascending", start_position=3.0))
+                    .build(bars=1, complexity=max(0.0, c - 0.3)),
+                ]
+
+        elif section == "outro":
+            # === CLASSIC OUTRO: ride fade with final crash ===
+            if style == "classic":
+                return [
+                    TemplateComposer("rock_classic_outro_g1")
+                    .add(
+                        JazzRidePattern(
+                            swing_ratio=0.3, accent_pattern="standard"
+                        )
+                    )
+                    .build(bars=1, complexity=max(0.0, c - 0.3)),
+                    TemplateComposer("rock_classic_outro_g2")
+                    .add(
+                        BasicGroove(
+                            kick_positions=[0.0],
+                            snare_positions=[],
+                            hihat_subdivision=TIMING.HALF,
+                        )
+                    )
+                    .add(
+                        CrashAccents(
+                            positions=[3.75], intensity=1.0, crash_type="heavy"
+                        )
+                    )
+                    .build(bars=1, complexity=max(0.0, c - 0.3)),
+                    TemplateComposer("rock_classic_outro_g3")
+                    .add(
+                        JazzRidePattern(
+                            swing_ratio=0.35, accent_pattern="standard"
+                        )
+                    )
+                    .add(
+                        BasicGroove(
+                            kick_positions=[0.0],
+                            snare_positions=[],
+                            hihat_subdivision=TIMING.HALF,
+                        )
+                    )
+                    .build(bars=1, complexity=max(0.0, c - 0.3)),
+                ]
+            # === BLUES OUTRO: sparse shuffle fade ===
+            if style == "blues":
+                return [
+                    TemplateComposer("rock_blues_outro_g1")
+                    .add(
+                        BasicGroove(
+                            kick_positions=[0.0],
+                            snare_positions=[],
+                            hihat_subdivision=TIMING.EIGHTH,
+                        )
+                    )
+                    .build(bars=1, complexity=max(0.0, c - 0.3)),
+                    TemplateComposer("rock_blues_outro_g2")
+                    .add(
+                        BasicGroove(
+                            kick_positions=[0.0],
+                            snare_positions=[],
+                            hihat_subdivision=TIMING.HALF,
+                        )
+                    )
+                    .add(
+                        CrashAccents(
+                            positions=[3.75], intensity=0.8, crash_type="heavy"
+                        )
+                    )
+                    .build(bars=1, complexity=max(0.0, c - 0.3)),
+                ]
+            # === ALTERNATIVE OUTRO: sparse fade or bang-out ===
+            if style == "alternative":
+                return [
+                    TemplateComposer("rock_alt_outro_g1")
+                    .add(
+                        BasicGroove(
+                            kick_positions=[0.0],
+                            snare_positions=[],
+                            hihat_subdivision=TIMING.EIGHTH,
+                        )
+                    )
+                    .build(bars=1, complexity=max(0.0, c - 0.3)),
+                    TemplateComposer("rock_alt_outro_g2")
+                    .add(
+                        BasicGroove(
+                            kick_positions=[0.0],
+                            snare_positions=[],
+                            hihat_subdivision=TIMING.HALF,
+                        )
+                    )
+                    .add(
+                        CrashAccents(
+                            positions=[3.75], intensity=1.0, crash_type="heavy"
+                        )
+                    )
+                    .build(bars=1, complexity=max(0.0, c - 0.3)),
+                ]
+            # === PROGRESSIVE OUTRO: sparse ride fade ===
+            if style == "progressive":
+                return [
+                    TemplateComposer("rock_prog_outro_g1")
+                    .add(
+                        JazzRidePattern(
+                            swing_ratio=0.35, accent_pattern="standard"
+                        )
+                    )
+                    .build(bars=1, complexity=max(0.0, c - 0.3)),
+                    TemplateComposer("rock_prog_outro_g2")
+                    .add(
+                        BasicGroove(
+                            kick_positions=[0.0],
+                            snare_positions=[],
+                            hihat_subdivision=TIMING.HALF,
+                        )
+                    )
+                    .build(bars=1, complexity=max(0.0, c - 0.3)),
+                ]
+            # === PUNK OUTRO: bang-out with crash ===
+            if style == "punk":
+                return [
+                    TemplateComposer("rock_punk_outro_g1")
+                    .add(
+                        BasicGroove(
+                            kick_positions=[0.0, 2.0],
+                            snare_positions=[],
+                            hihat_subdivision=TIMING.HALF,
+                        )
+                    )
+                    .add(
+                        CrashAccents(
+                            positions=[3.75], intensity=1.0, crash_type="heavy"
+                        )
+                    )
+                    .build(bars=1, complexity=max(0.0, c - 0.3)),
+                    TemplateComposer("rock_punk_outro_g2")
+                    .add(
+                        BasicGroove(
+                            kick_positions=[0.0],
+                            snare_positions=[],
+                            hihat_subdivision=TIMING.EIGHTH,
+                        )
+                    )
+                    .build(bars=1, complexity=max(0.0, c - 0.3)),
+                ]
+            # === HARD ROCK OUTRO: heavy bang-out ===
+            if style == "hard":
+                return [
+                    TemplateComposer("rock_hard_outro_g1")
+                    .add(
+                        BasicGroove(
+                            kick_positions=[0.0, 2.0],
+                            snare_positions=[],
+                            hihat_subdivision=TIMING.HALF,
+                        )
+                    )
+                    .add(
+                        CrashAccents(
+                            positions=[3.75], intensity=1.0, crash_type="heavy"
+                        )
+                    )
+                    .build(bars=1, complexity=max(0.0, c - 0.3)),
+                    TemplateComposer("rock_hard_outro_g2")
+                    .add(
+                        BasicGroove(
+                            kick_positions=[0.0, 2.0],
+                            snare_positions=[],
+                            hihat_subdivision=TIMING.HALF,
+                        )
+                    )
+                    .build(bars=1, complexity=max(0.0, c - 0.3)),
+                ]
+            # === POP OUTRO: clean fade with final crash ===
+            if style == "pop":
+                return [
+                    TemplateComposer("rock_pop_outro_g1")
+                    .add(
+                        BasicGroove(
+                            kick_positions=[0.0],
+                            snare_positions=[],
+                            hihat_subdivision=TIMING.EIGHTH,
+                        )
+                    )
+                    .build(bars=1, complexity=max(0.0, c - 0.3)),
+                    TemplateComposer("rock_pop_outro_g2")
+                    .add(
+                        BasicGroove(
+                            kick_positions=[0.0],
+                            snare_positions=[],
+                            hihat_subdivision=TIMING.HALF,
+                        )
+                    )
+                    .add(CrashAccents(positions=[3.75], intensity=0.9))
+                    .build(bars=1, complexity=max(0.0, c - 0.3)),
+                ]
+        else:
+            # Fallback for breakdown/pre_chorus: use flavors with actual style
+            flavors = self.get_section_flavors(
+                section,
+                GenerationParameters(genre=self.genre_name, style=style),
+            )
+            return flavors[:6] if len(flavors) > 6 else flavors
 
     def _flavors_intro(self, style: str, complexity: float) -> list[Pattern]:
         name = f"rock_{style}_intro"

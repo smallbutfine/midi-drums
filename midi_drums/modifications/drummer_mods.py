@@ -128,7 +128,9 @@ class BehindBeatTiming(DrummerModification):
         delay = (self.max_delay_ms / 1000.0) * 2.0 * intensity
 
         for beat in pattern.beats:
-            if beat.instrument == DrumInstrument.SNARE:  # Apply to ALL snares, ghost or regular
+            if (
+                beat.instrument == DrumInstrument.SNARE
+            ):  # Apply to ALL snares, ghost or regular
                 # Shift snare behind the beat
                 new_beat = Beat(
                     position=beat.position + delay,
@@ -167,8 +169,12 @@ class TripletVocabulary(DrummerModification):
     and you don't force every limb into triplets.
     """
 
-    triplet_probability: float = 0.4  # Chance per bar that this modifier applies
-    intensity: float = 0.8  # How aggressively to remap (1.0 = full triplet, <1.0 = blend)
+    triplet_probability: float = (
+        0.4  # Chance per bar that this modifier applies
+    )
+    intensity: float = (
+        0.8  # How aggressively to remap (1.0 = full triplet, <1.0 = blend)
+    )
 
     @property
     def name(self) -> str:
@@ -200,7 +206,7 @@ class TripletVocabulary(DrummerModification):
 
             eighth_index = min(
                 max(0, int(intra_bar_pos / (beats_per_bar / 8.0) + 0.5)),
-                beats_per_bar * 2 - 1
+                beats_per_bar * 2 - 1,
             )
 
             # Map that index to the triplet grid position within the bar

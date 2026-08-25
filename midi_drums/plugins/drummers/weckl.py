@@ -272,12 +272,20 @@ class WecklPlugin(DrummerPlugin):
         ]
         for i, (_pos_value, instrument_or_name) in enumerate(linear_hits):
             pos = TIMING.SIXTEENTH * i
-            if isinstance(instrument_or_name, str) and instrument_or_name == "kick":
+            if (
+                isinstance(instrument_or_name, str)
+                and instrument_or_name == "kick"
+            ):
                 builder.kick(pos, VELOCITY.KICK_NORMAL)
-            elif isinstance(instrument_or_name, str) and instrument_or_name == "snare":
+            elif (
+                isinstance(instrument_or_name, str)
+                and instrument_or_name == "snare"
+            ):
                 builder.snare(pos, VELOCITY.SNARE_LIGHT)
             else:
-                builder.pattern.add_beat(pos, instrument_or_name, VELOCITY.TOM_NORMAL + 5)
+                builder.pattern.add_beat(
+                    pos, instrument_or_name, VELOCITY.TOM_NORMAL + 5
+                )
         return builder.build()
 
     def _create_step_forward_groove(self) -> Pattern:

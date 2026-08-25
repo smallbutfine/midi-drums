@@ -100,9 +100,9 @@ def test_triplet_vocabulary():
     # Create a pattern with straight-eighth kick/snare hits
     builder = PatternBuilder("basic_test")
     builder.kick(0.0, VELOCITY.KICK_NORMAL)
-    builder.kick(1.0, VELOCITY.KICK_NORMAL)   # eighth at position 1.0
+    builder.kick(1.0, VELOCITY.KICK_NORMAL)  # eighth at position 1.0
     builder.kick(2.0, VELOCITY.KICK_NORMAL)
-    builder.snare(1.5, VELOCITY.SNARE_NORMAL) # eighth at position 1.5
+    builder.snare(1.5, VELOCITY.SNARE_NORMAL)  # eighth at position 1.5
     builder.hihat(0.5, VELOCITY.HIHAT_NORMAL)
     pattern = builder.build()
     original_count = len(pattern.beats)
@@ -132,7 +132,9 @@ def test_triplet_vocabulary():
     )
 
     # Compare a known input position to verify direction of shift
-    kick_at_1 = next((b for b in modified.beats if abs(b.position - 1.0) < 0.001), None)
+    kick_at_1 = next(
+        (b for b in modified.beats if abs(b.position - 1.0) < 0.001), None
+    )
     assert kick_at_1 is not None, "Kick at position 1.0 not found in output"
 
     # The original was at the boundary between bars — with intensity=1.0 (full triplets),

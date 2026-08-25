@@ -223,7 +223,9 @@ class DrumGeneratorAPI:
         for i, spec in enumerate(specs):
             genre = spec.get("genre", "metal")
             style = spec.get("style", "default")
-            tempo = spec.get("tempo")  # None → genre-aware default in create_song
+            tempo = spec.get(
+                "tempo"
+            )  # None → genre-aware default in create_song
             name = spec.get("name", f"{genre}_{style}_{i:02d}")
             extra = {
                 k: v

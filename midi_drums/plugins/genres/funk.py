@@ -17,6 +17,7 @@ from midi_drums.patterns import (
     CrashAccents,
     FunkGhostNotes,
     JazzRidePattern,
+    RimshotGroove,
     TemplateComposer,
     TomFill,
 )
@@ -207,6 +208,1391 @@ class FunkGenrePlugin(GenrePlugin):
         elif section == "outro":
             return self._flavors_outro(style, complexity)
         return []
+
+    def get_section_grooves(
+        self, section: str, complexity: float, style: str = "default"
+    ) -> list[Pattern]:
+        """Return 6+ structurally distinct grooves for this section.
+
+        Funk groove variation comes from:
+        - RIMSHOT vs snare backbeats (rimshots = classic funk)
+        - One-drop (kick on 1 only) vs two-drop (kick on 1+3) bass patterns
+        - Ghost note density as PRIMARY differentiator (0.3 to 0.9)
+        - Hi-hat timekeeping: eighth vs sixteenth vs open hat
+        - Crash placement: sparse verses vs accent-heavy choruses
+        """
+        c = complexity
+
+        if section == "intro":
+            # === CLASSIC FUNK INTRO: sparse kick build — James Brown era ===
+            if style == "classic":
+                return [
+                    TemplateComposer("funk_classic_intro_g1")
+                    .add(FunkGhostNotes(density=0.7, emphasize_one=True))
+                    .add(
+                        BasicGroove(
+                            kick_positions=[0.0],
+                            snare_positions=[],
+                            hihat_subdivision=TIMING.EIGHTH,
+                        )
+                    )
+                    .build(bars=1, complexity=max(0.0, c - 0.2)),
+                    TemplateComposer("funk_classic_intro_g2")
+                    .add(FunkGhostNotes(density=0.6, emphasize_one=True))
+                    .add(
+                        BasicGroove(
+                            kick_positions=[0.0],
+                            snare_positions=[],
+                            hihat_subdivision=TIMING.HALF,
+                        )
+                    )
+                    .build(bars=1, complexity=max(0.0, c - 0.2)),
+                    TemplateComposer("funk_classic_intro_g3")
+                    .add(
+                        BasicGroove(
+                            kick_positions=[0.0],
+                            snare_positions=[],
+                            hihat_subdivision=TIMING.EIGHTH,
+                        )
+                    )
+                    .add(TomFill(pattern="ascending", start_position=2.5))
+                    .build(bars=1, complexity=max(0.0, c - 0.3)),
+                ]
+            # === P-FUNK INTRO: deep pocket sparse build — Mose Allison feel ===
+            if style == "pfunk":
+                return [
+                    TemplateComposer("funk_pfunk_intro_g1")
+                    .add(FunkGhostNotes(density=0.5, emphasize_one=True))
+                    .add(
+                        BasicGroove(
+                            kick_positions=[0.0],
+                            snare_positions=[],
+                            hihat_subdivision=TIMING.EIGHTH,
+                        )
+                    )
+                    .build(bars=1, complexity=max(0.0, c - 0.2)),
+                    TemplateComposer("funk_pfunk_intro_g2")
+                    .add(FunkGhostNotes(density=0.4, emphasize_one=True))
+                    .add(
+                        BasicGroove(
+                            kick_positions=[0.0],
+                            snare_positions=[],
+                            hihat_subdivision=TIMING.HALF,
+                        )
+                    )
+                    .build(bars=1, complexity=max(0.0, c - 0.2)),
+                ]
+            # === SHUFFLE INTRO: Purdie shuffle sparse — behind-beat feel ===
+            if style == "shuffle":
+                return [
+                    TemplateComposer("funk_shuffle_intro_g1")
+                    .add(FunkGhostNotes(density=0.6, emphasize_one=False))
+                    .add(
+                        BasicGroove(
+                            kick_positions=[0.0],
+                            snare_positions=[],
+                            hihat_subdivision=TIMING.EIGHTH_TRIPLET,
+                        )
+                    )
+                    .build(bars=1, complexity=max(0.0, c - 0.2)),
+                    TemplateComposer("funk_shuffle_intro_g2")
+                    .add(
+                        BasicGroove(
+                            kick_positions=[0.0],
+                            snare_positions=[],
+                            hihat_subdivision=TIMING.HALF,
+                        )
+                    )
+                    .build(bars=1, complexity=max(0.0, c - 0.2)),
+                ]
+            # === NEW ORLEANS INTRO: second line sparse build — clave syncopation ===
+            if style == "new_orleans":
+                return [
+                    TemplateComposer("funk_no_intro_g1")
+                    .add(FunkGhostNotes(density=0.5, emphasize_one=True))
+                    .add(
+                        BasicGroove(
+                            kick_positions=[0.0],
+                            snare_positions=[],
+                            hihat_subdivision=TIMING.EIGHTH,
+                        )
+                    )
+                    .build(bars=1, complexity=max(0.0, c - 0.2)),
+                    TemplateComposer("funk_no_intro_g2")
+                    .add(
+                        BasicGroove(
+                            kick_positions=[0.0],
+                            snare_positions=[],
+                            hihat_subdivision=TIMING.HALF,
+                        )
+                    )
+                    .build(bars=1, complexity=max(0.0, c - 0.2)),
+                ]
+            # === FUSION INTRO: sparse straight comping — jazz-funk minimalism ===
+            if style == "fusion":
+                return [
+                    TemplateComposer("funk_fusion_intro_g1")
+                    .add(FunkGhostNotes(density=0.5, emphasize_one=True))
+                    .add(
+                        BasicGroove(
+                            kick_positions=[0.0],
+                            snare_positions=[],
+                            hihat_subdivision=TIMING.EIGHTH,
+                        )
+                    )
+                    .build(bars=1, complexity=max(0.0, c - 0.2)),
+                    TemplateComposer("funk_fusion_intro_g2")
+                    .add(
+                        BasicGroove(
+                            kick_positions=[0.0],
+                            snare_positions=[],
+                            hihat_subdivision=TIMING.HALF,
+                        )
+                    )
+                    .build(bars=1, complexity=max(0.0, c - 0.2)),
+                ]
+            # === MINIMAL INTRO: extremely sparse — bass alone intro ===
+            if style == "minimal":
+                return [
+                    TemplateComposer("funk_minimal_intro_g1")
+                    .add(
+                        BasicGroove(
+                            kick_positions=[0.0],
+                            snare_positions=[],
+                            hihat_subdivision=TIMING.HALF,
+                        )
+                    )
+                    .build(bars=1, complexity=max(0.0, c - 0.3)),
+                    TemplateComposer("funk_minimal_intro_g2")
+                    .add(
+                        BasicGroove(
+                            kick_positions=[0.0],
+                            snare_positions=[],
+                            hihat_subdivision=TIMING.EIGHTH,
+                        )
+                    )
+                    .build(bars=1, complexity=max(0.0, c - 0.3)),
+                ]
+            # === HEAVY INTRO: rock-funk sparse build — aggressive energy ===
+            if style == "heavy":
+                return [
+                    TemplateComposer("funk_heavy_intro_g1")
+                    .add(FunkGhostNotes(density=0.6, emphasize_one=True))
+                    .add(
+                        BasicGroove(
+                            kick_positions=[0.0],
+                            snare_positions=[],
+                            hihat_subdivision=TIMING.EIGHTH,
+                        )
+                    )
+                    .build(bars=1, complexity=max(0.0, c - 0.2)),
+                    TemplateComposer("funk_heavy_intro_g2")
+                    .add(
+                        BasicGroove(
+                            kick_positions=[0.0],
+                            snare_positions=[],
+                            hihat_subdivision=TIMING.HALF,
+                        )
+                    )
+                    .build(bars=1, complexity=max(0.0, c - 0.2)),
+                ]
+            # === HEAVY INTRO: rock-funk sparse build — aggressive energy ===
+            if style == "heavy":
+                return [
+                    TemplateComposer("funk_heavy_intro_g1")
+                    .add(FunkGhostNotes(density=0.6, emphasize_one=True))
+                    .add(
+                        BasicGroove(
+                            kick_positions=[0.0],
+                            snare_positions=[],
+                            hihat_subdivision=TIMING.EIGHTH,
+                        )
+                    )
+                    .build(bars=1, complexity=max(0.0, c - 0.2)),
+                    TemplateComposer("funk_heavy_intro_g2")
+                    .add(
+                        BasicGroove(
+                            kick_positions=[0.0],
+                            snare_positions=[],
+                            hihat_subdivision=TIMING.HALF,
+                        )
+                    )
+                    .build(bars=1, complexity=max(0.0, c - 0.2)),
+                ]
+        elif section == "verse":
+            # === CLASSIC FUNK VERSE: one-drop (kick on 1) + heavy ghost notes — James Brown foundation ===
+            if style == "classic":
+                return [
+                    TemplateComposer("funk_classic_verse_g1")
+                    .add(FunkGhostNotes(density=0.9, emphasize_one=True))
+                    .add(
+                        BasicGroove(
+                            kick_positions=[0.0],
+                            snare_positions=[1.0, 3.0],
+                            hihat_subdivision=TIMING.EIGHTH,
+                        )
+                    )
+                    .build(bars=1, complexity=c),
+                    TemplateComposer("funk_classic_verse_g2")
+                    .add(FunkGhostNotes(density=0.85, emphasize_one=True))
+                    .add(
+                        BasicGroove(
+                            kick_positions=[0.0],
+                            snare_positions=[1.0, 3.0],
+                            hihat_subdivision=TIMING.EIGHTH,
+                        )
+                    )
+                    .build(bars=1, complexity=c),
+                    TemplateComposer("funk_classic_verse_g3")
+                    .add(RimshotGroove())
+                    .add(FunkGhostNotes(density=0.8, emphasize_one=True))
+                    .add(
+                        BasicGroove(
+                            kick_positions=[0.0],
+                            snare_positions=[],
+                            hihat_subdivision=TIMING.EIGHTH,
+                        )
+                    )
+                    .build(bars=1, complexity=c),
+                ]
+            # === P-FUNK VERSE: complex syncopated bass patterns — Parliament-Funkadelic deep pocket ===
+            if style == "pfunk":
+                return [
+                    TemplateComposer("funk_pfunk_verse_g1")
+                    .add(FunkGhostNotes(density=0.7, emphasize_one=True))
+                    .add(
+                        BasicGroove(
+                            kick_positions=[0.0, 0.75, 2.0, 3.0],
+                            snare_positions=[1.0, 3.0],
+                            hihat_subdivision=TIMING.EIGHTH,
+                        )
+                    )
+                    .build(bars=1, complexity=c),
+                    TemplateComposer("funk_pfunk_verse_g2")
+                    .add(FunkGhostNotes(density=0.8, emphasize_one=True))
+                    .add(
+                        BasicGroove(
+                            kick_positions=[0.0, 1.5, 2.0],
+                            snare_positions=[1.0, 3.0],
+                            hihat_subdivision=TIMING.EIGHTH,
+                        )
+                    )
+                    .build(bars=1, complexity=c),
+                    TemplateComposer("funk_pfunk_verse_g3")
+                    .add(FunkGhostNotes(density=0.75, emphasize_one=True))
+                    .add(
+                        BasicGroove(
+                            kick_positions=[0.0, 2.5],
+                            snare_positions=[1.0, 3.0],
+                            hihat_subdivision=TIMING.EIGHTH,
+                        )
+                    )
+                    .build(bars=1, complexity=c),
+                ]
+            # === SHUFFLE VERSE: Purdie shuffle triplet timekeeping — behind-beat pocket ===
+            if style == "shuffle":
+                return [
+                    TemplateComposer("funk_shuffle_verse_g1")
+                    .add(FunkGhostNotes(density=0.7, emphasize_one=False))
+                    .add(
+                        BasicGroove(
+                            kick_positions=[0.0, 2.0],
+                            snare_positions=[1.0, 3.0],
+                            hihat_subdivision=TIMING.EIGHTH_TRIPLET,
+                        )
+                    )
+                    .build(bars=1, complexity=c),
+                    TemplateComposer("funk_shuffle_verse_g2")
+                    .add(FunkGhostNotes(density=0.8, emphasize_one=True))
+                    .add(
+                        BasicGroove(
+                            kick_positions=[0.0],
+                            snare_positions=[1.0, 3.0],
+                            hihat_subdivision=TIMING.EIGHTH_TRIPLET,
+                        )
+                    )
+                    .build(bars=1, complexity=c),
+                    TemplateComposer("funk_shuffle_verse_g3")
+                    .add(RimshotGroove())
+                    .add(FunkGhostNotes(density=0.75, emphasize_one=False))
+                    .add(
+                        BasicGroove(
+                            kick_positions=[0.0, 2.5],
+                            snare_positions=[],
+                            hihat_subdivision=TIMING.EIGHTH_TRIPLET,
+                        )
+                    )
+                    .build(bars=1, complexity=c),
+                ]
+            # === NEW ORLEANS VERSE: second line clave syncopation — brass-driven groove ===
+            if style == "new_orleans":
+                return [
+                    TemplateComposer("funk_no_verse_g1")
+                    .add(FunkGhostNotes(density=0.6, emphasize_one=True))
+                    .add(
+                        BasicGroove(
+                            kick_positions=[0.0, 0.75, 2.0, 2.75],
+                            snare_positions=[1.0, 3.0],
+                            hihat_subdivision=TIMING.EIGHTH,
+                        )
+                    )
+                    .build(bars=1, complexity=c),
+                    TemplateComposer("funk_no_verse_g2")
+                    .add(FunkGhostNotes(density=0.7, emphasize_one=True))
+                    .add(
+                        BasicGroove(
+                            kick_positions=[0.0, 1.5, 2.5],
+                            snare_positions=[1.0, 3.0],
+                            hihat_subdivision=TIMING.EIGHTH,
+                        )
+                    )
+                    .build(bars=1, complexity=c),
+                    TemplateComposer("funk_no_verse_g3")
+                    .add(FunkGhostNotes(density=0.65, emphasize_one=True))
+                    .add(
+                        BasicGroove(
+                            kick_positions=[0.0, 2.0],
+                            snare_positions=[1.0, 3.0],
+                            hihat_subdivision=TIMING.EIGHTH,
+                        )
+                    )
+                    .build(bars=1, complexity=c),
+                ]
+            # === FUSION VERSE: tight straight-eighth comping — jazz-funk groove ===
+            if style == "fusion":
+                return [
+                    TemplateComposer("funk_fusion_verse_g1")
+                    .add(FunkGhostNotes(density=0.6, emphasize_one=False))
+                    .add(
+                        BasicGroove(
+                            kick_positions=[0.0, 2.0],
+                            snare_positions=[1.0, 3.0],
+                            hihat_subdivision=TIMING.SIXTEENTH,
+                        )
+                    )
+                    .build(bars=1, complexity=c),
+                    TemplateComposer("funk_fusion_verse_g2")
+                    .add(FunkGhostNotes(density=0.7, emphasize_one=False))
+                    .add(
+                        BasicGroove(
+                            kick_positions=[0.0],
+                            snare_positions=[1.0, 3.0],
+                            hihat_subdivision=TIMING.SIXTEENTH,
+                        )
+                    )
+                    .build(bars=1, complexity=c),
+                    TemplateComposer("funk_fusion_verse_g3")
+                    .add(RimshotGroove())
+                    .add(FunkGhostNotes(density=0.65, emphasize_one=False))
+                    .add(
+                        BasicGroove(
+                            kick_positions=[0.0, 1.5],
+                            snare_positions=[],
+                            hihat_subdivision=TIMING.SIXTEENTH,
+                        )
+                    )
+                    .build(bars=1, complexity=c),
+                ]
+            # === MINIMAL VERSE: sparse minimalist funk — maximum room for bass/guitar ===
+            if style == "minimal":
+                return [
+                    TemplateComposer("funk_minimal_verse_g1")
+                    .add(FunkGhostNotes(density=0.4, emphasize_one=False))
+                    .add(
+                        BasicGroove(
+                            kick_positions=[0.0],
+                            snare_positions=[],
+                            hihat_subdivision=TIMING.EIGHTH,
+                        )
+                    )
+                    .build(bars=1, complexity=max(0.0, c - 0.1)),
+                    TemplateComposer("funk_minimal_verse_g2")
+                    .add(
+                        BasicGroove(
+                            kick_positions=[0.0],
+                            snare_positions=[],
+                            hihat_subdivision=TIMING.EIGHTH,
+                        )
+                    )
+                    .build(bars=1, complexity=max(0.0, c - 0.1)),
+                    TemplateComposer("funk_minimal_verse_g3")
+                    .add(FunkGhostNotes(density=0.5, emphasize_one=False))
+                    .add(
+                        BasicGroove(
+                            kick_positions=[0.0],
+                            snare_positions=[],
+                            hihat_subdivision=TIMING.EIGHTH,
+                        )
+                    )
+                    .build(bars=1, complexity=max(0.0, c - 0.1)),
+                ]
+            # === HEAVY VERSE: rock-funk hybrid — four-on-floor drive with ghost notes ===
+            if style == "heavy":
+                return [
+                    TemplateComposer("funk_heavy_verse_g1")
+                    .add(FunkGhostNotes(density=0.7, emphasize_one=True))
+                    .add(
+                        BasicGroove(
+                            kick_positions=[0.0, 1.0, 2.0, 3.0],
+                            snare_positions=[1.0, 3.0],
+                            hihat_subdivision=TIMING.EIGHTH,
+                        )
+                    )
+                    .build(bars=1, complexity=c),
+                    TemplateComposer("funk_heavy_verse_g2")
+                    .add(FunkGhostNotes(density=0.8, emphasize_one=True))
+                    .add(
+                        BasicGroove(
+                            kick_positions=[0.0, 1.0, 2.0, 3.0],
+                            snare_positions=[1.0, 3.0],
+                            hihat_subdivision=TIMING.EIGHTH,
+                        )
+                    )
+                    .build(bars=1, complexity=c),
+                    TemplateComposer("funk_heavy_verse_g3")
+                    .add(FunkGhostNotes(density=0.75, emphasize_one=True))
+                    .add(
+                        BasicGroove(
+                            kick_positions=[0.0, 1.0, 2.0, 3.0],
+                            snare_positions=[1.0, 3.0],
+                            hihat_subdivision=TIMING.EIGHTH,
+                        )
+                    )
+                    .build(bars=1, complexity=c),
+                ]
+            # === FUNK (default): generic funk groove fallback — balanced style ===
+            grooves = [
+                # g1: Classic James Brown one-drop (kick on 1 only) + heavy ghost notes
+                # One-drop = foundation of funk; kick ON THE ONE lets bass carry walking
+                (
+                    TemplateComposer("funk_verse_g1_onedrop")
+                    .add(FunkGhostNotes(density=0.9, emphasize_one=True))
+                    .add(
+                        BasicGroove(
+                            kick_positions=[0.0],
+                            snare_positions=[1.0, 3.0],
+                            hihat_subdivision=TIMING.EIGHTH,
+                        )
+                    )
+                    .build(bars=1, complexity=c)
+                ),
+                # g2: Rimshot groove + moderate ghosting (tighter pocket — Meters/Cream style)
+                # Rimshots replace snare for the classic funk sound
+                (
+                    TemplateComposer("funk_verse_g_rimshot")
+                    .add(RimshotGroove())
+                    .add(FunkGhostNotes(density=0.7, emphasize_one=True))
+                    .add(
+                        BasicGroove(
+                            kick_positions=[0.0, 2.0],
+                            snare_positions=[],
+                            hihat_subdivision=TIMING.EIGHTH,
+                        )
+                    )
+                    .build(bars=1, complexity=c)
+                ),
+                # g3: Sixteen-hat pulse + light ghosting (parlay-style verse — busy hats)
+                # Busy hats create energy without volume; kick follows bassline syncopation
+                (
+                    TemplateComposer("funk_verse_g_sixteen")
+                    .add(FunkGhostNotes(density=0.5, emphasize_one=False))
+                    .add(
+                        BasicGroove(
+                            kick_positions=[0.0, 0.75, 2.0],
+                            snare_positions=[1.0, 3.0],
+                            hihat_subdivision=TIMING.SIXTEENTH,
+                        )
+                    )
+                    .build(bars=1, complexity=c)
+                ),
+                # g4: Two-drop (kick on 2) + moderate ghosting (driving funk verse)
+                # Kick displaced to create forward momentum; great for building energy
+                (
+                    TemplateComposer("funk_verse_g_twoDrop")
+                    .add(FunkGhostNotes(density=0.6, emphasize_one=True))
+                    .add(
+                        BasicGroove(
+                            kick_positions=[0.0, 2.5],
+                            snare_positions=[1.0, 3.0],
+                            hihat_subdivision=TIMING.EIGHTH,
+                        )
+                    )
+                    .build(bars=1, complexity=c)
+                ),
+                # g5: Heavy ghost notes + sparse kick (minimalist funk verse — space for guitars)
+                # Ghost note density drives the pocket; kick only on 1 leaves room
+                (
+                    TemplateComposer("funk_verse_g_minimal")
+                    .add(FunkGhostNotes(density=0.9, emphasize_one=False))
+                    .add(
+                        BasicGroove(
+                            kick_positions=[0.0],
+                            snare_positions=[1.0, 3.0],
+                            hihat_subdivision=TIMING.EIGHTH,
+                        )
+                    )
+                    .build(bars=1, complexity=max(0.0, c - 0.1))
+                ),
+            ]
+        elif section == "chorus":
+            # === CLASSIC FUNK CHORUS: four-on-floor + heavy ghost notes — maximum energy ===
+            if style == "classic":
+                return [
+                    TemplateComposer("funk_classic_chorus_g1")
+                    .add(FunkGhostNotes(density=0.9, emphasize_one=True))
+                    .add(
+                        BasicGroove(
+                            kick_positions=[0.0, 1.0, 2.0, 3.0],
+                            snare_positions=[1.0, 3.0],
+                            hihat_subdivision=TIMING.EIGHTH,
+                        )
+                    )
+                    .add(CrashAccents(positions=[0.0, 2.0], intensity=0.9))
+                    .build(bars=1, complexity=min(1.0, c + 0.2)),
+                    TemplateComposer("funk_classic_chorus_g2")
+                    .add(RimshotGroove())
+                    .add(FunkGhostNotes(density=0.85, emphasize_one=True))
+                    .add(
+                        BasicGroove(
+                            kick_positions=[0.0, 1.0, 2.0, 3.0],
+                            snare_positions=[],
+                            hihat_subdivision=TIMING.EIGHTH,
+                        )
+                    )
+                    .add(
+                        CrashAccents(
+                            positions=[0.0], intensity=1.0, crash_type="splash"
+                        )
+                    )
+                    .build(bars=1, complexity=min(1.0, c + 0.2)),
+                    TemplateComposer("funk_classic_chorus_g3")
+                    .add(FunkGhostNotes(density=0.8, emphasize_one=True))
+                    .add(
+                        BasicGroove(
+                            kick_positions=[0.0, 1.0, 2.0, 3.0],
+                            snare_positions=[1.0, 3.0],
+                            hihat_subdivision=TIMING.EIGHTH,
+                        )
+                    )
+                    .add(CrashAccents(positions=[0.0, 2.0], intensity=0.95))
+                    .build(bars=1, complexity=min(1.0, c + 0.1)),
+                ]
+            # === P-FUNK CHORUS: deep pocket crash-heavy — Parliament energy ===
+            if style == "pfunk":
+                return [
+                    TemplateComposer("funk_pfunk_chorus_g1")
+                    .add(FunkGhostNotes(density=0.85, emphasize_one=True))
+                    .add(
+                        BasicGroove(
+                            kick_positions=[0.0, 1.0, 2.0, 3.0],
+                            snare_positions=[1.0, 3.0],
+                            hihat_subdivision=TIMING.EIGHTH,
+                        )
+                    )
+                    .add(
+                        CrashAccents(
+                            positions=[0.0, 2.0],
+                            intensity=1.0,
+                            crash_type="heavy",
+                        )
+                    )
+                    .build(bars=1, complexity=min(1.0, c + 0.2)),
+                    TemplateComposer("funk_pfunk_chorus_g2")
+                    .add(FunkGhostNotes(density=0.8, emphasize_one=True))
+                    .add(
+                        BasicGroove(
+                            kick_positions=[0.0, 0.5, 1.0, 1.5, 2.0, 2.5, 3.0],
+                            snare_positions=[1.0, 3.0],
+                            hihat_subdivision=TIMING.EIGHTH,
+                        )
+                    )
+                    .add(
+                        CrashAccents(
+                            positions=[0.0], intensity=1.0, crash_type="heavy"
+                        )
+                    )
+                    .build(bars=1, complexity=min(1.0, c + 0.2)),
+                    TemplateComposer("funk_pfunk_chorus_g3")
+                    .add(FunkGhostNotes(density=0.9, emphasize_one=True))
+                    .add(
+                        BasicGroove(
+                            kick_positions=[0.0, 1.0, 2.0, 3.0],
+                            snare_positions=[1.0, 3.0],
+                            hihat_subdivision=TIMING.EIGHTH,
+                        )
+                    )
+                    .add(
+                        CrashAccents(
+                            positions=[0.0, 1.5, 2.0, 3.5], intensity=0.95
+                        )
+                    )
+                    .build(bars=1, complexity=min(1.0, c + 0.1)),
+                ]
+            # === SHUFFLE CHORUS: drive-forward shuffle — Purdie energy builds ===
+            if style == "shuffle":
+                return [
+                    TemplateComposer("funk_shuffle_chorus_g1")
+                    .add(FunkGhostNotes(density=0.8, emphasize_one=True))
+                    .add(
+                        BasicGroove(
+                            kick_positions=[0.0, 1.0, 2.0, 3.0],
+                            snare_positions=[1.0, 3.0],
+                            hihat_subdivision=TIMING.EIGHTH_TRIPLET,
+                        )
+                    )
+                    .add(
+                        CrashAccents(
+                            positions=[0.0, 2.0],
+                            intensity=0.85,
+                            crash_type="light",
+                        )
+                    )
+                    .build(bars=1, complexity=min(1.0, c + 0.2)),
+                    TemplateComposer("funk_shuffle_chorus_g2")
+                    .add(FunkGhostNotes(density=0.85, emphasize_one=True))
+                    .add(
+                        BasicGroove(
+                            kick_positions=[0.0, 1.0, 2.0, 3.0],
+                            snare_positions=[1.0, 3.0],
+                            hihat_subdivision=TIMING.EIGHTH_TRIPLET,
+                        )
+                    )
+                    .add(
+                        CrashAccents(
+                            positions=[0.0], intensity=0.9, crash_type="light"
+                        )
+                    )
+                    .build(bars=1, complexity=min(1.0, c + 0.1)),
+                    TemplateComposer("funk_shuffle_chorus_g3")
+                    .add(RimshotGroove())
+                    .add(FunkGhostNotes(density=0.8, emphasize_one=True))
+                    .add(
+                        BasicGroove(
+                            kick_positions=[0.0, 1.0, 2.0, 3.0],
+                            snare_positions=[],
+                            hihat_subdivision=TIMING.EIGHTH_TRIPLET,
+                        )
+                    )
+                    .add(
+                        CrashAccents(
+                            positions=[0.0, 2.0],
+                            intensity=0.85,
+                            crash_type="light",
+                        )
+                    )
+                    .build(bars=1, complexity=min(1.0, c + 0.1)),
+                ]
+            # === NEW ORLEANS CHORUS: second line syncopation — brass-heavy energy ===
+            if style == "new_orleans":
+                return [
+                    TemplateComposer("funk_no_chorus_g1")
+                    .add(FunkGhostNotes(density=0.7, emphasize_one=True))
+                    .add(
+                        BasicGroove(
+                            kick_positions=[0.0, 1.0, 2.0, 3.0],
+                            snare_positions=[1.0, 3.0],
+                            hihat_subdivision=TIMING.EIGHTH,
+                        )
+                    )
+                    .add(CrashAccents(positions=[0.0, 2.0], intensity=0.9))
+                    .build(bars=1, complexity=min(1.0, c + 0.2)),
+                    TemplateComposer("funk_no_chorus_g2")
+                    .add(FunkGhostNotes(density=0.8, emphasize_one=True))
+                    .add(
+                        BasicGroove(
+                            kick_positions=[0.0, 0.75, 1.5, 2.0, 3.0],
+                            snare_positions=[1.0, 3.0],
+                            hihat_subdivision=TIMING.EIGHTH,
+                        )
+                    )
+                    .add(CrashAccents(positions=[0.0], intensity=0.9))
+                    .build(bars=1, complexity=min(1.0, c + 0.1)),
+                ]
+            # === FUSION CHORUS: tight straight comping — jazz-funk power ===
+            if style == "fusion":
+                return [
+                    TemplateComposer("funk_fusion_chorus_g1")
+                    .add(FunkGhostNotes(density=0.7, emphasize_one=False))
+                    .add(
+                        BasicGroove(
+                            kick_positions=[0.0, 1.0, 2.0, 3.0],
+                            snare_positions=[1.0, 3.0],
+                            hihat_subdivision=TIMING.SIXTEENTH,
+                        )
+                    )
+                    .add(CrashAccents(positions=[0.0, 2.0], intensity=0.95))
+                    .build(bars=1, complexity=min(1.0, c + 0.2)),
+                    TemplateComposer("funk_fusion_chorus_g2")
+                    .add(FunkGhostNotes(density=0.75, emphasize_one=False))
+                    .add(
+                        BasicGroove(
+                            kick_positions=[0.0, 1.0, 2.0, 3.0],
+                            snare_positions=[1.0, 3.0],
+                            hihat_subdivision=TIMING.SIXTEENTH,
+                        )
+                    )
+                    .add(CrashAccents(positions=[0.0], intensity=0.9))
+                    .build(bars=1, complexity=min(1.0, c + 0.15)),
+                    TemplateComposer("funk_fusion_chorus_g3")
+                    .add(RimshotGroove())
+                    .add(FunkGhostNotes(density=0.7, emphasize_one=False))
+                    .add(
+                        BasicGroove(
+                            kick_positions=[0.0, 1.0, 2.0, 3.0],
+                            snare_positions=[],
+                            hihat_subdivision=TIMING.SIXTEENTH,
+                        )
+                    )
+                    .add(CrashAccents(positions=[0.0, 2.0], intensity=0.95))
+                    .build(bars=1, complexity=min(1.0, c + 0.15)),
+                ]
+            # === MINIMAL CHORUS: sparse but driving — controlled energy ===
+            if style == "minimal":
+                return [
+                    TemplateComposer("funk_minimal_chorus_g1")
+                    .add(FunkGhostNotes(density=0.5, emphasize_one=False))
+                    .add(
+                        BasicGroove(
+                            kick_positions=[0.0],
+                            snare_positions=[1.0, 3.0],
+                            hihat_subdivision=TIMING.EIGHTH,
+                        )
+                    )
+                    .build(bars=1, complexity=min(1.0, c + 0.1)),
+                    TemplateComposer("funk_minimal_chorus_g2")
+                    .add(
+                        BasicGroove(
+                            kick_positions=[0.0],
+                            snare_positions=[1.0, 3.0],
+                            hihat_subdivision=TIMING.EIGHTH,
+                        )
+                    )
+                    .build(bars=1, complexity=min(1.0, c + 0.1)),
+                ]
+            # === HEAVY CHORUS: four-on-floor rock-funk — maximum energy ===
+            if style == "heavy":
+                return [
+                    TemplateComposer("funk_heavy_chorus_g1")
+                    .add(FunkGhostNotes(density=0.85, emphasize_one=True))
+                    .add(
+                        BasicGroove(
+                            kick_positions=[0.0, 1.0, 2.0, 3.0],
+                            snare_positions=[1.0, 3.0],
+                            hihat_subdivision=TIMING.EIGHTH,
+                        )
+                    )
+                    .add(
+                        CrashAccents(
+                            positions=[0.0, 2.0],
+                            intensity=1.0,
+                            crash_type="heavy",
+                        )
+                    )
+                    .build(bars=1, complexity=min(1.0, c + 0.2)),
+                    TemplateComposer("funk_heavy_chorus_g2")
+                    .add(FunkGhostNotes(density=0.9, emphasize_one=True))
+                    .add(
+                        BasicGroove(
+                            kick_positions=[0.0, 1.0, 2.0, 3.0],
+                            snare_positions=[1.0, 3.0],
+                            hihat_subdivision=TIMING.EIGHTH,
+                        )
+                    )
+                    .add(
+                        CrashAccents(
+                            positions=[0.0], intensity=1.0, crash_type="heavy"
+                        )
+                    )
+                    .build(bars=1, complexity=min(1.0, c + 0.2)),
+                    TemplateComposer("funk_heavy_chorus_g3")
+                    .add(FunkGhostNotes(density=0.8, emphasize_one=True))
+                    .add(
+                        BasicGroove(
+                            kick_positions=[0.0, 1.0, 2.0, 3.0],
+                            snare_positions=[1.0, 3.0],
+                            hihat_subdivision=TIMING.EIGHTH,
+                        )
+                    )
+                    .add(
+                        CrashAccents(
+                            positions=[0.0, 2.0],
+                            intensity=0.95,
+                            crash_type="heavy",
+                        )
+                    )
+                    .build(bars=1, complexity=min(1.0, c + 0.1)),
+                ]
+        elif section == "breakdown":
+            # === CLASSIC FUNK BREAKDOWN: one-drop minimal — leave room for bass ===
+            if style == "classic":
+                return [
+                    TemplateComposer("funk_classic_breakdown_g1")
+                    .add(FunkGhostNotes(density=0.7, emphasize_one=True))
+                    .add(
+                        BasicGroove(
+                            kick_positions=[0.0],
+                            snare_positions=[],
+                            hihat_subdivision=TIMING.EIGHTH,
+                        )
+                    )
+                    .build(bars=1, complexity=max(0.0, c - 0.3)),
+                    TemplateComposer("funk_classic_breakdown_g2")
+                    .add(FunkGhostNotes(density=0.8, emphasize_one=True))
+                    .add(
+                        BasicGroove(
+                            kick_positions=[0.0],
+                            snare_positions=[],
+                            hihat_subdivision=TIMING.EIGHTH,
+                        )
+                    )
+                    .build(bars=1, complexity=max(0.0, c - 0.3)),
+                    TemplateComposer("funk_classic_breakdown_g3")
+                    .add(RimshotGroove())
+                    .add(FunkGhostNotes(density=0.65, emphasize_one=True))
+                    .add(
+                        BasicGroove(
+                            kick_positions=[0.0],
+                            snare_positions=[],
+                            hihat_subdivision=TIMING.EIGHTH,
+                        )
+                    )
+                    .build(bars=1, complexity=max(0.0, c - 0.3)),
+                ]
+            # === P-FUNK BREAKDOWN: sparse deep pocket — bass carries groove ===
+            if style == "pfunk":
+                return [
+                    TemplateComposer("funk_pfunk_breakdown_g1")
+                    .add(FunkGhostNotes(density=0.6, emphasize_one=True))
+                    .add(
+                        BasicGroove(
+                            kick_positions=[0.0],
+                            snare_positions=[],
+                            hihat_subdivision=TIMING.EIGHTH,
+                        )
+                    )
+                    .build(bars=1, complexity=max(0.0, c - 0.3)),
+                    TemplateComposer("funk_pfunk_breakdown_g2")
+                    .add(FunkGhostNotes(density=0.5, emphasize_one=True))
+                    .add(
+                        BasicGroove(
+                            kick_positions=[0.0],
+                            snare_positions=[],
+                            hihat_subdivision=TIMING.EIGHTH,
+                        )
+                    )
+                    .build(bars=1, complexity=max(0.0, c - 0.3)),
+                ]
+            # === SHUFFLE BREAKDOWN: sparse shuffle feel — minimal timekeeping ===
+            if style == "shuffle":
+                return [
+                    TemplateComposer("funk_shuffle_breakdown_g1")
+                    .add(FunkGhostNotes(density=0.5, emphasize_one=False))
+                    .add(
+                        BasicGroove(
+                            kick_positions=[0.0],
+                            snare_positions=[],
+                            hihat_subdivision=TIMING.EIGHTH_TRIPLET,
+                        )
+                    )
+                    .build(bars=1, complexity=max(0.0, c - 0.3)),
+                    TemplateComposer("funk_shuffle_breakdown_g2")
+                    .add(
+                        BasicGroove(
+                            kick_positions=[0.0],
+                            snare_positions=[],
+                            hihat_subdivision=TIMING.EIGHTH_TRIPLET,
+                        )
+                    )
+                    .build(bars=1, complexity=max(0.0, c - 0.3)),
+                ]
+            # === NEW ORLEANS BREAKDOWN: sparse second line syncopation ===
+            if style == "new_orleans":
+                return [
+                    TemplateComposer("funk_no_breakdown_g1")
+                    .add(FunkGhostNotes(density=0.5, emphasize_one=True))
+                    .add(
+                        BasicGroove(
+                            kick_positions=[0.0],
+                            snare_positions=[],
+                            hihat_subdivision=TIMING.EIGHTH,
+                        )
+                    )
+                    .build(bars=1, complexity=max(0.0, c - 0.3)),
+                    TemplateComposer("funk_no_breakdown_g2")
+                    .add(
+                        BasicGroove(
+                            kick_positions=[0.0],
+                            snare_positions=[],
+                            hihat_subdivision=TIMING.HALF,
+                        )
+                    )
+                    .build(bars=1, complexity=max(0.0, c - 0.3)),
+                ]
+            # === FUSION BREAKDOWN: sparse straight comping — minimal jazz-funk ===
+            if style == "fusion":
+                return [
+                    TemplateComposer("funk_fusion_breakdown_g1")
+                    .add(FunkGhostNotes(density=0.5, emphasize_one=False))
+                    .add(
+                        BasicGroove(
+                            kick_positions=[0.0],
+                            snare_positions=[],
+                            hihat_subdivision=TIMING.SIXTEENTH,
+                        )
+                    )
+                    .build(bars=1, complexity=max(0.0, c - 0.3)),
+                    TemplateComposer("funk_fusion_breakdown_g2")
+                    .add(FunkGhostNotes(density=0.45, emphasize_one=False))
+                    .add(
+                        BasicGroove(
+                            kick_positions=[0.0],
+                            snare_positions=[],
+                            hihat_subdivision=TIMING.SIXTEENTH,
+                        )
+                    )
+                    .build(bars=1, complexity=max(0.0, c - 0.3)),
+                ]
+            # === MINIMAL BREAKDOWN: extremely sparse — bass/guitar alone ===
+            if style == "minimal":
+                return [
+                    TemplateComposer("funk_minimal_breakdown_g1")
+                    .add(
+                        BasicGroove(
+                            kick_positions=[0.0],
+                            snare_positions=[],
+                            hihat_subdivision=TIMING.HALF,
+                        )
+                    )
+                    .build(bars=1, complexity=max(0.0, c - 0.3)),
+                    TemplateComposer("funk_minimal_breakdown_g2")
+                    .add(
+                        BasicGroove(
+                            kick_positions=[0.0],
+                            snare_positions=[],
+                            hihat_subdivision=TIMING.HALF,
+                        )
+                    )
+                    .build(bars=1, complexity=max(0.0, c - 0.3)),
+                ]
+            # === HEAVY BREAKDOWN: sparse rock-funk stomp — building tension ===
+            if style == "heavy":
+                return [
+                    TemplateComposer("funk_heavy_breakdown_g1")
+                    .add(
+                        BasicGroove(
+                            kick_positions=[0.0],
+                            snare_positions=[],
+                            hihat_subdivision=TIMING.EIGHTH,
+                        )
+                    )
+                    .add(TomFill(pattern="around", start_position=3.0))
+                    .build(bars=1, complexity=max(0.0, c - 0.2)),
+                    TemplateComposer("funk_heavy_breakdown_g2")
+                    .add(
+                        BasicGroove(
+                            kick_positions=[0.0],
+                            snare_positions=[],
+                            hihat_subdivision=TIMING.HALF,
+                        )
+                    )
+                    .build(bars=1, complexity=max(0.0, c - 0.3)),
+                ]
+        elif section in ("bridge", "pre_chorus"):
+            # === CLASSIC FUNK BRIDGE: one-drop sparse — leave room for horns ===
+            if style == "classic":
+                return [
+                    TemplateComposer("funk_classic_bridge_g1")
+                    .add(FunkGhostNotes(density=0.6, emphasize_one=True))
+                    .add(
+                        BasicGroove(
+                            kick_positions=[0.0],
+                            snare_positions=[],
+                            hihat_subdivision=TIMING.EIGHTH,
+                        )
+                    )
+                    .build(bars=1, complexity=max(0.0, c - 0.1)),
+                    TemplateComposer("funk_classic_bridge_g2")
+                    .add(FunkGhostNotes(density=0.7, emphasize_one=True))
+                    .add(
+                        BasicGroove(
+                            kick_positions=[0.0],
+                            snare_positions=[],
+                            hihat_subdivision=TIMING.EIGHTH,
+                        )
+                    )
+                    .build(bars=1, complexity=max(0.0, c - 0.1)),
+                    TemplateComposer("funk_classic_bridge_g3")
+                    .add(FunkGhostNotes(density=0.65, emphasize_one=True))
+                    .add(
+                        BasicGroove(
+                            kick_positions=[0.0],
+                            snare_positions=[],
+                            hihat_subdivision=TIMING.EIGHTH,
+                        )
+                    )
+                    .build(bars=1, complexity=max(0.0, c - 0.1)),
+                ]
+            # === P-FUNK BRIDGE: sparse deep pocket — bass and drums converse ===
+            if style == "pfunk":
+                return [
+                    TemplateComposer("funk_pfunk_bridge_g1")
+                    .add(FunkGhostNotes(density=0.6, emphasize_one=True))
+                    .add(
+                        BasicGroove(
+                            kick_positions=[0.0, 2.5],
+                            snare_positions=[],
+                            hihat_subdivision=TIMING.EIGHTH,
+                        )
+                    )
+                    .build(bars=1, complexity=max(0.0, c - 0.1)),
+                    TemplateComposer("funk_pfunk_bridge_g2")
+                    .add(FunkGhostNotes(density=0.55, emphasize_one=True))
+                    .add(
+                        BasicGroove(
+                            kick_positions=[0.0],
+                            snare_positions=[],
+                            hihat_subdivision=TIMING.EIGHTH,
+                        )
+                    )
+                    .build(bars=1, complexity=max(0.0, c - 0.1)),
+                ]
+            # === SHUFFLE BRIDGE: sparse shuffle timekeeping — behind-beat tension ===
+            if style == "shuffle":
+                return [
+                    TemplateComposer("funk_shuffle_bridge_g1")
+                    .add(FunkGhostNotes(density=0.5, emphasize_one=False))
+                    .add(
+                        BasicGroove(
+                            kick_positions=[0.0],
+                            snare_positions=[],
+                            hihat_subdivision=TIMING.EIGHTH_TRIPLET,
+                        )
+                    )
+                    .build(bars=1, complexity=max(0.0, c - 0.1)),
+                    TemplateComposer("funk_shuffle_bridge_g2")
+                    .add(
+                        BasicGroove(
+                            kick_positions=[0.0],
+                            snare_positions=[],
+                            hihat_subdivision=TIMING.EIGHTH_TRIPLET,
+                        )
+                    )
+                    .build(bars=1, complexity=max(0.0, c - 0.1)),
+                ]
+            # === NEW ORLEANS BRIDGE: syncopated clave patterns — second line tension ===
+            if style == "new_orleans":
+                return [
+                    TemplateComposer("funk_no_bridge_g1")
+                    .add(FunkGhostNotes(density=0.7, emphasize_one=True))
+                    .add(
+                        BasicGroove(
+                            kick_positions=[0.0, 2.5],
+                            snare_positions=[],
+                            hihat_subdivision=TIMING.EIGHTH,
+                        )
+                    )
+                    .build(bars=1, complexity=max(0.0, c - 0.1)),
+                    TemplateComposer("funk_no_bridge_g2")
+                    .add(FunkGhostNotes(density=0.65, emphasize_one=True))
+                    .add(
+                        BasicGroove(
+                            kick_positions=[0.0],
+                            snare_positions=[],
+                            hihat_subdivision=TIMING.EIGHTH,
+                        )
+                    )
+                    .build(bars=1, complexity=max(0.0, c - 0.1)),
+                ]
+            # === FUSION BRIDGE: ride timekeeper + tight comping — jazz-funk conversational ===
+            if style == "fusion":
+                return [
+                    TemplateComposer("funk_fusion_bridge_g1")
+                    .add(FunkGhostNotes(density=0.6, emphasize_one=True))
+                    .add(
+                        BasicGroove(
+                            kick_positions=[0.0, 2.5],
+                            snare_positions=[],
+                            hihat_subdivision=TIMING.SIXTEENTH,
+                        )
+                    )
+                    .build(bars=1, complexity=max(0.0, c - 0.1)),
+                    TemplateComposer("funk_fusion_bridge_g2")
+                    .add(FunkGhostNotes(density=0.55, emphasize_one=True))
+                    .add(
+                        BasicGroove(
+                            kick_positions=[0.0],
+                            snare_positions=[],
+                            hihat_subdivision=TIMING.SIXTEENTH,
+                        )
+                    )
+                    .build(bars=1, complexity=max(0.0, c - 0.1)),
+                ]
+            # === MINIMAL BRIDGE: sparse minimal funk — leave room for horns ===
+            if style == "minimal":
+                return [
+                    TemplateComposer("funk_minimal_bridge_g1")
+                    .add(
+                        BasicGroove(
+                            kick_positions=[0.0],
+                            snare_positions=[],
+                            hihat_subdivision=TIMING.EIGHTH,
+                        )
+                    )
+                    .build(bars=1, complexity=max(0.0, c - 0.1)),
+                    TemplateComposer("funk_minimal_bridge_g2")
+                    .add(
+                        BasicGroove(
+                            kick_positions=[0.0],
+                            snare_positions=[],
+                            hihat_subdivision=TIMING.HALF,
+                        )
+                    )
+                    .build(bars=1, complexity=max(0.0, c - 0.1)),
+                ]
+            # === HEAVY BRIDGE: sparse rock-funk build — building tension ===
+            if style == "heavy":
+                return [
+                    TemplateComposer("funk_heavy_bridge_g1")
+                    .add(
+                        BasicGroove(
+                            kick_positions=[0.0],
+                            snare_positions=[],
+                            hihat_subdivision=TIMING.EIGHTH,
+                        )
+                    )
+                    .build(bars=1, complexity=max(0.0, c - 0.1)),
+                    TemplateComposer("funk_heavy_bridge_g2")
+                    .add(
+                        BasicGroove(
+                            kick_positions=[0.0],
+                            snare_positions=[],
+                            hihat_subdivision=TIMING.HALF,
+                        )
+                    )
+                    .build(bars=1, complexity=max(0.0, c - 0.1)),
+                ]
+        elif section == "outro":
+            # === CLASSIC FUNK OUTRO: ghost notes fade — pocket fades with bass ===
+            if style == "classic":
+                return [
+                    TemplateComposer("funk_classic_outro_g1")
+                    .add(FunkGhostNotes(density=0.5, emphasize_one=False))
+                    .add(
+                        BasicGroove(
+                            kick_positions=[0.0],
+                            snare_positions=[],
+                            hihat_subdivision=TIMING.EIGHTH,
+                        )
+                    )
+                    .build(bars=1, complexity=max(0.0, c - 0.3)),
+                    TemplateComposer("funk_classic_outro_g2")
+                    .add(FunkGhostNotes(density=0.45, emphasize_one=False))
+                    .add(
+                        BasicGroove(
+                            kick_positions=[0.0],
+                            snare_positions=[],
+                            hihat_subdivision=TIMING.EIGHTH,
+                        )
+                    )
+                    .build(bars=1, complexity=max(0.0, c - 0.3)),
+                    TemplateComposer("funk_classic_outro_g3")
+                    .add(RimshotGroove())
+                    .add(
+                        BasicGroove(
+                            kick_positions=[0.0],
+                            snare_positions=[],
+                            hihat_subdivision=TIMING.EIGHTH,
+                        )
+                    )
+                    .build(bars=1, complexity=max(0.0, c - 0.3)),
+                ]
+            # === P-FUNK OUTRO: sparse deep pocket fade — slow dissolution ===
+            if style == "pfunk":
+                return [
+                    TemplateComposer("funk_pfunk_outro_g1")
+                    .add(FunkGhostNotes(density=0.45, emphasize_one=False))
+                    .add(
+                        BasicGroove(
+                            kick_positions=[0.0],
+                            snare_positions=[],
+                            hihat_subdivision=TIMING.EIGHTH,
+                        )
+                    )
+                    .build(bars=1, complexity=max(0.0, c - 0.3)),
+                    TemplateComposer("funk_pfunk_outro_g2")
+                    .add(
+                        BasicGroove(
+                            kick_positions=[0.0],
+                            snare_positions=[],
+                            hihat_subdivision=TIMING.EIGHTH,
+                        )
+                    )
+                    .build(bars=1, complexity=max(0.0, c - 0.3)),
+                ]
+            # === SHUFFLE OUTRO: sparse shuffle fade — gradual dissolution ===
+            if style == "shuffle":
+                return [
+                    TemplateComposer("funk_shuffle_outro_g1")
+                    .add(FunkGhostNotes(density=0.4, emphasize_one=False))
+                    .add(
+                        BasicGroove(
+                            kick_positions=[0.0],
+                            snare_positions=[],
+                            hihat_subdivision=TIMING.EIGHTH_TRIPLET,
+                        )
+                    )
+                    .build(bars=1, complexity=max(0.0, c - 0.3)),
+                    TemplateComposer("funk_shuffle_outro_g2")
+                    .add(
+                        BasicGroove(
+                            kick_positions=[0.0],
+                            snare_positions=[],
+                            hihat_subdivision=TIMING.EIGHTH_TRIPLET,
+                        )
+                    )
+                    .build(bars=1, complexity=max(0.0, c - 0.3)),
+                ]
+            # === NEW ORLEANS OUTRO: sparse second line fade — gradual resolution ===
+            if style == "new_orleans":
+                return [
+                    TemplateComposer("funk_no_outro_g1")
+                    .add(FunkGhostNotes(density=0.4, emphasize_one=False))
+                    .add(
+                        BasicGroove(
+                            kick_positions=[0.0],
+                            snare_positions=[],
+                            hihat_subdivision=TIMING.EIGHTH,
+                        )
+                    )
+                    .build(bars=1, complexity=max(0.0, c - 0.3)),
+                    TemplateComposer("funk_no_outro_g2")
+                    .add(
+                        BasicGroove(
+                            kick_positions=[0.0],
+                            snare_positions=[],
+                            hihat_subdivision=TIMING.EIGHTH,
+                        )
+                    )
+                    .build(bars=1, complexity=max(0.0, c - 0.3)),
+                ]
+            # === FUSION OUTRO: sparse straight comping fade — jazz-funk dissolution ===
+            if style == "fusion":
+                return [
+                    TemplateComposer("funk_fusion_outro_g1")
+                    .add(FunkGhostNotes(density=0.45, emphasize_one=False))
+                    .add(
+                        BasicGroove(
+                            kick_positions=[0.0],
+                            snare_positions=[],
+                            hihat_subdivision=TIMING.SIXTEENTH,
+                        )
+                    )
+                    .build(bars=1, complexity=max(0.0, c - 0.3)),
+                    TemplateComposer("funk_fusion_outro_g2")
+                    .add(FunkGhostNotes(density=0.4, emphasize_one=False))
+                    .add(
+                        BasicGroove(
+                            kick_positions=[0.0],
+                            snare_positions=[],
+                            hihat_subdivision=TIMING.SIXTEENTH,
+                        )
+                    )
+                    .build(bars=1, complexity=max(0.0, c - 0.3)),
+                ]
+            # === MINIMAL OUTRO: extremely sparse fade — bass fades alone ===
+            if style == "minimal":
+                return [
+                    TemplateComposer("funk_minimal_outro_g1")
+                    .add(
+                        BasicGroove(
+                            kick_positions=[0.0],
+                            snare_positions=[],
+                            hihat_subdivision=TIMING.HALF,
+                        )
+                    )
+                    .build(bars=1, complexity=max(0.0, c - 0.3)),
+                    TemplateComposer("funk_minimal_outro_g2")
+                    .add(
+                        BasicGroove(
+                            kick_positions=[0.0],
+                            snare_positions=[],
+                            hihat_subdivision=TIMING.EIGHTH,
+                        )
+                    )
+                    .build(bars=1, complexity=max(0.0, c - 0.3)),
+                ]
+            # === HEAVY OUTRO: sparse rock-funk fade — crash finish ===
+            if style == "heavy":
+                return [
+                    TemplateComposer("funk_heavy_outro_g1")
+                    .add(
+                        BasicGroove(
+                            kick_positions=[0.0, 2.0],
+                            snare_positions=[],
+                            hihat_subdivision=TIMING.HALF,
+                        )
+                    )
+                    .add(
+                        CrashAccents(
+                            positions=[3.75], intensity=1.0, crash_type="heavy"
+                        )
+                    )
+                    .build(bars=1, complexity=max(0.0, c - 0.3)),
+                    TemplateComposer("funk_heavy_outro_g2")
+                    .add(
+                        BasicGroove(
+                            kick_positions=[0.0],
+                            snare_positions=[],
+                            hihat_subdivision=TIMING.HALF,
+                        )
+                    )
+                    .build(bars=1, complexity=max(0.0, c - 0.3)),
+                ]
+        else:
+            # Fallback: use flavors as grooves (with actual style)
+            from midi_drums.core.value_objects.generation_parameters import (
+                GenerationParameters,
+            )
+
+            flavors = self.get_section_flavors(
+                section,
+                GenerationParameters(genre=self.genre_name, style=style),
+            )
+            grooves = flavors[:6] if len(flavors) > 6 else flavors
+
+        return self._style_grooves(section, grooves, style)
+
+    def _style_grooves(
+        self, section: str, grooves: list[Pattern], style: str
+    ) -> list[Pattern]:
+        """Filter/swap grooves based on funk style."""
+        if style not in ("pfunk", "shuffle", "new_orleans", "minimal"):
+            return grooves  # classic/fusion/heavy use default
+
+        result = []
+        for g in grooves:
+            name_lower = g.name.lower()
+            skip = False
+            if style == "pfunk" and section == "verse":
+                # pfunk: remove one-drop patterns, keep syncopated ghost notes
+                if "onedrop" in name_lower or "twoDrop" in name_lower:
+                    skip = True
+            elif style == "shuffle" and section == "chorus":
+                # shuffle chorus: need Purdie shuffle feel (not fusion)
+                if "ride" in name_lower or "rimshot" not in name_lower:
+                    skip = True
+            elif style == "new_orleans" and section == "bridge":
+                # new orleans: keep syncopated kick patterns, remove sparse ones
+                if "minimal" in name_lower or "oneDrop" in name_lower:
+                    skip = True
+            elif style == "minimal" and section in ("verse", "chorus"):
+                # minimal funk: only keep sparse patterns with light ghosting
+                if "four-on-floor" in name_lower or "heavy" in name_lower:
+                    skip = True
+            if not skip:
+                result.append(g)
+
+        return result
 
     def _flavors_intro(self, style: str, complexity: float) -> list[Pattern]:
         name = f"funk_{style}_intro"

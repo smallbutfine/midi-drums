@@ -14,6 +14,7 @@ from midi_drums.core.value_objects.generation_parameters import (
 )
 from midi_drums.patterns import (
     BasicGroove,
+    BrushGroove,
     CrashAccents,
     FunkGhostNotes,
     JazzRidePattern,
@@ -160,6 +161,1391 @@ class JazzGenrePlugin(GenrePlugin):
         elif section == "outro":
             return self._flavors_outro(style, complexity)
         return []
+
+    def get_section_grooves(
+        self, section: str, complexity: float, style: str = "default"
+    ) -> list[Pattern]:
+        """Return 5+ structurally distinct grooves for this section.
+
+        Jazz groove variation comes from:
+        - Ride accent patterns (standard/Elvin/Tony) — changes feel significantly
+        - Brush vs stick timekeeping for ballad vs up-tempo sections
+        - Walking bass following kick (crucial! drummer follows the bassist)
+        - Ghost note density and crash placement
+        """
+        c = complexity
+
+        if section == "intro":
+            # === SWING INTRO: traditional ride + sparse kick — classic era ===
+            if style == "swing":
+                return [
+                    TemplateComposer("jazz_swing_intro_g1")
+                    .add(
+                        JazzRidePattern(
+                            swing_ratio=0.33, accent_pattern="standard"
+                        )
+                    )
+                    .add(
+                        BasicGroove(
+                            kick_positions=[0.0],
+                            snare_positions=[],
+                            hihat_subdivision=TIMING.HALF,
+                        )
+                    )
+                    .build(bars=1, complexity=c),
+                    TemplateComposer("jazz_swing_intro_g2")
+                    .add(
+                        JazzRidePattern(
+                            swing_ratio=0.33, accent_pattern="standard"
+                        )
+                    )
+                    .add(
+                        BasicGroove(
+                            kick_positions=[0.0, 2.0],
+                            snare_positions=[],
+                            hihat_subdivision=TIMING.HALF,
+                        )
+                    )
+                    .build(bars=1, complexity=c),
+                    TemplateComposer("jazz_swing_intro_g3")
+                    .add(
+                        JazzRidePattern(
+                            swing_ratio=0.35, accent_pattern="elvin"
+                        )
+                    )
+                    .add(
+                        BasicGroove(
+                            kick_positions=[0.0],
+                            snare_positions=[],
+                            hihat_subdivision=TIMING.HALF,
+                        )
+                    )
+                    .build(bars=1, complexity=max(0.0, c - 0.1)),
+                ]
+            # === BEBOP INTRO: tight comping with ride accents — fast precision ===
+            if style == "bebop":
+                return [
+                    TemplateComposer("jazz_bebop_intro_g1")
+                    .add(
+                        JazzRidePattern(swing_ratio=0.3, accent_pattern="tony")
+                    )
+                    .add(
+                        BasicGroove(
+                            kick_positions=[0.0],
+                            snare_positions=[],
+                            hihat_subdivision=TIMING.EIGHTH,
+                        )
+                    )
+                    .build(bars=1, complexity=c),
+                    TemplateComposer("jazz_bebop_intro_g2")
+                    .add(
+                        JazzRidePattern(
+                            swing_ratio=0.3, accent_pattern="standard"
+                        )
+                    )
+                    .add(
+                        BasicGroove(
+                            kick_positions=[0.0],
+                            snare_positions=[],
+                            hihat_subdivision=TIMING.EIGHTH,
+                        )
+                    )
+                    .build(bars=1, complexity=c),
+                ]
+            # === FUSION INTRO: straight-eighth timekeeper — electric energy ===
+            if style == "fusion":
+                return [
+                    TemplateComposer("jazz_fusion_intro_g1")
+                    .add(
+                        JazzRidePattern(
+                            swing_ratio=0.2, accent_pattern="standard"
+                        )
+                    )
+                    .add(
+                        BasicGroove(
+                            kick_positions=[0.0],
+                            snare_positions=[],
+                            hihat_subdivision=TIMING.EIGHTH,
+                        )
+                    )
+                    .build(bars=1, complexity=c),
+                    TemplateComposer("jazz_fusion_intro_g2")
+                    .add(
+                        JazzRidePattern(swing_ratio=0.2, accent_pattern="elvin")
+                    )
+                    .add(
+                        BasicGroove(
+                            kick_positions=[0.0],
+                            snare_positions=[],
+                            hihat_subdivision=TIMING.EIGHTH,
+                        )
+                    )
+                    .build(bars=1, complexity=c),
+                ]
+            # === LATIN INTRO: clave-based sparse build — syncopated feel ===
+            if style == "latin":
+                return [
+                    TemplateComposer("jazz_latin_intro_g1")
+                    .add(
+                        JazzRidePattern(
+                            swing_ratio=0.33, accent_pattern="standard"
+                        )
+                    )
+                    .add(
+                        BasicGroove(
+                            kick_positions=[0.0],
+                            snare_positions=[],
+                            hihat_subdivision=TIMING.HALF,
+                        )
+                    )
+                    .build(bars=1, complexity=c),
+                    TemplateComposer("jazz_latin_intro_g2")
+                    .add(
+                        BasicGroove(
+                            kick_positions=[0.0],
+                            snare_positions=[],
+                            hihat_subdivision=TIMING.EIGHTH,
+                        )
+                    )
+                    .build(bars=1, complexity=c),
+                ]
+            # === BALLAD INTRO: brush sweep timekeeper — intimate feel ===
+            if style == "ballad":
+                return [
+                    TemplateComposer("jazz_ballad_intro_g1")
+                    .add(BrushGroove(density=0.5))
+                    .add(CrashAccents(positions=[3.5], intensity=0.6))
+                    .build(bars=1, complexity=max(0.0, c - 0.2)),
+                    TemplateComposer("jazz_ballad_intro_g2")
+                    .add(BrushGroove(density=0.4))
+                    .add(
+                        BasicGroove(
+                            kick_positions=[0.0],
+                            snare_positions=[],
+                            hihat_subdivision=TIMING.HALF,
+                        )
+                    )
+                    .build(bars=1, complexity=max(0.0, c - 0.2)),
+                ]
+            # === HARD_BOP INTRO: aggressive ride comping — energetic build ===
+            if style == "hard_bop":
+                return [
+                    TemplateComposer("jazz_hbop_intro_g1")
+                    .add(
+                        JazzRidePattern(
+                            swing_ratio=0.35, accent_pattern="elvin"
+                        )
+                    )
+                    .add(
+                        BasicGroove(
+                            kick_positions=[0.0],
+                            snare_positions=[],
+                            hihat_subdivision=TIMING.EIGHTH,
+                        )
+                    )
+                    .build(bars=1, complexity=c),
+                    TemplateComposer("jazz_hbop_intro_g2")
+                    .add(
+                        JazzRidePattern(swing_ratio=0.35, accent_pattern="tony")
+                    )
+                    .add(
+                        BasicGroove(
+                            kick_positions=[0.0],
+                            snare_positions=[],
+                            hihat_subdivision=TIMING.HALF,
+                        )
+                    )
+                    .build(bars=1, complexity=c),
+                ]
+            # === CONTEMPORARY INTRO: modern stick/brush blend ===
+            if style == "contemporary":
+                return [
+                    TemplateComposer("jazz_contemp_intro_g1")
+                    .add(
+                        JazzRidePattern(
+                            swing_ratio=0.3, accent_pattern="standard"
+                        )
+                    )
+                    .add(
+                        BasicGroove(
+                            kick_positions=[0.0],
+                            snare_positions=[],
+                            hihat_subdivision=TIMING.HALF,
+                        )
+                    )
+                    .build(bars=1, complexity=c),
+                    TemplateComposer("jazz_contemp_intro_g2")
+                    .add(
+                        JazzRidePattern(
+                            swing_ratio=0.35, accent_pattern="elvin"
+                        )
+                    )
+                    .add(
+                        BasicGroove(
+                            kick_positions=[0.0],
+                            snare_positions=[],
+                            hihat_subdivision=TIMING.HALF,
+                        )
+                    )
+                    .build(bars=1, complexity=c),
+                ]
+        elif section == "verse":
+            # === SWING VERSE: standard ride comping + walking bass follow — classic era ===
+            if style == "swing":
+                return [
+                    TemplateComposer("jazz_swing_verse_g1")
+                    .add(
+                        JazzRidePattern(
+                            swing_ratio=0.33, accent_pattern="standard"
+                        )
+                    )
+                    .add(FunkGhostNotes(density=0.4, emphasize_one=False))
+                    .add(
+                        BasicGroove(
+                            kick_positions=[0.0, 2.5, 3.5],
+                            snare_positions=[1.0, 3.0],
+                            hihat_subdivision=TIMING.HALF,
+                        )
+                    )
+                    .build(bars=1, complexity=c),
+                    TemplateComposer("jazz_swing_verse_g2")
+                    .add(
+                        JazzRidePattern(
+                            swing_ratio=0.33, accent_pattern="standard"
+                        )
+                    )
+                    .add(
+                        BasicGroove(
+                            kick_positions=[0.0, 2.5],
+                            snare_positions=[1.0, 3.0],
+                            hihat_subdivision=TIMING.HALF,
+                        )
+                    )
+                    .build(bars=1, complexity=c),
+                    TemplateComposer("jazz_swing_verse_g3")
+                    .add(
+                        JazzRidePattern(
+                            swing_ratio=0.35, accent_pattern="elvin"
+                        )
+                    )
+                    .add(FunkGhostNotes(density=0.6, emphasize_one=False))
+                    .add(
+                        BasicGroove(
+                            kick_positions=[0.0, 2.0],
+                            snare_positions=[1.0, 3.0],
+                            hihat_subdivision=TIMING.EIGHTH,
+                        )
+                    )
+                    .build(bars=1, complexity=c),
+                ]
+            # === BEBOP VERSE: tight comping + dense ride accents — Parker/Gillespie ===
+            if style == "bebop":
+                return [
+                    TemplateComposer("jazz_bebop_verse_g1")
+                    .add(
+                        JazzRidePattern(swing_ratio=0.3, accent_pattern="tony")
+                    )
+                    .add(FunkGhostNotes(density=0.5, emphasize_one=False))
+                    .add(
+                        BasicGroove(
+                            kick_positions=[0.0, 2.0],
+                            snare_positions=[1.0, 3.0],
+                            hihat_subdivision=TIMING.EIGHTH,
+                        )
+                    )
+                    .build(bars=1, complexity=c),
+                    TemplateComposer("jazz_bebop_verse_g2")
+                    .add(
+                        JazzRidePattern(
+                            swing_ratio=0.3, accent_pattern="standard"
+                        )
+                    )
+                    .add(
+                        BasicGroove(
+                            kick_positions=[0.0],
+                            snare_positions=[1.0, 3.0],
+                            hihat_subdivision=TIMING.EIGHTH,
+                        )
+                    )
+                    .build(bars=1, complexity=c),
+                    TemplateComposer("jazz_bebop_verse_g3")
+                    .add(
+                        JazzRidePattern(
+                            swing_ratio=0.32, accent_pattern="elvin"
+                        )
+                    )
+                    .add(FunkGhostNotes(density=0.6, emphasize_one=False))
+                    .add(
+                        BasicGroove(
+                            kick_positions=[0.0, 1.5, 2.5],
+                            snare_positions=[1.0, 3.0],
+                            hihat_subdivision=TIMING.EIGHTH,
+                        )
+                    )
+                    .build(bars=1, complexity=c),
+                ]
+            # === FUSION VERSE: straight-eighth comping — electric energy ===
+            if style == "fusion":
+                return [
+                    TemplateComposer("jazz_fusion_verse_g1")
+                    .add(
+                        JazzRidePattern(
+                            swing_ratio=0.2, accent_pattern="standard"
+                        )
+                    )
+                    .add(FunkGhostNotes(density=0.5, emphasize_one=False))
+                    .add(
+                        BasicGroove(
+                            kick_positions=[0.0, 1.0, 2.0, 3.0],
+                            snare_positions=[1.0, 3.0],
+                            hihat_subdivision=TIMING.EIGHTH,
+                        )
+                    )
+                    .build(bars=1, complexity=c),
+                    TemplateComposer("jazz_fusion_verse_g2")
+                    .add(
+                        JazzRidePattern(swing_ratio=0.2, accent_pattern="elvin")
+                    )
+                    .add(
+                        BasicGroove(
+                            kick_positions=[0.0, 2.0],
+                            snare_positions=[1.0, 3.0],
+                            hihat_subdivision=TIMING.SIXTEENTH,
+                        )
+                    )
+                    .build(bars=1, complexity=c),
+                    TemplateComposer("jazz_fusion_verse_g3")
+                    .add(
+                        JazzRidePattern(swing_ratio=0.25, accent_pattern="tony")
+                    )
+                    .add(FunkGhostNotes(density=0.7, emphasize_one=False))
+                    .add(
+                        BasicGroove(
+                            kick_positions=[0.0, 1.5, 2.0, 3.0],
+                            snare_positions=[1.0, 3.0],
+                            hihat_subdivision=TIMING.SIXTEENTH,
+                        )
+                    )
+                    .build(bars=1, complexity=c),
+                ]
+            # === LATIN VERSE: clave-based kick + syncopated snare — Latin jazz tradition ===
+            if style == "latin":
+                return [
+                    TemplateComposer("jazz_latin_verse_g1")
+                    .add(
+                        JazzRidePattern(
+                            swing_ratio=0.33, accent_pattern="standard"
+                        )
+                    )
+                    .add(FunkGhostNotes(density=0.4, emphasize_one=False))
+                    .add(
+                        BasicGroove(
+                            kick_positions=[0.0, 1.5, 2.5],
+                            snare_positions=[1.0, 3.0],
+                            hihat_subdivision=TIMING.HALF,
+                        )
+                    )
+                    .build(bars=1, complexity=c),
+                    TemplateComposer("jazz_latin_verse_g2")
+                    .add(
+                        JazzRidePattern(
+                            swing_ratio=0.35, accent_pattern="standard"
+                        )
+                    )
+                    .add(
+                        BasicGroove(
+                            kick_positions=[0.0, 2.0],
+                            snare_positions=[1.0, 2.5],
+                            hihat_subdivision=TIMING.HALF,
+                        )
+                    )
+                    .build(bars=1, complexity=c),
+                    TemplateComposer("jazz_latin_verse_g3")
+                    .add(
+                        BasicGroove(
+                            kick_positions=[0.0, 1.0, 2.5],
+                            snare_positions=[],
+                            hihat_subdivision=TIMING.HALF,
+                        )
+                    )
+                    .build(bars=1, complexity=c),
+                ]
+            # === BALLAD VERSE: brush timekeeper — intimate, sparse ===
+            if style == "ballad":
+                return [
+                    TemplateComposer("jazz_ballad_verse_g1")
+                    .add(BrushGroove(density=0.8))
+                    .add(FunkGhostNotes(density=0.5, emphasize_one=False))
+                    .add(
+                        BasicGroove(
+                            kick_positions=[0.0, 2.0],
+                            snare_positions=[1.0, 3.0],
+                            hihat_subdivision=TIMING.HALF,
+                        )
+                    )
+                    .build(bars=1, complexity=max(0.0, c - 0.1)),
+                    TemplateComposer("jazz_ballad_verse_g2")
+                    .add(BrushGroove(density=0.7))
+                    .add(
+                        BasicGroove(
+                            kick_positions=[0.0],
+                            snare_positions=[],
+                            hihat_subdivision=TIMING.HALF,
+                        )
+                    )
+                    .build(bars=1, complexity=max(0.0, c - 0.1)),
+                    TemplateComposer("jazz_ballad_verse_g3")
+                    .add(BrushGroove(density=0.9))
+                    .add(FunkGhostNotes(density=0.6, emphasize_one=False))
+                    .add(
+                        BasicGroove(
+                            kick_positions=[0.0, 2.0],
+                            snare_positions=[1.0, 3.0],
+                            hihat_subdivision=TIMING.HALF,
+                        )
+                    )
+                    .build(bars=1, complexity=max(0.0, c - 0.1)),
+                ]
+            # === HARD_BOP VERSE: aggressive ride comping — energetic build ===
+            if style == "hard_bop":
+                return [
+                    TemplateComposer("jazz_hbop_verse_g1")
+                    .add(
+                        JazzRidePattern(
+                            swing_ratio=0.35, accent_pattern="elvin"
+                        )
+                    )
+                    .add(FunkGhostNotes(density=0.6, emphasize_one=False))
+                    .add(
+                        BasicGroove(
+                            kick_positions=[0.0, 1.5, 2.5],
+                            snare_positions=[1.0, 3.0],
+                            hihat_subdivision=TIMING.EIGHTH,
+                        )
+                    )
+                    .build(bars=1, complexity=c),
+                    TemplateComposer("jazz_hbop_verse_g2")
+                    .add(
+                        JazzRidePattern(swing_ratio=0.35, accent_pattern="tony")
+                    )
+                    .add(
+                        BasicGroove(
+                            kick_positions=[0.0],
+                            snare_positions=[1.0, 3.0],
+                            hihat_subdivision=TIMING.EIGHTH,
+                        )
+                    )
+                    .build(bars=1, complexity=c),
+                    TemplateComposer("jazz_hbop_verse_g3")
+                    .add(
+                        JazzRidePattern(
+                            swing_ratio=0.35, accent_pattern="elvin"
+                        )
+                    )
+                    .add(FunkGhostNotes(density=0.7, emphasize_one=False))
+                    .add(
+                        BasicGroove(
+                            kick_positions=[0.0, 2.0],
+                            snare_positions=[1.0, 3.0],
+                            hihat_subdivision=TIMING.EIGHTH,
+                        )
+                    )
+                    .build(bars=1, complexity=c),
+                ]
+            # === CONTEMPORARY VERSE: modern stick/brush blend ===
+            if style == "contemporary":
+                return [
+                    TemplateComposer("jazz_contemp_verse_g1")
+                    .add(
+                        JazzRidePattern(
+                            swing_ratio=0.3, accent_pattern="standard"
+                        )
+                    )
+                    .add(FunkGhostNotes(density=0.5, emphasize_one=False))
+                    .add(
+                        BasicGroove(
+                            kick_positions=[0.0, 2.0],
+                            snare_positions=[1.0, 3.0],
+                            hihat_subdivision=TIMING.HALF,
+                        )
+                    )
+                    .build(bars=1, complexity=c),
+                    TemplateComposer("jazz_contemp_verse_g2")
+                    .add(
+                        JazzRidePattern(
+                            swing_ratio=0.35, accent_pattern="elvin"
+                        )
+                    )
+                    .add(
+                        BasicGroove(
+                            kick_positions=[0.0],
+                            snare_positions=[],
+                            hihat_subdivision=TIMING.HALF,
+                        )
+                    )
+                    .build(bars=1, complexity=c),
+                    TemplateComposer("jazz_contemp_verse_g3")
+                    .add(
+                        JazzRidePattern(swing_ratio=0.32, accent_pattern="tony")
+                    )
+                    .add(FunkGhostNotes(density=0.6, emphasize_one=False))
+                    .add(
+                        BasicGroove(
+                            kick_positions=[0.0, 1.5, 2.5],
+                            snare_positions=[1.0, 3.0],
+                            hihat_subdivision=TIMING.EIGHTH,
+                        )
+                    )
+                    .build(bars=1, complexity=c),
+                ]
+        elif section == "chorus":
+            # === SWING CHORUS: Elvin ride + walking bass — maximum energy ===
+            if style == "swing":
+                return [
+                    TemplateComposer("jazz_swing_chorus_g1")
+                    .add(
+                        JazzRidePattern(
+                            swing_ratio=0.35, accent_pattern="elvin"
+                        )
+                    )
+                    .add(FunkGhostNotes(density=0.6, emphasize_one=False))
+                    .add(CrashAccents(positions=[0.0, 2.0], intensity=0.8))
+                    .add(
+                        BasicGroove(
+                            kick_positions=[0.0, 1.0, 2.5, 3.5],
+                            snare_positions=[1.0, 3.0],
+                            hihat_subdivision=TIMING.EIGHTH,
+                        )
+                    )
+                    .build(bars=1, complexity=min(1.0, c + 0.2)),
+                    TemplateComposer("jazz_swing_chorus_g2")
+                    .add(
+                        JazzRidePattern(
+                            swing_ratio=0.35, accent_pattern="elvin"
+                        )
+                    )
+                    .add(FunkGhostNotes(density=0.7, emphasize_one=False))
+                    .add(CrashAccents(positions=[0.0], intensity=1.0))
+                    .add(
+                        BasicGroove(
+                            kick_positions=[0.0, 1.0, 2.0, 3.0],
+                            snare_positions=[1.0, 3.0],
+                            hihat_subdivision=TIMING.EIGHTH,
+                        )
+                    )
+                    .build(bars=1, complexity=min(1.0, c + 0.1)),
+                    TemplateComposer("jazz_swing_chorus_g3")
+                    .add(
+                        JazzRidePattern(
+                            swing_ratio=0.35, accent_pattern="standard"
+                        )
+                    )
+                    .add(FunkGhostNotes(density=0.6, emphasize_one=False))
+                    .add(CrashAccents(positions=[0.0, 2.0], intensity=0.85))
+                    .add(
+                        BasicGroove(
+                            kick_positions=[0.0, 1.5, 2.5, 3.5],
+                            snare_positions=[1.0, 3.0],
+                            hihat_subdivision=TIMING.EIGHTH,
+                        )
+                    )
+                    .build(bars=1, complexity=min(1.0, c + 0.1)),
+                ]
+            # === BEBOP CHORUS: tight comping + heavy crashes — Parker era intensity ===
+            if style == "bebop":
+                return [
+                    TemplateComposer("jazz_bebop_chorus_g1")
+                    .add(
+                        JazzRidePattern(swing_ratio=0.3, accent_pattern="tony")
+                    )
+                    .add(FunkGhostNotes(density=0.7, emphasize_one=False))
+                    .add(CrashAccents(positions=[0.0], intensity=1.0))
+                    .add(
+                        BasicGroove(
+                            kick_positions=[0.0, 1.0, 2.0, 3.0],
+                            snare_positions=[1.0, 3.0],
+                            hihat_subdivision=TIMING.EIGHTH,
+                        )
+                    )
+                    .build(bars=1, complexity=min(1.0, c + 0.2)),
+                    TemplateComposer("jazz_bebop_chorus_g2")
+                    .add(
+                        JazzRidePattern(swing_ratio=0.3, accent_pattern="elvin")
+                    )
+                    .add(
+                        BasicGroove(
+                            kick_positions=[0.0, 1.5, 2.0, 3.0],
+                            snare_positions=[],
+                            hihat_subdivision=TIMING.HALF,
+                        )
+                    )
+                    .add(CrashAccents(positions=[0.0], intensity=0.8))
+                    .build(bars=1, complexity=min(1.0, c + 0.2)),
+                ]
+            # === FUSION CHORUS: straight-eighth comping — electric energy ===
+            if style == "fusion":
+                return [
+                    TemplateComposer("jazz_fusion_chorus_g1")
+                    .add(
+                        JazzRidePattern(
+                            swing_ratio=0.2, accent_pattern="standard"
+                        )
+                    )
+                    .add(FunkGhostNotes(density=0.6, emphasize_one=False))
+                    .add(CrashAccents(positions=[0.0], intensity=0.9))
+                    .add(
+                        BasicGroove(
+                            kick_positions=[0.0, 1.0, 2.0, 3.0],
+                            snare_positions=[1.0, 3.0],
+                            hihat_subdivision=TIMING.EIGHTH,
+                        )
+                    )
+                    .build(bars=1, complexity=min(1.0, c + 0.2)),
+                    TemplateComposer("jazz_fusion_chorus_g2")
+                    .add(
+                        JazzRidePattern(swing_ratio=0.25, accent_pattern="tony")
+                    )
+                    .add(
+                        BasicGroove(
+                            kick_positions=[0.0, 1.0, 2.0, 3.0],
+                            snare_positions=[1.0, 3.0],
+                            hihat_subdivision=TIMING.SIXTEENTH,
+                        )
+                    )
+                    .add(CrashAccents(positions=[0.0], intensity=0.95))
+                    .build(bars=1, complexity=min(1.0, c + 0.2)),
+                    TemplateComposer("jazz_fusion_chorus_g3")
+                    .add(
+                        JazzRidePattern(swing_ratio=0.2, accent_pattern="elvin")
+                    )
+                    .add(FunkGhostNotes(density=0.7, emphasize_one=False))
+                    .add(CrashAccents(positions=[0.0, 2.0], intensity=0.85))
+                    .add(
+                        BasicGroove(
+                            kick_positions=[0.0, 1.0, 2.0, 3.0],
+                            snare_positions=[1.0, 3.0],
+                            hihat_subdivision=TIMING.EIGHTH,
+                        )
+                    )
+                    .build(bars=1, complexity=min(1.0, c + 0.1)),
+                ]
+            # === LATIN CHORUS: clave-based crashes — energetic Latin jazz ===
+            if style == "latin":
+                return [
+                    TemplateComposer("jazz_latin_chorus_g1")
+                    .add(
+                        JazzRidePattern(
+                            swing_ratio=0.35, accent_pattern="standard"
+                        )
+                    )
+                    .add(FunkGhostNotes(density=0.5, emphasize_one=False))
+                    .add(CrashAccents(positions=[0.0], intensity=0.9))
+                    .add(
+                        BasicGroove(
+                            kick_positions=[0.0, 1.5, 2.5],
+                            snare_positions=[1.0, 3.0],
+                            hihat_subdivision=TIMING.HALF,
+                        )
+                    )
+                    .build(bars=1, complexity=min(1.0, c + 0.2)),
+                    TemplateComposer("jazz_latin_chorus_g2")
+                    .add(
+                        JazzRidePattern(
+                            swing_ratio=0.35, accent_pattern="elvin"
+                        )
+                    )
+                    .add(
+                        BasicGroove(
+                            kick_positions=[0.0, 2.0],
+                            snare_positions=[1.0, 2.5],
+                            hihat_subdivision=TIMING.HALF,
+                        )
+                    )
+                    .add(CrashAccents(positions=[0.0], intensity=0.9))
+                    .build(bars=1, complexity=min(1.0, c + 0.2)),
+                ]
+            # === BALLAD CHORUS: brush timekeeper with crashes — softer but active ===
+            if style == "ballad":
+                return [
+                    TemplateComposer("jazz_ballad_chorus_g1")
+                    .add(BrushGroove(density=0.9))
+                    .add(FunkGhostNotes(density=0.8, emphasize_one=True))
+                    .add(CrashAccents(positions=[0.0, 2.0], intensity=0.7))
+                    .add(
+                        BasicGroove(
+                            kick_positions=[0.0, 1.0, 2.5, 3.5],
+                            snare_positions=[1.0, 3.0],
+                            hihat_subdivision=TIMING.EIGHTH,
+                        )
+                    )
+                    .build(bars=1, complexity=min(1.0, c + 0.1)),
+                    TemplateComposer("jazz_ballad_chorus_g2")
+                    .add(BrushGroove(density=0.85))
+                    .add(FunkGhostNotes(density=0.7, emphasize_one=True))
+                    .add(CrashAccents(positions=[0.0], intensity=0.7))
+                    .add(
+                        BasicGroove(
+                            kick_positions=[0.0, 1.0, 2.5, 3.5],
+                            snare_positions=[1.0, 3.0],
+                            hihat_subdivision=TIMING.EIGHTH,
+                        )
+                    )
+                    .build(bars=1, complexity=min(1.0, c + 0.1)),
+                ]
+            # === HARD_BOP CHORUS: aggressive ride comping — maximum energy ===
+            if style == "hard_bop":
+                return [
+                    TemplateComposer("jazz_hbop_chorus_g1")
+                    .add(
+                        JazzRidePattern(
+                            swing_ratio=0.35, accent_pattern="elvin"
+                        )
+                    )
+                    .add(FunkGhostNotes(density=0.8, emphasize_one=False))
+                    .add(CrashAccents(positions=[0.0], intensity=1.0))
+                    .add(
+                        BasicGroove(
+                            kick_positions=[0.0, 1.0, 2.0, 3.0],
+                            snare_positions=[1.0, 3.0],
+                            hihat_subdivision=TIMING.EIGHTH,
+                        )
+                    )
+                    .build(bars=1, complexity=min(1.0, c + 0.2)),
+                    TemplateComposer("jazz_hbop_chorus_g2")
+                    .add(
+                        JazzRidePattern(swing_ratio=0.35, accent_pattern="tony")
+                    )
+                    .add(FunkGhostNotes(density=0.7, emphasize_one=False))
+                    .add(CrashAccents(positions=[0.0], intensity=1.0))
+                    .add(
+                        BasicGroove(
+                            kick_positions=[0.0, 1.5, 2.0, 3.0],
+                            snare_positions=[1.0, 3.0],
+                            hihat_subdivision=TIMING.EIGHTH,
+                        )
+                    )
+                    .build(bars=1, complexity=min(1.0, c + 0.2)),
+                    TemplateComposer("jazz_hbop_chorus_g3")
+                    .add(
+                        JazzRidePattern(
+                            swing_ratio=0.35, accent_pattern="elvin"
+                        )
+                    )
+                    .add(FunkGhostNotes(density=0.75, emphasize_one=False))
+                    .add(CrashAccents(positions=[0.0, 2.0], intensity=0.95))
+                    .add(
+                        BasicGroove(
+                            kick_positions=[0.0, 1.0, 2.0, 3.0],
+                            snare_positions=[1.0, 3.0],
+                            hihat_subdivision=TIMING.EIGHTH,
+                        )
+                    )
+                    .build(bars=1, complexity=min(1.0, c + 0.2)),
+                ]
+            # === CONTEMPORARY CHORUS: modern stick/brush blend ===
+            if style == "contemporary":
+                return [
+                    TemplateComposer("jazz_contemp_chorus_g1")
+                    .add(
+                        JazzRidePattern(
+                            swing_ratio=0.3, accent_pattern="standard"
+                        )
+                    )
+                    .add(FunkGhostNotes(density=0.6, emphasize_one=False))
+                    .add(CrashAccents(positions=[0.0], intensity=0.9))
+                    .add(
+                        BasicGroove(
+                            kick_positions=[0.0, 1.0, 2.0, 3.0],
+                            snare_positions=[1.0, 3.0],
+                            hihat_subdivision=TIMING.EIGHTH,
+                        )
+                    )
+                    .build(bars=1, complexity=min(1.0, c + 0.2)),
+                    TemplateComposer("jazz_contemp_chorus_g2")
+                    .add(
+                        JazzRidePattern(
+                            swing_ratio=0.35, accent_pattern="elvin"
+                        )
+                    )
+                    .add(FunkGhostNotes(density=0.65, emphasize_one=False))
+                    .add(CrashAccents(positions=[0.0], intensity=0.85))
+                    .add(
+                        BasicGroove(
+                            kick_positions=[0.0, 1.0, 2.0, 3.0],
+                            snare_positions=[1.0, 3.0],
+                            hihat_subdivision=TIMING.EIGHTH,
+                        )
+                    )
+                    .build(bars=1, complexity=min(1.0, c + 0.1)),
+                    TemplateComposer("jazz_contemp_chorus_g3")
+                    .add(
+                        JazzRidePattern(swing_ratio=0.32, accent_pattern="tony")
+                    )
+                    .add(
+                        BasicGroove(
+                            kick_positions=[0.0, 1.5, 2.0, 3.0],
+                            snare_positions=[1.0, 3.0],
+                            hihat_subdivision=TIMING.EIGHTH,
+                        )
+                    )
+                    .add(CrashAccents(positions=[0.0, 2.0], intensity=0.9))
+                    .build(bars=1, complexity=min(1.0, c + 0.2)),
+                ]
+        elif section == "breakdown":
+            # === SWING BREAKDOWN: sparse ride — bass carries everything ===
+            if style == "swing":
+                return [
+                    TemplateComposer("jazz_swing_breakdown_g1")
+                    .add(
+                        JazzRidePattern(
+                            swing_ratio=0.33, accent_pattern="standard"
+                        )
+                    )
+                    .build(bars=1, complexity=max(0.0, c - 0.3)),
+                    TemplateComposer("jazz_swing_breakdown_g2")
+                    .add(
+                        JazzRidePattern(
+                            swing_ratio=0.35, accent_pattern="standard"
+                        )
+                    )
+                    .add(
+                        BasicGroove(
+                            kick_positions=[0.0],
+                            snare_positions=[],
+                            hihat_subdivision=TIMING.HALF,
+                        )
+                    )
+                    .build(bars=1, complexity=max(0.0, c - 0.3)),
+                    TemplateComposer("jazz_swing_breakdown_g3")
+                    .add(
+                        JazzRidePattern(
+                            swing_ratio=0.33, accent_pattern="standard"
+                        )
+                    )
+                    .add(
+                        BasicGroove(
+                            kick_positions=[0.0, 2.0],
+                            snare_positions=[],
+                            hihat_subdivision=TIMING.HALF,
+                        )
+                    )
+                    .build(bars=1, complexity=max(0.0, c - 0.3)),
+                ]
+            # === BEBOP BREAKDOWN: sparse ride comping — transition moment ===
+            if style == "bebop":
+                return [
+                    TemplateComposer("jazz_bebop_breakdown_g1")
+                    .add(
+                        JazzRidePattern(swing_ratio=0.3, accent_pattern="tony")
+                    )
+                    .build(bars=1, complexity=max(0.0, c - 0.3)),
+                    TemplateComposer("jazz_bebop_breakdown_g2")
+                    .add(
+                        JazzRidePattern(
+                            swing_ratio=0.3, accent_pattern="standard"
+                        )
+                    )
+                    .add(
+                        BasicGroove(
+                            kick_positions=[0.0],
+                            snare_positions=[],
+                            hihat_subdivision=TIMING.HALF,
+                        )
+                    )
+                    .build(bars=1, complexity=max(0.0, c - 0.3)),
+                ]
+            # === FUSION BREAKDOWN: sparse straight comping — electronic energy drops ===
+            if style == "fusion":
+                return [
+                    TemplateComposer("jazz_fusion_breakdown_g1")
+                    .add(
+                        JazzRidePattern(
+                            swing_ratio=0.2, accent_pattern="standard"
+                        )
+                    )
+                    .build(bars=1, complexity=max(0.0, c - 0.3)),
+                    TemplateComposer("jazz_fusion_breakdown_g2")
+                    .add(
+                        JazzRidePattern(
+                            swing_ratio=0.2, accent_pattern="standard"
+                        )
+                    )
+                    .add(
+                        BasicGroove(
+                            kick_positions=[0.0],
+                            snare_positions=[],
+                            hihat_subdivision=TIMING.EIGHTH,
+                        )
+                    )
+                    .build(bars=1, complexity=max(0.0, c - 0.3)),
+                ]
+            # === LATIN BREAKDOWN: sparse clave-based build — intimate ===
+            if style == "latin":
+                return [
+                    TemplateComposer("jazz_latin_breakdown_g1")
+                    .add(
+                        JazzRidePattern(
+                            swing_ratio=0.35, accent_pattern="standard"
+                        )
+                    )
+                    .build(bars=1, complexity=max(0.0, c - 0.3)),
+                    TemplateComposer("jazz_latin_breakdown_g2")
+                    .add(
+                        BasicGroove(
+                            kick_positions=[0.0],
+                            snare_positions=[],
+                            hihat_subdivision=TIMING.HALF,
+                        )
+                    )
+                    .build(bars=1, complexity=max(0.0, c - 0.3)),
+                ]
+            # === BALLAD BREAKDOWN: brush timekeeper — intimate breakdown ===
+            if style == "ballad":
+                return [
+                    TemplateComposer("jazz_ballad_breakdown_g1")
+                    .add(BrushGroove(density=0.4))
+                    .build(bars=1, complexity=max(0.0, c - 0.3)),
+                    TemplateComposer("jazz_ballad_breakdown_g2")
+                    .add(BrushGroove(density=0.3))
+                    .add(
+                        BasicGroove(
+                            kick_positions=[0.0],
+                            snare_positions=[],
+                            hihat_subdivision=TIMING.HALF,
+                        )
+                    )
+                    .build(bars=1, complexity=max(0.0, c - 0.3)),
+                    TemplateComposer("jazz_ballad_breakdown_g3")
+                    .add(BrushGroove(density=0.4))
+                    .add(
+                        BasicGroove(
+                            kick_positions=[0.0],
+                            snare_positions=[],
+                            hihat_subdivision=TIMING.EIGHTH,
+                        )
+                    )
+                    .build(bars=1, complexity=max(0.0, c - 0.3)),
+                ]
+            # === HARD_BOP BREAKDOWN: sparse aggressive comping — tension build ===
+            if style == "hard_bop":
+                return [
+                    TemplateComposer("jazz_hbop_breakdown_g1")
+                    .add(
+                        JazzRidePattern(
+                            swing_ratio=0.35, accent_pattern="elvin"
+                        )
+                    )
+                    .build(bars=1, complexity=max(0.0, c - 0.3)),
+                    TemplateComposer("jazz_hbop_breakdown_g2")
+                    .add(
+                        JazzRidePattern(
+                            swing_ratio=0.35, accent_pattern="standard"
+                        )
+                    )
+                    .add(
+                        BasicGroove(
+                            kick_positions=[0.0],
+                            snare_positions=[],
+                            hihat_subdivision=TIMING.HALF,
+                        )
+                    )
+                    .build(bars=1, complexity=max(0.0, c - 0.3)),
+                ]
+            # === CONTEMPORARY BREAKDOWN: sparse stick comping — modern minimalism ===
+            if style == "contemporary":
+                return [
+                    TemplateComposer("jazz_contemp_breakdown_g1")
+                    .add(
+                        JazzRidePattern(
+                            swing_ratio=0.3, accent_pattern="standard"
+                        )
+                    )
+                    .build(bars=1, complexity=max(0.0, c - 0.3)),
+                    TemplateComposer("jazz_contemp_breakdown_g2")
+                    .add(
+                        JazzRidePattern(
+                            swing_ratio=0.35, accent_pattern="standard"
+                        )
+                    )
+                    .add(
+                        BasicGroove(
+                            kick_positions=[0.0],
+                            snare_positions=[],
+                            hihat_subdivision=TIMING.HALF,
+                        )
+                    )
+                    .build(bars=1, complexity=max(0.0, c - 0.3)),
+                ]
+        elif section in ("bridge", "pre_chorus"):
+            # === SWING BRIDGE: sparse ride + sparse kick — minimal timekeeping ===
+            if style == "swing":
+                return [
+                    TemplateComposer("jazz_swing_bridge_g1")
+                    .add(
+                        JazzRidePattern(
+                            swing_ratio=0.35, accent_pattern="standard"
+                        )
+                    )
+                    .build(bars=1, complexity=max(0.0, c - 0.1)),
+                    TemplateComposer("jazz_swing_bridge_g2")
+                    .add(
+                        JazzRidePattern(
+                            swing_ratio=0.35, accent_pattern="elvin"
+                        )
+                    )
+                    .add(
+                        BasicGroove(
+                            kick_positions=[0.0],
+                            snare_positions=[],
+                            hihat_subdivision=TIMING.HALF,
+                        )
+                    )
+                    .build(bars=1, complexity=max(0.0, c - 0.1)),
+                    TemplateComposer("jazz_swing_bridge_g3")
+                    .add(
+                        JazzRidePattern(
+                            swing_ratio=0.35, accent_pattern="standard"
+                        )
+                    )
+                    .add(
+                        BasicGroove(
+                            kick_positions=[0.0],
+                            snare_positions=[],
+                            hihat_subdivision=TIMING.EIGHTH,
+                        )
+                    )
+                    .build(bars=1, complexity=max(0.0, c - 0.1)),
+                ]
+            # === BEBOP BRIDGE: sparse comping — tension build for chorus ===
+            if style == "bebop":
+                return [
+                    TemplateComposer("jazz_bebop_bridge_g1")
+                    .add(
+                        JazzRidePattern(swing_ratio=0.3, accent_pattern="tony")
+                    )
+                    .build(bars=1, complexity=max(0.0, c - 0.1)),
+                    TemplateComposer("jazz_bebop_bridge_g2")
+                    .add(
+                        JazzRidePattern(
+                            swing_ratio=0.3, accent_pattern="standard"
+                        )
+                    )
+                    .add(
+                        BasicGroove(
+                            kick_positions=[0.0],
+                            snare_positions=[],
+                            hihat_subdivision=TIMING.HALF,
+                        )
+                    )
+                    .build(bars=1, complexity=max(0.0, c - 0.1)),
+                ]
+            # === FUSION BRIDGE: sparse straight comping — electronic minimalism ===
+            if style == "fusion":
+                return [
+                    TemplateComposer("jazz_fusion_bridge_g1")
+                    .add(
+                        JazzRidePattern(
+                            swing_ratio=0.2, accent_pattern="standard"
+                        )
+                    )
+                    .build(bars=1, complexity=max(0.0, c - 0.1)),
+                    TemplateComposer("jazz_fusion_bridge_g2")
+                    .add(
+                        JazzRidePattern(swing_ratio=0.2, accent_pattern="elvin")
+                    )
+                    .add(
+                        BasicGroove(
+                            kick_positions=[0.0],
+                            snare_positions=[],
+                            hihat_subdivision=TIMING.EIGHTH,
+                        )
+                    )
+                    .build(bars=1, complexity=max(0.0, c - 0.1)),
+                ]
+            # === LATIN BRIDGE: sparse clave-based — tension build ===
+            if style == "latin":
+                return [
+                    TemplateComposer("jazz_latin_bridge_g1")
+                    .add(
+                        JazzRidePattern(
+                            swing_ratio=0.35, accent_pattern="standard"
+                        )
+                    )
+                    .build(bars=1, complexity=max(0.0, c - 0.1)),
+                    TemplateComposer("jazz_latin_bridge_g2")
+                    .add(
+                        BasicGroove(
+                            kick_positions=[0.0],
+                            snare_positions=[],
+                            hihat_subdivision=TIMING.HALF,
+                        )
+                    )
+                    .build(bars=1, complexity=max(0.0, c - 0.1)),
+                ]
+            # === BALLAD BRIDGE: brush timekeeper + sparse kick — intimate bridge ===
+            if style == "ballad":
+                return [
+                    TemplateComposer("jazz_ballad_bridge_g1")
+                    .add(BrushGroove(density=0.6))
+                    .add(FunkGhostNotes(density=0.5, emphasize_one=False))
+                    .add(
+                        BasicGroove(
+                            kick_positions=[0.0, 2.0],
+                            snare_positions=[],
+                            hihat_subdivision=TIMING.HALF,
+                        )
+                    )
+                    .build(bars=1, complexity=max(0.0, c - 0.1)),
+                    TemplateComposer("jazz_ballad_bridge_g2")
+                    .add(BrushGroove(density=0.5))
+                    .build(bars=1, complexity=max(0.0, c - 0.1)),
+                    TemplateComposer("jazz_ballad_bridge_g3")
+                    .add(BrushGroove(density=0.4))
+                    .add(
+                        BasicGroove(
+                            kick_positions=[0.0],
+                            snare_positions=[],
+                            hihat_subdivision=TIMING.HALF,
+                        )
+                    )
+                    .build(bars=1, complexity=max(0.0, c - 0.1)),
+                ]
+            # === HARD_BOP BRIDGE: sparse aggressive comping — tension build ===
+            if style == "hard_bop":
+                return [
+                    TemplateComposer("jazz_hbop_bridge_g1")
+                    .add(
+                        JazzRidePattern(
+                            swing_ratio=0.35, accent_pattern="elvin"
+                        )
+                    )
+                    .build(bars=1, complexity=max(0.0, c - 0.1)),
+                    TemplateComposer("jazz_hbop_bridge_g2")
+                    .add(
+                        JazzRidePattern(
+                            swing_ratio=0.35, accent_pattern="standard"
+                        )
+                    )
+                    .add(
+                        BasicGroove(
+                            kick_positions=[0.0],
+                            snare_positions=[],
+                            hihat_subdivision=TIMING.HALF,
+                        )
+                    )
+                    .build(bars=1, complexity=max(0.0, c - 0.1)),
+                ]
+            # === CONTEMPORARY BRIDGE: sparse stick comping — modern minimalism ===
+            if style == "contemporary":
+                return [
+                    TemplateComposer("jazz_contemp_bridge_g1")
+                    .add(
+                        JazzRidePattern(
+                            swing_ratio=0.3, accent_pattern="standard"
+                        )
+                    )
+                    .build(bars=1, complexity=max(0.0, c - 0.1)),
+                    TemplateComposer("jazz_contemp_bridge_g2")
+                    .add(
+                        JazzRidePattern(
+                            swing_ratio=0.35, accent_pattern="elvin"
+                        )
+                    )
+                    .add(
+                        BasicGroove(
+                            kick_positions=[0.0],
+                            snare_positions=[],
+                            hihat_subdivision=TIMING.HALF,
+                        )
+                    )
+                    .build(bars=1, complexity=max(0.0, c - 0.1)),
+                ]
+        elif section == "outro":
+            # === SWING OUTRO: sparse ride fading — classic jazz ending ===
+            if style == "swing":
+                return [
+                    TemplateComposer("jazz_swing_outro_g1")
+                    .add(
+                        JazzRidePattern(
+                            swing_ratio=0.33, accent_pattern="standard"
+                        )
+                    )
+                    .build(bars=1, complexity=max(0.0, c - 0.3)),
+                    TemplateComposer("jazz_swing_outro_g2")
+                    .add(
+                        JazzRidePattern(
+                            swing_ratio=0.35, accent_pattern="standard"
+                        )
+                    )
+                    .build(bars=1, complexity=max(0.0, c - 0.3)),
+                    TemplateComposer("jazz_swing_outro_g3")
+                    .add(
+                        JazzRidePattern(
+                            swing_ratio=0.33, accent_pattern="elvin"
+                        )
+                    )
+                    .build(bars=1, complexity=max(0.0, c - 0.3)),
+                ]
+            # === BEBOP OUTRO: sparse ride comping fade — tight ending ===
+            if style == "bebop":
+                return [
+                    TemplateComposer("jazz_bebop_outro_g1")
+                    .add(
+                        JazzRidePattern(swing_ratio=0.3, accent_pattern="tony")
+                    )
+                    .build(bars=1, complexity=max(0.0, c - 0.3)),
+                    TemplateComposer("jazz_bebop_outro_g2")
+                    .add(
+                        JazzRidePattern(
+                            swing_ratio=0.3, accent_pattern="standard"
+                        )
+                    )
+                    .build(bars=1, complexity=max(0.0, c - 0.3)),
+                ]
+            # === FUSION OUTRO: sparse straight comping fade — electronic ending ===
+            if style == "fusion":
+                return [
+                    TemplateComposer("jazz_fusion_outro_g1")
+                    .add(
+                        JazzRidePattern(
+                            swing_ratio=0.2, accent_pattern="standard"
+                        )
+                    )
+                    .build(bars=1, complexity=max(0.0, c - 0.3)),
+                    TemplateComposer("jazz_fusion_outro_g2")
+                    .add(
+                        JazzRidePattern(swing_ratio=0.25, accent_pattern="tony")
+                    )
+                    .build(bars=1, complexity=max(0.0, c - 0.3)),
+                ]
+            # === LATIN OUTRO: sparse clave fade — gentle ending ===
+            if style == "latin":
+                return [
+                    TemplateComposer("jazz_latin_outro_g1")
+                    .add(
+                        JazzRidePattern(
+                            swing_ratio=0.35, accent_pattern="standard"
+                        )
+                    )
+                    .build(bars=1, complexity=max(0.0, c - 0.3)),
+                    TemplateComposer("jazz_latin_outro_g2")
+                    .add(
+                        BasicGroove(
+                            kick_positions=[0.0],
+                            snare_positions=[],
+                            hihat_subdivision=TIMING.HALF,
+                        )
+                    )
+                    .build(bars=1, complexity=max(0.0, c - 0.3)),
+                ]
+            # === BALLAD OUTRO: brush sweep fading — intimate finish ===
+            if style == "ballad":
+                return [
+                    TemplateComposer("jazz_ballad_outro_g1")
+                    .add(BrushGroove(density=0.5))
+                    .add(CrashAccents(positions=[3.5], intensity=0.6))
+                    .build(bars=1, complexity=max(0.0, c - 0.3)),
+                    TemplateComposer("jazz_ballad_outro_g2")
+                    .add(BrushGroove(density=0.4))
+                    .add(
+                        BasicGroove(
+                            kick_positions=[0.0],
+                            snare_positions=[],
+                            hihat_subdivision=TIMING.HALF,
+                        )
+                    )
+                    .build(bars=1, complexity=max(0.0, c - 0.3)),
+                    TemplateComposer("jazz_ballad_outro_g3")
+                    .add(BrushGroove(density=0.5))
+                    .add(CrashAccents(positions=[3.5], intensity=0.6))
+                    .build(bars=1, complexity=max(0.0, c - 0.3)),
+                ]
+            # === HARD_BOP OUTRO: sparse aggressive comping fade — energetic ending ===
+            if style == "hard_bop":
+                return [
+                    TemplateComposer("jazz_hbop_outro_g1")
+                    .add(
+                        JazzRidePattern(
+                            swing_ratio=0.35, accent_pattern="elvin"
+                        )
+                    )
+                    .build(bars=1, complexity=max(0.0, c - 0.3)),
+                    TemplateComposer("jazz_hbop_outro_g2")
+                    .add(
+                        JazzRidePattern(
+                            swing_ratio=0.35, accent_pattern="standard"
+                        )
+                    )
+                    .build(bars=1, complexity=max(0.0, c - 0.3)),
+                ]
+            # === CONTEMPORARY OUTRO: sparse stick comping fade — modern ending ===
+            if style == "contemporary":
+                return [
+                    TemplateComposer("jazz_contemp_outro_g1")
+                    .add(
+                        JazzRidePattern(
+                            swing_ratio=0.3, accent_pattern="standard"
+                        )
+                    )
+                    .build(bars=1, complexity=max(0.0, c - 0.3)),
+                    TemplateComposer("jazz_contemp_outro_g2")
+                    .add(
+                        JazzRidePattern(
+                            swing_ratio=0.35, accent_pattern="elvin"
+                        )
+                    )
+                    .build(bars=1, complexity=max(0.0, c - 0.3)),
+                ]
+        else:
+            # Fallback: use flavors as grooves (with actual style)
+            from midi_drums.core.value_objects.generation_parameters import (
+                GenerationParameters,
+            )
+
+            flavors = self.get_section_flavors(
+                section,
+                GenerationParameters(genre=self.genre_name, style=style),
+            )
+            grooves = flavors[:6] if len(flavors) > 6 else flavors
+
+        return self._style_grooves(section, grooves, style)
+
+    def _style_grooves(
+        self, section: str, grooves: list[Pattern], style: str
+    ) -> list[Pattern]:
+        """Filter/swap grooves based on jazz style."""
+        if style not in ("ballad", "bebop", "fusion", "latin", "hard_bop"):
+            return grooves  # swing/contemporary use default
+
+        result = []
+        for g in grooves:
+            name_lower = g.name.lower()
+            skip = False
+            if style == "ballad" and section == "chorus":
+                # ballad chorus: keep brush-based, remove heavy crash patterns
+                if "crash" in name_lower or (
+                    "ride" in name_lower and "elvin" in name_lower
+                ):
+                    skip = True
+            elif style == "bebop" and section == "verse":
+                # bebop verse: remove brush grooves, need tighter comping patterns
+                if "brush" in name_lower:
+                    skip = True
+            elif style == "fusion" and section in ("intro", "verse"):
+                # fusion: swap ride accent for straight-eighth feel
+                if "elvin" in name_lower or "tony" in name_lower:
+                    skip = True
+            elif style == "latin" and section in ("verse", "chorus"):
+                # latin: remove brush/timekeeper grooves, need syncopated patterns
+                if "brush" in name_lower or "standard" in name_lower:
+                    skip = True
+            elif style == "hard_bop" and section == "bridge":
+                # hard bop bridge: keep sparse patterns for tension building
+                pass  # don't skip anything
+            if not skip:
+                result.append(g)
+
+        return result
 
     def _flavors_intro(self, style: str, complexity: float) -> list[Pattern]:
         name = f"jazz_{style}_intro"
