@@ -237,7 +237,10 @@ class MIDIEngine:
                     tempo_state["ts_num"], tempo_state["ts_den"] = ebn, edn
 
                 bp = eff_ts.numerator
-                bar_start_beats = time_cursor + bar_num * bp
+                # bar_start_beats is the cumulative beat position of this bar.
+                # time_cursor advances by bp each iteration inside the loop,
+                # so we just use it directly — do NOT add bar_num * bp here.
+                bar_start_beats = time_cursor
 
                 # Groove offset (same logic as original code)
                 if (
