@@ -22,7 +22,7 @@ from midi_drums.core.value_objects.generation_parameters import (
 from midi_drums.core.value_objects.time_signature import TimeSignature
 from midi_drums.generation.bar_selector import BarSelector
 from midi_drums.generation.fill_library.picker import FillContext, FillPicker
-from midi_drums.generation.groove_engine import GrooveEngine
+
 from midi_drums.generation.intensity_curve import (
     IntensityCurve,
     interpolate_curve,
@@ -42,7 +42,6 @@ class ComposerV2:
         self._rng = random.Random(seed)
         self.bar_selector = BarSelector(seed=seed)
         self.fill_picker = FillPicker(seed=seed)
-        self.groove_engine = GrooveEngine(seed=seed)
 
     def create_song(
         self,
@@ -100,7 +99,6 @@ class ComposerV2:
         for section_name, bars in structure:
             # Generate a unique pattern for each bar
             generated_bars: list[Pattern] = []
-            grooved_bar_metadata: dict[int, dict] = {}
 
             genre_plugin = self.plugin_manager.registry.get_genre_plugin(genre)
             if not genre_plugin:
@@ -195,22 +193,11 @@ class ComposerV2:
                         )
                     )
 
-                # GrooveEngine — per-bar timing displacement based on drummer feel
-                # (additive to BarSelector's per-note micro-jitter)
-                groove_params = {
-                    "pattern": drummed_pattern,
-                    "bar_index": bar_index,
-                    "tempo": tempo,  # from create_song() signature
-                    "intensity_pt": intensity_pt,
-                    "section_name": section_name,
-                    "drummer_name": params.drummer,
-                }
-                grooved_pattern = self.groove_engine.apply(**groove_params)
-                grooved_bar_metadata[bar_index] = grooved_pattern.metadata
+
 
                 # Final bar-level modulation (density, complexity, etc.)
                 final_pattern = self.bar_selector.generate_for_bar(
-                    grooved_pattern,
+                    drummed_pattern,
                     bar_index,
                     bars,
                     intensity_pt,
@@ -229,21 +216,11 @@ class ComposerV2:
                 # Determine fill placement based on section context
                 fills = self._generate_context_aware_fills(genre, params, bars)
 
-                # Collect per-bar groove offsets (ms) for MIDI timing application
-                groove_offsets_ms = []
-                for bar_idx in range(len(generated_bars)):
-                    offset = grooved_bar_metadata.get(bar_idx, {}).get(
-                        "groove_offset_ms"
-                    )
-                    if offset is not None:
-                        groove_offsets_ms.append(offset)
-
                 section = Section(
                     section_name,
                     combined,
                     bars,
                     fills=fills,
-                    groove_offsets_ms=groove_offsets_ms or None,
                 )
                 song.add_section(section)
 

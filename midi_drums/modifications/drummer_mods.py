@@ -128,14 +128,14 @@ class BehindBeatTiming(DrummerModification):
         delay = (self.max_delay_ms / 1000.0) * 2.0 * intensity
 
         for beat in pattern.beats:
-            if beat.instrument == DrumInstrument.SNARE and not beat.ghost_note:
+            if beat.instrument == DrumInstrument.SNARE:  # Apply to ALL snares, ghost or regular
                 # Shift snare behind the beat
                 new_beat = Beat(
                     position=beat.position + delay,
                     instrument=beat.instrument,
                     velocity=beat.velocity,
                     duration=beat.duration,
-                    ghost_note=beat.ghost_note,
+                    ghost_note=beat.ghost_note,  # Preserve ghost flag
                     accent=beat.accent,
                     instrument_promoted=beat.instrument_promoted,
                 )
