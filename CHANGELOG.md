@@ -12,43 +12,12 @@ release process.
 
 ### Added
 
-- **Expanded drummer fill library (64 fills total)**: Every drummer now has 8 signature fills each, expanding from the previous ~4 per drummer. All fills are verified from documented techniques, recorded songs, or artist interviews — nothing fabricated.
-  - **Bonham**: Moby Dick tom solo, Sixtuplet bridge run, GTBT triplets, Hand drumming cadence, WKS triplet groove (When The Sisters Kneel), When My Baby syncopated fill, Rockers half-time shuffle, Immigrant Song driving triplets
-  - **Porcaro**: Rosanna shuffle, Half-time shuffle, Ghost note showcase, Studio precision, Aja fusion linear groove, Waiter's pad interlock, Rosanna triplet variation, Chain of Fools Motown backbeat
-  - **Weckl**: Weckl 9 pattern, Linear fusion fill, Ghost note pattern, Coordination showcase, Liquid Drummers roll, Elektric Band rapid linear fill, Step Forward syncopated groove, Linear tom excursion
-  - **Chambers**: P-Funk groove, Fast chops showcase, Pocket stretch demo, Fusion technical showcase, Santana Latin pocket, Funky Drummer double-kick, Ghost-note tom fills, Pocket funk one-drop
-  - **Dee**: King Diamond double-kick intro, Motorhead solo arc, Ride bell stinger, King Diamond blast intro, Motorhead gallop fill, Speed metal cross-stick run, Abigail tom cascade, Scream for Me punctuation
-  - **Hoglan**: Blast tom accents, Chicken lights rudiment, Death blast cadence, SYL ghost cascade, Dark Angel speed run, Mechanical precision roll, Dethklok wall-of-sound, Fear Factory industrial fill
-  - **Rich**: Single-stroke roll, Dynamic cascade, Showman crash, Drum battle vocabulary, Big Band swing solo, Cross-stick/snap combo, Paradiddle tom excursion, Double paradiddle roll
-  - **Copeland**: Skank hi-hat, Displaced accent, Syncopated tom skip, Octoban off-beat, Gamelan percussion, Reggae skank groove, Message in a Box syncopated toms, Every Breath ghost interlock
-- **AD2 keymap wiring**: AD2 tight HH (notes 90-91), crash_choked
-  A-D (notes 68-80), ride_bell (note 61), and tom_edge variants (notes 65-69)
-  are now used in metal genre patterns instead of generic GM equivalents. Metal
-  genres see 37+ additional AD2 articulations across all sections.
-- **AD2 zone-aware drummer fills**: Dee gains tom_edge cascade + ride_bell stinger;
-  Hoglan gains rapid tom_edge blast accents + chicken_lights (open/tom alternation);
-  Peart gains tom_edge rim accents in his quintuplet fill. All AD2 zones resolve to
-  the correct MIDI notes in `DrumKit.create_addictive_drums_kit()`.
-- **Danny Carey (Tool) drummer plugin**: polyrhythmic kick counterpoint, deep
-  tom-heavy accent patterns, spacious Tool-groove feel, pentatonic/quintuplet
-  accent fills, cymbal swell effects. Four signature fills:
-  quintuplet tom cascade, polyrhythmic buildup, ethnic-inspired fill, and
-  cymbal swell pattern.
-- **Velocity overflow fix**: `snare_rimshot(VELOCITY.SNARE_RIMSHOT + 5)` in
-  thrash chorus clamped to 127 (MIDI velocity max) instead of producing a
-  ValueError.
+- **Genre-aware default BPM ranges**: Each genre plugin now declares `DEFAULT_TEMPO_MAP` as a class attribute with realistic BPM for each style. `PluginManager.get_default_tempo_map()` queries loaded plugins to build the lookup, and when `tempo=None` is passed to `create_song()`, it resolves to the genre/style-appropriate default (e.g. rock/classic → 110 BPM, metal/death → 220 BPM, jazz/bebop → 240 BPM). Falls back to 120 when no data exists.
+- **Realistic default tempos across all genres**: Values based on published tempo data from music production references and genre analyses. Rock classic defaults to 110 (not 120), doom metal to 75, bebop to 240 — reflecting actual professional recording conventions.
 
-### Changed
+### Fixed
 
-- **Death metal verse**: replaces sparse standard hi-hat with tight HH rapid
-  comping (AD2 zone 91) and adds crash_choked punctuation — blast-beat sections
-  no longer wash out in the cymbal texture.
-- **Doom metal verse/chorus**: ride bell off-beats + tight HH replace generic ride
-  for the dry, crushing precision required at slow tempos.
-- **Progressive metal verse**: uses `ride_bell()` method (AD2 note 61) +
-  `crash_choked()` on downbeats instead of plain GM crash/ride.
-- **Heavy/power chorus patterns**: ride bell + tom_edge accents wired in for
-  textural variety and attack clarity.
+- `DrumGeneratorAPI.create_song()` no longer silently overrides a caller-supplied drum_kit when mapping_file is also present — an explicit truthy drum_kit now always wins, and `drum_kit=None` correctly falls back to mapping_file/mapping instead of skipping kit setup.
 
 ## [0.2.0] - 2026-08-13
 

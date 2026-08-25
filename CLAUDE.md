@@ -1,15 +1,17 @@
 # CLAUDE.md
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+# Project Overview
 
-## Project Overview
-
-This is a comprehensive MIDI drum generation system with a modular, plugin-based architecture. It supports multiple genres, styles, drummer imitations, and song structures. The system evolved from a simple single-file metal generator (`generate_metal_drum_track.py`) into a full-featured, extensible platform.
+Chameleon Drummer is a Python MIDI drum generation system. Built on a modular,
+plugin-based architecture with bar-by-bar pattern evolution (Engine V2) as the
+default, it supports **5 genres**, **38 styles** (each with genre-specific
+default BPM from published tempo data), and **15 drummer imitations + 1 composite** — with realistic humanization, intensity curves, natural-language AI generation, Additive Drums 2 keymap support, and direct REAPER DAW integration.
 
 ### Key Features
-- **Multi-Genre Support**: Metal (7 styles), Rock (7 styles), Jazz (7 styles), Funk (7 styles), Electronic (4 styles)
-- **Drummer Imitation**: 14 drummer plugins + 1 composite (Bonham, Porcaro, Weckl, Chambers, Roeder, Dee, Hoglan, Peart, Rich, Copeland, Carey, Haake, Halpern, Chad Smith) plus DoomBlues composite
-- **Fill Library**: 64+ verified signature fills across all drummers (8 per drummer for most), researched from documented techniques and recorded songs
+- 🎪 Multi-Genre: Metal (7 styles), Rock (7 styles), Jazz (7 styles), Funk (7 styles), Electronic (4 styles)
+- 🥁 Drummer Imitation: 15 drummer plugins + 1 composite (Bonham, Porcaro, Weckl, Chambers, Roeder, Dee, Hoglan, Peart, Rich, Copeland, Carey, Haake, Halpern, Chad Smith) plus DoomBlues composite
+- ⚡ Genre-Aware Default BPM: Each style has a realistic default tempo (e.g. rock/classic=110, metal/death=220) — omit `tempo` to use it
+- 🏗️ Fill Library: 64+ verified signature fills across all drummers
 - **AD2 Keymap**: Full Additive Drums 2 keymap wiring — tight HH, crash_choked, ride_bell, tom_edge variants across all genres
 - **Song Structure**: Configurable sections (verse, chorus, bridge, breakdown, intro, outro)
 - **Pattern Variations**: Humanization, fills, complexity control, dynamic variations, and pattern flavors
@@ -335,6 +337,14 @@ if pattern:
 - **Buddy Rich (rich)**: Virtuosic single-stroke speed, dramatic dynamic contrast — 8 signature fills
 - **Danny Carey (carey)**: Polyrhythmic quintuplets, deep tom cascades, ethnic percussion textures — 8 signature fills
 - **Stewart Copeland (copeland)**: Reggae/ska-influenced off-beat hi-hat, cross-stick snare — 8 signature fills
+- **Chad Smith (chadsmith)**: Red Hot Chili Peppers' pocket groove, slap-bass influenced kick patterns — 8 signature fills
+- **Haake (haake)**: Meshuggah-style mechanical polyrhythms, odd-meter syncopation — 8 signature fills
+- **Halpern (halpern)**: Jazz-fusion versatility, dynamic range, studio precision — 8 signature fills
+- **DoomBlues composite**: Layered Roeder + Porcaro + Chambers techniques
+- **Chad Smith (chadsmith)**: Red Hot Chili Peppers' pocket groove, slap-bass influenced kick patterns — 8 signature fills
+- **Haake (haake)**: Meshuggah-style mechanical polyrhythms, odd-meter syncopation — 8 signature fills
+- **Halpern (halpern)**: Jazz-fusion versatility, dynamic range, studio precision — 8 signature fills
+- **DoomBlues composite**: Layered Roeder + Porcaro + Chambers techniques
 - **DoomBlues composite**: Layered Roeder + Porcaro + Chambers techniques
 
 ### Filled Drummers in Available Drummers List → All 12 are implemented ✅
@@ -493,13 +503,13 @@ tests/
 5. **Comprehensive Testing**: ✅ Full test suites for all plugins and compatibility
 
 ### Phase 2: Advanced Features 🚧 IN PROGRESS
-1. **Electronic Genre Plugin**: House, Techno, Drum'n'Bass, Dubstep styles
-2. **More Drummer Plugins**: Neil Peart, Buddy Rich, Stewart Copeland
-3. **Audio Engine**: Real audio synthesis alongside MIDI
-4. **Pattern Variations**: AI-driven pattern evolution
-5. **Groove Templates**: Preset combinations for quick generation
-6. **Advanced Humanization**: Machine learning-based timing
-7. **Real-time Generation**: Live performance capabilities
+1. **Electronic Genre Plugin**: ✅ Complete with house, techno, drum_and_bass, dubstep
+2. **More Drummer Plugins**: ✅ All 15 implemented plus composite
+3. **Advanced Humanization**: ✅ Context-aware timing/velocity humanization (advanced_humanization.py)
+4. **Pattern Variations**: ✅ AI-driven pattern evolution via Engine V2 bar-by-bar generation
+5. **Groove Templates**: ✅ Preset combinations for quick generation (8 templates)
+6. **Real-time Generation**: 🔄 In development
+7. **Song Map / Timeline Export**: ✅ For REAPER integration
 
 ### Phase 3: Integration
 1. **REST API**: Web service for remote generation
@@ -510,7 +520,7 @@ tests/
 ## Refactoring Achievement
 
 ### Project Overview
-The MIDI Drums Generator underwent a comprehensive refactoring project that achieved **extraordinary code reduction** while maintaining 100% functional equivalence. The refactoring introduced reusable infrastructure systems that dramatically improved code quality, maintainability, and extensibility.
+The Chameleon Drummer system underwent a comprehensive refactoring project that achieved **extraordinary code reduction** while maintaining 100% functional equivalence.
 
 ### Key Metrics
 
@@ -523,6 +533,7 @@ The MIDI Drums Generator underwent a comprehensive refactoring project that achi
 | **Test Coverage Added** | 2,023 lines (39 comprehensive tests) |
 | **Net Code Reduction** | 1,155 lines eliminated (25% after infrastructure) |
 | **All Tests Passing** | 100% functional equivalence maintained |
+| **Current Test Count** | 563+ tests passing
 
 ### Refactored Architecture
 
