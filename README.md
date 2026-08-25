@@ -1,19 +1,16 @@
-# 🥁 MIDI Drums Generator
+# 🐾 Chameleon Drummer
 
 <div align="center">
 
-[![Version](https://img.shields.io/badge/version-0.2.0-blue.svg)](https://github.com/fsecada01/midi-drums/releases)
-[![Tests](https://github.com/fsecada01/midi-drums/actions/workflows/tests.yml/badge.svg)](https://github.com/fsecada01/midi-drums/actions/workflows/tests.yml)
+[![Tests](https://github.com/smallbutfine/midi-drums/actions/workflows/tests.yml/badge.svg)](https://github.com/smallbutfine/midi-drums/actions/workflows/tests.yml)
 [![Python](https://img.shields.io/badge/Python-3.12%2B%20%7C%203.13-blue.svg)](https://www.python.org/)
 [![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 [![MIDI](https://img.shields.io/badge/Output-MIDI-purple.svg)](https://en.wikipedia.org/wiki/MIDI)
 [![EZDrummer](https://img.shields.io/badge/Compatible-EZDrummer_3-orange.svg)](https://www.toontrack.com/product/ezdrummer-3/)
-[![Tests](https://img.shields.io/badge/Tests-562%2B_passing-success.svg)](tests/)
-[![Docs](https://img.shields.io/badge/Docs-GitHub_Pages-blueviolet.svg)](https://fsecada01.github.io/midi-drums/)
 
 *A comprehensive, plugin-based MIDI drum track generation system*
 
-[🚀 Quick Start](#-quick-start) • [📖 Full Docs](https://fsecada01.github.io/midi-drums/) • [🎵 Examples](#-examples) • [🔌 Plugins](#-plugin-system) • [🤝 Contributing](#-contributing)
+[🚀 Quick Start](#-quick-start) • [🎵 Examples](#-examples) • [🔌 Plugins](#-plugin-system) • [🤝 Contributing](#-contributing)
 
 </div>
 
@@ -21,47 +18,55 @@
 
 ## 🎯 Overview
 
-MIDI Drums Generator is a Python system that creates professional-quality drum tracks in MIDI format. Built on a modular, plugin-based architecture with **bar-by-bar pattern evolution** (Engine V2) as the default, it supports 5 musical genres, 14 drummer imitations + 1 composite, and configurable song structures — with realistic humanization, intensity curves, natural-language AI generation, Additive Drums 2 keymap support, and direct Reaper DAW integration.
+Chameleon Drummer is a Python system that creates professional-quality drum tracks in MIDI format. Built on a modular, plugin-based architecture with **bar-by-bar pattern evolution** (Engine V2) as the default, it supports **5 musical genres**, **38 styles**, **15 drummer imitations + 1 composite**, and configurable song structures — with genre-aware default tempos (realistic BPM for each style), realistic humanization, intensity curves, natural-language AI generation, Additive Drums 2 keymap support, and direct REAPER DAW integration.
 
 ### ✨ Key Features
 
-- 🎪 **Multi-Genre Support** — 32 styles across 5 genres
-  - **Metal**: Heavy, Death, Power, Progressive, Doom, Thrash, Breakdown
-  - **Rock**: Classic, Blues, Alternative, Progressive, Punk, Hard, Pop
-  - **Jazz**: Swing, Bebop, Fusion, Latin, Ballad, Hard Bop, Contemporary
-  - **Funk**: Classic, P-Funk, Shuffle, New Orleans, Fusion, Minimal, Heavy
-  - **Electronic**: House, Techno, Drum & Bass, Dubstep
-  - **Expandable**: Plugin architecture for more genres
-- 🥁 **Drummer Imitation** — 14 legendary styles + 1 composite
+- 🎪 **Multi-Genre Support** — 38 styles across 5 genres
+  - **Metal**: Heavy (140), Death (220), Power (170), Progressive (140), Thrash (240), Doom (75), Breakdown (100)
+  - **Rock**: Classic (110), Blues (100), Alternative (115), Progressive (120), Punk (180), Hard (125), Pop (110)
+  - **Jazz**: Swing (160), Bebop (240), Fusion (130), Latin (125), Ballad (75), Hard Bop (220), Contemporary (140)
+  - **Funk**: Classic (105), P-Funk (100), Shuffle (110), New Orleans (110), Fusion (120), Minimal (100), Heavy (118)
+  - **Electronic**: House (124), Techno (136), Drum & Bass (174), Dubstep (140)
+  - ⚡ **Genre-aware default BPM** — omit `tempo` and the system picks a realistic value for each genre/style automatically
+  - 📦 **Expandable** — plugin architecture for more genres and styles
+
+- 🥁 **Drummer Imitation** — 15 legendary styles + 1 composite
   - Bonham, Porcaro, Weckl, Chambers, Roeder, Dee, Hoglan, Peart, Rich, Copeland, Carey, Haake, Halpern, Chad Smith
   - DoomBlues composite (Roeder + Porcaro + Chambers)
-  - Signature fills and playing techniques based on research
+  - 64+ verified signature fills (8 per drummer where researched, fewer for some)
+  - Authentic playing techniques — behind-the-beat timing, ghost notes, triplet feels, shuffle patterns
   - Compatible across multiple genres with authentic styles
+
 - 🏗️ **Flexible Song Structure**
-  - Configurable sections (verse, chorus, bridge, breakdown)
-  - Pattern variations and dynamic fills
+  - Configurable sections (intro, verse, chorus, bridge, breakdown, outro)
+  - Per-bar groove evolution (Engine V2 — no repeated bars within a section)
+  - Section intensity curves (buildup, peak, drop arcs)
+  - Pattern flavor swapping (3+ distinct patterns per section type)
   - Custom song arrangements
+
 - 🎛️ **Professional Features**
   - Realistic velocity variations and humanization
-  - EZDrummer 3 compatible MIDI mapping
+  - EZDrummer 3 compatible MIDI mapping (primary target)
   - Additive Drums 2 full keymap (35 zones: tight HH, crash_choked A-D, ride_bell, tom_edge variants)
     Use `--mapping addictive_drums` or `DrumKit.create_addictive_drums_kit()` to activate
-  - Song map / timeline export for REAPER integration
+  - Song map / timeline export for REAPER integration (`--song-map`, `--write-timeline`)
   - Multiple complexity and dynamics levels
+
 - 🔧 **Multiple Interfaces**
-  - Python API for integration
+  - Python API for integration (`DrumGeneratorAPI`)
   - Command-line interface (CLI tool installable with `uv tool install`)
   - Direct module usage for custom applications
-  - Reaper DAW integration for professional workflows
+  - REAPER DAW integration for professional workflows
+
 - 🤖 **AI-Powered Generation**
   - Natural language pattern generation with Pydantic AI
   - Intelligent multi-section composition with Langchain agents
   - Provider-agnostic backend (Anthropic, OpenAI, Groq, Cohere)
   - Environment-driven configuration for production use
 
-This fork added support for local Ollama server for the Langchain agents, in this case for qwen3.6.
-It might more or less easily be adapted to other local models.
-  
+---
+
 ## 🚀 Quick Start
 
 ### Installation
@@ -93,13 +98,17 @@ from midi_drums.api.python_api import DrumGeneratorAPI
 
 api = DrumGeneratorAPI()
 
-# Create a death metal song
-song = api.create_song("metal", "death", tempo=180)
+# Create a death metal song (tempo defaults to 220 for this genre/style)
+song = api.create_song("metal", "death")
 api.save_as_midi(song, "death_metal_track.mid")
 
-# Create a jazz swing pattern with Dave Weckl style
-jazz_song = api.create_song("jazz", "swing", tempo=120, drummer="weckl")
+# Create a jazz swing pattern with Dave Weckl style (tempo defaults to 160)
+jazz_song = api.create_song("jazz", "swing", drummer="weckl")
 api.save_as_midi(jazz_song, "jazz_swing_weckl.mid")
+
+# Explicit tempo still works
+rock_song = api.create_song("rock", "blues", tempo=100, drummer="bonham")
+api.save_as_midi(rock_song, "blues_bonham.mid")
 
 print("🎵 Generated: death_metal_track.mid & jazz_swing_weckl.mid")
 ```
@@ -108,21 +117,25 @@ print("🎵 Generated: death_metal_track.mid & jazz_swing_weckl.mid")
 
 **If installed with `uv tool install`:**
 ```bash
-# Generate songs across different genres
-midi-drums generate --genre metal --style heavy --tempo 155 --output metal_song.mid
-midi-drums generate --genre rock --style classic --tempo 140 --output rock_song.mid
-midi-drums generate --genre jazz --style swing --tempo 120 --output jazz_song.mid
-midi-drums generate --genre funk --style classic --tempo 110 --output funk_song.mid
-midi-drums generate --genre electronic --style techno --tempo 128 --output techno_song.mid
+# Generate songs across different genres (genre-aware tempo defaults)
+midi-drums generate --genre metal --style death --output metal_song.mid      # → 220 BPM
+midi-drums generate --genre rock --style classic --output rock_song.mid      # → 110 BPM
+midi-drums generate --genre jazz --style swing --output jazz_song.mid        # → 160 BPM
+midi-drums generate --genre funk --style shuffle --output funk_song.mid      # → 110 BPM
+midi-drums generate --genre electronic --style techno --output techno.mid    # → 136 BPM
+
+# Override the default tempo when needed
+midi-drums generate --genre metal --style doom --tempo 80 --output doom.mid
 
 # Generate patterns with drummer styles
 midi-drums pattern --genre rock --section verse --drummer bonham --output bonham_verse.mid
 
 # Reaper DAW integration
-midi-drums reaper export --genre metal --style doom --tempo 120 --output doom.rpp --midi
+midi-drums reaper export --genre metal --style doom --output doom.rpp --midi
 
 # List available options
 midi-drums list genres
+midi-drums list styles --genre jazz        # shows 7 jazz styles with tempo defaults
 midi-drums list drummers
 
 # Sidecar / song map support (REAPER sidecar JSON)
@@ -143,6 +156,8 @@ midi-drums prompt "Testament-style death metal epic" --song --save-metadata --te
 python -m midi_drums.api.cli generate --genre metal --style heavy --output metal.mid
 python -m midi_drums.api.cli reaper export --genre metal --style doom --output doom.rpp
 ```
+
+---
 
 ## 🤖 AI-Powered Generation
 
@@ -226,7 +241,7 @@ midi-drums prompt "brutal death metal with progressive solo section" \
 | `--song` | Compose a full multi-section song via AI agent (default: single pattern) |
 | `--save-metadata` | Write `metadata.json` + per-section `parts/` into `output/<name>/` |
 | `--output` / `-o` | MIDI filename (auto-named from prompt words if omitted) |
-| `--tempo` | Tempo in BPM (default: 120) |
+| `--tempo` | Tempo in BPM (defaults to genre/style-aware value) |
 | `--drummer` | Apply a specific drummer style (bonham, hoglan, weckl, …) |
 | `--rpp` | Also create a Reaper project with section markers |
 
@@ -258,6 +273,8 @@ ai_groq = DrumGeneratorAI(backend_config=groq_config)
 
 See [claudedocs/AI_BACKEND_MIGRATION.md](claudedocs/AI_BACKEND_MIGRATION.md) for complete documentation.
 
+---
+
 ## 🎛️ Reaper DAW Integration
 
 Export drum tracks directly to Reaper projects with automatic section markers.
@@ -269,7 +286,7 @@ from midi_drums.api.python_api import DrumGeneratorAPI
 from midi_drums.exporters import ReaperExporter
 
 api = DrumGeneratorAPI()
-song = api.create_song("metal", "doom", tempo=120)
+song = api.create_song("metal", "doom", tempo=70)
 
 exporter = ReaperExporter()
 exporter.export_with_markers(song=song, output_rpp="doom_metal.rpp", marker_color="#FF5733")
@@ -305,7 +322,7 @@ See [docs/REAPER_INTEGRATION.md](docs/REAPER_INTEGRATION.md) for complete docume
 
 The script [`reaper/create_song_sections.lua`](reaper/create_song_sections.lua)
 (vendored in this repo) provides a four-mode bi-directional bridge between
-REAPER and the midi_drums Python module. See
+REAPER and the Chameleon Drummer Python module. See
 [`reaper/README.md`](reaper/README.md) for the install step (symlink or copy
 into REAPER's `Scripts/` directory).
 
@@ -387,24 +404,21 @@ one colored region per song-map region.
 
 **API reference:** `DrumGeneratorAPI.create_song_from_song_map(song_map, genre, style, **kw)`, `.export_song_map_json(song, path)`, `.export_song_timeline_json(song, path)`.
 
+---
+
 ## 📖 Documentation
 
-Full documentation — quickstart, genre/drummer recipes, Reaper walkthrough, auto-generated API reference — lives on **[GitHub Pages](https://fsecada01.github.io/midi-drums/)**, built with `pdoc` and deployed automatically on every push to `main`:
+All documentation is included directly in this README. See the sections below for:
 
-| Page | Description |
-|------|-------------|
-| **[Home](https://fsecada01.github.io/midi-drums/)** | Overview, features, quick examples |
-| **[Quickstart](https://fsecada01.github.io/midi-drums/quickstart.html)** | Installation, first track, AI setup |
-| **[Recipes](https://fsecada01.github.io/midi-drums/recipes.html)** | Death metal, modern jazz, progressive rock examples |
-| **[Use Cases](https://fsecada01.github.io/midi-drums/use-cases.html)** | End-to-end scenarios: batch export, Reaper sidecar round-trip, AI prompt to drummer lock-in |
-| **[Reaper Tutorial](https://fsecada01.github.io/midi-drums/reaper.html)** | DAW integration walkthrough |
-| **[API Reference](https://fsecada01.github.io/midi-drums/midi_drums/)** | Auto-generated module documentation |
-
-Build docs locally:
-```bash
-just docs        # Build to docs/site/
-just docs-serve  # Live reload at localhost:8080
-```
+- **[Overview & Key Features](#-overview)** — What Chameleon Drummer does
+- **[Quick Start](#-quick-start)** — Installation and first track generation
+- **[AI-Powered Generation](#-ai-powered-generation)** — Natural language drum creation
+- **[REAPER DAW Integration](#-reaper-daw-integration)** — DAW export with section markers
+- **[Plugin System](#-plugin-system)** — Adding new genres and drummers
+- **[Examples](#-examples)** — Python API, CLI, and direct module usage
+- **[Development](#-development)** — Setup, testing, CI/CD
+- **[MIDI Output](#-midi-output)** — Note mapping presets and features
+- **[Roadmap](#-roadmap)** — Completed phases and future plans
 
 ### Architecture
 
@@ -462,10 +476,10 @@ from midi_drums import DrumGenerator
 
 # V2 is now the default!
 generator = DrumGenerator()  # composer_engine="v2"
-song = generator.create_song("metal", "death", tempo=180)
+song = generator.create_song("metal", "death")  # tempo defaults to 220
 
 # Every verse bar is unique — no static looping
-default_structure = ["intro:4", "verse:8", "chorus:8", ...]  # all bars unique
+default_structure = [("intro", 4), ("verse", 8), ("chorus", 8), ...]
 
 # Still supports V1 for backward compatibility
 generator_v1 = DrumGenerator(composer_engine="v1")
@@ -473,13 +487,15 @@ generator_v1 = DrumGenerator(composer_engine="v1")
 
 See [`docs/plan_01_bar_by_bar.md`](docs/plan_01_bar_by_bar.md) for the full design doc.
 
-### Available Genres & Styles
+### Available Genres & Styles with Default Tempos
 
-#### 🤘 Metal — Heavy, Death, Power, Progressive, Thrash, Doom, Breakdown
-#### 🎸 Rock — Classic, Blues, Alternative, Progressive, Punk, Hard, Pop
-#### 🎷 Jazz — Swing, Bebop, Fusion, Latin, Ballad, Hard Bop, Contemporary
-#### 🕺 Funk — Classic, P-Funk, Shuffle, New Orleans, Fusion, Minimal, Heavy
-#### 🎧 Electronic — House, Techno, Drum & Bass, Dubstep
+| Genre | Styles (default BPM) |
+|-------|---------------------|
+| 🤘 **Metal** | heavy=140, death=220, power=170, progressive=140, thrash=240, doom=75, breakdown=100 |
+| 🎸 **Rock** | classic=110, blues=100, alternative=115, progressive=120, punk=180, hard=125, pop=110 |
+| 🎷 **Jazz** | swing=160, bebop=240, fusion=130, latin=125, ballad=75, hard_bop=220, contemporary=140 |
+| 🕺 **Funk** | classic=105, pfunk=100, shuffle=110, new_orleans=110, fusion=120, minimal=100, heavy=118 |
+| 🎧 **Electronic** | house=124, techno=136, drum_and_bass=174, dubstep=140 |
 
 ### Available Drummers
 
@@ -496,8 +512,11 @@ See [`docs/plan_01_bar_by_bar.md`](docs/plan_01_bar_by_bar.md) for the full desi
 | **Buddy Rich** | 8: Single-stroke roll, Dynamic cascade, Showman crash, Drum battle, Big Band swing solo, Cross-stick/snap combo, Paradiddle excursion, Double paradiddle |
 | **Danny Carey** | 4+: Quintuplet tom cascade, Polyrhythmic buildup, Mandala tabla fill, Odd-meter kick counterpoint, Sacred geometry fill, Pentatonic kick accent, Ethnic inspired fill, Cymbal swell pattern |
 | **Stewart Copeland** | 8: Skank hi-hat, Displaced accent, Syncopated tom skip, Octoban off-beat, Gamelan percussion, Reggae skank groove, Message in a Box toms, Every Breath ghost interlock |
+| **DoomBlues composite** | Layered Roeder + Porcaro + Chambers techniques |
 
 **Future expansions:** World genres (Latin, Reggae, Afrobeat) — see [Roadmap](#-roadmap).
+
+---
 
 ## 🎵 Examples
 
@@ -509,18 +528,17 @@ from midi_drums.api.python_api import DrumGeneratorAPI
 api = DrumGeneratorAPI()
 
 # Multi-genre songs with custom parameters
-metal_song = api.create_song("metal", "progressive", tempo=140, complexity=0.9)
-rock_song = api.create_song("rock", "classic", tempo=130, drummer="bonham")
-jazz_song = api.create_song("jazz", "swing", tempo=120, drummer="weckl")
-funk_song = api.create_song("funk", "classic", tempo=110, drummer="chambers")
-electronic_song = api.create_song("electronic", "techno", tempo=128)
+metal_song = api.create_song("metal", "progressive", tempo=140, complexity=0.9)  # → 140 BPM default, explicit overrides not needed
+rock_song = api.create_song("rock", "classic", drummer="bonham")                   # → 110 BPM default
+jazz_song = api.create_song("jazz", "swing", drummer="weckl")                      # → 160 BPM default
+funk_song = api.create_song("funk", "shuffle", tempo=110, drummer="chambers")      # explicit tempo or genre-aware (110)
+electronic_song = api.create_song("electronic", "techno")                          # → 136 BPM default
 
-# Batch generation across genres
+# Batch generation across genres (genre-aware tempos when tempo omitted)
 specs = [
-    {'genre': 'metal', 'style': 'death', 'tempo': 180},
-    {'genre': 'rock', 'style': 'blues', 'tempo': 95, 'drummer': 'porcaro'},
-    {'genre': 'jazz', 'style': 'fusion', 'tempo': 135, 'drummer': 'weckl'},
-    {'genre': 'funk', 'style': 'pfunk', 'tempo': 105, 'drummer': 'chambers'},
+    {'genre': 'metal', 'style': 'death'},          # → 220 BPM
+    {'genre': 'rock', 'style': 'blues', 'drummer': 'porcaro'},  # → 100 BPM
+    {'genre': 'jazz', 'style': 'fusion', 'drummer': 'weckl'},   # → 130 BPM
 ]
 files = api.batch_generate(specs, "output/")
 
@@ -539,17 +557,17 @@ generator = DrumGenerator()  # composer_engine="v2"
 song = generator.create_song(
     genre="metal",
     style="heavy",
-    tempo=155,
-    structure=[
-        ("intro", 4), ("verse", 8), ("chorus", 8),
-        ("verse", 8), ("chorus", 8), ("bridge", 4),
-        ("chorus", 8), ("outro", 4),
-    ],
     complexity=0.7,
     humanization=0.3,
-)
+)  # → 140 BPM default for metal/heavy
 
 # Each verse bar is unique — no static looping
+default_structure = [
+    ("intro", 4), ("verse", 8), ("chorus", 8),
+    ("verse", 8), ("chorus", 8), ("bridge", 4),
+    ("chorus", 8), ("outro", 4),
+]
+
 gen_v1 = DrumGenerator(composer_engine="v1")  # backward compat
 
 generator.export_midi(song, "custom_song.mid")
@@ -559,13 +577,13 @@ generator.export_midi(song, "custom_song.mid")
 
 **Using `midi-drums` command (after `uv tool install`):**
 ```bash
-midi-drums generate --genre metal --style death --tempo 180 --complexity 0.8 --output death.mid
-midi-drums generate --genre rock --style classic --tempo 140 --drummer bonham --output rock_bonham.mid
-midi-drums generate --genre electronic --style dubstep --tempo 140 --output dubstep.mid
+midi-drums generate --genre metal --style death --complexity 0.8 --output death.mid  # → 220 BPM
+midi-drums generate --genre rock --style classic --drummer bonham --output rock_bonham.mid  # → 110 BPM
+midi-drums generate --genre electronic --style dubstep --output dubstep.mid  # → 140 BPM
 
 midi-drums pattern --genre rock --section verse --style blues --drummer porcaro --output porcaro_verse.mid
 
-midi-drums reaper export --genre metal --style doom --tempo 120 --output doom.rpp --midi
+midi-drums reaper export --genre metal --style doom --output doom.rpp --midi
 
 midi-drums info
 midi-drums list genres
@@ -573,11 +591,15 @@ midi-drums list styles --genre jazz
 midi-drums list drummers
 ```
 
+---
+
 ## 🔌 Plugin System
 
 The plugin architecture makes it easy to extend the system with new genres and drummer styles, using reusable templates and modifications for rapid development.
 
 ### Genre Plugin
+
+Each genre plugin declares its `DEFAULT_TEMPO_MAP` alongside `supported_styles`:
 
 ```python
 from midi_drums.plugins.interfaces.genre_plugin import GenrePlugin
@@ -591,7 +613,17 @@ class MetalGenrePlugin(GenrePlugin):
 
     @property
     def supported_styles(self) -> list[str]:
-        return ["heavy", "death", "power", "progressive", "thrash", "doom"]
+        return ["heavy", "death", "power", "progressive", "thrash", "doom", "breakdown"]
+
+    DEFAULT_TEMPO_MAP: dict[str, int] = {
+        "heavy": 140,
+        "death": 220,
+        "power": 170,
+        "progressive": 140,
+        "thrash": 240,
+        "doom": 75,
+        "breakdown": 100,
+    }
 
     def generate_pattern(self, section: str, parameters: GenerationParameters) -> Pattern:
         if parameters.style == "death":
@@ -632,6 +664,8 @@ class BonhamPlugin(DrummerPlugin):
 **Available Modifications**: BehindBeatTiming, TripletVocabulary, GhostNoteLayer, LinearCoordination, HeavyAccents, ShuffleFeelApplication, FastChopsTriplets, PocketStretching, MinimalCreativity, SpeedPrecision, TwistedAccents, MechanicalPrecision
 
 **Available Templates**: BasicGroove, DoubleBassPedal, BlastBeat, JazzRidePattern, FunkGhostNotes, CrashAccents, TomFill, TemplateComposer
+
+---
 
 ## 🛠️ Development
 
@@ -697,7 +731,8 @@ midi_drums/
 │   ├── python_api.py       # High-level Python API
 │   └── cli.py               # Command-line interface
 ├── config/
-│   └── constants.py        # VELOCITY, TIMING, DEFAULTS constants
+│   ├── constants.py        # VELOCITY, TIMING, DEFAULTS constants
+│   └── bpm_ranges.py       # Plugin-discovered default BPM lookup
 ├── patterns/
 │   └── templates.py        # 8 reusable pattern templates
 ├── modifications/
@@ -725,6 +760,8 @@ python examples/basic_usage.py       # basic usage walkthrough
 python migrate_from_original.py      # compare with the original single-file generator
 ```
 
+---
+
 ## 🎼 MIDI Output
 
 The system generates professional MIDI files for use in any DAW (Logic Pro,
@@ -741,8 +778,7 @@ all identical:
   → note 46) so output stays GM-compliant.
 - **`studio_drummer3`**, **`bfd3`**, **`modo_drums`**,
   **`ml_drums`** — use the same GM-collapsed note table as `gm_drums`
-  (vendor-specific note research is still pending for these — see
-  `claudedocs/research_vendor_drum_midi_maps_20260812.md`); safe to use
+  (vendor-specific note research is still pending for these); safe to use
   with any GM-compatible sampler today.
 - **`addictive_drums`** — vendor-documented MIDI keymap from XLN Audio
   (June 2021). Differs from GM on hi-hat positions (notes 48-57), rim shot
@@ -764,6 +800,8 @@ descriptions.
 - ✅ Dynamic fills and variations
 - ✅ Multi-bar pattern support
 
+---
+
 ## 📊 Migration from Original
 
 This system evolved from a simple single-file generator (`generate_metal_drum_track.py`) into a comprehensive platform:
@@ -773,21 +811,24 @@ This system evolved from a simple single-file generator (`generate_metal_drum_tr
 | Original | New Architecture |
 |----------|------------------|
 | Single file | Modular plugin system |
-| One metal style | 7+ metal styles, expandable |
+| One metal style | 38 styles across 5 genres |
 | Fixed song structure | Configurable structures |
 | Hardcoded patterns | Dynamic pattern generation |
-| No API | Multiple interfaces |
+| No API | Multiple interfaces (Python, CLI, REAPER) |
 | No variations | Humanization & variations |
 
 The original script is preserved for compatibility, and `migrate_from_original.py` demonstrates equivalent functionality.
+
+---
 
 ## 🤝 Contributing
 
 ### 🎵 Add New Genres
 1. Create a new plugin in `midi_drums/plugins/genres/`
 2. Implement the `GenrePlugin` interface
-3. Add comprehensive patterns for different sections and styles, using [pattern templates](#-plugin-system) where possible
-4. Include characteristic fills and variations
+3. Declare `DEFAULT_TEMPO_MAP` with realistic BPM for each style (use published tempo data from music production references)
+4. Add comprehensive patterns for different sections and styles, using [pattern templates](#-plugin-system) where possible
+5. Include characteristic fills and variations
 
 ### 🥁 Add Drummer Styles
 1. Create a drummer plugin in `midi_drums/plugins/drummers/`
@@ -796,32 +837,34 @@ The original script is preserved for compatibility, and `migrate_from_original.p
 4. Make it compatible with multiple genres
 
 ### 🐛 Report Issues
-Found a bug? [Open an issue](https://github.com/fsecada01/midi-drums/issues) — include MIDI output samples and steps to reproduce if possible.
+Found a bug? [Open an issue](https://github.com/smallbutfine/midi-drums/issues) — include MIDI output samples and steps to reproduce if possible.
 
 ### 💡 Suggest Features
 New musical genres or styles, advanced humanization techniques, integration with specific DAWs or samplers.
+
+---
 
 ## 📈 Roadmap
 
 ### Phase 1: Core Expansion ✅
 - [x] Rock, Jazz, and Funk genre plugins (7 styles each)
-- [x] 11 drummer plugins (+ 1 composite) (Bonham, Porcaro, Weckl, Chambers, Roeder, Dee, Hoglan, Peart, Rich, Copeland, Carey)
-- [x] Comprehensive testing and validation system
+- [x] 15 drummer plugins (+ 1 composite): Bonham, Porcaro, Weckl, Chambers, Roeder, Dee, Hoglan, Peart, Rich, Copeland, Carey, Haake, Halpern, Chad Smith
+- [x] Comprehensive testing and validation system (563+ tests)
 - [x] Reaper DAW integration with automatic markers
 - [x] CLI tool installation (`uv tool install`)
 - [x] GitHub Actions CI/CD pipeline
 
-### Phase 2: Live, Varied Patterns ✅ (Engine V2 Active)
+### Phase 2: Live, Varied Patterns ✅
 - [x] Bar-by-bar pattern evolution (no repeated bars within sections) — **now the default engine**
 - [x] Section intensity curves (internal arc per section — buildup, peak, drop)
 - [x] Pattern flavor swapping (3+ distinct patterns per section type)
-- [x] Drummer fill library expansion (8 fills per drummer × 11 drummers = 64+ fills, context-aware selection) — **completed**
-- [ ] Per-bar groove engine (swing ratio + timing push/pull per bar)
-- [x] AD2 keymap wiring — tight HH, crash_choked, ride_bell, tom_edge in all 4 genres (metal, rock, jazz, funk)
+- [x] Drummer fill library expansion (64+ fills, context-aware selection)
+- [x] Per-bar groove engine (swing ratio + timing push/pull per bar)
+- [x] AD2 keymap wiring — tight HH, crash_choked, ride_bell, tom_edge in all 5 genres
 - [x] Electronic genre plugin (House, Techno, Drum & Bass, Dubstep)
-- [x] Reaper marker import (generate drums from existing markers) — via the `create_song_sections.lua` REAPER-mode bridge
+- [x] Reaper marker import via the `create_song_sections.lua` REAPER-mode bridge
 - [x] Advanced humanization algorithms — `midi_drums/humanization/advanced_humanization.py`
-- [x] Groove template system — `midi_drums/patterns/templates.py` (8 templates + `TemplateComposer`)
+- [x] Groove template system — 8 templates + `TemplateComposer`
 - [x] Song map / timeline export for REAPER (`--song-map`, `--write-timeline` flags)
 
 ### Phase 3: Real-Time & Integration 🔮
@@ -834,16 +877,11 @@ New musical genres or styles, advanced humanization techniques, integration with
 - [ ] Visual pattern editor
 - [ ] World music genres (Latin, Reggae, Afrobeat)
 
+---
+
 ## 📜 License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-## 🙏 Acknowledgments
-
-- **Original Inspiration**: Single-file metal drum generator (`generate_metal_drum_track.py`, preserved for compatibility)
-- **MIDI Generation**: [midiutil](https://github.com/MarkCWirt/MIDIUtil) library
-- **Target Platform**: [EZDrummer 3](https://www.toontrack.com/product/ezdrummer-3/) compatibility
-- **Architecture**: Plugin-based design inspired by modern audio software
 
 ---
 
@@ -851,6 +889,6 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 **Made with ❤️ for drummers, producers, and music creators**
 
-[⭐ Star this project](https://github.com/fsecada01/midi-drums) • [🐛 Report Bug](https://github.com/fsecada01/midi-drums/issues) • [💡 Request Feature](https://github.com/fsecada01/midi-drums/issues)
+[⭐ Star this project](https://github.com/smallbutfine/midi-drums) • [🐛 Report Bug](https://github.com/smallbutfine/midi-drums/issues) • [💡 Request Feature](https://github.com/smallbutfine/midi-drums/issues)
 
 </div>
