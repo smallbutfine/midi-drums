@@ -155,92 +155,73 @@ class BehindBeatTiming(DrummerModification):
 
 @dataclass
 class TripletVocabulary(DrummerModification):
-    """Add triplet-based fills and embellishments (Bonham style).
+    """Convert straight-eighth subdivisions to triplet feel (Bonham style).
 
-    Adds characteristic triplet patterns during transitions and fills.
-    This creates the "rolling" feel associated with rock drummers.
+    This is the KEY rhythmic element of Bonham's playing — he organized his
+    vocabulary around groups of three, not two. A straight "1-and-2-and" kick
+    pattern becomes "1-trip-let 2-trip-let" (positions 0, 1/3, 2/3, 1, 4/3,
+    5/3 in beats). This creates the rolling/swinging feel.
 
-    Example:
-        TripletVocabulary(triplet_probability=0.4).apply(pattern, intensity=0.9)
+    Only affects rhythm instruments (kick, snare, toms). Cymbals ride along
+    at their original positions — a real drummer's limbs move independently
+    and you don't force every limb into triplets.
     """
 
-    triplet_probability: float = 0.3
+    triplet_probability: float = 0.4  # Chance per bar that this modifier applies
+    intensity: float = 0.8  # How aggressively to remap (1.0 = full triplet, <1.0 = blend)
 
     @property
     def name(self) -> str:
         return "triplet_vocabulary"
 
     def apply(self, pattern: Pattern, intensity: float = 1.0) -> Pattern:
-        """Add triplet-based rhythmic vocabulary.
+        """Remap straight-eighth note positions to triplet subdivisions."""
+        # Scale factor controls blend between straight (0.0) and full triplets (1.0)
+        scale = self.intensity * intensity
 
-        Density is scaled inversely to input pattern density so that structural
-        differences between flavors are preserved rather than drowned out by a
-        fixed number of added triplet beats on every bar.
-        """
-        modified_beats = list(pattern.beats)
+        if scale <= 0:
+            return pattern
 
-        # Scale additive density inversely to input beat count.
-        # probability >= 0.99 is always treated as "force add" regardless of
-        # density (preserves backward compat with tests that use p=1.0).
-        beat_count = len(pattern.beats)
-        if self.triplet_probability >= 0.99:
-            scale_factor = 1.0  # Force-add mode: never scale down
-        elif beat_count <= 6:
-            scale_factor = 1.0  # Very sparse → full triplets
-        elif beat_count <= 14:
-            scale_factor = 0.6  # Medium → moderate
-        else:
-            scale_factor = 0.3  # Dense → minimal additions
+        modified_beats = []
+        beats_per_bar = pattern.time_signature.beats_per_bar
 
-        effective_probability = (
-            self.triplet_probability * intensity * scale_factor
-        )
+        for beat in pattern.beats:
+            pos = beat.position
 
-        # Look for opportunities to add triplets (beat 4 of each bar)
-        duration = pattern.duration_bars()
-        for bar in range(int(duration)):
-            bar_start = bar * 4.0
+            # Skip bar boundaries and out-of-range positions
+            if pos == 0 or pos >= pattern.duration_bars():
+                modified_beats.append(beat)
+                continue
 
-            # Probabilistically add triplet fill on beat 4
-            if random.random() < effective_probability:
-                # Add descending triplet fill starting at beat 3.5
-                fill_start = bar_start + 3.5
+            # Find which eighth-note slot this position lives in within its bar
+            bar_num = int(pos // beats_per_bar)
+            bar_start = bar_num * beats_per_bar
+            intra_bar_pos = pos - bar_start
 
-                # Remove any existing beats in this space
-                modified_beats = [
-                    b
-                    for b in modified_beats
-                    if not (fill_start <= b.position < bar_start + 4.0)
-                ]
+            eighth_index = min(
+                max(0, int(intra_bar_pos / (beats_per_bar / 8.0) + 0.5)),
+                beats_per_bar * 2 - 1
+            )
 
-                # Add triplet fill (6 notes = 2 triplets), scaled by density
-                instruments = [
-                    DrumInstrument.MID_TOM,
-                    DrumInstrument.MID_TOM,
-                    DrumInstrument.FLOOR_TOM,
-                    DrumInstrument.FLOOR_TOM,
-                    DrumInstrument.FLOOR_TOM,
-                    DrumInstrument.KICK,
-                ]
+            # Map that index to the triplet grid position within the bar
+            triplet_pos = bar_start + (eighth_index * TIMING.EIGHTH_TRIPLET)
 
-                num_chops = max(1, int(len(instruments) * scale_factor))
-                for i in range(num_chops):
-                    pos = fill_start + (i * TIMING.SIXTEENTH_TRIPLET)
-                    # Clamp position to stay within the bar boundary
-                    if pos >= bar_start + 4.0:
-                        break  # don't spill into next bar
-                    modified_beats.append(
-                        Beat(
-                            position=pos,
-                            instrument=instruments[i],
-                            velocity=VELOCITY.TOM_HEAVY,
-                            duration=TIMING.SIXTEENTH_TRIPLET,
-                            ghost_note=False,
-                            accent=i % 3 == 0,  # Accent every 3rd
-                        )
-                    )
+            # Blend between straight and triplet positions
+            blended_pos = intra_bar_pos * (1.0 - scale) + triplet_pos * scale
+            blended_pos += bar_start
 
-        # Sort by position
+            new_beat = Beat(
+                position=blended_pos,
+                instrument=beat.instrument,
+                velocity=beat.velocity,
+                duration=beat.duration,
+                ghost_note=beat.ghost_note,
+                accent=beat.accent,
+                instrument_promoted=beat.instrument_promoted,
+            )
+            modified_beats.append(new_beat)
+
+        # Sort and return
         modified_beats.sort(key=lambda b: b.position)
 
         return Pattern(
