@@ -22,7 +22,7 @@ class DrumGeneratorAPI:
         self,
         genre: str,
         style: str = "default",
-        tempo: int = 120,
+        tempo: int | None = None,
         name: str | None = None,
         mapping: str = DEFAULT_MAPPING,
         mapping_file: str | Path | None = None,
@@ -33,7 +33,8 @@ class DrumGeneratorAPI:
         Args:
             genre: Musical genre ('metal', 'rock', 'jazz', etc.)
             style: Style within genre ('death', 'power', etc.)
-            tempo: Beats per minute
+            tempo: Beats per minute. Defaults to a genre/style-aware value
+                when ``None`` is passed.
             name: Song name (auto-generated if None)
             mapping: MIDI mapping preset ('ezdrummer3', 'gm_drums', etc.).
                 Ignored if a truthy drum_kit is also passed via kwargs -
@@ -180,18 +181,18 @@ class DrumGeneratorAPI:
     def quick_export(
         self,
         genre: str,
-        filename: str | Path,
+        filename: str,
         style: str = "default",
-        tempo: int = 120,
+        tempo: int | None = None,
         mapping: str = DEFAULT_MAPPING,
-    ) -> None:
+    ) -> Song:
         """Quickly generate and export a song.
 
         Args:
             genre: Musical genre
             filename: Output MIDI filename
             style: Style within genre
-            tempo: Beats per minute
+            tempo: Beats per minute. Defaults to a genre/style-aware value.
             mapping: MIDI mapping preset
         """
         song = self.create_song(genre, style, tempo, mapping=mapping)
@@ -222,7 +223,7 @@ class DrumGeneratorAPI:
         for i, spec in enumerate(specs):
             genre = spec.get("genre", "metal")
             style = spec.get("style", "default")
-            tempo = spec.get("tempo", 120)
+            tempo = spec.get("tempo")  # None → genre-aware default in create_song
             name = spec.get("name", f"{genre}_{style}_{i:02d}")
             extra = {
                 k: v

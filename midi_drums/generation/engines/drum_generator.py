@@ -3,6 +3,7 @@
 import logging
 from pathlib import Path
 
+from midi_drums.config.bpm_ranges import get_default_bpm
 from midi_drums.core.models.kit import DrumKit
 from midi_drums.core.models.pattern import Pattern
 from midi_drums.core.models.song import Section, Song
@@ -45,7 +46,7 @@ class DrumGenerator:
         self,
         genre: str,
         style: str = "default",
-        tempo: int = 120,
+        tempo: int | None = None,
         structure: list[tuple[str, int]] | None = None,
         drum_kit: DrumKit | None = None,
         **kwargs,
@@ -60,7 +61,8 @@ class DrumGenerator:
         Args:
             genre: Genre name (e.g., 'metal', 'rock')
             style: Style within genre (e.g., 'death', 'power' for metal)
-            tempo: Tempo in BPM
+            tempo: Tempo in BPM. Defaults to a genre/style-aware value when
+                ``None`` is passed.
             structure: List of (section_name, bars) tuples. If None, uses
                 default structure.
             drum_kit: Optional DrumKit for MIDI mapping. If None, uses
@@ -79,6 +81,11 @@ class DrumGenerator:
 
         See also: :meth:`create_song` (Engine v1 - original static behavior)
         """
+        # Resolve genre/style-aware default when tempo not explicitly set
+        if tempo is None:
+            resolved = get_default_bpm(genre, style)
+            tempo = resolved if resolved is not None else 120
+
         # Update MIDI engine if new drum kit provided
         if drum_kit:
             self.midi_engine = MIDIEngine(drum_kit)
@@ -127,7 +134,7 @@ class DrumGenerator:
         self,
         genre: str,
         style: str = "default",
-        tempo: int = 120,
+        tempo: int | None = None,
         structure: list[tuple[str, int]] | None = None,
         drum_kit: DrumKit | None = None,
         composer_engine: str | None = None,
@@ -138,7 +145,8 @@ class DrumGenerator:
         Args:
             genre: Genre name (e.g., 'metal', 'rock', 'jazz')
             style: Style within genre (e.g., 'death', 'power' for metal)
-            tempo: Tempo in BPM
+            tempo: Tempo in BPM. Defaults to a genre/style-aware value when
+                ``None`` is passed.
             structure: List of (section_name, bars) tuples. If None, uses
                 default structure.
             drum_kit: Optional DrumKit for MIDI mapping. If None, uses
@@ -151,6 +159,11 @@ class DrumGenerator:
         Returns:
             Complete Song object with generated patterns
         """
+        # Resolve genre/style-aware default when tempo not explicitly set
+        if tempo is None:
+            resolved = get_default_bpm(genre, style)
+            tempo = resolved if resolved is not None else 120
+
         # Update MIDI engine if new drum kit provided
         if drum_kit:
             self.midi_engine = MIDIEngine(drum_kit)

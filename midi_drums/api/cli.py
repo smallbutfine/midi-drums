@@ -7,10 +7,17 @@ import os
 import sys
 from pathlib import Path
 
+from midi_drums.config.bpm_ranges import get_default_bpm
 from midi_drums.config.defaults import DEFAULT_MAPPING
 from midi_drums.core.models.kit import DrumKit
 from midi_drums.export.reaper.exporter import ReaperExporter
 from midi_drums.generation.engines.drum_generator import DrumGenerator
+
+
+def _resolve_genre_default_bpm(genre: str, style: str) -> int:
+    """Resolve a genre-aware default BPM, falling back to 120."""
+    bpm = get_default_bpm(genre, style)
+    return bpm if bpm is not None else 120
 
 
 def create_parser() -> argparse.ArgumentParser:
@@ -564,10 +571,14 @@ def handle_generate_command(args, generator: DrumGenerator) -> None:
                 **build_extra_kwargs(),
             )
         else:
+            resolved_tempo = (
+                args.tempo if args.tempo is not None
+                else _resolve_genre_default_bpm(args.genre, args.style)
+            )
             song = generator.create_song(
                 genre=args.genre,
                 style=args.style,
-                tempo=args.tempo if args.tempo is not None else 120,
+                tempo=resolved_tempo,
                 complexity=args.complexity,
                 humanization=args.humanization,
                 drummer=args.drummer,
