@@ -83,13 +83,25 @@ class BasicGroove(PatternTemplate):
 
             for i in range(beats_per_bar):
                 pos = bar_offset + (i * self.hihat_subdivision)
+                relative_pos = i * self.hihat_subdivision
 
                 # Check if this position should be open hihat
                 if self.use_open_hihat and pos in self.open_hihat_positions:
                     builder.open_hihat(pos, VELOCITY.HIHAT_OPEN)
                 else:
-                    velocity = VELOCITY.HIHAT_NORMAL
-                    builder.hihat(pos, velocity)
+                    # Dynamic hi-hat velocity based on position for realism
+                    # Downbeats (0, 1, 2, 3) are stronger
+                    if relative_pos.is_integer():
+                        velocity = VELOCITY.HIHAT_ACCENT
+                        # Use Edge for accents (more common in rock)
+                        instrument = DrumInstrument.CLOSED_HH_EDGE
+                    else:
+                        velocity = int(VELOCITY.HIHAT_NORMAL + (random.random() * 10 - 5))
+                        # Use Tip for softer hits
+                        instrument = DrumInstrument.CLOSED_HH_TIP
+                    
+                    # Fallback to standard if specific ones aren't available (handled by builder/kit)
+                    builder.add_hit(instrument, pos, velocity)
 
         return builder
 
@@ -260,6 +272,44 @@ class BlastBeat(PatternTemplate):
                         pos, int(VELOCITY.SNARE_NORMAL * self.intensity)
                     )
                     builder.ride(pos, VELOCITY.RIDE_NORMAL)
+
+        return builder
+
+
+@dataclass
+class SteadyRidePattern(PatternTemplate):
+    """Straight ride cymbal pattern for rock/metal.
+
+    Provides a steady ride pulse (quarter or eighth notes) with
+    natural velocity variation.
+    """
+
+    subdivision: float = TIMING.EIGHTH
+    use_bell: bool = False
+    use_shaft: bool = False
+
+    def generate(self, builder: PatternBuilder, **kwargs) -> PatternBuilder:
+        bars = kwargs.get("bars", 1)
+
+        for bar in range(bars):
+            bar_offset = bar * 4.0
+            num_hits = int(4.0 / self.subdivision)
+
+            for i in range(num_hits):
+                pos = bar_offset + (i * self.subdivision)
+                
+                # Accents on downbeats
+                if pos.is_integer():
+                    velocity = VELOCITY.RIDE_NORMAL
+                    instrument = DrumInstrument.RIDE_BELL if self.use_bell else DrumInstrument.RIDE
+                else:
+                    velocity = VELOCITY.RIDE_LIGHT + random.randint(-5, 5)
+                    instrument = DrumInstrument.RIDE
+                
+                if self.use_shaft:
+                    instrument = DrumInstrument.RIDE_SHAFT
+
+                builder.add_hit(instrument, pos, velocity)
 
         return builder
 

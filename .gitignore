@@ -202,3 +202,5 @@ memo.md
 .worktrees/
 Addictive Drums 2 Keymap.pdf
 .ruff_cache/
+reaper_test/
+Implement Addictive Drums MIDI Mappings.md

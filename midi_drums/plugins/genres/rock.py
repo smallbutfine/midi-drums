@@ -222,7 +222,7 @@ class RockGenrePlugin(GenrePlugin):
                         BasicGroove(
                             kick_positions=[0.0, 2.5],
                             snare_positions=[1.0, 3.0],
-                            hihat_subdivision=TIMING.HALF,
+                            hihat_subdivision=TIMING.EIGHTH,
                         )
                     )
                     .build(bars=1, complexity=c),
@@ -237,7 +237,7 @@ class RockGenrePlugin(GenrePlugin):
                         BasicGroove(
                             kick_positions=[0.0, 1.5, 2.0],
                             snare_positions=[1.0, 3.0],
-                            hihat_subdivision=TIMING.HALF,
+                            hihat_subdivision=TIMING.EIGHTH,
                         )
                     )
                     .build(bars=1, complexity=c),
@@ -1662,7 +1662,7 @@ class RockGenrePlugin(GenrePlugin):
                     BasicGroove(
                         kick_positions=[0.0, 0.75, 1.5, 2.25, 3.0],
                         snare_positions=[1.0, 2.75, 3.0],
-                        hihat_subdivision=TIMING.SIXTEENTH,
+                        hihat_subdivision=TIMING.EIGHTH,
                     )
                 )
                 .build(bars=1, complexity=complexity)
@@ -1672,9 +1672,9 @@ class RockGenrePlugin(GenrePlugin):
                 TemplateComposer(name)
                 .add(
                     BasicGroove(
-                        kick_positions=[0.0, 2.0],
+                        kick_positions=[0.0, 1.0, 2.0, 3.0],
                         snare_positions=[1.0, 3.0],
-                        hihat_subdivision=TIMING.HALF,
+                        hihat_subdivision=TIMING.EIGHTH,
                     )
                 )
                 # AD2: CRASH_HEAVY for punk verse power

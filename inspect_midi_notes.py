@@ -31,15 +31,16 @@ def inspect_midi_file(midi_path: Path):
         44: "Pedal",
         46: "Open (GM)",
         60: "Open Max (EZD)",
-        61: "Closed Tip (EZD)",
     }
 
     print("\nHi-Hat Check:")
     for note, desc in hihat_notes.items():
         if note in note_counts:
-            print(f"  ✓ Note {note} ({desc}): {note_counts[note]} hits")
+            check = "OK"
         else:
-            print(f"  ✗ Note {note} ({desc}): NOT FOUND")
+            check = "NO FOUND"
+        # Use ASCII characters only to avoid encoding issues on Windows
+        print(f"  [{check}] Note {note} ({desc}): {note_counts[note]} hits")
 
 
 if __name__ == "__main__":

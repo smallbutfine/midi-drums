@@ -175,6 +175,11 @@ class PatternBuilder:
         self.pattern.add_beat(position, inst, vel)
         return self
 
+    def add_hit(self, instrument: DrumInstrument, position: float, velocity: int = 100) -> "PatternBuilder":
+        """Generic method to add any drum instrument hit."""
+        self.pattern.add_beat(position, instrument, velocity)
+        return self
+
     def build(self) -> Pattern:
         """Build and return the pattern."""
         return self.pattern
