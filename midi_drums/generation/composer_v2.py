@@ -22,6 +22,7 @@ from midi_drums.core.value_objects.generation_parameters import (
 from midi_drums.core.value_objects.time_signature import TimeSignature
 from midi_drums.generation.bar_selector import BarSelector
 from midi_drums.generation.fill_library.picker import FillContext, FillPicker
+from midi_drums.generation.groove_engine import GrooveEngine
 from midi_drums.generation.intensity_curve import (
     IntensityCurve,
     interpolate_curve,
@@ -45,6 +46,7 @@ class ComposerV2:
         self._rng = random.Random(seed)
         self.bar_selector = BarSelector(seed=seed)
         self.fill_picker = FillPicker(seed=seed)
+        self.groove_engine = GrooveEngine(seed=seed)
 
     def create_song(
         self,
@@ -189,11 +191,30 @@ class ComposerV2:
                 # Determine fill placement based on section context
                 fills = self._generate_context_aware_fills(genre, params, bars)
 
+                # Calculate groove timing offsets per bar (swing feel by drummer profile)
+                groove_offsets_ms = []
+                if params.drummer:
+                    for bar_idx in range(bars):
+                        curve = curve_map.get(section_name, IntensityCurve.PLATEAU)
+                        all_points = [pt for pts in curve.value for pt in pts]
+                        intensity_pt = interpolate_curve(
+                            all_points, bar_idx / max(1, bars - 1)
+                        )
+                        offset_ms = self.groove_engine.get_bar_offset_ms(
+                            bar_index=bar_idx,
+                            tempo=tempo,
+                            intensity_pt=intensity_pt,
+                            section_name=section_name,
+                            drummer_name=params.drummer,
+                        )
+                        groove_offsets_ms.append(offset_ms)
+                
                 section = Section(
                     section_name,
                     combined,
                     bars,
                     fills=fills,
+                    groove_offsets_ms=groove_offsets_ms if groove_offsets_ms else [0.0] * bars,
                 )
                 song.add_section(section)
 
