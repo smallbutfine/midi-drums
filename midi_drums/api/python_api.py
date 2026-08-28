@@ -1,5 +1,4 @@
-"""High-level Python API for drum generation.
-
+"""High-level Python API for drum generation."""
 
 from __future__ import annotations
 

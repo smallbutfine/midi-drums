@@ -26,10 +26,15 @@ from midi_drums.plugins.interfaces.genre_plugin import GenrePlugin
 # with TIGHT_HH_A/B/C during pattern generation for timbral variety).
 HIHAT_INSTRUMENTS = {
     DrumInstrument.CLOSED_HH,
+    DrumInstrument.CLOSED_HH_EDGE,
+    DrumInstrument.CLOSED_HH_TIP,
     DrumInstrument.OPEN_HH,
     DrumInstrument.TIGHT_HH_A,
     DrumInstrument.TIGHT_HH_B,
     DrumInstrument.TIGHT_HH_C,
+    DrumInstrument.TIGHT_HH_EDGE,
+    DrumInstrument.TIGHT_HH_TIP,
+    DrumInstrument.TIGHT_HH_CLOSED,
 }
 
 # Genres/styles whose verse and chorus patterns use hi-hat exclusively for

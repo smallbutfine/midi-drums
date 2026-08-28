@@ -19,7 +19,18 @@ from midi_drums.core.value_objects.timekeeping import (
 _RIDE_SECTIONS = frozenset({"chorus", "bridge", "pre_chorus"})
 
 _HIHAT_INSTRUMENTS = frozenset(
-    {DrumInstrument.CLOSED_HH, DrumInstrument.OPEN_HH}
+    {
+        DrumInstrument.CLOSED_HH,
+        DrumInstrument.CLOSED_HH_EDGE,
+        DrumInstrument.CLOSED_HH_TIP,
+        DrumInstrument.OPEN_HH,
+        DrumInstrument.TIGHT_HH_A,
+        DrumInstrument.TIGHT_HH_B,
+        DrumInstrument.TIGHT_HH_C,
+        DrumInstrument.TIGHT_HH_EDGE,
+        DrumInstrument.TIGHT_HH_TIP,
+        DrumInstrument.TIGHT_HH_CLOSED,
+    }
 )
 
 

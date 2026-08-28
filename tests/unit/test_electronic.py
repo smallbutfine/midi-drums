@@ -34,7 +34,20 @@ def _hihat_count(pattern):
     return sum(
         1
         for b in pattern.beats
-        if b.instrument in {DrumInstrument.CLOSED_HH, DrumInstrument.OPEN_HH}
+        if b.instrument
+        in {
+            DrumInstrument.CLOSED_HH,
+            DrumInstrument.CLOSED_HH_EDGE,
+            DrumInstrument.CLOSED_HH_TIP,
+            DrumInstrument.OPEN_HH,
+            DrumInstrument.PEDAL_HH,
+            DrumInstrument.TIGHT_HH_A,
+            DrumInstrument.TIGHT_HH_B,
+            DrumInstrument.TIGHT_HH_C,
+            DrumInstrument.TIGHT_HH_EDGE,
+            DrumInstrument.TIGHT_HH_TIP,
+            DrumInstrument.TIGHT_HH_CLOSED,
+        }
     )
 
 
