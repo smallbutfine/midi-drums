@@ -8,6 +8,7 @@ import random
 
 from midi_drums.core.models.pattern import Beat, Pattern
 from midi_drums.core.value_objects.drum_instrument import DrumInstrument
+from midi_drums.humanization.limb_constraints import LimbConstraintEngine
 
 # Try to import numpy for Gaussian distribution, fallback to random if not available
 try:
@@ -122,6 +123,7 @@ class AdvancedHumanizer:
             "loose": 1.8,  # Live energy
         }
         self.multiplier = self.style_multipliers.get(style, 1.0)
+        self.limb_engine = LimbConstraintEngine()
 
         # Calculate ms per beat for timing conversions
         self.ms_per_beat = 60000.0 / self.tempo
@@ -160,6 +162,7 @@ class AdvancedHumanizer:
         for position, beats in beat_groups.items():
             # Apply micro-timing relationships (flams, offsets between limbs)
             timed_beats = self._apply_micro_timing(beats, position, context)
+            timed_beats = self.limb_engine.process(timed_beats)
 
             # Apply velocity curves and dynamics
             velocity_beats = self._apply_velocity_curves(
