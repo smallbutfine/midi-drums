@@ -1,5 +1,6 @@
 """Main drum generation engine and composition system."""
 
+
 import logging
 from pathlib import Path
 

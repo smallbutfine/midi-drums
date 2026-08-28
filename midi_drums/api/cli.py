@@ -16,6 +16,7 @@ from midi_drums.generation.engines.drum_generator import DrumGenerator
 
 def _resolve_genre_default_bpm(genre: str, style: str) -> int:
     """Resolve a genre-aware default BPM, falling back to 120."""
+
     bpm = get_default_bpm(genre, style)
     return bpm if bpm is not None else 120
 
