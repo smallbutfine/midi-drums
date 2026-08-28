@@ -96,10 +96,12 @@ class BasicGroove(PatternTemplate):
                         # Use Edge for accents (more common in rock)
                         instrument = DrumInstrument.CLOSED_HH_EDGE
                     else:
-                        velocity = int(VELOCITY.HIHAT_NORMAL + (random.random() * 10 - 5))
+                        velocity = int(
+                            VELOCITY.HIHAT_NORMAL + (random.random() * 10 - 5)
+                        )
                         # Use Tip for softer hits
                         instrument = DrumInstrument.CLOSED_HH_TIP
-                    
+
                     # Fallback to standard if specific ones aren't available (handled by builder/kit)
                     builder.add_hit(instrument, pos, velocity)
 
@@ -297,15 +299,19 @@ class SteadyRidePattern(PatternTemplate):
 
             for i in range(num_hits):
                 pos = bar_offset + (i * self.subdivision)
-                
+
                 # Accents on downbeats
                 if pos.is_integer():
                     velocity = VELOCITY.RIDE_NORMAL
-                    instrument = DrumInstrument.RIDE_BELL if self.use_bell else DrumInstrument.RIDE
+                    instrument = (
+                        DrumInstrument.RIDE_BELL
+                        if self.use_bell
+                        else DrumInstrument.RIDE
+                    )
                 else:
                     velocity = VELOCITY.RIDE_LIGHT + random.randint(-5, 5)
                     instrument = DrumInstrument.RIDE
-                
+
                 if self.use_shaft:
                     instrument = DrumInstrument.RIDE_SHAFT
 
