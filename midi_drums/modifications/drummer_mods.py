@@ -131,11 +131,12 @@ class BehindBeatTiming(DrummerModification):
             if (
                 beat.instrument == DrumInstrument.SNARE
             ):  # Apply to ALL snares, ghost or regular
-                # Shift snare behind the beat
+                # Behind-the-beat hits are naturally slightly softer
+                soft = max(1, beat.velocity - int(3 * intensity))
                 new_beat = Beat(
                     position=beat.position + delay,
                     instrument=beat.instrument,
-                    velocity=beat.velocity,
+                    velocity=soft,
                     duration=beat.duration,
                     ghost_note=beat.ghost_note,  # Preserve ghost flag
                     accent=beat.accent,
@@ -412,10 +413,10 @@ class HeavyAccents(DrummerModification):
     for a more powerful, aggressive sound.
 
     Example:
-        HeavyAccents(accent_boost=20).apply(pattern, intensity=0.8)
+        HeavyAccents(accent_boost=25).apply(pattern, intensity=0.8)
     """
 
-    accent_boost: int = 15
+    accent_boost: int = 25
 
     @property
     def name(self) -> str:

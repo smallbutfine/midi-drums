@@ -68,6 +68,10 @@ class BarSelector:
         # Scale velocity_bias by complexity to avoid extreme values on low-complexity bars
         scaled_velocity_bias = int(velocity_bias * complexity_mult)
 
+        # Per-hit jitter scales with complexity — more variance at higher energy
+        jitter_range = max(4, min(12, int(8 + complexity_mult * 4)))
+        per_hit_jitter = rng.randint(-jitter_range, jitter_range)
+
         for beat in base_pattern.beats:
             new_position = beat.position + bar_index * beats_per_bar
             # Apply density_factor as a velocity boost (not removal) for dense patterns
@@ -76,7 +80,7 @@ class BarSelector:
                 1,
                 min(
                     127,
-                    beat.velocity + scaled_velocity_bias + rng.randint(-3, 3),
+                    beat.velocity + scaled_velocity_bias + per_hit_jitter,
                 ),
             )
 

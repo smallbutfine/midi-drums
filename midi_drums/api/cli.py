@@ -84,7 +84,7 @@ Examples:
         default="classic",
         help="Style within genre (default: classic)",
     )
-    parser.add_argument("--tempo", type=int, default=120, help="Tempo in BPM")
+    parser.add_argument("--tempo", type=int, default=None, help="Tempo in BPM (defaults to genre-specific value)")
     parser.add_argument(
         "--output", "-o", help="Output MIDI file (auto-named if omitted)"
     )

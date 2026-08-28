@@ -31,6 +31,7 @@ from midi_drums.generation.macro_composer import (
     MacroComposer,
     get_section_grooves,
 )
+from midi_drums.generation.engines.drum_generator import _apply_groove_restraints
 
 if TYPE_CHECKING:
     from midi_drums.plugins.registry.plugin_registry import PluginManager
@@ -218,6 +219,9 @@ class ComposerV2:
                 )
                 song.add_section(section)
 
+        # Apply genre-aware groove restraints (snare/velocity) before returning
+        _apply_groove_restraints(song)
+
         return song
 
     def _get_section_curve_map(
@@ -391,6 +395,7 @@ class ComposerV2:
         # cycle extracted few/no beats (e.g., a sparse pattern bar).
         # Without this, alternating bars can be near-empty before drummer mods.
         from midi_drums.config import VELOCITY
+        from midi_drums.core.value_objects.drum_instrument import DrumInstrument
 
         has_kick = any(b[1] == DrumInstrument.KICK for b in extracted_beats)
         # Backbeat positions: odd beat indices (beats 2, 4, 6... 1-indexed) =
@@ -418,8 +423,14 @@ class ComposerV2:
                 (0.0, DrumInstrument.KICK, int(VELOCITY.KICK_HEAVY))
             )
 
-        # Always ensure snare on the backbeat if not present
-        if not has_snare_backbeat:
+        # Force snare on backbeat only for genres that expect it (rock, metal, etc.)
+        # Jazz/funk/ballad may intentionally have sparse or no snares.
+        enforces_backbeat = (
+            global_params.genre
+            not in ("jazz", "funk")
+            and section_name != "outro"
+        )
+        if enforces_backbeat and not has_snare_backbeat:
             extracted_beats.append(
                 (
                     beats_per_bar / 2,

@@ -125,7 +125,7 @@ class MIDIEngine:
         # Collect all events with absolute tick positions
         events: list[tuple[int, object]] = []
 
-        events.append((0, MM("set_tempo", tempo=tempo, time=0)))
+        events.append((0, MM("set_tempo", tempo=int(60_000_000 / tempo), time=0)))
 
         for beat in _dedupe_by_instrument_position(pattern.beats):
             tick = int(round(beat.position * tpq))
@@ -201,8 +201,8 @@ class MIDIEngine:
         def _add_tick(tick: int, msg) -> None:
             events.append((tick, msg))
 
-        # Initial tempo at tick 0
-        _add_tick(0, MM("set_tempo", tempo=song.tempo, time=0))
+        # Initial tempo at tick 0 (set_tempo uses microseconds per beat)
+        _add_tick(0, MM("set_tempo", tempo=int(60_000_000 / song.tempo), time=0))
 
         for section in song.sections:
             ts_num = section.effective_time_signature(
@@ -220,7 +220,8 @@ class MIDIEngine:
                 if eff_tempo != tempo_state["tempo"]:
                     tick_now = int(round(time_cursor * tpq))
                     _add_tick(
-                        tick_now, MM("set_tempo", tempo=eff_tempo, time=0)
+                        tick_now,
+                        MM("set_tempo", tempo=int(60_000_000 / eff_tempo), time=0),
                     )
                     tempo_state["tempo"] = eff_tempo
 
@@ -339,9 +340,8 @@ class MIDIEngine:
 
                 time_cursor += bp
 
-            # Section end marker
-            tick_now = int(round(time_cursor * tpq))
-            _add_tick(tick_now, MM("end_of_track", time=0))
+        # End of track marker (single marker for SMF Format 0)
+        _add_tick(int(round(time_cursor * tpq)), MM("end_of_track", time=0))
 
         # Sort by absolute tick and emit with delta-times
         events.sort(key=lambda e: e[0])
@@ -403,7 +403,7 @@ class MIDIEngine:
         for idx, pattern in enumerate(patterns):
             t = __import__("mido").MidiTrack()
             mf.tracks.append(t)
-            t.append(MM("set_tempo", tempo=tempo, time=0))
+            t.append(MM("set_tempo", tempo=int(60_000_000 / tempo), time=0))
             t.append(
                 MM(
                     "track_name",

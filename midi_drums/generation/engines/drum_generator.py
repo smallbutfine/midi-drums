@@ -13,6 +13,83 @@ from midi_drums.core.value_objects.generation_parameters import (
 from midi_drums.export.midi.engine import MIDIEngine
 from midi_drums.plugins.registry.plugin_registry import PluginManager
 
+# Genre-specific default structures (replaces hardcoded pop formula)
+# Section names use the canonical set that genre plugins recognize:
+#   intro, verse, chorus, bridge, breakdown, outro
+GENRE_ARCHETYPES: dict[str, list[tuple[str, int]]] = {
+    "metal": [
+        ("intro", 8), ("verse", 8), ("chorus", 8), ("verse", 8),
+        ("breakdown", 8), ("chorus", 8), ("bridge", 4), ("solo", 8),
+        ("outro", 8)
+    ],
+    "rock": [
+        ("intro", 4), ("verse", 8), ("chorus", 8), ("verse", 8),
+        ("chorus", 8), ("bridge", 4), ("solo", 8), ("outro", 4)
+    ],
+    "jazz": [
+        ("intro", 8), ("verse", 16), ("chorus", 16),
+        ("bridge", 8), ("chorus", 16), ("outro", 8)
+    ],
+    "funk": [
+        ("intro", 4), ("verse", 8), ("chorus", 8), ("verse", 8),
+        ("breakdown", 8), ("bridge", 4), ("outro", 8)
+    ],
+    "electronic": [
+        ("intro", 8), ("verse", 16), ("chorus", 16),
+        ("breakdown", 8), ("chorus", 16), ("outro", 8)
+    ],
+}
+
+
+def _get_genre_default_structure(genre: str) -> list[tuple[str, int]]:
+    """Return a genre-appropriate default structure."""
+    return GENRE_ARCHETYPES.get(genre.lower(), [
+        ("intro", 4), ("verse", 8), ("chorus", 8), ("verse", 8),
+        ("chorus", 8), ("bridge", 4), ("outro", 8)
+    ])
+
+
+def _apply_groove_restraints(song: Song) -> None:
+    """Apply genre-aware restraint to improve musicality.
+
+    Per-genre adjustments that target the *right* problem:
+    - Jazz  : attenuate snare, lower crash cymbals (ride should dominate)
+    - Funk   : tighten main snare, preserve ghost-note lows
+    - Metal  : ensure snares stay punchy (no dampening)
+    - Rock   : keep standard energy, no heavy attenuation
+    """
+    genre = song.global_parameters.genre if song.global_parameters else "rock"
+
+    from midi_drums.config import VELOCITY
+
+    for section in song.sections:
+        for beat in section.pattern.beats:
+            name = beat.instrument.name
+
+            # --- Jazz: ride-centric, sparse kick, gentle snares ---
+            if genre in ("jazz",):
+                if name == "SNARE_DRUM":
+                    # Bring heavy snares down to a controlled level;
+                    # leave ghost notes untouched.
+                    if not getattr(beat, "ghost_note", False):
+                        beat.velocity = min(beat.velocity, int(VELOCITY.SNARE_LIGHT))
+                elif name in ("CRASH_HEAVY", "CRASH_LIGHT", "CRASH"):
+                    beat.velocity = min(beat.velocity, int(VELOCITY.CRASH_LIGHT))
+
+            # --- Funk: tight backbeat, ghost notes stay quiet ---
+            elif genre in ("funk",):
+                if name == "SNARE_DRUM":
+                    if not getattr(beat, "ghost_note", False):
+                        beat.velocity = max(
+                            int(VELOCITY.SNARE_NORMAL),
+                            min(beat.velocity, int(VELOCITY.SNARE_ACCENT)),
+                        )
+
+            # --- Metal: ensure snares are loud and clear ---
+            elif genre == "metal":
+                if name == "SNARE_DRUM" and beat.velocity < 100:
+                    beat.velocity = min(beat.velocity + 25, 127)
+
 logger = logging.getLogger(__name__)
 
 
@@ -177,16 +254,7 @@ class DrumGenerator:
             from midi_drums.generation.composer_v2 import ComposerV2
 
             if structure is None:
-                structure = [
-                    ("intro", 4),
-                    ("verse", 8),
-                    ("chorus", 8),
-                    ("verse", 8),
-                    ("chorus", 8),
-                    ("bridge", 4),
-                    ("chorus", 8),
-                    ("outro", 4),
-                ]
+                structure = _get_genre_default_structure(genre)
 
             composer = ComposerV2(self.plugin_manager)
             return composer.create_song(
@@ -199,16 +267,7 @@ class DrumGenerator:
 
         # Use default structure if none provided
         if structure is None:
-            structure = [
-                ("intro", 4),
-                ("verse", 8),
-                ("chorus", 8),
-                ("verse", 8),
-                ("chorus", 8),
-                ("bridge", 4),
-                ("chorus", 8),
-                ("outro", 4),
-            ]
+            structure = _get_genre_default_structure(genre)
 
         # Engine V1: original static pattern reuse
         # Create generation parameters
@@ -251,6 +310,8 @@ class DrumGenerator:
                 logger.warning(
                     f"Failed to generate pattern for {genre}/{section_name}"
                 )
+
+        self._apply_groove_restraints(song)
 
         return song
 
@@ -505,6 +566,10 @@ class DrumGenerator:
                 extended_pattern.beats.append(new_beat)
 
         return extended_pattern
+
+    def _apply_groove_restraints(self, song: Song) -> None:
+        """Delegate to module-level restraint function."""
+        _apply_groove_restraints(song)
 
     @classmethod
     def quick_generate(

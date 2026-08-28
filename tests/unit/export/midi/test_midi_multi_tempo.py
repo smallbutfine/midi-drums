@@ -48,9 +48,9 @@ def _read_midob(midi_bytes: "bytes | io.BytesIO") -> list[dict]:
         for msg in track:
             ev = {"type": msg.type, "tick": tick}
             if hasattr(msg, "tempo"):
-                # mido stores tempo as BPM (not microseconds per quarter note)
+                # mido stores set_tempo as microseconds per quarter note
                 ev["tempo"] = msg.tempo
-                ev["bpm"] = int(msg.tempo)
+                ev["bpm"] = int(60_000_000 / msg.tempo)
             elif hasattr(msg, "numerator") and hasattr(msg, "denominator"):
                 ev["numerator"] = msg.numerator
                 # mido stores the actual denominator (e.g. 4 for 4/4, 8 for 8/8)

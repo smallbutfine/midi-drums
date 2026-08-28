@@ -41,37 +41,37 @@ class IntensityCurve(Enum):
 
     # Intro/verse building up: low start → high end
     ASCENDING = (
-        [IntensityPoint(0.0, 0.3, -15, 0.6)],
+        [IntensityPoint(0.0, 0.3, -25, 0.6)],
         [IntensityPoint(1.0, 1.0, 0, 1.0)],
     )
 
     # Post-chorus or tag-down: high → low
     DESCENDING = (
         [IntensityPoint(0.0, 1.0, 0, 1.0)],
-        [IntensityPoint(1.0, 0.3, -20, 0.5)],
+        [IntensityPoint(1.0, 0.3, -35, 0.5)],
     )
 
     # Steady groove: plateau in the middle
     PLATEAU = (
-        [IntensityPoint(0.0, 0.6, -10, 0.8)],
-        [IntensityPoint(0.5, 1.0, 5, 1.0)],
+        [IntensityPoint(0.0, 0.6, -12, 0.8)],
+        [IntensityPoint(0.5, 1.0, 10, 1.0)],
         [IntensityPoint(1.0, 0.7, 0, 0.9)],
     )
 
     # Dip-then-rise: tension → release (great for bridge → chorus)
     DIP_RISE = (
-        [IntensityPoint(0.0, 0.6, -10, 0.8)],
-        [IntensityPoint(0.3, 0.3, -25, 0.5)],
-        [IntensityPoint(0.7, 1.0, 10, 1.1)],
+        [IntensityPoint(0.0, 0.6, -12, 0.8)],
+        [IntensityPoint(0.3, 0.3, -35, 0.5)],
+        [IntensityPoint(0.7, 1.0, 18, 1.1)],
         [IntensityPoint(1.0, 0.9, 0, 1.0)],
     )
 
     # Stair-step build (verse → chorus ramp)
     STEPS = (
-        [IntensityPoint(0.0, 0.3, -15, 0.6)],
+        [IntensityPoint(0.0, 0.3, -25, 0.6)],
         [IntensityPoint(0.25, 0.5, -8, 0.75)],
         [IntensityPoint(0.5, 0.7, 0, 0.9)],
-        [IntensityPoint(1.0, 1.0, 15, 1.2)],
+        [IntensityPoint(1.0, 1.0, 25, 1.2)],
     )
 
 

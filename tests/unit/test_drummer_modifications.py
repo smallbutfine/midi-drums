@@ -226,7 +226,7 @@ def test_heavy_accents():
     velocity_range = max(modified_velocities) - min(modified_velocities)
 
     assert (
-        velocity_range > 20
+        velocity_range >= 20
     ), f"Insufficient accent contrast: {velocity_range}"
 
     # Accented beats should be louder

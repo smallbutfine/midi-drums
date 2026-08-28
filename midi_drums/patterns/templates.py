@@ -61,17 +61,17 @@ class BasicGroove(PatternTemplate):
 
     def generate(self, builder: PatternBuilder, **kwargs) -> PatternBuilder:
         complexity = kwargs.get("complexity", 0.5)
-        dynamics = kwargs.get("dynamics", 0.5)
+        dynamics = kwargs.get("dynamics", 0.6)
 
         # Add kicks
         for pos in self.kick_positions:
-            velocity = int(VELOCITY.KICK_NORMAL + (complexity * 10))
+            velocity = int(VELOCITY.KICK_NORMAL + (complexity * 15))
             velocity = min(127, velocity)
             builder.kick(pos, velocity)
 
-        # Add snares
+        # Add snares with dynamics spread
         for pos in self.snare_positions:
-            velocity = int(VELOCITY.SNARE_NORMAL + (dynamics * 12))
+            velocity = int(VELOCITY.SNARE_NORMAL + (dynamics * 20))
             velocity = min(127, velocity)
             builder.snare(pos, velocity)
 

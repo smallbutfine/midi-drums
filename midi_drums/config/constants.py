@@ -31,16 +31,16 @@ class VelocityRanges:
     # Kick drum velocities
     KICK_WHISPER: Final[int] = 60
     KICK_LIGHT: Final[int] = 95
-    KICK_NORMAL: Final[int] = 110
+    KICK_NORMAL: Final[int] = 100
     KICK_HEAVY: Final[int] = 120
     KICK_ACCENT: Final[int] = 127
 
-    # Snare drum velocities
+    # Snare drum velocities (lowered NORMAL so backbeats have dynamic range)
     SNARE_GHOST: Final[int] = 40
-    SNARE_LIGHT: Final[int] = 90
-    SNARE_NORMAL: Final[int] = 115
-    SNARE_HEAVY: Final[int] = 127
-    SNARE_RIMSHOT: Final[int] = 125
+    SNARE_LIGHT: Final[int] = 72
+    SNARE_NORMAL: Final[int] = 85
+    SNARE_HEAVY: Final[int] = 115
+    SNARE_RIMSHOT: Final[int] = 118
     SNARE_ACCENT: Final[int] = 127
 
     # Hi-hat velocities

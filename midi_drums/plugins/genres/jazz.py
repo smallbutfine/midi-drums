@@ -55,12 +55,12 @@ class JazzGenrePlugin(GenrePlugin):
         ]
 
     DEFAULT_TEMPO_MAP: dict[str, int] = {
-        "swing": 160,
-        "bebop": 240,
+        "swing": 150,
+        "bebop": 210,
         "fusion": 130,
         "latin": 125,
-        "ballad": 75,
-        "hard_bop": 220,
+        "ballad": 70,
+        "hard_bop": 200,
         "contemporary": 140,
     }
 
