@@ -9,7 +9,6 @@ Built using the composable DrummerModification system plus manual additive
 techniques for his unique signature fills.
 """
 
-
 from midi_drums.config import TIMING, VELOCITY
 from midi_drums.core.models.pattern import Pattern
 from midi_drums.core.models.song import Fill
@@ -296,8 +295,12 @@ class WattsPlugin(DrummerPlugin):
             builder.hihat(pos, VELOCITY.HIHAT_NORMAL)
 
         # Sparse tom work — just enough to drive the groove
-        builder.pattern.add_beat(TIMING.SIXTEENTH * 3, DrumInstrument.FLOOR_TOM, 85)
-        builder.pattern.add_beat(TIMING.SIXTEENTH * 7, DrumInstrument.MID_TOM, 80)
+        builder.pattern.add_beat(
+            TIMING.SIXTEENTH * 3, DrumInstrument.FLOOR_TOM, 85
+        )
+        builder.pattern.add_beat(
+            TIMING.SIXTEENTH * 7, DrumInstrument.MID_TOM, 80
+        )
 
         # Backbeat — essential but never aggressive
         builder.snare(1.0, VELOCITY.SNARE_NORMAL)
@@ -316,8 +319,12 @@ class WattsPlugin(DrummerPlugin):
 
         # Building tom fill (but restrained)
         builder.pattern.add_beat(0.0, DrumInstrument.MID_TOM, 90)
-        builder.pattern.add_beat(TIMING.SIXTEENTH * 3, DrumInstrument.MID_TOM, 95)
-        builder.pattern.add_beat(TIMING.EIGHTH * 2, DrumInstrument.FLOOR_TOM, 100)
+        builder.pattern.add_beat(
+            TIMING.SIXTEENTH * 3, DrumInstrument.MID_TOM, 95
+        )
+        builder.pattern.add_beat(
+            TIMING.EIGHTH * 2, DrumInstrument.FLOOR_TOM, 100
+        )
 
         # Classic rock snare build-up
         builder.snare(TIMING.SIXTEENTH * 6, VELOCITY.SNARE_LIGHT)
@@ -377,6 +384,8 @@ class WattsPlugin(DrummerPlugin):
 
         # Sparse kick (serving the groove, not dominating it)
         builder.kick(0.0, VELOCITY.KICK_LIGHT)
-        builder.kick(TIMING.EIGHTH * 5, VELOCITY.KICK_LIGHT)  # Off-beat syncopation
+        builder.kick(
+            TIMING.EIGHTH * 5, VELOCITY.KICK_LIGHT
+        )  # Off-beat syncopation
 
         return builder.build()

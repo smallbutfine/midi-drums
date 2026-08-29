@@ -188,9 +188,7 @@ class MoonPlugin(DrummerPlugin):
 
         return pattern
 
-    def _add_crash_accent_layer(
-        self, pattern: Pattern, track_fn
-    ) -> Pattern:
+    def _add_crash_accent_layer(self, pattern: Pattern, track_fn) -> Pattern:
         """Add crash accents at off-beat positions.
 
         Moon's signature move: crashing on off-beats that other drummers
@@ -205,7 +203,8 @@ class MoonPlugin(DrummerPlugin):
                 break
             # Check if something is already there — Moon's crashes are sparse but impactful
             existing_nearby = any(
-                abs(b.position - pos) < 0.05 and b.instrument == DrumInstrument.CRASH
+                abs(b.position - pos) < 0.05
+                and b.instrument == DrumInstrument.CRASH
                 for b in pattern.beats
             )
             if not existing_nearby and random.random() < 0.4:
@@ -236,7 +235,9 @@ class MoonPlugin(DrummerPlugin):
         pattern.beats = new_beats
         return pattern
 
-    def _add_tom_fill_between_beats(self, pattern: Pattern, track_fn) -> Pattern:
+    def _add_tom_fill_between_beats(
+        self, pattern: Pattern, track_fn
+    ) -> Pattern:
         """Add syncopated tom fills in the gaps between beats.
 
         Moon didn't just fill at section boundaries — he filled between
@@ -269,7 +270,11 @@ class MoonPlugin(DrummerPlugin):
             if track_fn(1) <= 0:
                 break
             if random.random() < 0.15:
-                inst = DrumInstrument.MID_TOM if i < 2 else DrumInstrument.FLOOR_TOM
+                inst = (
+                    DrumInstrument.MID_TOM
+                    if i < 2
+                    else DrumInstrument.FLOOR_TOM
+                )
                 new_beats.append(
                     Beat(
                         position=pos,
@@ -294,7 +299,10 @@ class MoonPlugin(DrummerPlugin):
         for pos in needs_crash:
             existing = any(
                 abs(b.position - pos) < 0.03
-                and (b.instrument == DrumInstrument.CRASH or b.instrument == DrumInstrument.RIDE)
+                and (
+                    b.instrument == DrumInstrument.CRASH
+                    or b.instrument == DrumInstrument.RIDE
+                )
                 for b in pattern.beats
             )
             if not existing:
@@ -345,11 +353,15 @@ class MoonPlugin(DrummerPlugin):
 
         # Crash bombardment pattern across the bar
         builder.crash(0.0, VELOCITY.CRASH_HEAVY)
-        builder.pattern.add_beat(TIMING.SIXTEENTH, DrumInstrument.FLOOR_TOM, 105)
+        builder.pattern.add_beat(
+            TIMING.SIXTEENTH, DrumInstrument.FLOOR_TOM, 105
+        )
         builder.crash(TIMING.DOTTED_EIGHTH, VELOCITY.CRASH_LIGHT)
         builder.pattern.add_beat(1.5, DrumInstrument.MID_TOM, 95)
         builder.crash(2.0, VELOCITY.CRASH_HEAVY)
-        builder.pattern.add_beat(TIMING.SIXTEENTH_TRIPLET * 4, DrumInstrument.FLOOR_TOM, 110)
+        builder.pattern.add_beat(
+            TIMING.SIXTEENTH_TRIPLET * 4, DrumInstrument.FLOOR_TOM, 110
+        )
         builder.crash(TIMING.DOTTED_EIGHTH * 2, VELOCITY.CRASH_LIGHT)
         builder.pattern.add_beat(3.5, DrumInstrument.MID_TOM, 90)
         builder.crash(4.0, VELOCITY.CRASH_HEAVY)
@@ -421,14 +433,22 @@ class MoonPlugin(DrummerPlugin):
 
         # Rapid 16th-note floor-to-mid tom descent with accelerando feel
         builder.pattern.add_beat(0.0, DrumInstrument.FLOOR_TOM, 125)
-        builder.pattern.add_beat(TIMING.SIXTEENTH * 3, DrumInstrument.FLOOR_TOM, 122)
+        builder.pattern.add_beat(
+            TIMING.SIXTEENTH * 3, DrumInstrument.FLOOR_TOM, 122
+        )
         builder.pattern.add_beat(TIMING.EIGHTH, DrumInstrument.MID_TOM, 118)
-        builder.pattern.add_beat(TIMING.SIXTEENTH * 6, DrumInstrument.FLOOR_TOM, 115)
+        builder.pattern.add_beat(
+            TIMING.SIXTEENTH * 6, DrumInstrument.FLOOR_TOM, 115
+        )
         builder.kick(0.75, VELOCITY.KICK_HEAVY)
 
         # Mid-tom run with crash landing
-        builder.pattern.add_beat(TIMING.DOTTED_EIGHTH, DrumInstrument.MID_TOM, 110)
-        builder.pattern.add_beat(TIMING.SIXTEENTH * 11, DrumInstrument.FLOOR_TOM, 127)
+        builder.pattern.add_beat(
+            TIMING.DOTTED_EIGHTH, DrumInstrument.MID_TOM, 110
+        )
+        builder.pattern.add_beat(
+            TIMING.SIXTEENTH * 11, DrumInstrument.FLOOR_TOM, 127
+        )
         builder.crash(1.875, VELOCITY.CRASH_HEAVY)
 
         # Repeat with variation on second half of bar
@@ -451,7 +471,9 @@ class MoonPlugin(DrummerPlugin):
 
         # The main bombardment hit on beat 1 — this is what he called his "panic button"
         builder.crash(0.0, VELOCITY.CRASH_HEAVY)
-        builder.pattern.add_beat(0.0, DrumInstrument.RIDE_BELL_ALT, VELOCITY.CRASH_LIGHT)
+        builder.pattern.add_beat(
+            0.0, DrumInstrument.RIDE_BELL_ALT, VELOCITY.CRASH_LIGHT
+        )
 
         # Second half of the bar — another massive crash to keep tension up
         builder.crash(2.5, 127)
@@ -459,7 +481,9 @@ class MoonPlugin(DrummerPlugin):
         builder.pattern.add_beat(2.5, DrumInstrument.FLOOR_TOM, 120)
 
         # Build-up to the final crash
-        builder.pattern.add_beat(TIMING.SIXTEENTH * 8, DrumInstrument.FLOOR_TOM, 110)
+        builder.pattern.add_beat(
+            TIMING.SIXTEENTH * 8, DrumInstrument.FLOOR_TOM, 110
+        )
         builder.kick(TIMING.SIXTEENTH * 7, VELOCITY.KICK_ACCENT)
         builder.crash(3.5, 125)
 
@@ -483,10 +507,14 @@ class MoonPlugin(DrummerPlugin):
             if i % 2 == 0:
                 builder.kick(pos, VELOCITY.KICK_HEAVY)
             else:
-                builder.pattern.add_beat(pos, DrumInstrument.FLOOR_TOM, 110 + (i % 3) * 5)
+                builder.pattern.add_beat(
+                    pos, DrumInstrument.FLOOR_TOM, 110 + (i % 3) * 5
+                )
 
         # Mid-tom bridge into the final crash
-        builder.pattern.add_beat(TIMING.DOTTED_EIGHTH * 2, DrumInstrument.MID_TOM, 105)
+        builder.pattern.add_beat(
+            TIMING.DOTTED_EIGHTH * 2, DrumInstrument.MID_TOM, 105
+        )
         builder.kick(TIMING.SIXTEENTH * 14, VELOCITY.KICK_ACCENT)
 
         # Climactic crash landing
