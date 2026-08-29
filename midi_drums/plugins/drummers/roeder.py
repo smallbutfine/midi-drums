@@ -269,7 +269,9 @@ class RoederPlugin(DrummerPlugin):
             VELOCITY.TOM_ACCENT,
         )
         # CRASH_CHOKED_A for cavernous cutoff
-        builder.crash_choked(TIMING.DOTTED_EIGHTH, "A", min(VELOCITY.CRASH_HEAVY - 10, 127))
+        builder.crash_choked(
+            TIMING.DOTTED_EIGHTH, "A", min(VELOCITY.CRASH_HEAVY - 10, 127)
+        )
         return builder.build()
 
     def _create_times_of_grace_tremolo(self) -> Pattern:

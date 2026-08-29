@@ -130,7 +130,8 @@ class CopelandPlugin(DrummerPlugin):
         builder.pattern.add_beat(0.0, DrumInstrument.RIM, VELOCITY.SNARE_LIGHT)
         # TIGHT_HH_CLOSED for reggae skank pocket depth (tight dry HH)
         builder.pattern.add_beat(
-            TIMING.SIXTEENTH, DrumInstrument.TIGHT_HH_CLOSED,
+            TIMING.SIXTEENTH,
+            DrumInstrument.TIGHT_HH_CLOSED,
             VELOCITY.HIHAT_ACCENT,
         )
         builder.pattern.add_beat(

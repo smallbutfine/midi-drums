@@ -153,9 +153,7 @@ class HoglanPlugin(DrummerPlugin):
                 builder.tom(pos, "MID", VELOCITY.TOM_ACCENT)
             # Rim accent: alternate TOM_EDGE_1 (rack) and TOM_EDGE_3 (tom 3)
             edge_variant = "1" if beat % 2 == 0 else "3"
-            builder.tom_edge(
-                pos + 0.5, edge_variant, VELOCITY.TOM_HEAVY
-            )
+            builder.tom_edge(pos + 0.5, edge_variant, VELOCITY.TOM_HEAVY)
 
         return builder.build()
 
@@ -190,7 +188,9 @@ class HoglanPlugin(DrummerPlugin):
             elif instr_name == "snare":
                 builder.snare(pos, velocity)
             elif instr_name == "ride_cymbal":
-                builder.pattern.add_beat(pos, DrumInstrument.RIDE_SHAFT, velocity)
+                builder.pattern.add_beat(
+                    pos, DrumInstrument.RIDE_SHAFT, velocity
+                )
         return builder.build()
 
     def _create_syl_ghost_cascade(self) -> Pattern:
@@ -235,7 +235,7 @@ class HoglanPlugin(DrummerPlugin):
                 inst = "FLOOR"
                 vel = min(VELOCITY.TOM_HEAVY + (i * 5), 127)
             builder.tom(pos, inst, min(vel, 127))
-                # Final crash punctuation with CRASH_CHOKED_A cutoff
+            # Final crash punctuation with CRASH_CHOKED_A cutoff
         builder.crash_choked(TIMING.DOTTED_EIGHTH, "A", VELOCITY.CRASH_HEAVY)
         return builder.build()
 

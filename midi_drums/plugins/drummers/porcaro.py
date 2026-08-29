@@ -127,7 +127,8 @@ class PorcaroPlugin(DrummerPlugin):
                 builder.ride(pos, VELOCITY.RIDE_NORMAL)
             else:
                 builder.pattern.add_beat(
-                    pos + TIMING.SIXTEENTH, DrumInstrument.RIDE_BELL,
+                    pos + TIMING.SIXTEENTH,
+                    DrumInstrument.RIDE_BELL,
                     VELOCITY.RIDE_LIGHT,
                 )
         ghost = [TIMING.EIGHTH_TRIPLET * i for i in range(1, 12)]

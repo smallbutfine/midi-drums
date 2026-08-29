@@ -181,7 +181,9 @@ class PeartPlugin(DrummerPlugin):
             TIMING.DOTTED_EIGHTH, DrumInstrument.CHINA, VELOCITY.CHINA_ACCENT
         )
         # CRASH_HEAVY resolution - full-kit impact punctuation
-        builder.crash(TIMING.DOTTED_EIGHTH + TIMING.SIXTEENTH / 2, VELOCITY.CRASH_HEAVY)
+        builder.crash(
+            TIMING.DOTTED_EIGHTH + TIMING.SIXTEENTH / 2, VELOCITY.CRASH_HEAVY
+        )
         return builder.build()
 
     def _create_r30_riser_rotation_fill(self) -> Pattern:
