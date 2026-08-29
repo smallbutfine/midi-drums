@@ -167,7 +167,11 @@ class SmithPlugin(DrummerPlugin):
             builder.kick(offset, vel)
 
         # Snare ghost notes densely layered (P-Funk lineage)
-        builder.snare(TIMING.QUARTER + TIMING.SIXTEENTH, VELOCITY.SNARE_HEAVY)
+        builder.pattern.add_beat(
+            TIMING.QUARTER + TIMING.SIXTEENTH,
+            DrumInstrument.SNARE_RIMSHOT,
+            VELOCITY.SNARE_HEAVY,
+        )
         builder.snare(TIMING.HALF * 3 + TIMING.SIXTEENTH, VELOCITY.SNARE_NORMAL)
         for i in range(1, 8):
             pos = TIMING.EIGHTH * i - TIMING.SIXTEENTH
@@ -300,9 +304,13 @@ class SmithPlugin(DrummerPlugin):
         builder.snare(TIMING.QUARTER, VELOCITY.SNARE_NORMAL - 3)
         builder.snare(TIMING.HALF * 3, VELOCITY.SNARE_NORMAL - 2)
 
-        # Tight closed hi-hat (keeping time without dominating)
+        # RIDE cymbal timekeeping (warm wash for sparse RHCP verse)
         for i in range(8):
-            builder.hihat(TIMING.EIGHTH * i, VELOCITY.HIHAT_LIGHT + 3)
+            builder.pattern.add_beat(
+                TIMING.EIGHTH * i,
+                DrumInstrument.RIDE,
+                VELOCITY.HIHAT_LIGHT + 3,
+            )
 
         return builder.build()
 
