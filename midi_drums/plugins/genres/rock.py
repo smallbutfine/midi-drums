@@ -1627,7 +1627,6 @@ class RockGenrePlugin(GenrePlugin):
                 .add(
                     JazzRidePattern(
                         swing_ratio=0.58,
-                        accent_positions=[0.0, 0.75, 1.5, 2.25, 3.0],
                     )
                 )
                 .add(
@@ -1744,7 +1743,6 @@ class RockGenrePlugin(GenrePlugin):
                 .add(
                     JazzRidePattern(
                         swing_ratio=0.6,
-                        accent_positions=[0.0, 0.5, 1.0, 1.5, 2.0, 2.5, 3.0],
                     )
                 )
                 .add(
