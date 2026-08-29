@@ -46,11 +46,12 @@ Trigger: Push to main/feat/** or Pull Request
 **Purpose**: Ensure code style and quality standards
 
 **Steps**:
-- Run ruff (fast Python linter)
-- Run black (code formatter) in check mode
-- Run isort (import sorter) in check mode
+- Run ruff (fast Python linter) — **fails on errors**
+- Run black (code formatter) — **auto-fixes, does not check**
+- Run isort (import sorter) — **auto-sorts, does not check**
+- Auto-commits format fixes via `stefanzweifel/git-auto-commit-action@v5`
 
-**Failure**: Stops PR if linting errors found
+**Failure**: Stops PR only if ruff errors found; black/isort fix and push silently.
 
 ### 2. Test Job (Matrix)
 **Purpose**: Run tests across multiple Python versions

@@ -1,370 +1,80 @@
-# Reaper Integration - Implementation Tasks
+# Reaper/Ardour/Mixbus DAW Integration — Implementation Tasks
 
-> **Branch**: `feat/reaper-integration` | **Estimate**: 12-19 hours | **Priority**: High
+> **Status**: All phases complete ✅  
+> **Current state**: Full REAPER + Ardour/Mixbus integration via Lua scripts and Python API.
 
-## Task Breakdown
+## Completed Work
 
-### Phase 1: Research & Prototyping (2-4 hours)
+### Phase 1: Research & Prototyping ✅
+- [x] .RPP marker syntax reverse-engineered (via `midiutil` + manual inspection)
+- [x] Native `.rpp` writing implemented (no external `rpp` library needed)
+- [x] Marker creation prototype → merged into ReaperEngine
 
-#### Task 1.1: Reverse-Engineer .RPP Marker Syntax
-**Estimate**: 1-2 hours | **Priority**: Critical
+### Phase 2: Core Engine ✅
+- [x] `ReaperExporter` in `midi_drums/export/reaper/exporter.py`
+  - `export_with_genre_preset()` — marker-only from genre preset
+  - `export_complete()` — full song + markers + optional MIDI export
+  - `export_with_markers()` / `export_with_midi()` — targeted exports
+- [x] `ReaperEngine` in `midi_drums/export/reaper/engine.py`
+  - `bars_to_seconds()` — bar → seconds with tempo/time-sig awareness
+  - Marker, track, and tempo-time-sig creation methods
+- [x] Data models (`GenreStructurePreset`, `Marker`) in `midi_drums/export/reaper/models.py`
 
-- [ ] Open Reaper and create blank project
-- [ ] Add 4-5 markers manually with different names
-- [ ] Export/save project to `test_markers.rpp`
-- [ ] Open in text editor and examine marker syntax
-- [ ] Document exact format (position, name, color, flags)
-- [ ] Create reference document with examples
+### Phase 3: High-Level API ✅
+- [x] `DrumGeneratorAPI.create_reaper_project()` — all-in-one (song + .rpp + optional .mid)
+- [x] `DrumGeneratorAPI.create_reaper_from_preset()` — fast marker-only from genre preset
+- [x] CLI: `midi-drums reaper export`, `reaper add-markers` commands
 
-**Acceptance Criteria**:
-- Documented marker syntax with all fields explained
-- Example markers captured from real Reaper file
+### Phase 4: Testing ✅
+- [x] Unit tests for ReaperEngine (time calculations, marker creation)
+- [x] Unit tests for ReaperExporter (file I/O, genre presets)
+- [x] Integration test (`test_reaper_all_drummers.bat`)
 
-**Blocking**: All other tasks depend on this
+### Phase 5: Documentation & Examples ✅
+- [x] `reaper/README.md` — install and usage instructions
+- [x] `docs/REAPER_INTEGRATION.md` — comprehensive DAW integration docs
+- [x] README.md section with examples
 
----
+### Phase 6: Bi-directional Sidecar + Song Map ✅
+- [x] Python API: `export_sections_json()`, `create_song_from_sections_json()`
+- [x] CLI flags: `--sidecar`, `--song-map`, `--write-sidecar`, `--write-timeline`
+- [x] Lua script `create_song_sections.lua` — 4-mode bridge (REAPER mode, sidecar mode, AI agent, song-map)
+- [x] Song map format and timeline format fully specified in REAPER_INTEGRATION.md
 
-#### Task 1.2: Install and Test rpp Library
-**Estimate**: 0.5-1 hour | **Priority**: High
-
-- [ ] Add `rpp>=0.5.0` to `pyproject.toml`
-- [ ] Run `uv pip install rpp`
-- [ ] Create prototype script to load test .rpp file
-- [ ] Test parsing markers with `rpp.load()`
-- [ ] Test generating simple .rpp with `rpp.dumps()`
-- [ ] Verify output loads in Reaper
-
-**Acceptance Criteria**:
-- rpp library installed successfully
-- Can parse and generate basic .rpp files
-- Generated files load without errors in Reaper
-
-**Dependencies**: Task 1.1 (need test file)
-
----
-
-#### Task 1.3: Prototype Marker Creation
-**Estimate**: 0.5-1 hour | **Priority**: High
-
-- [ ] Create script to add single marker to .rpp
-- [ ] Test with different time positions
-- [ ] Test with different marker names
-- [ ] Verify in Reaper that marker appears correctly
-- [ ] Document any quirks or limitations
-
-**Acceptance Criteria**:
-- Working prototype that adds marker
-- Marker appears at correct time in Reaper
-- No errors when loading modified .rpp
-
-**Dependencies**: Task 1.2
+### Phase 7: Ardour/Mixbus Integration ✅
+- [x] `ardour/create_song_sections.lua` — standalone Lua script for Ardour/Mixbus
+- [x] `ardour/midi_drums_help.lua` — help display action
+- [x] `ardour/README.md` — Ardour-specific install and usage docs
+- [x] CLI: `--ardour <output.ardour>` flag
+- [x] README updated to mention Ardour/Mixbus support
 
 ---
 
-### Phase 2: Core Engine Implementation (4-6 hours)
-
-#### Task 2.1: Create Data Models
-**Estimate**: 1 hour | **Priority**: High
-
-**File**: `midi_drums/models/reaper_models.py`
-
-- [ ] Create `Marker` dataclass
-  - `position_seconds: float`
-  - `name: str`
-  - `color: str`
-  - `marker_id: int`
-- [ ] Create `ReaperTrack` dataclass
-  - `name: str`
-  - `midi_source: Optional[str]`
-  - `volume: float`
-  - `pan: float`
-- [ ] Add type hints and docstrings
-- [ ] Create validation methods
-
-**Acceptance Criteria**:
-- All models defined with proper type hints
-- Validation logic in place
-- Docstrings complete
-
-**Dependencies**: None
-
----
-
-#### Task 2.2: Implement Time Position Calculator
-**Estimate**: 1 hour | **Priority**: High
-
-**File**: `midi_drums/engines/reaper_engine.py`
-
-- [ ] Implement `bars_to_seconds()` function
-  - Input: bars, tempo, time_signature
-  - Output: position in seconds
-- [ ] Handle edge cases (tempo=0, negative bars)
-- [ ] Add comprehensive docstring with formula
-- [ ] Write unit tests for various scenarios
-
-**Acceptance Criteria**:
-- Function calculates correct time positions
-- Handles 4/4, 3/4, 7/8 time signatures
-- Unit tests cover edge cases
-
-**Dependencies**: Task 1.1 (understand time format)
-
----
-
-#### Task 2.3: Implement ReaperEngine Class
-**Estimate**: 2-3 hours | **Priority**: High
-
-**File**: `midi_drums/engines/reaper_engine.py`
-
-- [ ] Create `ReaperEngine` class
-- [ ] Implement `create_marker()` method
-- [ ] Implement `add_markers_to_project()` method
-- [ ] Implement `create_midi_track()` method (optional)
-- [ ] Add error handling and validation
-- [ ] Write comprehensive docstrings
-- [ ] Add logging for debugging
-
-**Acceptance Criteria**:
-- All methods implemented and documented
-- Error handling for invalid inputs
-- Logging provides useful debug info
-
-**Dependencies**: Task 2.1, Task 2.2, Task 1.3 (marker syntax)
-
----
-
-### Phase 3: High-Level API (2-3 hours)
-
-#### Task 3.1: Implement ReaperExporter Class
-**Estimate**: 2-3 hours | **Priority**: High
-
-**File**: `midi_drums/exporters/reaper_exporter.py`
-
-- [ ] Create `ReaperExporter` class
-- [ ] Implement `export_with_markers()` method
-  - Parse input .rpp
-  - Calculate marker positions from Song
-  - Add markers using ReaperEngine
-  - Optionally add MIDI track
-  - Write to output .rpp
-- [ ] Implement `calculate_marker_positions()` method
-- [ ] Add validation for file paths
-- [ ] Add comprehensive error messages
-- [ ] Write docstrings with examples
-
-**Acceptance Criteria**:
-- `export_with_markers()` works end-to-end
-- Immutable operation (original file unchanged)
-- Clear error messages for common issues
-
-**Dependencies**: Task 2.3 (ReaperEngine)
-
----
-
-### Phase 4: Testing (3-4 hours)
-
-#### Task 4.1: Unit Tests - ReaperEngine
-**Estimate**: 1-1.5 hours | **Priority**: High
-
-**File**: `tests/unit/engines/test_reaper_engine.py`
-
-- [ ] Test `bars_to_seconds()` calculation
-  - 4/4 time signature
-  - 3/4 time signature
-  - Various tempos (60, 120, 180 BPM)
-- [ ] Test `create_marker()` element creation
-- [ ] Test marker serialization to .rpp format
-- [ ] Test edge cases and error handling
-
-**Acceptance Criteria**:
-- 10+ unit tests covering core functions
-- All tests pass
-- Edge cases covered
-
-**Dependencies**: Task 2.2, Task 2.3
-
----
-
-#### Task 4.2: Unit Tests - ReaperExporter
-**Estimate**: 1-1.5 hours | **Priority**: High
-
-**File**: `tests/unit/exporters/test_reaper_exporter.py`
-
-- [ ] Test `calculate_marker_positions()` from Song
-- [ ] Test file I/O operations
-- [ ] Test immutability (original file unchanged)
-- [ ] Test error handling for invalid inputs
-- [ ] Mock ReaperEngine for isolated testing
-
-**Acceptance Criteria**:
-- 8+ unit tests
-- All tests pass
-- Mocking used appropriately
-
-**Dependencies**: Task 3.1
-
----
-
-#### Task 4.3: Integration Tests
-**Estimate**: 1-1.5 hours | **Priority**: High
-
-**File**: `tests/integration/test_reaper_integration.py`
-
-- [ ] Test full export workflow (Song → .rpp)
-  - Generate song with multiple sections
-  - Export to .rpp with markers
-  - Verify .rpp can be loaded
-  - Check marker positions are correct
-- [ ] Test with different song structures
-- [ ] Test with/without MIDI track option
-- [ ] Test error recovery
-
-**Acceptance Criteria**:
-- 5+ integration tests
-- All tests pass
-- Tests use realistic scenarios
-
-**Dependencies**: Task 3.1
-
----
-
-### Phase 5: Documentation & Examples (1-2 hours)
-
-#### Task 5.1: Create Example Scripts
-**Estimate**: 0.5-1 hour | **Priority**: Medium
-
-**Files**:
-- `examples/reaper_export_basic.py`
-- `examples/reaper_export_advanced.py`
-
-- [ ] Create basic export example
-  - Generate simple song
-  - Export with markers
-  - Print success message
-- [ ] Create advanced example
-  - Custom marker colors
-  - MIDI track options
-  - Error handling demonstration
-- [ ] Add comments explaining each step
-- [ ] Test examples work correctly
-
-**Acceptance Criteria**:
-- Examples run without errors
-- Output files load in Reaper correctly
-- Well-commented and educational
-
-**Dependencies**: Task 3.1
-
----
-
-#### Task 5.2: Update Main Documentation
-**Estimate**: 0.5-1 hour | **Priority**: Medium
-
-**File**: `CLAUDE.md`
-
-- [ ] Add Reaper integration section
-- [ ] Document new API methods
-- [ ] Add usage examples
-- [ ] Update feature list
-- [ ] Add to table of contents
-
-**Acceptance Criteria**:
-- Documentation clear and complete
-- Examples match actual API
-- Properly formatted
-
-**Dependencies**: Task 5.1
-
----
-
-### Phase 6: Workflow B (Future - Optional)
-
-#### Task 6.1: Implement Marker Parsing
-**Estimate**: 2-3 hours | **Priority**: Low (Future)
-
-**File**: `midi_drums/parsers/rpp_parser.py`
-
-- [ ] Create `RPPParser` class
-- [ ] Implement `parse_markers()` method
-- [ ] Extract marker positions and names
-- [ ] Convert positions to bars based on tempo
-- [ ] Handle missing tempo/time signature
-
-**Dependencies**: Task 3.1 (ReaperExporter complete)
-
----
-
-#### Task 6.2: Implement Generate from Markers
-**Estimate**: 2-3 hours | **Priority**: Low (Future)
-
-**File**: `midi_drums/exporters/reaper_exporter.py`
-
-- [ ] Implement `generate_from_markers()` method
-- [ ] Parse .rpp markers
-- [ ] Infer section types from marker names
-- [ ] Generate Song structure
-- [ ] Generate aligned MIDI patterns
-- [ ] Export MIDI file
-
-**Dependencies**: Task 6.1
-
----
-
-## Task Dependencies Graph
+## File Layout (Current State)
 
 ```
-1.1 (RPP Syntax Research)
-  ↓
-1.2 (Install rpp) → 1.3 (Prototype)
-  ↓                    ↓
-2.1 (Models)       2.2 (Time Calc)
-  ↓                    ↓
-  ↓                    ↓
-  └─────→ 2.3 (ReaperEngine) ←─────┘
-            ↓
-        3.1 (ReaperExporter)
-            ↓
-  ┌─────────┼─────────┐
-  ↓         ↓         ↓
-4.1 (Unit) 4.2 (Unit) 4.3 (Integration)
-  └─────────┼─────────┘
-            ↓
-  ┌─────────┼─────────┐
-  ↓         ↓
-5.1 (Examples) 5.2 (Docs)
+midi_drums/export/reaper/
+├── engine.py       # Low-level Reaper project manipulation
+├── exporter.py     # High-level ReaperExporter API
+├── models.py       # GenreStructurePreset, Marker, get_genre_preset()
+└── __init__.py
+
+reaper/
+├── create_song_sections.lua   # REAPER bi-directional bridge (4 modes)
+├── midi_drums_help.lua        # Help display action
+└── README.md                  # Installation & usage
+
+ardour/
+├── create_song_sections.lua   # Ardour/Mixbus bridge (reuses same Python API)
+├── midi_drums_help.lua        # Help display action
+└── README.md                  # Ardour install & usage docs
+
+docs/REAPER_INTEGRATION.md     # Full documentation for all DAW integrations
 ```
 
-## Time Estimates Summary
+## What Still Needs Attention (Low Priority)
 
-| Phase | Tasks | Estimate |
-|-------|-------|----------|
-| Phase 1: Research | 3 tasks | 2-4 hours |
-| Phase 2: Engine | 3 tasks | 4-6 hours |
-| Phase 3: API | 1 task | 2-3 hours |
-| Phase 4: Testing | 3 tasks | 3-4 hours |
-| Phase 5: Docs | 2 tasks | 1-2 hours |
-| **TOTAL (MVP)** | **12 tasks** | **12-19 hours** |
-| Phase 6: Workflow B | 2 tasks | 4-6 hours (future) |
-
-## Progress Tracking
-
-### Completed ✅
-- [x] Architecture design
-- [x] Task breakdown
-- [x] Branch created
-
-### In Progress 🚧
-- [ ] Phase 1: Research
-
-### Blocked ⏸️
-- None currently
-
-### Next Up ⏭️
-- Task 1.1: Reverse-engineer .RPP marker syntax
-
-## Notes
-
-- **Critical Path**: Task 1.1 → 1.2 → 1.3 → 2.3 → 3.1 → 4.3
-- **Can Parallelize**: Tasks 2.1, 2.2 can be done simultaneously
-- **Testing**: Write tests alongside implementation (not at end)
-- **Manual Validation**: Test each milestone in Reaper before proceeding
+- [ ] Marker color customization per-section via Python API (hardcoded genre presets only currently)
+- [ ] Ardour-specific marker syntax verification on Linux/macOS (tested on Windows-only so far)
+- [ ] Mixbus 6 specific compatibility notes (Mixbus 7 may have different marker rendering)
+- [ ] Documentation for `.ardour` project format (Ardour's native format is less documented than .rpp)
