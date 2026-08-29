@@ -213,7 +213,11 @@ class SmithPlugin(DrummerPlugin):
             builder.kick(pos, vel)
 
         # Heavy snare backbeats with ghost notes between
-        builder.snare(TIMING.QUARTER, VELOCITY.SNARE_HEAVY)
+        builder.pattern.add_beat(
+            TIMING.QUARTER,
+            DrumInstrument.SNARE_RIMSHOT,
+            VELOCITY.SNARE_HEAVY,
+        )
         builder.snare(TIMING.HALF * 3, min(VELOCITY.SNARE_HEAVY + 5, 127))
 
         # Ghost note net between beats (dense for funk feel)
