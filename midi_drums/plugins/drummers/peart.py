@@ -111,7 +111,8 @@ class PeartPlugin(DrummerPlugin):
         """Quintuplet tom cascade reflecting Peart's polyrhythmic vocabulary.
 
         Uses AD2 TOM_EDGE for the tight metallic attack that defines progressive
-        metal fills - each hit must cut through dense guitar layers.
+        metal fills - each hit must cut through dense guitar layers. Resolves
+        with a SPLASH cymbal swell (Sacred Geometry-era signature punctuation).
         """
         builder = PatternBuilder("peart_quintuplet_toms")
         instruments = [
@@ -133,6 +134,13 @@ class PeartPlugin(DrummerPlugin):
         # Rim accents sit within the fill window so they actually render
         builder.tom_edge(0.85, "MID", VELOCITY.TOM_ACCENT - 1)
         builder.tom_edge(0.95, "FLOOR", VELOCITY.TOM_HEAVY)
+
+        # SPLASH cymbal swell at resolution (Peart's Sacred Geometry signature)
+        builder.pattern.add_beat(
+            TIMING.DOTTED_EIGHTH,
+            DrumInstrument.SPLASH,
+            VELOCITY.CHINA_ACCENT,
+        )
 
         return builder.build()
 
@@ -156,7 +164,8 @@ class PeartPlugin(DrummerPlugin):
     def _create_china_punctuation_fill(self) -> Pattern:
         """Descending toms into a dramatic china cymbal punctuation.
 
-        Kept entirely within beat 1.0 (see midi_drums/export/midi/engine.py's
+        Climax punctuated by CRASH_HEAVY for the full-kit impact Peart uses
+        in live performances (Snakes & Arrows era).", Kept entirely within beat 1.0 (see midi_drums/export/midi/engine.py's
         fill-rendering gate) - the climactic hit sits at 0.75, not exactly at
         1.0, so it isn't silently dropped by the rendering boundary check.
         """
@@ -171,6 +180,8 @@ class PeartPlugin(DrummerPlugin):
         builder.pattern.add_beat(
             TIMING.DOTTED_EIGHTH, DrumInstrument.CHINA, VELOCITY.CHINA_ACCENT
         )
+        # CRASH_HEAVY resolution - full-kit impact punctuation
+        builder.crash(TIMING.DOTTED_EIGHTH + TIMING.SIXTEENTH / 2, VELOCITY.CRASH_HEAVY)
         return builder.build()
 
     def _create_r30_riser_rotation_fill(self) -> Pattern:
@@ -180,7 +191,7 @@ class PeartPlugin(DrummerPlugin):
         allowing him to play through a cascade spanning all four banks while
         they're turning (documented in the *Anatomy of a Drum Solo* DVD).
         Simulated here with rapid ascending rack-tom pattern across multiple
-        velocity layers to evoke the rotating motion.
+        velocity layers, ending on OPEN_HH_MAX for a dramatic solo swell.
         """
         builder = PatternBuilder("peart_r30_rotation")
         # Ascending cascade across tom heights simulating rotation
@@ -210,27 +221,30 @@ class PeartPlugin(DrummerPlugin):
         ]
         for pos, instrument, velocity in sequence:
             builder.pattern.add_beat(pos, instrument, velocity)
+
+        # OPEN_HH_MAX for drum solo swell resolution
+        builder.hihat(TIMING.DOTTED_EIGHTH + TIMING.SIXTEENTH / 2, 127)
         return builder.build()
 
     def _create_malletkat_electronic_fill(self) -> Pattern:
         """MalletKAT / electronic percussion fill.
 
-                Peart incorporates MalletKAT electronic percussion triggers into live
-                and studio setups for metallic/ethnic timbres unavailable from acoustic
-        toms. Simulated with RIDE_BELL (AD2: Ride 1 Bell = ethnic trigger) mapped
-                to the MalletKAT's pentatonic metallic response.
+        Peart incorporates MalletKAT electronic percussion triggers into live
+        and studio setups for metallic/ethnic timbres unavailable from acoustic
+        toms. Simulated with RIDE_SHAFT (AD2: Ride 1 Shaft = metallic trigger)
+        mapped to the MalletKAT's pentatonic metallic response.
         """
         builder = PatternBuilder("peart_malletkat_electronic")
         # Pentatonic metallic pattern simulating MalletKAT strikes
         builder.pattern.add_beat(
-            0.0, DrumInstrument.RIDE_BELL, VELOCITY.TOM_ACCENT
+            0.0, DrumInstrument.RIDE_SHAFT, VELOCITY.TOM_ACCENT
         )
         builder.pattern.add_beat(
             TIMING.EIGHTH, DrumInstrument.CHINA, VELOCITY.CHINA_ACCENT
         )
         builder.kick(TIMING.SIXTEENTH * 2, VELOCITY.KICK_HEAVY - 10)
         builder.pattern.add_beat(
-            TIMING.DOTTED_EIGHTH, DrumInstrument.RIDE_BELL, VELOCITY.TOM_HEAVY
+            TIMING.DOTTED_EIGHTH, DrumInstrument.RIDE_SHAFT, VELOCITY.TOM_HEAVY
         )
         return builder.build()
 

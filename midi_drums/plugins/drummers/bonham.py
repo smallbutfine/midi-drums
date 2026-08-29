@@ -277,6 +277,13 @@ class BonhamPlugin(DrummerPlugin):
                 )
             else:
                 builder.snare(pos, VELOCITY.SNARE_HEAVY)
+        # Immigrant Song triplet resolution with ride bell accent
+        builder.ride(4.0, VELOCITY.RIDE_ACCENT)
+        builder.pattern.add_beat(
+            3.875,
+            DrumInstrument.RIDE_BELL,
+            VELOCITY.RIDE_BELL_ACCENT,
+        )
         return builder.build()
 
 

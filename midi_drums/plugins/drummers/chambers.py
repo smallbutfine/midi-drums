@@ -130,6 +130,7 @@ class ChambersPlugin(DrummerPlugin):
         builder.kick(TIMING.DOTTED_EIGHTH, VELOCITY.KICK_HEAVY)
         builder.kick(TIMING.HALF + TIMING.EIGHTH_TRIPLET, VELOCITY.KICK_NORMAL)
         builder.kick(TIMING.QUARTER * 2 + TIMING.EIGHTH, VELOCITY.KICK_HEAVY)
+        # Tight HH for funk pocket depth (vs generic CLOSED_HH)
         for i in range(8):
             pos = i * TIMING.EIGHTH
             open_flag = i % 4 in [1, 3]
@@ -137,12 +138,14 @@ class ChambersPlugin(DrummerPlugin):
             builder.pattern.add_beat(
                 pos,
                 (
-                    DrumInstrument.OPEN_HH
+                    DrumInstrument.OPEN_HH_SOFT
                     if open_flag
-                    else DrumInstrument.CLOSED_HH
+                    else DrumInstrument.TIGHT_HH_CLOSED
                 ),
                 velocity,
             )
+        # SNARE_RIMSHOT on backbeat for funk cut-through in dense mixes
+        builder.snare(TIMING.QUARTER, VELOCITY.SNARE_RIMSHOT)
         return builder.build()
 
     def _create_fast_chops_showcase(self) -> Pattern:

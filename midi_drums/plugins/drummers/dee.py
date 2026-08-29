@@ -151,8 +151,9 @@ class DeePlugin(DrummerPlugin):
                     min(VELOCITY.SNARE_HEAVY + i * 2, 127),
                 )
 
-        # Crash punctuation at the end of the arc
+        # Crash + OPEN_HH_FULL swell at the end of the arc
         builder.crash(4.0, VELOCITY.CRASH_HEAVY)
+        builder.hihat(4.0, 127)
         return builder.build()
 
     def _create_ride_bell_stinger(self) -> Pattern:
@@ -289,10 +290,12 @@ class DeePlugin(DrummerPlugin):
                 builder.kick(pos, VELOCITY.KICK_HEAVY)
             else:
                 builder.crash_choked(pos, "A", VELOCITY.CRASH_ACCENT)
-        # Tight double-kick run on the final beat
-        for i in range(4):
-            pos = TIMING.QUARTER * 3 + TIMING.SIXTEENTH * i
-            builder.kick(pos, min(VELOCITY.KICK_HEAVY + i * 2, 127))
+        # SPLASH cymbal swell for horror metal punctuation
+        builder.pattern.add_beat(
+            TIMING.HALF * 3 + TIMING.SIXTEENTH,
+            DrumInstrument.SPLASH,
+            VELOCITY.CHINA_ACCENT,
+        )
         return builder.build()
 
 

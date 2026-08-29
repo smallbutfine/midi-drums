@@ -176,9 +176,7 @@ class RichPlugin(DrummerPlugin):
         builder.snare(TIMING.SIXTEENTH_TRIPLET, VELOCITY.SNARE_HEAVY)
         builder.snare(TIMING.SIXTEENTH_TRIPLET * 2, VELOCITY.SNARE_ACCENT)
         builder.kick(TIMING.DOTTED_EIGHTH, VELOCITY.KICK_ACCENT)
-        builder.pattern.add_beat(
-            TIMING.DOTTED_EIGHTH, DrumInstrument.CRASH, VELOCITY.CRASH_ACCENT
-        )
+        builder.crash(TIMING.DOTTED_EIGHTH, VELOCITY.CRASH_ACCENT)
         return builder.build()
 
     def _create_drum_battle_fill(self) -> Pattern:
@@ -223,13 +221,21 @@ class RichPlugin(DrummerPlugin):
             )
             velocity = min(VELOCITY.TOM_HEAVY + (i % 4) * 3, 127)
             builder.pattern.add_beat(pos, instrument, velocity)
-        # Swing-pattern ride cadence packed into one beat
+        # Swing-pattern ride cadence (ding-ding-a-da on RIDE + bell accents)
         for i in range(4):
             pos = TIMING.SIXTEENTH * i
-            velocity = VELOCITY.HIHAT_NORMAL + 5
-            builder.pattern.add_beat(
-                pos, DrumInstrument.OPEN_HH_1, min(velocity, 127)
-            )
+            if i % 2 == 0:
+                builder.ride(pos, VELOCITY.RIDE_NORMAL)
+                # Bell accent only when it fits within fill render window
+                bell_pos = pos + TIMING.DOTTED_EIGHTH
+                if bell_pos < 1.0:
+                    builder.pattern.add_beat(
+                        bell_pos,
+                        DrumInstrument.RIDE_BELL,
+                        VELOCITY.RIDE_BELL_ACCENT,
+                    )
+            else:
+                builder.ride(pos, VELOCITY.RIDE_LIGHT)
         # Final crash accent at resolution (within fill window)
         builder.crash(TIMING.DOTTED_EIGHTH, min(VELOCITY.CRASH_ACCENT, 127))
         return builder.build()

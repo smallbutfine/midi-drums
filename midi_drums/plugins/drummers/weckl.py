@@ -130,6 +130,16 @@ class WecklPlugin(DrummerPlugin):
         for i in range(8):
             vel = VELOCITY.HIHAT_NORMAL + random.randint(-5, 5)
             builder.hihat(i * TIMING.EIGHTH, vel)
+
+        # Weckl ride pattern — his defining voice (accent on 'e' and 'a')
+        for i in range(4):
+            pos = i * TIMING.HALF
+            builder.ride(pos, VELOCITY.RIDE_NORMAL)
+        builder.pattern.add_beat(
+            TIMING.EIGHTH + TIMING.SIXTEENTH,
+            DrumInstrument.RIDE_BELL,
+            VELOCITY.RIDE_BELL_ACCENT,
+        )
         return builder.build()
 
     def _create_linear_fusion_fill(self) -> Pattern:

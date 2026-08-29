@@ -156,6 +156,13 @@ class HalpernPlugin(DrummerPlugin):
                 pos, DrumInstrument.TOM_EDGE_MID, VELOCITY.TOM_HEAVY
             )
 
+        # RIDE_SHAFT accents (Periphery's metallic shimmer over odd groove)
+        for i in range(2):
+            pos = round(i * TIMING.HALF + TIMING.EIGHTH, 6)
+            builder.pattern.add_beat(
+                pos, DrumInstrument.RIDE_SHAFT, VELOCITY.CHINA_ACCENT - 5
+            )
+
         # Sparse hi-hat (mimicking electronic cymbal triggers)
         for i in range(4):
             builder.hihat(i * TIMING.HALF, VELOCITY.HIHAT_NORMAL)
@@ -188,13 +195,19 @@ class HalpernPlugin(DrummerPlugin):
         for i in range(7):
             pos = round(i * TIMING.HALF * 2 / 7, 6)
             builder.kick(
-                pos,
                 (
                     VELOCITY.KICK_HEAVY
                     if i % 2 == 0
                     else min(VELOCITY.KICK_NORMAL + 5, 127)
                 ),
             )
+
+        # SPLASH cymbal swell at fill resolution (Periphery texture)
+        builder.pattern.add_beat(
+            TIMING.HALF * 2 - TIMING.SIXTEENTH,
+            DrumInstrument.SPLASH,
+            VELOCITY.CHINA_ACCENT,
+        )
 
         return builder.build()
 
@@ -260,12 +273,12 @@ class HalpernPlugin(DrummerPlugin):
                 VELOCITY.TOM_HEAVY,
             )
 
-        # Dense cymbal swells (simulating atmospheric pads)
+        # Dense cymbal swells (simulating atmospheric pads with RIDE_SHAFT shimmer)
         for i in range(16):
             pos = TIMING.SIXTEENTH * i
             builder.pattern.add_beat(
                 pos,
-                DrumInstrument.CRASH,
+                DrumInstrument.RIDE_SHAFT,
                 VELOCITY.CHINA_ACCENT - random.randint(5, 20),
             )
 
@@ -304,7 +317,7 @@ class HalpernPlugin(DrummerPlugin):
         for i in range(4):
             pos = round(TIMING.EIGHTH * i + TIMING.SIXTEENTH, 6)
             builder.pattern.add_beat(
-                pos, DrumInstrument.RIDE, VELOCITY.CHINA_ACCENT - 10
+                pos, DrumInstrument.RIDE_BELL_ALT, VELOCITY.CHINA_ACCENT - 10
             )
 
         return builder.build()
@@ -350,6 +363,8 @@ class HalpernPlugin(DrummerPlugin):
                 VELOCITY.TOM_HEAVY,
             )
 
+        # CRASH_CHOKED_A resolution punctuation
+        builder.crash_choked(TIMING.DOTTED_EIGHTH, "A", VELOCITY.CRASH_HEAVY)
         return builder.build()
 
     def _create_spectral_erosion_blast_odd_hybrid(self) -> Pattern:
@@ -380,6 +395,12 @@ class HalpernPlugin(DrummerPlugin):
             pos = round(TIMING.HALF + i * TIMING.QUARTER, 6)
             builder.snare(pos, VELOCITY.SNARE_ACCENT)
 
+        # SPLASH swell at final resolution
+        builder.pattern.add_beat(
+            TIMING.DOTTED_EIGHTH * 2,
+            DrumInstrument.SPLASH,
+            VELOCITY.CHINA_ACCENT,
+        )
         return builder.build()
 
     def _create_mountain_valley_polyrhythm(self) -> Pattern:

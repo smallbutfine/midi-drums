@@ -128,15 +128,17 @@ class CopelandPlugin(DrummerPlugin):
         """
         builder = PatternBuilder("copeland_skank_hihat")
         builder.pattern.add_beat(0.0, DrumInstrument.RIM, VELOCITY.SNARE_LIGHT)
+        # TIGHT_HH_CLOSED for reggae skank pocket depth (tight dry HH)
         builder.pattern.add_beat(
-            TIMING.SIXTEENTH, DrumInstrument.OPEN_HH_1, VELOCITY.HIHAT_ACCENT
+            TIMING.SIXTEENTH, DrumInstrument.TIGHT_HH_CLOSED,
+            VELOCITY.HIHAT_ACCENT,
         )
         builder.pattern.add_beat(
             TIMING.SIXTEENTH * 2, DrumInstrument.RIM, VELOCITY.SNARE_LIGHT
         )
         builder.pattern.add_beat(
             TIMING.SIXTEENTH * 3,
-            DrumInstrument.OPEN_HH_1,
+            DrumInstrument.TIGHT_HH_CLOSED,
             VELOCITY.HIHAT_ACCENT,
         )
         return builder.build()

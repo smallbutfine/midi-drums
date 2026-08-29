@@ -191,6 +191,18 @@ class HaakePlugin(DrummerPlugin):
         for i in range(4):
             builder.hihat(i * TIMING.HALF, VELOCITY.HIHAT_NORMAL)
 
+        # Chug-chick choked crash accents — defining Meshuggah articulation
+        builder.pattern.add_beat(
+            TIMING.HALF * 3 / 2,
+            DrumInstrument.CRASH_CHOKED_A,
+            VELOCITY.CRASH_ACCENT,
+        )
+        builder.pattern.add_beat(
+            TIMING.HALF * 7 / 4,
+            DrumInstrument.CRASH_CHOKED_D,
+            VELOCITY.CHINA_NORMAL,
+        )
+
         return builder.build()
 
     def _create_kobayashi_odd_meter_fill(self) -> Pattern:

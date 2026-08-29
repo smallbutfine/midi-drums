@@ -126,7 +126,7 @@ class RoederPlugin(DrummerPlugin):
         return builder.build()
 
     def _create_labyrinthine_fill(self) -> Pattern:
-        """Winding rhythmic motif."""
+        """Winding rhythmic motif with RIDE cymbal timekeeping for Neurosis atmosphere."""
         from midi_drums.generation.builders.pattern_builder import (
             PatternBuilder,
         )
@@ -139,10 +139,17 @@ class RoederPlugin(DrummerPlugin):
         )
         builder.snare(TIMING.HALF, VELOCITY.SNARE_LIGHT)
         builder.kick(TIMING.DOTTED_EIGHTH * 2, VELOCITY.KICK_NORMAL)
-        builder.tom_edge(
+        # RIDE cymbal timekeeping (Neurosis uses ride for atmospheric wash)
+        builder.pattern.add_beat(
             TIMING.QUARTER * 3 + TIMING.EIGHTH_TRIPLET,
-            "3",
-            VELOCITY.TOM_HEAVY,
+            DrumInstrument.RIDE,
+            VELOCITY.CHINA_ACCENT - 10,
+        )
+        # CRASH_CHOKED_B for atmospheric swell
+        builder.crash_choked(
+            TIMING.QUARTER * 3 + TIMING.EIGHTH_TRIPLET + TIMING.SIXTEENTH / 2,
+            "B",
+            VELOCITY.CRASH_HEAVY,
         )
         return builder.build()
 
@@ -239,15 +246,18 @@ class RoederPlugin(DrummerPlugin):
         return builder.build()
 
     def _create_pain_of_always_ambient_fill(self) -> Pattern:
-        """Pain of Always ambient pad with sparse hits."""
+        """Pain of Always ambient pad with sparse RIDE wash."""
         from midi_drums.generation.builders.pattern_builder import (
             PatternBuilder,
         )
 
         builder = PatternBuilder("roeder_pain_of_always_ambient")
+        # Sparse RIDE cymbal timekeeping (replaces generic HH for atmosphere)
         for i in range(4):
             pos = TIMING.HALF * i
-            builder.hihat(pos, VELOCITY.HIHAT_ACCENT + 10)
+            builder.pattern.add_beat(
+                pos, DrumInstrument.RIDE, VELOCITY.CHINA_ACCENT - 10
+            )
         builder.tom(
             TIMING.EIGHTH_TRIPLET,
             DrumInstrument.FLOOR_TOM.value,
@@ -258,7 +268,8 @@ class RoederPlugin(DrummerPlugin):
             DrumInstrument.MID_TOM.value,
             VELOCITY.TOM_ACCENT,
         )
-        builder.crash(TIMING.DOTTED_EIGHTH, min(VELOCITY.CRASH_HEAVY - 10, 127))
+        # CRASH_CHOKED_A for cavernous cutoff
+        builder.crash_choked(TIMING.DOTTED_EIGHTH, "A", min(VELOCITY.CRASH_HEAVY - 10, 127))
         return builder.build()
 
     def _create_times_of_grace_tremolo(self) -> Pattern:

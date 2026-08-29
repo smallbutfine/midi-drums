@@ -119,6 +119,17 @@ class PorcaroPlugin(DrummerPlugin):
         builder.kick(0.0, VELOCITY.KICK_LIGHT)
         builder.kick(TIMING.HALF, 105)
         builder.snare(TIMING.HALF, VELOCITY.SNARE_HEAVY)
+
+        # Rosanna shuffle ride cymbal pattern (the defining voice of this groove)
+        for i in range(8):
+            pos = i * TIMING.EIGHTH
+            if i % 2 == 0:
+                builder.ride(pos, VELOCITY.RIDE_NORMAL)
+            else:
+                builder.pattern.add_beat(
+                    pos + TIMING.SIXTEENTH, DrumInstrument.RIDE_BELL,
+                    VELOCITY.RIDE_LIGHT,
+                )
         ghost = [TIMING.EIGHTH_TRIPLET * i for i in range(1, 12)]
         for pos in ghost:
             if random.random() < 0.7:
@@ -133,7 +144,7 @@ class PorcaroPlugin(DrummerPlugin):
                 (
                     DrumInstrument.OPEN_HH
                     if open_flag
-                    else DrumInstrument.CLOSED_HH
+                    else DrumInstrument.CLOSED_HH_EDGE
                 ),
                 vel,
             )

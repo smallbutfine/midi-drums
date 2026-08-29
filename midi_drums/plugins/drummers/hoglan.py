@@ -151,9 +151,10 @@ class HoglanPlugin(DrummerPlugin):
                 builder.tom(pos, "FLOOR", VELOCITY.TOM_ACCENT)
             else:
                 builder.tom(pos, "MID", VELOCITY.TOM_ACCENT)
-            # Rim accent
+            # Rim accent: alternate TOM_EDGE_1 (rack) and TOM_EDGE_3 (tom 3)
+            edge_variant = "1" if beat % 2 == 0 else "3"
             builder.tom_edge(
-                pos + 0.5, "4" if beat % 2 == 0 else "3", VELOCITY.TOM_HEAVY
+                pos + 0.5, edge_variant, VELOCITY.TOM_HEAVY
             )
 
         return builder.build()
@@ -189,7 +190,7 @@ class HoglanPlugin(DrummerPlugin):
             elif instr_name == "snare":
                 builder.snare(pos, velocity)
             elif instr_name == "ride_cymbal":
-                builder.pattern.add_beat(pos, DrumInstrument.CHINA, velocity)
+                builder.pattern.add_beat(pos, DrumInstrument.RIDE_SHAFT, velocity)
         return builder.build()
 
     def _create_syl_ghost_cascade(self) -> Pattern:
@@ -234,8 +235,8 @@ class HoglanPlugin(DrummerPlugin):
                 inst = "FLOOR"
                 vel = min(VELOCITY.TOM_HEAVY + (i * 5), 127)
             builder.tom(pos, inst, min(vel, 127))
-        # Final crash punctuation
-        builder.crash(TIMING.DOTTED_EIGHTH, VELOCITY.CRASH_HEAVY)
+                # Final crash punctuation with CRASH_CHOKED_A cutoff
+        builder.crash_choked(TIMING.DOTTED_EIGHTH, "A", VELOCITY.CRASH_HEAVY)
         return builder.build()
 
     def _create_mechanical_precision_roll(self) -> Pattern:
@@ -294,6 +295,10 @@ class HoglanPlugin(DrummerPlugin):
         # Double-kick underpinning on beats 1 and 3
         builder.kick(0.0, min(VELOCITY.KICK_HEAVY, 127))
         builder.kick(TIMING.HALF, min(VELOCITY.KICK_HEAVY, 127))
+        # RIDE cymbal for Dethklok/Metallica metallic timekeeping
+        builder.pattern.add_beat(
+            TIMING.QUARTER, DrumInstrument.RIDE, VELOCITY.CHINA_ACCENT - 5
+        )
         return builder.build()
 
 

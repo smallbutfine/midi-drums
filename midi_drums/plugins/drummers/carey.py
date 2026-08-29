@@ -345,7 +345,8 @@ class CareyPlugin(DrummerPlugin):
             # Kick transition with crash accent
             (3.2, DrumInstrument.KICK, 100),
             (4.0, DrumInstrument.FLOOR_TOM, 125),
-            (4.8, DrumInstrument.CHINA, 110),
+            (4.8, DrumInstrument.SPLASH, 95),
+            (4.8, DrumInstrument.CRASH_HEAVY, 115),
         ]
 
         for pos, instrument, velocity in sequence:
@@ -355,6 +356,9 @@ class CareyPlugin(DrummerPlugin):
         for i in range(5):
             pos = i * 0.8
             builder.kick(pos, 90 + random.randint(-10, 20))
+
+        # SPLASH cymbal — Sacred Geometry era texture
+        builder.pattern.add_beat(4.8, DrumInstrument.SPLASH, 90)
 
         return builder.build()
 
