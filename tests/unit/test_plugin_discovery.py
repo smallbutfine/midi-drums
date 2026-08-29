@@ -101,6 +101,7 @@ def test_discover_plugins_loads_all_builtin_drummers():
         "haake",  # Thomas Haake - Meshuggah polyrhythmic djent style
         "halpern",  # Matt Halpern - Periphery odd-time/djent style
         "hoglan",
+        "moon",  # Keith Moon - The Who chaotic crash/tom style
         "peart",
         "porcaro",
         "rich",
