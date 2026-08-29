@@ -44,7 +44,7 @@ _INSTR_NOTE = {
     "CRASH_CHOKED_B": 79,
     "CRASH_CHOKED_C": 71,
     "CRASH_CHOKED_D": 68,
-    "RIDE_SHAFT": 62,
+    "RIDE_SHAFT": 94,
     "RIDE_BELL_ALT": 61,
     "TIGHT_HH_EDGE": 91,
     "TIGHT_HH_TIP": 90,

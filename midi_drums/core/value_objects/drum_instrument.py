@@ -68,7 +68,7 @@ class DrumInstrument(Enum):
     # All MIDI values taken from the AD2 keymap PDF (Addictive Drums 2 Keymap.pdf)
 
     # --- Ride cymbal variants (different striking positions) ---
-    RIDE_SHAFT = 54  # B#2 - Ride shaft hit (metallic, bell-like timbre) for metal sections
+    RIDE_SHAFT = 94  # B3 - Ride shaft hit (metallic, bell-like timbre) for metal sections
     RIDE_BELL_ALT = 85  # C#5 - Alt bell position for fills/accents
     RIDE_1_TIP = 60  # C3 - Softer ride tip for verses/intros
 

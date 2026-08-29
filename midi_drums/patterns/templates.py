@@ -326,7 +326,7 @@ class JazzRidePattern(PatternTemplate):
 
     Creates authentic jazz ride patterns with triplet-based swing.
     Supports AD2 extended timbres:
-        - use_shaft=True → RIDE_SHAFT (54) for metallic harshness (metal sections)
+        - use_shaft=True → RIDE_SHAFT (94) for metallic harshness (metal sections)
         - use_bell=True → RIDE_BELL (53) for fill accents
     """
 
