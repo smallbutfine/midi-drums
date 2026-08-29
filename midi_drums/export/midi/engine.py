@@ -125,7 +125,9 @@ class MIDIEngine:
         # Collect all events with absolute tick positions
         events: list[tuple[int, object]] = []
 
-        events.append((0, MM("set_tempo", tempo=int(60_000_000 / tempo), time=0)))
+        events.append(
+            (0, MM("set_tempo", tempo=int(60_000_000 / tempo), time=0))
+        )
 
         for beat in _dedupe_by_instrument_position(pattern.beats):
             tick = int(round(beat.position * tpq))
@@ -202,7 +204,9 @@ class MIDIEngine:
             events.append((tick, msg))
 
         # Initial tempo at tick 0 (set_tempo uses microseconds per beat)
-        _add_tick(0, MM("set_tempo", tempo=int(60_000_000 / song.tempo), time=0))
+        _add_tick(
+            0, MM("set_tempo", tempo=int(60_000_000 / song.tempo), time=0)
+        )
 
         for section in song.sections:
             ts_num = section.effective_time_signature(
@@ -221,7 +225,11 @@ class MIDIEngine:
                     tick_now = int(round(time_cursor * tpq))
                     _add_tick(
                         tick_now,
-                        MM("set_tempo", tempo=int(60_000_000 / eff_tempo), time=0),
+                        MM(
+                            "set_tempo",
+                            tempo=int(60_000_000 / eff_tempo),
+                            time=0,
+                        ),
                     )
                     tempo_state["tempo"] = eff_tempo
 

@@ -1,6 +1,5 @@
 """Generation parameters value object."""
 
-
 from dataclasses import dataclass, field
 from typing import Any
 
@@ -14,9 +13,15 @@ class GenerationParameters:
     drummer: str | None = None
     complexity: float = 0.5  # 0.0-1.0, affects fill density and variation
     dynamics: float = 0.6  # 0.0-1.0, affects volume variation (raised from 0.5)
-    humanization: float = 0.5  # 0.0-1.0, affects timing/velocity variation (raised from 0.3)
-    fill_frequency: float = 0.35  # 0.0-1.0, how often fills occur (raised for more natural phrasing)
-    swing_ratio: float = 0.12  # 0.0=straight, 0.12=light swing base, genres override higher (Jazz 0.3, Funk 0.2)
+    humanization: float = (
+        0.5  # 0.0-1.0, affects timing/velocity variation (raised from 0.3)
+    )
+    fill_frequency: float = (
+        0.35  # 0.0-1.0, how often fills occur (raised for more natural phrasing)
+    )
+    swing_ratio: float = (
+        0.12  # 0.0=straight, 0.12=light swing base, genres override higher (Jazz 0.3, Funk 0.2)
+    )
     ride_threshold: float = 0.9  # 0.0-1.0, complexity above which a
     # section switches from hi-hat to ride cymbal timekeeping regardless
     # of section name. High by default so section name (chorus/bridge)

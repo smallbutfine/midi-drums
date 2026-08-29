@@ -61,12 +61,12 @@ _AD2_FULL_MAP: dict[DrumInstrument, int] = {
     # Tight HH (velocity-tunable zones)
     DrumInstrument.TIGHT_HH_EDGE: 91,  # G5
     DrumInstrument.TIGHT_HH_TIP: 90,  # F#5
-    DrumInstrument.TIGHT_HH_A: 91,    # Looser tight (same zone as EDGE)
-    DrumInstrument.TIGHT_HH_B: 90,    # Medium-tight (same zone as TIP)
-    DrumInstrument.TIGHT_HH_C: 89,    # Tightest control
+    DrumInstrument.TIGHT_HH_A: 91,  # Looser tight (same zone as EDGE)
+    DrumInstrument.TIGHT_HH_B: 90,  # Medium-tight (same zone as TIP)
+    DrumInstrument.TIGHT_HH_C: 89,  # Tightest control
     DrumInstrument.TIGHT_HH_CLOSED: 91,
-    DrumInstrument.OPEN_HH_SOFT: 56,   # A#1 softer open crash
-    DrumInstrument.OPEN_HH_FULL: 57,   # C2 full open
+    DrumInstrument.OPEN_HH_SOFT: 56,  # A#1 softer open crash
+    DrumInstrument.OPEN_HH_FULL: 57,  # C2 full open
     # --- Tom positions ---
     DrumInstrument.MID_TOM: 67,  # Tom 3 Open Hit
     DrumInstrument.FLOOR_TOM: 65,  # Tom 4 Open Hit

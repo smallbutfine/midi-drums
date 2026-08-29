@@ -89,7 +89,12 @@ Examples:
         default="classic",
         help="Style within genre (default: classic)",
     )
-    parser.add_argument("--tempo", type=int, default=None, help="Tempo in BPM (defaults to genre-specific value)")
+    parser.add_argument(
+        "--tempo",
+        type=int,
+        default=None,
+        help="Tempo in BPM (defaults to genre-specific value)",
+    )
     parser.add_argument(
         "--output", "-o", help="Output MIDI file (auto-named if omitted)"
     )
@@ -310,11 +315,16 @@ Examples:
         "--style", default="default", help="Style within genre"
     )
     ardour_create.add_argument(
-        "--tempo", type=int, default=None, help="Tempo in BPM (uses genre preset default when omitted)"
+        "--tempo",
+        type=int,
+        default=None,
+        help="Tempo in BPM (uses genre preset default when omitted)",
     )
     ardour_create.add_argument(
-        "--output", "-o", required=True,
-        help="Output Ardour session path (.ardourproj) or directory name"
+        "--output",
+        "-o",
+        required=True,
+        help="Output Ardour session path (.ardourproj) or directory name",
     )
     ardour_create.add_argument("--name", help="Song name")
     ardour_create.add_argument(
@@ -333,7 +343,7 @@ Examples:
     ardour_create.add_argument(
         "--mapping",
         default=None,
-        help="MIDI mapping preset (ezdrummer3, addictive_drums, gm_drums, etc.)"
+        help="MIDI mapping preset (ezdrummer3, addictive_drums, gm_drums, etc.)",
     )
     ardour_create.add_argument(
         "--midi",
@@ -981,7 +991,7 @@ def handle_ardour_create_command(args, generator: DrumGenerator) -> None:
             else:
                 ardour_session = output
 
-            print(f"Ardour project preset-only (no MIDI generated)")
+            print("Ardour project preset-only (no MIDI generated)")
             print(f"  Output dir : {ardour_session}")
             print(f"  Genre      : {args.genre} ({args.style})")
             print(f"  Tempo      : {resolved_tempo} BPM")
@@ -1049,6 +1059,7 @@ def handle_ardour_create_command(args, generator: DrumGenerator) -> None:
     except Exception as e:
         print(f"Error creating Ardour project: {e}", file=sys.stderr)
         import traceback
+
         traceback.print_exc()
         sys.exit(1)
 
@@ -1431,12 +1442,14 @@ def handle_prompt_command(args) -> None:
                 # Write sidecar for ardour/create_song_sections.lua
                 sc_path = ardour_out / "midi_drums_sections.json"
                 from midi_drums.api.python_api import DrumGeneratorAPI
+
                 DrumGeneratorAPI().export_sections_json(song_obj, str(sc_path))
 
                 # Export MIDI alongside the session dir
                 mid_path = ardour_out / f"{song_obj.name}.mid"
                 generator = DrumGenerator()
                 from midi_drums.core.models.kit import DrumKit
+
                 drum_kit = DrumKit.from_preset(mapping)
                 generator.export_midi(song_obj, str(mid_path))
                 print(f"  Ardour     : {ardour_out}  (sidecar + MIDI)")
@@ -1527,14 +1540,20 @@ def handle_prompt_command(args) -> None:
                 ardour_out.mkdir(parents=True, exist_ok=True)
 
                 # Build a minimal song from the single pattern for sidecar
-                from midi_drums.core.models.song import Section, Song
                 from midi_drums.api.python_api import DrumGeneratorAPI
+                from midi_drums.core.models.song import Section, Song
+                from midi_drums.core.value_objects.time_signature import (
+                    TimeSignature,
+                )
+
                 song_obj = Song(
                     name=slug,
                     tempo=args.tempo,
                     time_signature=TimeSignature(4, 4),
                     sections=[
-                        Section(name=args.section, pattern=pattern, bars=args.bars)
+                        Section(
+                            name=args.section, pattern=pattern, bars=args.bars
+                        )
                     ],
                     metadata={"genre": chars.genre, "style": chars.style},
                 )
@@ -1545,6 +1564,7 @@ def handle_prompt_command(args) -> None:
                 mid_path = ardour_out / f"{slug}.mid"
                 generator = DrumGenerator()
                 from midi_drums.core.models.kit import DrumKit
+
                 drum_kit = DrumKit.from_preset(mapping)
                 generator.export_midi(song_obj, str(mid_path))
                 print(f"  Ardour     : {ardour_out}  (sidecar + MIDI)")
@@ -1754,10 +1774,15 @@ def main():
             )
             sys.exit(1)
     elif args.command == "ardour":
-        if getattr(args, "ardour_command") == "create":
+        if args.ardour_command == "create":
             handle_ardour_create_command(args, generator)
         elif args.ardour_command is None:
-            ardour_parser.print_help()
+            print(
+                "Error: Please specify an ardour subcommand (create).\n"
+                "Use 'python -m midi_drums.api.cli ardour create --help' for usage.",
+                file=sys.stderr,
+            )
+            sys.exit(1)
         else:
             print(
                 "Error: Please specify an ardour subcommand (create).",

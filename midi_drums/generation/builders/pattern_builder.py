@@ -1,6 +1,5 @@
 """Pattern builder - fluent construction API for Pattern."""
 
-
 from midi_drums.config import VELOCITY
 from midi_drums.core.models.pattern import Pattern
 from midi_drums.core.value_objects.drum_instrument import DrumInstrument

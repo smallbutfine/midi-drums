@@ -21,6 +21,9 @@ from midi_drums.core.value_objects.generation_parameters import (
 )
 from midi_drums.core.value_objects.time_signature import TimeSignature
 from midi_drums.generation.bar_selector import BarSelector
+from midi_drums.generation.engines.drum_generator import (
+    _apply_groove_restraints,
+)
 from midi_drums.generation.fill_library.picker import FillContext, FillPicker
 from midi_drums.generation.groove_engine import GrooveEngine
 from midi_drums.generation.intensity_curve import (
@@ -31,7 +34,6 @@ from midi_drums.generation.macro_composer import (
     MacroComposer,
     get_section_grooves,
 )
-from midi_drums.generation.engines.drum_generator import _apply_groove_restraints
 
 if TYPE_CHECKING:
     from midi_drums.plugins.registry.plugin_registry import PluginManager
@@ -196,7 +198,9 @@ class ComposerV2:
                 groove_offsets_ms = []
                 if params.drummer:
                     for bar_idx in range(bars):
-                        curve = curve_map.get(section_name, IntensityCurve.PLATEAU)
+                        curve = curve_map.get(
+                            section_name, IntensityCurve.PLATEAU
+                        )
                         all_points = [pt for pts in curve.value for pt in pts]
                         intensity_pt = interpolate_curve(
                             all_points, bar_idx / max(1, bars - 1)
@@ -209,13 +213,15 @@ class ComposerV2:
                             drummer_name=params.drummer,
                         )
                         groove_offsets_ms.append(offset_ms)
-                
+
                 section = Section(
                     section_name,
                     combined,
                     bars,
                     fills=fills,
-                    groove_offsets_ms=groove_offsets_ms if groove_offsets_ms else [0.0] * bars,
+                    groove_offsets_ms=(
+                        groove_offsets_ms if groove_offsets_ms else [0.0] * bars
+                    ),
                 )
                 song.add_section(section)
 
@@ -426,8 +432,7 @@ class ComposerV2:
         # Force snare on backbeat only for genres that expect it (rock, metal, etc.)
         # Jazz/funk/ballad may intentionally have sparse or no snares.
         enforces_backbeat = (
-            global_params.genre
-            not in ("jazz", "funk")
+            global_params.genre not in ("jazz", "funk")
             and section_name != "outro"
         )
         if enforces_backbeat and not has_snare_backbeat:

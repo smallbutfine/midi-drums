@@ -1,6 +1,5 @@
 """Main drum generation engine and composition system."""
 
-
 import logging
 from pathlib import Path
 
@@ -19,35 +18,68 @@ from midi_drums.plugins.registry.plugin_registry import PluginManager
 #   intro, verse, chorus, bridge, breakdown, outro
 GENRE_ARCHETYPES: dict[str, list[tuple[str, int]]] = {
     "metal": [
-        ("intro", 8), ("verse", 8), ("chorus", 8), ("verse", 8),
-        ("breakdown", 8), ("chorus", 8), ("bridge", 4), ("solo", 8),
-        ("outro", 8)
+        ("intro", 8),
+        ("verse", 8),
+        ("chorus", 8),
+        ("verse", 8),
+        ("breakdown", 8),
+        ("chorus", 8),
+        ("bridge", 4),
+        ("solo", 8),
+        ("outro", 8),
     ],
     "rock": [
-        ("intro", 4), ("verse", 8), ("chorus", 8), ("verse", 8),
-        ("chorus", 8), ("bridge", 4), ("solo", 8), ("outro", 4)
+        ("intro", 4),
+        ("verse", 8),
+        ("chorus", 8),
+        ("verse", 8),
+        ("chorus", 8),
+        ("bridge", 4),
+        ("solo", 8),
+        ("outro", 4),
     ],
     "jazz": [
-        ("intro", 8), ("verse", 16), ("chorus", 16),
-        ("bridge", 8), ("chorus", 16), ("outro", 8)
+        ("intro", 8),
+        ("verse", 16),
+        ("chorus", 16),
+        ("bridge", 8),
+        ("chorus", 16),
+        ("outro", 8),
     ],
     "funk": [
-        ("intro", 4), ("verse", 8), ("chorus", 8), ("verse", 8),
-        ("breakdown", 8), ("bridge", 4), ("outro", 8)
+        ("intro", 4),
+        ("verse", 8),
+        ("chorus", 8),
+        ("verse", 8),
+        ("breakdown", 8),
+        ("bridge", 4),
+        ("outro", 8),
     ],
     "electronic": [
-        ("intro", 8), ("verse", 16), ("chorus", 16),
-        ("breakdown", 8), ("chorus", 16), ("outro", 8)
+        ("intro", 8),
+        ("verse", 16),
+        ("chorus", 16),
+        ("breakdown", 8),
+        ("chorus", 16),
+        ("outro", 8),
     ],
 }
 
 
 def _get_genre_default_structure(genre: str) -> list[tuple[str, int]]:
     """Return a genre-appropriate default structure."""
-    return GENRE_ARCHETYPES.get(genre.lower(), [
-        ("intro", 4), ("verse", 8), ("chorus", 8), ("verse", 8),
-        ("chorus", 8), ("bridge", 4), ("outro", 8)
-    ])
+    return GENRE_ARCHETYPES.get(
+        genre.lower(),
+        [
+            ("intro", 4),
+            ("verse", 8),
+            ("chorus", 8),
+            ("verse", 8),
+            ("chorus", 8),
+            ("bridge", 4),
+            ("outro", 8),
+        ],
+    )
 
 
 def _apply_groove_restraints(song: Song) -> None:
@@ -73,9 +105,13 @@ def _apply_groove_restraints(song: Song) -> None:
                     # Bring heavy snares down to a controlled level;
                     # leave ghost notes untouched.
                     if not getattr(beat, "ghost_note", False):
-                        beat.velocity = min(beat.velocity, int(VELOCITY.SNARE_LIGHT))
+                        beat.velocity = min(
+                            beat.velocity, int(VELOCITY.SNARE_LIGHT)
+                        )
                 elif name in ("CRASH_HEAVY", "CRASH_LIGHT", "CRASH"):
-                    beat.velocity = min(beat.velocity, int(VELOCITY.CRASH_LIGHT))
+                    beat.velocity = min(
+                        beat.velocity, int(VELOCITY.CRASH_LIGHT)
+                    )
 
             # --- Funk: tight backbeat, ghost notes stay quiet ---
             elif genre in ("funk",):
@@ -90,6 +126,7 @@ def _apply_groove_restraints(song: Song) -> None:
             elif genre == "metal":
                 if name == "SNARE_DRUM" and beat.velocity < 100:
                     beat.velocity = min(beat.velocity + 25, 127)
+
 
 logger = logging.getLogger(__name__)
 

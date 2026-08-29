@@ -204,3 +204,17 @@ Addictive Drums 2 Keymap.pdf
 .ruff_cache/
 reaper_test/
 /htmlcov/
+test_reaper_all_drummers.bat
+regen_output.txt
+test_ai_generation.py
+neil_peart_playing_good.mid
+regen_all_songs.bat
+gen_songs.bat
+generate_all_drummers.ps1
+generate_metal_drum_track.py
+generate_doom_blues_enhanced_humanization.py
+generate_complete_doom_blues.py
+reality_test_ad2.ps1
+regen_all.py
+status_realism_upgrade.md
+test_context_output/

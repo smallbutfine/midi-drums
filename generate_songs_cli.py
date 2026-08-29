@@ -25,37 +25,59 @@ GENRE_STYLES = [
 
 for genre, style in GENRE_STYLES:
     print(f"\nGenerating {genre}/{style}...")
-    
+
     # GM MIDI
-    subprocess.run([
-        "uv", "run", "python", "-m", "midi_drums.api.cli",
-        "--song",
-        f"--genre={genre}",
-        f"--style={style}",
-        f"-o={OUTPUT_DIR}/{genre}_{style}_song_gm.mid",
-        "--mapping=gm_drums"
-    ], check=True)
-    
+    subprocess.run(
+        [
+            "uv",
+            "run",
+            "python",
+            "-m",
+            "midi_drums.api.cli",
+            "--song",
+            f"--genre={genre}",
+            f"--style={style}",
+            f"-o={OUTPUT_DIR}/{genre}_{style}_song_gm.mid",
+            "--mapping=gm_drums",
+        ],
+        check=True,
+    )
+
     # AD2 MIDI
-    subprocess.run([
-        "uv", "run", "python", "-m", "midi_drums.api.cli",
-        "--song",
-        f"--genre={genre}",
-        f"--style={style}",
-        f"-o={OUTPUT_DIR}/{genre}_{style}_song_ad2.mid",
-        "--mapping=addictive_drums"
-    ], check=True)
-    
+    subprocess.run(
+        [
+            "uv",
+            "run",
+            "python",
+            "-m",
+            "midi_drums.api.cli",
+            "--song",
+            f"--genre={genre}",
+            f"--style={style}",
+            f"-o={OUTPUT_DIR}/{genre}_{style}_song_ad2.mid",
+            "--mapping=addictive_drums",
+        ],
+        check=True,
+    )
+
     # RPP (REAPER project)
-    subprocess.run([
-        "uv", "run", "python", "-m", "midi_drums.api.cli",
-        "reaper", "export",
-        f"--genre={genre}",
-        f"--style={style}",
-        f"--output={OUTPUT_DIR}/{genre}_{style}_song.rpp",
-        "--preset-only"
-    ], check=True)
-    
+    subprocess.run(
+        [
+            "uv",
+            "run",
+            "python",
+            "-m",
+            "midi_drums.api.cli",
+            "reaper",
+            "export",
+            f"--genre={genre}",
+            f"--style={style}",
+            f"--output={OUTPUT_DIR}/{genre}_{style}_song.rpp",
+            "--preset-only",
+        ],
+        check=True,
+    )
+
     print(f"  [OK] {genre}_{style} - GM/AD2/RPP")
 
 print("\n=== COMPLETE ===")

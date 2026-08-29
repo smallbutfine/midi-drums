@@ -37,7 +37,9 @@ def test_velocity_constants():
     )
 
     assert kick.velocity == 100, f"Expected 100, got {kick.velocity}"
-    assert snare.velocity == VELOCITY.SNARE_HEAVY, f"Expected {VELOCITY.SNARE_HEAVY}, got {snare.velocity}"
+    assert (
+        snare.velocity == VELOCITY.SNARE_HEAVY
+    ), f"Expected {VELOCITY.SNARE_HEAVY}, got {snare.velocity}"
     assert hihat.velocity == 80, f"Expected 80, got {hihat.velocity}"
 
     print("  [OK] Velocity constants work correctly")

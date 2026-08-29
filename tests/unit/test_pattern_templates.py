@@ -47,9 +47,14 @@ def test_basic_groove_template():
         1 for b in pattern.beats if b.instrument == DrumInstrument.SNARE
     )
     hihat_count = sum(
-        1 for b in pattern.beats
+        1
+        for b in pattern.beats
         if b.instrument
-        in (DrumInstrument.CLOSED_HH, DrumInstrument.CLOSED_HH_EDGE, DrumInstrument.CLOSED_HH_TIP)
+        in (
+            DrumInstrument.CLOSED_HH,
+            DrumInstrument.CLOSED_HH_EDGE,
+            DrumInstrument.CLOSED_HH_TIP,
+        )
     )
 
     assert kick_count == 2, f"Expected 2 kicks, got {kick_count}"
