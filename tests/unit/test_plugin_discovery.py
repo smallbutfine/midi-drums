@@ -106,6 +106,8 @@ def test_discover_plugins_loads_all_builtin_drummers():
         "porcaro",
         "rich",
         "roeder",
+        "chadsmith",  # Chad Smith - RHCP funk-rock groove mastery
+        "watts",  # Charlie Watts - Rolling Stones jazz-influenced minimalist style
         "weckl",
         "composite_doom_blues",
     }

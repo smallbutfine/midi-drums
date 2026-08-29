@@ -121,6 +121,8 @@ def test_drummer_signature_fills():
         "porcaro",
         "rich",
         "roeder",
+        "smith",
+        "watts",
         "weckl",
     ]
 
@@ -136,6 +138,8 @@ def test_drummer_signature_fills():
         "porcaro": "midi_drums.plugins.drummers.porcaro.PorcaroPlugin",
         "rich": "midi_drums.plugins.drummers.rich.RichPlugin",
         "roeder": "midi_drums.plugins.drummers.roeder.RoederPlugin",
+        "smith": "midi_drums.plugins.drummers.smith.SmithPlugin",
+        "watts": "midi_drums.plugins.drummers.watts.WattsPlugin",
         "weckl": "midi_drums.plugins.drummers.weckl.WecklPlugin",
     }
 
@@ -200,6 +204,8 @@ def test_drummer_song_generation():
         "porcaro",
         "rich",
         "roeder",
+        "smith",
+        "watts",
         "weckl",
     ]  # All drummers
 
