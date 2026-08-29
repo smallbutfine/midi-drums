@@ -1915,13 +1915,13 @@ Traceback (most recent call last):
   File "B:\dev\github\midi-drums\midi_drums\__main__.py", line 6, in <module>
     main()
     ~~~~^^
-  File "B:\dev\github\midi-drums\midi_drums\api\cli.py", line 1432, in main
+  File "B:\dev\github\midi-drums\midi_drums\api\cli.py", line 1433, in main
     song = generator.create_song(
         genre=args.genre,
     ...<4 lines>...
         drummer=args.drummer if args.drummer else None,
     )
-  File "B:\dev\github\midi-drums\midi_drums\generation\engines\drum_generator.py", line 260, in create_song
+  File "B:\dev\github\midi-drums\midi_drums\generation\engines\drum_generator.py", line 261, in create_song
     return composer.create_song(
            ~~~~~~~~~~~~~~~~~~~~^
         genre=genre,
@@ -1958,13 +1958,13 @@ Traceback (most recent call last):
   File "B:\dev\github\midi-drums\midi_drums\__main__.py", line 6, in <module>
     main()
     ~~~~^^
-  File "B:\dev\github\midi-drums\midi_drums\api\cli.py", line 1432, in main
+  File "B:\dev\github\midi-drums\midi_drums\api\cli.py", line 1433, in main
     song = generator.create_song(
         genre=args.genre,
     ...<4 lines>...
         drummer=args.drummer if args.drummer else None,
     )
-  File "B:\dev\github\midi-drums\midi_drums\generation\engines\drum_generator.py", line 260, in create_song
+  File "B:\dev\github\midi-drums\midi_drums\generation\engines\drum_generator.py", line 261, in create_song
     return composer.create_song(
            ~~~~~~~~~~~~~~~~~~~~^
         genre=genre,
@@ -2008,13 +2008,13 @@ Traceback (most recent call last):
   File "B:\dev\github\midi-drums\midi_drums\__main__.py", line 6, in <module>
     main()
     ~~~~^^
-  File "B:\dev\github\midi-drums\midi_drums\api\cli.py", line 1432, in main
+  File "B:\dev\github\midi-drums\midi_drums\api\cli.py", line 1433, in main
     song = generator.create_song(
         genre=args.genre,
     ...<4 lines>...
         drummer=args.drummer if args.drummer else None,
     )
-  File "B:\dev\github\midi-drums\midi_drums\generation\engines\drum_generator.py", line 260, in create_song
+  File "B:\dev\github\midi-drums\midi_drums\generation\engines\drum_generator.py", line 261, in create_song
     return composer.create_song(
            ~~~~~~~~~~~~~~~~~~~~^
         genre=genre,
@@ -2051,13 +2051,13 @@ Traceback (most recent call last):
   File "B:\dev\github\midi-drums\midi_drums\__main__.py", line 6, in <module>
     main()
     ~~~~^^
-  File "B:\dev\github\midi-drums\midi_drums\api\cli.py", line 1432, in main
+  File "B:\dev\github\midi-drums\midi_drums\api\cli.py", line 1433, in main
     song = generator.create_song(
         genre=args.genre,
     ...<4 lines>...
         drummer=args.drummer if args.drummer else None,
     )
-  File "B:\dev\github\midi-drums\midi_drums\generation\engines\drum_generator.py", line 260, in create_song
+  File "B:\dev\github\midi-drums\midi_drums\generation\engines\drum_generator.py", line 261, in create_song
     return composer.create_song(
            ~~~~~~~~~~~~~~~~~~~~^
         genre=genre,
@@ -2101,13 +2101,13 @@ Traceback (most recent call last):
   File "B:\dev\github\midi-drums\midi_drums\__main__.py", line 6, in <module>
     main()
     ~~~~^^
-  File "B:\dev\github\midi-drums\midi_drums\api\cli.py", line 1432, in main
+  File "B:\dev\github\midi-drums\midi_drums\api\cli.py", line 1433, in main
     song = generator.create_song(
         genre=args.genre,
     ...<4 lines>...
         drummer=args.drummer if args.drummer else None,
     )
-  File "B:\dev\github\midi-drums\midi_drums\generation\engines\drum_generator.py", line 260, in create_song
+  File "B:\dev\github\midi-drums\midi_drums\generation\engines\drum_generator.py", line 261, in create_song
     return composer.create_song(
            ~~~~~~~~~~~~~~~~~~~~^
         genre=genre,
@@ -2144,13 +2144,13 @@ Traceback (most recent call last):
   File "B:\dev\github\midi-drums\midi_drums\__main__.py", line 6, in <module>
     main()
     ~~~~^^
-  File "B:\dev\github\midi-drums\midi_drums\api\cli.py", line 1432, in main
+  File "B:\dev\github\midi-drums\midi_drums\api\cli.py", line 1433, in main
     song = generator.create_song(
         genre=args.genre,
     ...<4 lines>...
         drummer=args.drummer if args.drummer else None,
     )
-  File "B:\dev\github\midi-drums\midi_drums\generation\engines\drum_generator.py", line 260, in create_song
+  File "B:\dev\github\midi-drums\midi_drums\generation\engines\drum_generator.py", line 261, in create_song
     return composer.create_song(
            ~~~~~~~~~~~~~~~~~~~~^
         genre=genre,
@@ -2194,13 +2194,13 @@ Traceback (most recent call last):
   File "B:\dev\github\midi-drums\midi_drums\__main__.py", line 6, in <module>
     main()
     ~~~~^^
-  File "B:\dev\github\midi-drums\midi_drums\api\cli.py", line 1432, in main
+  File "B:\dev\github\midi-drums\midi_drums\api\cli.py", line 1433, in main
     song = generator.create_song(
         genre=args.genre,
     ...<4 lines>...
         drummer=args.drummer if args.drummer else None,
     )
-  File "B:\dev\github\midi-drums\midi_drums\generation\engines\drum_generator.py", line 260, in create_song
+  File "B:\dev\github\midi-drums\midi_drums\generation\engines\drum_generator.py", line 261, in create_song
     return composer.create_song(
            ~~~~~~~~~~~~~~~~~~~~^
         genre=genre,
@@ -2237,13 +2237,13 @@ Traceback (most recent call last):
   File "B:\dev\github\midi-drums\midi_drums\__main__.py", line 6, in <module>
     main()
     ~~~~^^
-  File "B:\dev\github\midi-drums\midi_drums\api\cli.py", line 1432, in main
+  File "B:\dev\github\midi-drums\midi_drums\api\cli.py", line 1433, in main
     song = generator.create_song(
         genre=args.genre,
     ...<4 lines>...
         drummer=args.drummer if args.drummer else None,
     )
-  File "B:\dev\github\midi-drums\midi_drums\generation\engines\drum_generator.py", line 260, in create_song
+  File "B:\dev\github\midi-drums\midi_drums\generation\engines\drum_generator.py", line 261, in create_song
     return composer.create_song(
            ~~~~~~~~~~~~~~~~~~~~^
         genre=genre,
@@ -2287,13 +2287,13 @@ Traceback (most recent call last):
   File "B:\dev\github\midi-drums\midi_drums\__main__.py", line 6, in <module>
     main()
     ~~~~^^
-  File "B:\dev\github\midi-drums\midi_drums\api\cli.py", line 1432, in main
+  File "B:\dev\github\midi-drums\midi_drums\api\cli.py", line 1433, in main
     song = generator.create_song(
         genre=args.genre,
     ...<4 lines>...
         drummer=args.drummer if args.drummer else None,
     )
-  File "B:\dev\github\midi-drums\midi_drums\generation\engines\drum_generator.py", line 260, in create_song
+  File "B:\dev\github\midi-drums\midi_drums\generation\engines\drum_generator.py", line 261, in create_song
     return composer.create_song(
            ~~~~~~~~~~~~~~~~~~~~^
         genre=genre,
@@ -2330,13 +2330,13 @@ Traceback (most recent call last):
   File "B:\dev\github\midi-drums\midi_drums\__main__.py", line 6, in <module>
     main()
     ~~~~^^
-  File "B:\dev\github\midi-drums\midi_drums\api\cli.py", line 1432, in main
+  File "B:\dev\github\midi-drums\midi_drums\api\cli.py", line 1433, in main
     song = generator.create_song(
         genre=args.genre,
     ...<4 lines>...
         drummer=args.drummer if args.drummer else None,
     )
-  File "B:\dev\github\midi-drums\midi_drums\generation\engines\drum_generator.py", line 260, in create_song
+  File "B:\dev\github\midi-drums\midi_drums\generation\engines\drum_generator.py", line 261, in create_song
     return composer.create_song(
            ~~~~~~~~~~~~~~~~~~~~^
         genre=genre,
@@ -2380,13 +2380,13 @@ Traceback (most recent call last):
   File "B:\dev\github\midi-drums\midi_drums\__main__.py", line 6, in <module>
     main()
     ~~~~^^
-  File "B:\dev\github\midi-drums\midi_drums\api\cli.py", line 1432, in main
+  File "B:\dev\github\midi-drums\midi_drums\api\cli.py", line 1433, in main
     song = generator.create_song(
         genre=args.genre,
     ...<4 lines>...
         drummer=args.drummer if args.drummer else None,
     )
-  File "B:\dev\github\midi-drums\midi_drums\generation\engines\drum_generator.py", line 260, in create_song
+  File "B:\dev\github\midi-drums\midi_drums\generation\engines\drum_generator.py", line 261, in create_song
     return composer.create_song(
            ~~~~~~~~~~~~~~~~~~~~^
         genre=genre,
@@ -2423,13 +2423,13 @@ Traceback (most recent call last):
   File "B:\dev\github\midi-drums\midi_drums\__main__.py", line 6, in <module>
     main()
     ~~~~^^
-  File "B:\dev\github\midi-drums\midi_drums\api\cli.py", line 1432, in main
+  File "B:\dev\github\midi-drums\midi_drums\api\cli.py", line 1433, in main
     song = generator.create_song(
         genre=args.genre,
     ...<4 lines>...
         drummer=args.drummer if args.drummer else None,
     )
-  File "B:\dev\github\midi-drums\midi_drums\generation\engines\drum_generator.py", line 260, in create_song
+  File "B:\dev\github\midi-drums\midi_drums\generation\engines\drum_generator.py", line 261, in create_song
     return composer.create_song(
            ~~~~~~~~~~~~~~~~~~~~^
         genre=genre,
@@ -2473,13 +2473,13 @@ Traceback (most recent call last):
   File "B:\dev\github\midi-drums\midi_drums\__main__.py", line 6, in <module>
     main()
     ~~~~^^
-  File "B:\dev\github\midi-drums\midi_drums\api\cli.py", line 1432, in main
+  File "B:\dev\github\midi-drums\midi_drums\api\cli.py", line 1433, in main
     song = generator.create_song(
         genre=args.genre,
     ...<4 lines>...
         drummer=args.drummer if args.drummer else None,
     )
-  File "B:\dev\github\midi-drums\midi_drums\generation\engines\drum_generator.py", line 260, in create_song
+  File "B:\dev\github\midi-drums\midi_drums\generation\engines\drum_generator.py", line 261, in create_song
     return composer.create_song(
            ~~~~~~~~~~~~~~~~~~~~^
         genre=genre,
@@ -2516,13 +2516,13 @@ Traceback (most recent call last):
   File "B:\dev\github\midi-drums\midi_drums\__main__.py", line 6, in <module>
     main()
     ~~~~^^
-  File "B:\dev\github\midi-drums\midi_drums\api\cli.py", line 1432, in main
+  File "B:\dev\github\midi-drums\midi_drums\api\cli.py", line 1433, in main
     song = generator.create_song(
         genre=args.genre,
     ...<4 lines>...
         drummer=args.drummer if args.drummer else None,
     )
-  File "B:\dev\github\midi-drums\midi_drums\generation\engines\drum_generator.py", line 260, in create_song
+  File "B:\dev\github\midi-drums\midi_drums\generation\engines\drum_generator.py", line 261, in create_song
     return composer.create_song(
            ~~~~~~~~~~~~~~~~~~~~^
         genre=genre,
@@ -2566,13 +2566,13 @@ Traceback (most recent call last):
   File "B:\dev\github\midi-drums\midi_drums\__main__.py", line 6, in <module>
     main()
     ~~~~^^
-  File "B:\dev\github\midi-drums\midi_drums\api\cli.py", line 1432, in main
+  File "B:\dev\github\midi-drums\midi_drums\api\cli.py", line 1433, in main
     song = generator.create_song(
         genre=args.genre,
     ...<4 lines>...
         drummer=args.drummer if args.drummer else None,
     )
-  File "B:\dev\github\midi-drums\midi_drums\generation\engines\drum_generator.py", line 260, in create_song
+  File "B:\dev\github\midi-drums\midi_drums\generation\engines\drum_generator.py", line 261, in create_song
     return composer.create_song(
            ~~~~~~~~~~~~~~~~~~~~^
         genre=genre,
@@ -2609,13 +2609,13 @@ Traceback (most recent call last):
   File "B:\dev\github\midi-drums\midi_drums\__main__.py", line 6, in <module>
     main()
     ~~~~^^
-  File "B:\dev\github\midi-drums\midi_drums\api\cli.py", line 1432, in main
+  File "B:\dev\github\midi-drums\midi_drums\api\cli.py", line 1433, in main
     song = generator.create_song(
         genre=args.genre,
     ...<4 lines>...
         drummer=args.drummer if args.drummer else None,
     )
-  File "B:\dev\github\midi-drums\midi_drums\generation\engines\drum_generator.py", line 260, in create_song
+  File "B:\dev\github\midi-drums\midi_drums\generation\engines\drum_generator.py", line 261, in create_song
     return composer.create_song(
            ~~~~~~~~~~~~~~~~~~~~^
         genre=genre,
@@ -2659,13 +2659,13 @@ Traceback (most recent call last):
   File "B:\dev\github\midi-drums\midi_drums\__main__.py", line 6, in <module>
     main()
     ~~~~^^
-  File "B:\dev\github\midi-drums\midi_drums\api\cli.py", line 1432, in main
+  File "B:\dev\github\midi-drums\midi_drums\api\cli.py", line 1433, in main
     song = generator.create_song(
         genre=args.genre,
     ...<4 lines>...
         drummer=args.drummer if args.drummer else None,
     )
-  File "B:\dev\github\midi-drums\midi_drums\generation\engines\drum_generator.py", line 260, in create_song
+  File "B:\dev\github\midi-drums\midi_drums\generation\engines\drum_generator.py", line 261, in create_song
     return composer.create_song(
            ~~~~~~~~~~~~~~~~~~~~^
         genre=genre,
@@ -2702,13 +2702,13 @@ Traceback (most recent call last):
   File "B:\dev\github\midi-drums\midi_drums\__main__.py", line 6, in <module>
     main()
     ~~~~^^
-  File "B:\dev\github\midi-drums\midi_drums\api\cli.py", line 1432, in main
+  File "B:\dev\github\midi-drums\midi_drums\api\cli.py", line 1433, in main
     song = generator.create_song(
         genre=args.genre,
     ...<4 lines>...
         drummer=args.drummer if args.drummer else None,
     )
-  File "B:\dev\github\midi-drums\midi_drums\generation\engines\drum_generator.py", line 260, in create_song
+  File "B:\dev\github\midi-drums\midi_drums\generation\engines\drum_generator.py", line 261, in create_song
     return composer.create_song(
            ~~~~~~~~~~~~~~~~~~~~^
         genre=genre,
@@ -2752,13 +2752,13 @@ Traceback (most recent call last):
   File "B:\dev\github\midi-drums\midi_drums\__main__.py", line 6, in <module>
     main()
     ~~~~^^
-  File "B:\dev\github\midi-drums\midi_drums\api\cli.py", line 1432, in main
+  File "B:\dev\github\midi-drums\midi_drums\api\cli.py", line 1433, in main
     song = generator.create_song(
         genre=args.genre,
     ...<4 lines>...
         drummer=args.drummer if args.drummer else None,
     )
-  File "B:\dev\github\midi-drums\midi_drums\generation\engines\drum_generator.py", line 260, in create_song
+  File "B:\dev\github\midi-drums\midi_drums\generation\engines\drum_generator.py", line 261, in create_song
     return composer.create_song(
            ~~~~~~~~~~~~~~~~~~~~^
         genre=genre,
@@ -2795,13 +2795,13 @@ Traceback (most recent call last):
   File "B:\dev\github\midi-drums\midi_drums\__main__.py", line 6, in <module>
     main()
     ~~~~^^
-  File "B:\dev\github\midi-drums\midi_drums\api\cli.py", line 1432, in main
+  File "B:\dev\github\midi-drums\midi_drums\api\cli.py", line 1433, in main
     song = generator.create_song(
         genre=args.genre,
     ...<4 lines>...
         drummer=args.drummer if args.drummer else None,
     )
-  File "B:\dev\github\midi-drums\midi_drums\generation\engines\drum_generator.py", line 260, in create_song
+  File "B:\dev\github\midi-drums\midi_drums\generation\engines\drum_generator.py", line 261, in create_song
     return composer.create_song(
            ~~~~~~~~~~~~~~~~~~~~^
         genre=genre,
@@ -2845,13 +2845,13 @@ Traceback (most recent call last):
   File "B:\dev\github\midi-drums\midi_drums\__main__.py", line 6, in <module>
     main()
     ~~~~^^
-  File "B:\dev\github\midi-drums\midi_drums\api\cli.py", line 1432, in main
+  File "B:\dev\github\midi-drums\midi_drums\api\cli.py", line 1433, in main
     song = generator.create_song(
         genre=args.genre,
     ...<4 lines>...
         drummer=args.drummer if args.drummer else None,
     )
-  File "B:\dev\github\midi-drums\midi_drums\generation\engines\drum_generator.py", line 260, in create_song
+  File "B:\dev\github\midi-drums\midi_drums\generation\engines\drum_generator.py", line 261, in create_song
     return composer.create_song(
            ~~~~~~~~~~~~~~~~~~~~^
         genre=genre,
@@ -2888,13 +2888,13 @@ Traceback (most recent call last):
   File "B:\dev\github\midi-drums\midi_drums\__main__.py", line 6, in <module>
     main()
     ~~~~^^
-  File "B:\dev\github\midi-drums\midi_drums\api\cli.py", line 1432, in main
+  File "B:\dev\github\midi-drums\midi_drums\api\cli.py", line 1433, in main
     song = generator.create_song(
         genre=args.genre,
     ...<4 lines>...
         drummer=args.drummer if args.drummer else None,
     )
-  File "B:\dev\github\midi-drums\midi_drums\generation\engines\drum_generator.py", line 260, in create_song
+  File "B:\dev\github\midi-drums\midi_drums\generation\engines\drum_generator.py", line 261, in create_song
     return composer.create_song(
            ~~~~~~~~~~~~~~~~~~~~^
         genre=genre,
@@ -2938,13 +2938,13 @@ Traceback (most recent call last):
   File "B:\dev\github\midi-drums\midi_drums\__main__.py", line 6, in <module>
     main()
     ~~~~^^
-  File "B:\dev\github\midi-drums\midi_drums\api\cli.py", line 1432, in main
+  File "B:\dev\github\midi-drums\midi_drums\api\cli.py", line 1433, in main
     song = generator.create_song(
         genre=args.genre,
     ...<4 lines>...
         drummer=args.drummer if args.drummer else None,
     )
-  File "B:\dev\github\midi-drums\midi_drums\generation\engines\drum_generator.py", line 260, in create_song
+  File "B:\dev\github\midi-drums\midi_drums\generation\engines\drum_generator.py", line 261, in create_song
     return composer.create_song(
            ~~~~~~~~~~~~~~~~~~~~^
         genre=genre,
@@ -2981,13 +2981,13 @@ Traceback (most recent call last):
   File "B:\dev\github\midi-drums\midi_drums\__main__.py", line 6, in <module>
     main()
     ~~~~^^
-  File "B:\dev\github\midi-drums\midi_drums\api\cli.py", line 1432, in main
+  File "B:\dev\github\midi-drums\midi_drums\api\cli.py", line 1433, in main
     song = generator.create_song(
         genre=args.genre,
     ...<4 lines>...
         drummer=args.drummer if args.drummer else None,
     )
-  File "B:\dev\github\midi-drums\midi_drums\generation\engines\drum_generator.py", line 260, in create_song
+  File "B:\dev\github\midi-drums\midi_drums\generation\engines\drum_generator.py", line 261, in create_song
     return composer.create_song(
            ~~~~~~~~~~~~~~~~~~~~^
         genre=genre,
@@ -3031,13 +3031,13 @@ Traceback (most recent call last):
   File "B:\dev\github\midi-drums\midi_drums\__main__.py", line 6, in <module>
     main()
     ~~~~^^
-  File "B:\dev\github\midi-drums\midi_drums\api\cli.py", line 1432, in main
+  File "B:\dev\github\midi-drums\midi_drums\api\cli.py", line 1433, in main
     song = generator.create_song(
         genre=args.genre,
     ...<4 lines>...
         drummer=args.drummer if args.drummer else None,
     )
-  File "B:\dev\github\midi-drums\midi_drums\generation\engines\drum_generator.py", line 260, in create_song
+  File "B:\dev\github\midi-drums\midi_drums\generation\engines\drum_generator.py", line 261, in create_song
     return composer.create_song(
            ~~~~~~~~~~~~~~~~~~~~^
         genre=genre,
@@ -3074,13 +3074,13 @@ Traceback (most recent call last):
   File "B:\dev\github\midi-drums\midi_drums\__main__.py", line 6, in <module>
     main()
     ~~~~^^
-  File "B:\dev\github\midi-drums\midi_drums\api\cli.py", line 1432, in main
+  File "B:\dev\github\midi-drums\midi_drums\api\cli.py", line 1433, in main
     song = generator.create_song(
         genre=args.genre,
     ...<4 lines>...
         drummer=args.drummer if args.drummer else None,
     )
-  File "B:\dev\github\midi-drums\midi_drums\generation\engines\drum_generator.py", line 260, in create_song
+  File "B:\dev\github\midi-drums\midi_drums\generation\engines\drum_generator.py", line 261, in create_song
     return composer.create_song(
            ~~~~~~~~~~~~~~~~~~~~^
         genre=genre,
@@ -3124,13 +3124,13 @@ Traceback (most recent call last):
   File "B:\dev\github\midi-drums\midi_drums\__main__.py", line 6, in <module>
     main()
     ~~~~^^
-  File "B:\dev\github\midi-drums\midi_drums\api\cli.py", line 1432, in main
+  File "B:\dev\github\midi-drums\midi_drums\api\cli.py", line 1433, in main
     song = generator.create_song(
         genre=args.genre,
     ...<4 lines>...
         drummer=args.drummer if args.drummer else None,
     )
-  File "B:\dev\github\midi-drums\midi_drums\generation\engines\drum_generator.py", line 260, in create_song
+  File "B:\dev\github\midi-drums\midi_drums\generation\engines\drum_generator.py", line 261, in create_song
     return composer.create_song(
            ~~~~~~~~~~~~~~~~~~~~^
         genre=genre,
@@ -3167,13 +3167,13 @@ Traceback (most recent call last):
   File "B:\dev\github\midi-drums\midi_drums\__main__.py", line 6, in <module>
     main()
     ~~~~^^
-  File "B:\dev\github\midi-drums\midi_drums\api\cli.py", line 1432, in main
+  File "B:\dev\github\midi-drums\midi_drums\api\cli.py", line 1433, in main
     song = generator.create_song(
         genre=args.genre,
     ...<4 lines>...
         drummer=args.drummer if args.drummer else None,
     )
-  File "B:\dev\github\midi-drums\midi_drums\generation\engines\drum_generator.py", line 260, in create_song
+  File "B:\dev\github\midi-drums\midi_drums\generation\engines\drum_generator.py", line 261, in create_song
     return composer.create_song(
            ~~~~~~~~~~~~~~~~~~~~^
         genre=genre,

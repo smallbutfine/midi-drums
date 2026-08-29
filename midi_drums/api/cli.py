@@ -52,6 +52,10 @@ Examples:
   python -m midi_drums.api.cli reaper export --genre jazz --style swing \
       --tempo 160 --output jazz.rpp --preset-only
 
+  # Ardour / Mixbus integration — markers + sidecar + MIDI
+  python -m midi_drums.api.cli ardour create --genre metal --style doom \
+      --tempo 70 --output project.ardourproj --midi
+
   # List available genre structure presets
   python -m midi_drums.api.cli reaper presets
   python -m midi_drums.api.cli reaper presets --genre metal
@@ -289,6 +293,90 @@ Examples:
     )
     reaper_subparsers = reaper_parser.add_subparsers(dest="reaper_command")
 
+    # Ardour / Mixbus command
+    ardour_parser = subparsers.add_parser(
+        "ardour", help="Ardour / Mixbus DAW integration"
+    )
+    ardour_subparsers = ardour_parser.add_subparsers(dest="ardour_command")
+
+    # Ardour create command (mirrors reaper export)
+    ardour_create = ardour_subparsers.add_parser(
+        "create", help="Create an Ardour project with markers and optional MIDI"
+    )
+    ardour_create.add_argument(
+        "--genre", required=True, help="Genre (e.g., metal, rock, jazz)"
+    )
+    ardour_create.add_argument(
+        "--style", default="default", help="Style within genre"
+    )
+    ardour_create.add_argument(
+        "--tempo", type=int, default=None, help="Tempo in BPM (uses genre preset default when omitted)"
+    )
+    ardour_create.add_argument(
+        "--output", "-o", required=True,
+        help="Output Ardour session path (.ardourproj) or directory name"
+    )
+    ardour_create.add_argument("--name", help="Song name")
+    ardour_create.add_argument(
+        "--complexity",
+        type=float,
+        default=0.5,
+        help="Complexity level (0.0-1.0)",
+    )
+    ardour_create.add_argument(
+        "--humanization",
+        type=float,
+        default=0.3,
+        help="Humanization level (0.0-1.0)",
+    )
+    ardour_create.add_argument("--drummer", help="Drummer style to apply")
+    ardour_create.add_argument(
+        "--mapping",
+        default=None,
+        help="MIDI mapping preset (ezdrummer3, addictive_drums, gm_drums, etc.)"
+    )
+    ardour_create.add_argument(
+        "--midi",
+        nargs="?",
+        const="",
+        help=(
+            "Also export MIDI file (auto-generates filename based on output "
+            "name, or specify custom filename). Ignored when --preset-only."
+        ),
+    )
+    ardour_create.add_argument(
+        "--marker-color",
+        default="#FF5733",
+        help=(
+            "Hex color for markers (default: #FF5733). "
+            "Ignored when --preset-only."
+        ),
+    )
+    ardour_create.add_argument(
+        "--preset-only",
+        action="store_true",
+        default=False,
+        help=(
+            "Create the Ardour project with genre-smart structure markers "
+            "without generating any MIDI audio. Much faster and does not "
+            "require the drum plugin system."
+        ),
+    )
+    ardour_create.add_argument(
+        "--write-sidecar",
+        metavar="JSON",
+        help=(
+            "Write a midi_drums_sections.json sidecar at this path. "
+            "Used by ardour/create_song_sections.lua to create matching regions."
+        ),
+    )
+    ardour_create.add_argument(
+        "--list-presets",
+        action="store_true",
+        default=False,
+        help="List available genre structure presets and exit.",
+    )
+
     # Reaper export command
     reaper_export = reaper_subparsers.add_parser(
         "export", help="Generate drums and create Reaper project with markers"
@@ -490,6 +578,14 @@ Examples:
         "--rpp",
         metavar="FILE.rpp",
         help="Also create a Reaper project with tempo, meter, and section markers",
+    )
+    prompt_parser.add_argument(
+        "--ardour",
+        metavar="DIR",
+        help=(
+            "Create an Ardour session directory with sidecar + MIDI. "
+            "Same as --rpp but for the ardour/create_song_sections.lua workflow."
+        ),
     )
     prompt_parser.add_argument(
         "--save-metadata",
@@ -828,6 +924,135 @@ def handle_reaper_export_command(args, generator: DrumGenerator) -> None:
         sys.exit(1)
 
 
+def handle_ardour_create_command(args, generator: DrumGenerator) -> None:
+    """Handle Ardour / Mixbus 'create' command.
+
+    Mirrors ``reaper export`` but targets the Ardour/Mixbus sidecar + MIDI
+    workflow instead of .rpp files.
+    """
+    if getattr(args, "list_presets", False):
+        _print_genre_presets(genre_filter=None)
+        return
+
+    try:
+        output = Path(args.output)
+
+        # --- Preset-only mode (no MIDI) ---
+        if args.preset_only:
+            from midi_drums.export.reaper.models import get_genre_preset
+
+            drum_kit = DrumKit.from_preset(
+                args.mapping if args.mapping else DEFAULT_MAPPING
+            )
+            preset = get_genre_preset(args.genre, args.style)
+            resolved_tempo = (
+                args.tempo if args.tempo is not None else preset.default_tempo
+            )
+
+            # Write sidecar (consumed by ardour/create_song_sections.lua)
+            from midi_drums.api.python_api import DrumGeneratorAPI
+
+            api = DrumGeneratorAPI()
+
+            # Build a minimal song just to serialise its structure
+            song = generator.create_song(
+                genre=args.genre,
+                style=args.style,
+                tempo=resolved_tempo,
+                complexity=args.complexity,
+                humanization=args.humanization,
+                drummer=args.drummer,
+                drum_kit=drum_kit,
+            )
+            if args.name:
+                song.name = args.name
+
+            # Determine sidecar path: explicit --write-sidecar or derive from output
+            if getattr(args, "write_sidecar", None):
+                sidecar_path = Path(args.write_sidecar)
+            else:
+                sidecar_path = output.parent / "midi_drums_sections.json"
+            api.export_sections_json(song, str(sidecar_path))
+            print(f"  Sidecar    : {sidecar_path}")
+
+            # If output is a directory, create session name from genre+style
+            if output.is_dir():
+                ardour_session = output / f"{args.genre}_{args.style}"
+            else:
+                ardour_session = output
+
+            print(f"Ardour project preset-only (no MIDI generated)")
+            print(f"  Output dir : {ardour_session}")
+            print(f"  Genre      : {args.genre} ({args.style})")
+            print(f"  Tempo      : {resolved_tempo} BPM")
+            print(f"  Sections   : {len(song.sections)}")
+
+            info = generator.get_song_info(song)
+            print(f"  Duration   : {info['duration_seconds']:.1f}s")
+
+        # --- Full generation mode (MIDI + sidecar) ---
+        else:
+            from midi_drums.export.reaper.models import get_genre_preset
+
+            drum_kit = DrumKit.from_preset(
+                args.mapping if args.mapping else DEFAULT_MAPPING
+            )
+            preset = get_genre_preset(args.genre, args.style)
+            resolved_tempo = (
+                args.tempo if args.tempo is not None else preset.default_tempo
+            )
+
+            song = generator.create_song(
+                genre=args.genre,
+                style=args.style,
+                tempo=resolved_tempo,
+                complexity=args.complexity,
+                humanization=args.humanization,
+                drummer=args.drummer,
+                drum_kit=drum_kit,
+            )
+            if args.name:
+                song.name = args.name
+
+            # Write sidecar (consumed by ardour/create_song_sections.lua)
+            from midi_drums.api.python_api import DrumGeneratorAPI
+
+            api = DrumGeneratorAPI()
+
+            if getattr(args, "write_sidecar", None):
+                sidecar_path = Path(args.write_sidecar)
+            else:
+                sidecar_path = output.parent / "midi_drums_sections.json"
+            api.export_sections_json(song, str(sidecar_path))
+            print(f"  Sidecar    : {sidecar_path}")
+
+            # Export MIDI if requested
+            if args.midi is not None:
+                midi_path = (
+                    Path(args.midi)
+                    if args.midi
+                    else output.parent / f"{output.stem}.mid"
+                )
+                generator.export_midi(song, midi_path)
+                print(f"  MIDI       : {midi_path}")
+
+            print(f"Generated song: {song.name}")
+            print(f"Ardour session dir: {output}")
+            print(f"  Genre      : {args.genre} ({args.style})")
+            print(f"  Tempo      : {resolved_tempo} BPM")
+            print(f"  Mapping    : {args.mapping or DEFAULT_MAPPING}")
+
+            info = generator.get_song_info(song)
+            print(f"  Duration   : {info['duration_seconds']:.1f}s")
+            print(f"  Sections   : {len(song.sections)}")
+
+    except Exception as e:
+        print(f"Error creating Ardour project: {e}", file=sys.stderr)
+        import traceback
+        traceback.print_exc()
+        sys.exit(1)
+
+
 def handle_reaper_add_markers_command(args, generator: DrumGenerator) -> None:
     """Handle Reaper add-markers command."""
     try:
@@ -1097,6 +1322,7 @@ def handle_prompt_command(args) -> None:
     description = args.text or "simple groove pattern"
     save_metadata = getattr(args, "save_metadata", False)
     rpp_path = getattr(args, "rpp", None)
+    ardour_dir = getattr(args, "ardour", None)
     write_sidecar = getattr(args, "write_sidecar", None)
     mapping = getattr(args, "mapping", DEFAULT_MAPPING)
 
@@ -1197,6 +1423,24 @@ def handle_prompt_command(args) -> None:
                     f" ({len(song_obj.sections)} files)"
                 )
 
+            # ── optional Ardour session (sidecar + MIDI) ─────────────────────
+            if ardour_dir and song_obj:
+                ardour_out = Path(ardour_dir)
+                ardour_out.mkdir(parents=True, exist_ok=True)
+
+                # Write sidecar for ardour/create_song_sections.lua
+                sc_path = ardour_out / "midi_drums_sections.json"
+                from midi_drums.api.python_api import DrumGeneratorAPI
+                DrumGeneratorAPI().export_sections_json(song_obj, str(sc_path))
+
+                # Export MIDI alongside the session dir
+                mid_path = ardour_out / f"{song_obj.name}.mid"
+                generator = DrumGenerator()
+                from midi_drums.core.models.kit import DrumKit
+                drum_kit = DrumKit.from_preset(mapping)
+                generator.export_midi(song_obj, str(mid_path))
+                print(f"  Ardour     : {ardour_out}  (sidecar + MIDI)")
+
             # ── optional Reaper project ──────────────────────────────────────
             if rpp_path and song_obj:
                 from midi_drums.export.reaper.exporter import ReaperExporter
@@ -1276,6 +1520,34 @@ def handle_prompt_command(args) -> None:
                 sys.exit(1)
 
             chars = info.characteristics
+
+            # ── optional Ardour session (sidecar + MIDI) ─────────────────────
+            if ardour_dir:
+                ardour_out = Path(ardour_dir)
+                ardour_out.mkdir(parents=True, exist_ok=True)
+
+                # Build a minimal song from the single pattern for sidecar
+                from midi_drums.core.models.song import Section, Song
+                from midi_drums.api.python_api import DrumGeneratorAPI
+                song_obj = Song(
+                    name=slug,
+                    tempo=args.tempo,
+                    time_signature=TimeSignature(4, 4),
+                    sections=[
+                        Section(name=args.section, pattern=pattern, bars=args.bars)
+                    ],
+                    metadata={"genre": chars.genre, "style": chars.style},
+                )
+                sc_path = ardour_out / "midi_drums_sections.json"
+                DrumGeneratorAPI().export_sections_json(song_obj, str(sc_path))
+
+                # Export MIDI alongside the session dir
+                mid_path = ardour_out / f"{slug}.mid"
+                generator = DrumGenerator()
+                from midi_drums.core.models.kit import DrumKit
+                drum_kit = DrumKit.from_preset(mapping)
+                generator.export_midi(song_obj, str(mid_path))
+                print(f"  Ardour     : {ardour_out}  (sidecar + MIDI)")
 
             # ── optional Reaper project ──────────────────────────────────────
             if rpp_path:
@@ -1478,6 +1750,17 @@ def main():
             print(
                 "Error: Please specify a reaper subcommand "
                 "(export, add-markers, or presets)",
+                file=sys.stderr,
+            )
+            sys.exit(1)
+    elif args.command == "ardour":
+        if getattr(args, "ardour_command") == "create":
+            handle_ardour_create_command(args, generator)
+        elif args.ardour_command is None:
+            ardour_parser.print_help()
+        else:
+            print(
+                "Error: Please specify an ardour subcommand (create).",
                 file=sys.stderr,
             )
             sys.exit(1)
