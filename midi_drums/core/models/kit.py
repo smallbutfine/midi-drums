@@ -14,14 +14,22 @@ from midi_drums.core.value_objects.drum_instrument import DrumInstrument
 # strict GM-compliant sampler would receive wrong notes (e.g. 60 = GM "Hi
 # Bongo", not an open hi-hat).
 _GM_HIHAT_COLLAPSE: dict[DrumInstrument, int] = {
+    # Close HH family -> note 42
     DrumInstrument.CLOSED_HH_EDGE: DrumInstrument.CLOSED_HH.value,
     DrumInstrument.CLOSED_HH_TIP: DrumInstrument.CLOSED_HH.value,
     DrumInstrument.TIGHT_HH_EDGE: DrumInstrument.CLOSED_HH.value,
     DrumInstrument.TIGHT_HH_TIP: DrumInstrument.CLOSED_HH.value,
+    DrumInstrument.TIGHT_HH_A: DrumInstrument.CLOSED_HH.value,
+    DrumInstrument.TIGHT_HH_B: DrumInstrument.CLOSED_HH.value,
+    DrumInstrument.TIGHT_HH_C: DrumInstrument.CLOSED_HH.value,
+    DrumInstrument.TIGHT_HH_CLOSED: DrumInstrument.CLOSED_HH.value,
+    # Open HH family -> note 46
     DrumInstrument.OPEN_HH_1: DrumInstrument.OPEN_HH.value,
     DrumInstrument.OPEN_HH_2: DrumInstrument.OPEN_HH.value,
     DrumInstrument.OPEN_HH_3: DrumInstrument.OPEN_HH.value,
     DrumInstrument.OPEN_HH_MAX: DrumInstrument.OPEN_HH.value,
+    DrumInstrument.OPEN_HH_SOFT: DrumInstrument.OPEN_HH.value,
+    DrumInstrument.OPEN_HH_FULL: DrumInstrument.OPEN_HH.value,
 }
 
 # Addictive Drums 2 vended note numbers per DrumInstrument enum member.
@@ -53,6 +61,12 @@ _AD2_FULL_MAP: dict[DrumInstrument, int] = {
     # Tight HH (velocity-tunable zones)
     DrumInstrument.TIGHT_HH_EDGE: 91,  # G5
     DrumInstrument.TIGHT_HH_TIP: 90,  # F#5
+    DrumInstrument.TIGHT_HH_A: 91,    # Looser tight (same zone as EDGE)
+    DrumInstrument.TIGHT_HH_B: 90,    # Medium-tight (same zone as TIP)
+    DrumInstrument.TIGHT_HH_C: 89,    # Tightest control
+    DrumInstrument.TIGHT_HH_CLOSED: 91,
+    DrumInstrument.OPEN_HH_SOFT: 56,   # A#1 softer open crash
+    DrumInstrument.OPEN_HH_FULL: 57,   # C2 full open
     # --- Tom positions ---
     DrumInstrument.MID_TOM: 67,  # Tom 3 Open Hit
     DrumInstrument.FLOOR_TOM: 65,  # Tom 4 Open Hit
@@ -89,19 +103,6 @@ _GM_BASELINE: dict[DrumInstrument, int] = {
     DrumInstrument.RIDE_BELL: 53,
     DrumInstrument.SPLASH: 55,
     DrumInstrument.CHINA: 52,
-}
-
-# Collapse extended hi-hat articulations to their GM-equivalent notes.
-# Used alongside _GM_BASELINE to ensure all instruments have an explicit mapping.
-_GM_HIHAT_COLLAPSE: dict[DrumInstrument, int] = {
-    DrumInstrument.CLOSED_HH_EDGE: DrumInstrument.CLOSED_HH.value,
-    DrumInstrument.CLOSED_HH_TIP: DrumInstrument.CLOSED_HH.value,
-    DrumInstrument.TIGHT_HH_EDGE: DrumInstrument.CLOSED_HH.value,
-    DrumInstrument.TIGHT_HH_TIP: DrumInstrument.CLOSED_HH.value,
-    DrumInstrument.OPEN_HH_1: DrumInstrument.OPEN_HH.value,
-    DrumInstrument.OPEN_HH_2: DrumInstrument.OPEN_HH.value,
-    DrumInstrument.OPEN_HH_3: DrumInstrument.OPEN_HH.value,
-    DrumInstrument.OPEN_HH_MAX: DrumInstrument.OPEN_HH.value,
 }
 
 
