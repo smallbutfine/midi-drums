@@ -7,9 +7,9 @@ DrummerModification system instead of manual pattern manipulation.
 import random
 
 from midi_drums.config import TIMING, VELOCITY
+from midi_drums.core.models.kit import InstrumentRegistry
 from midi_drums.core.models.pattern import Pattern
 from midi_drums.core.models.song import Fill
-from midi_drums.core.value_objects.drum_instrument import DrumInstrument
 from midi_drums.modifications import (
     GhostNoteLayer,
     ShuffleFeelApplication,
@@ -128,14 +128,14 @@ class PorcaroPlugin(DrummerPlugin):
             else:
                 builder.pattern.add_beat(
                     pos + TIMING.SIXTEENTH,
-                    DrumInstrument.RIDE_BELL,
+                    InstrumentRegistry.get("ride_1_bell"),
                     VELOCITY.RIDE_LIGHT,
                 )
         ghost = [TIMING.EIGHTH_TRIPLET * i for i in range(1, 12)]
         for pos in ghost:
             if random.random() < 0.7:
                 builder.pattern.add_beat(
-                    pos, DrumInstrument.SNARE, VELOCITY.SNARE_GHOST
+                    pos, InstrumentRegistry.get("snare_sticks"), VELOCITY.SNARE_GHOST
                 )
         for i in range(8):
             open_flag = i % 4 in [1, 3]
@@ -143,9 +143,9 @@ class PorcaroPlugin(DrummerPlugin):
             builder.pattern.add_beat(
                 i * TIMING.EIGHTH,
                 (
-                    DrumInstrument.OPEN_HH
+                    InstrumentRegistry.get("hihat_open_a")
                     if open_flag
-                    else DrumInstrument.CLOSED_HH_EDGE
+                    else InstrumentRegistry.get("hihat_closed_bell")
                 ),
                 vel,
             )
@@ -163,7 +163,7 @@ class PorcaroPlugin(DrummerPlugin):
         builder.kick(TIMING.HALF + TIMING.EIGHTH_TRIPLET, VELOCITY.KICK_NORMAL)
         for pos in [0.5, 1.0, 1.5, 2.5, 3.0, 3.5]:
             builder.pattern.add_beat(
-                pos, DrumInstrument.SNARE, VELOCITY.SNARE_GHOST
+                pos, InstrumentRegistry.get("snare_sticks"), VELOCITY.SNARE_GHOST
             )
         return builder.build()
 
@@ -183,7 +183,7 @@ class PorcaroPlugin(DrummerPlugin):
             if pos > 0 and pos < 4.0:
                 builder.pattern.add_beat(
                     pos,
-                    DrumInstrument.SNARE,
+                    InstrumentRegistry.get("snare_sticks"),
                     VELOCITY.SNARE_GHOST + random.randint(0, 15),
                 )
         return builder.build()
@@ -197,14 +197,14 @@ class PorcaroPlugin(DrummerPlugin):
         builder = PatternBuilder("porcaro_studio_precision")
         builder.snare(0.0, VELOCITY.SNARE_NORMAL)
         builder.pattern.add_beat(
-            TIMING.EIGHTH, DrumInstrument.MID_TOM, VELOCITY.TOM_NORMAL
+            TIMING.EIGHTH, InstrumentRegistry.get("tom_3_open_hit"), VELOCITY.TOM_NORMAL
         )
         builder.pattern.add_beat(
-            TIMING.HALF, DrumInstrument.MID_TOM, VELOCITY.TOM_HEAVY
+            TIMING.HALF, InstrumentRegistry.get("tom_3_open_hit"), VELOCITY.TOM_HEAVY
         )
         builder.pattern.add_beat(
             TIMING.DOTTED_EIGHTH,
-            DrumInstrument.FLOOR_TOM,
+            InstrumentRegistry.get("tom_4_open_hit"),
             VELOCITY.TOM_HEAVY + 2,
         )
         builder.kick(TIMING.QUARTER, VELOCITY.KICK_HEAVY)
@@ -224,19 +224,19 @@ class PorcaroPlugin(DrummerPlugin):
         builder = PatternBuilder("porcaro_aja_linear")
         # Linear sequence: no limb overlap, flowing across kit
         linear_seq = [
-            (0.0, DrumInstrument.KICK),
-            (TIMING.SIXTEENTH, DrumInstrument.SNARE),
-            (TIMING.SIXTEENTH * 2, DrumInstrument.MID_TOM),
-            (TIMING.SIXTEENTH * 3, DrumInstrument.KICK),
-            (TIMING.QUARTER, DrumInstrument.SNARE),
-            (TIMING.QUARTER + TIMING.SIXTEENTH, DrumInstrument.FLOOR_TOM),
-            (TIMING.DOTTED_EIGHTH, DrumInstrument.KICK),
-            (TIMING.HALF, DrumInstrument.SNARE),
+            (0.0, InstrumentRegistry.get("kick")),
+            (TIMING.SIXTEENTH, InstrumentRegistry.get("snare_sticks")),
+            (TIMING.SIXTEENTH * 2, InstrumentRegistry.get("tom_3_open_hit")),
+            (TIMING.SIXTEENTH * 3, InstrumentRegistry.get("kick")),
+            (TIMING.QUARTER, InstrumentRegistry.get("snare_sticks")),
+            (TIMING.QUARTER + TIMING.SIXTEENTH, InstrumentRegistry.get("tom_4_open_hit")),
+            (TIMING.DOTTED_EIGHTH, InstrumentRegistry.get("kick")),
+            (TIMING.HALF, InstrumentRegistry.get("snare_sticks")),
         ]
         for pos, inst in linear_seq:
-            if inst == DrumInstrument.KICK:
+            if inst == InstrumentRegistry.get("kick"):
                 builder.kick(pos, VELOCITY.KICK_NORMAL)
-            elif inst == DrumInstrument.SNARE:
+            elif inst == InstrumentRegistry.get("snare_sticks"):
                 builder.snare(pos, VELOCITY.SNARE_LIGHT)
             else:
                 builder.pattern.add_beat(
@@ -263,7 +263,7 @@ class PorcaroPlugin(DrummerPlugin):
             elif i % 3 == 1:
                 builder.pattern.add_beat(
                     pos,
-                    DrumInstrument.MID_TOM,
+                    InstrumentRegistry.get("tom_3_open_hit"),
                     min(VELOCITY.TOM_LIGHT + random.randint(-3, 8), 127),
                 )
             else:
@@ -288,7 +288,7 @@ class PorcaroPlugin(DrummerPlugin):
             vel = min(VELOCITY.HIHAT_NORMAL + (3 if i % 2 == 0 else -5), 127)
             builder.pattern.add_beat(
                 pos,
-                DrumInstrument.CRASH if i == 0 else DrumInstrument.CLOSED_HH,
+                InstrumentRegistry.get("cymbal_1_hit") if i == 0 else InstrumentRegistry.get("hihat_closed_1_tip_closed_1_hit"),
                 vel,
             )
         # Kick on beat 1 and half-note (Rosanna feel)
@@ -321,14 +321,14 @@ class PorcaroPlugin(DrummerPlugin):
             if random.random() < 0.6:
                 builder.pattern.add_beat(
                     pos,
-                    DrumInstrument.SNARE,
+                    InstrumentRegistry.get("snare_sticks"),
                     VELOCITY.SNARE_GHOST + random.randint(0, 12),
                 )
         # Closed hi-hat keeping time
         for i in range(8):
             builder.pattern.add_beat(
                 TIMING.EIGHTH * i,
-                DrumInstrument.CLOSED_HH,
+                InstrumentRegistry.get("hihat_closed_1_tip_closed_1_hit"),
                 VELOCITY.HIHAT_NORMAL + random.randint(-3, 5),
             )
         return builder.build()

@@ -16,12 +16,21 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass
 
 from midi_drums.config import TIMING, VELOCITY
+from midi_drums.core.models.kit import InstrumentRegistry
 from midi_drums.core.models.pattern import Beat, Pattern
-from midi_drums.core.value_objects.drum_instrument import DrumInstrument
 from midi_drums.core.value_objects.time_signature import TimeSignature
 from midi_drums.core.value_objects.timekeeping import (
     PROMOTABLE_TIMEKEEPING_CYMBALS,
 )
+
+kick = InstrumentRegistry.get("kick")
+snare_sticks = InstrumentRegistry.get("snare_sticks")
+closed_hh = InstrumentRegistry.get("hihat_closed_1_tip_closed_1_hit")
+open_hh = InstrumentRegistry.get("hihat_open_a")
+ride = InstrumentRegistry.get("ride_1_tip_hit_softer")
+crash = InstrumentRegistry.get("cymbal_1_hit")
+tom_3 = InstrumentRegistry.get("tom_3_open_hit")
+tom_4 = InstrumentRegistry.get("tom_4_open_hit")
 
 
 def _is_timekeeping_beat(beat: Beat) -> bool:
@@ -34,7 +43,7 @@ def _is_timekeeping_beat(beat: Beat) -> bool:
     same instrument (e.g. a ``CrashAccents`` hit) is not the timekeeper and
     must not be matched (issue #36 item 1).
     """
-    if beat.instrument == DrumInstrument.CLOSED_HH:
+    if beat.instrument == closed_hh:
         return True
     return (
         beat.instrument in PROMOTABLE_TIMEKEEPING_CYMBALS
@@ -54,7 +63,8 @@ def _is_thinnable_cymbal(beat: Beat) -> bool:
     left alone rather than treated as disposable ambient cymbal fill
     (issue #36 item 1).
     """
-    if beat.instrument == DrumInstrument.OPEN_HH:
+    open_hh = InstrumentRegistry.get("hihat_open_a")
+    if beat.instrument == open_hh:
         return True
     return _is_timekeeping_beat(beat)
 
@@ -64,12 +74,11 @@ def _is_thinnable_cymbal(beat: Beat) -> bool:
 # constant rather than a shared one - CRASH/CHINA/RIDE each read as very
 # different volumes at the same MIDI velocity value.
 _SPEED_PRECISION_TARGETS = {
-    DrumInstrument.KICK: VELOCITY.KICK_HEAVY,
-    DrumInstrument.SNARE: VELOCITY.SNARE_HEAVY,
-    DrumInstrument.CLOSED_HH: VELOCITY.HIHAT_NORMAL,
-    DrumInstrument.RIDE: VELOCITY.RIDE_NORMAL,
-    DrumInstrument.CRASH: VELOCITY.CRASH_NORMAL,
-    DrumInstrument.CHINA: VELOCITY.CHINA_NORMAL,
+    InstrumentRegistry.get("kick"): VELOCITY.KICK_HEAVY,
+    InstrumentRegistry.get("snare_sticks"): VELOCITY.SNARE_HEAVY,
+    InstrumentRegistry.get("hihat_closed_1_tip_closed_1_hit"): VELOCITY.HIHAT_NORMAL,
+    InstrumentRegistry.get("ride_1_tip_hit_softer"): VELOCITY.RIDE_NORMAL,
+    InstrumentRegistry.get("cymbal_1_hit"): VELOCITY.CRASH_NORMAL,
 }
 
 
@@ -128,9 +137,7 @@ class BehindBeatTiming(DrummerModification):
         delay = (self.max_delay_ms / 1000.0) * 2.0 * intensity
 
         for beat in pattern.beats:
-            if (
-                beat.instrument == DrumInstrument.SNARE
-            ):  # Apply to ALL snares, ghost or regular
+            if beat.instrument == snare_sticks:  # Apply to ALL snares
                 # Behind-the-beat hits are naturally slightly softer
                 soft = max(1, beat.velocity - int(3 * intensity))
                 new_beat = Beat(
@@ -281,7 +288,7 @@ class GhostNoteLayer(DrummerModification):
         main_snare_positions = {
             b.position
             for b in pattern.beats
-            if b.instrument == DrumInstrument.SNARE and not b.ghost_note
+            if b.instrument == snare_sticks and not b.ghost_note
         }
 
         # Count available ghost-note positions per bar (non-snare sixteenths)
@@ -317,7 +324,7 @@ class GhostNoteLayer(DrummerModification):
                     modified_beats.append(
                         Beat(
                             position=pos,
-                            instrument=DrumInstrument.SNARE,
+                            instrument=snare_sticks,
                             velocity=VELOCITY.SNARE_GHOST,
                             duration=TIMING.SIXTEENTH,
                             ghost_note=True,
@@ -365,16 +372,15 @@ class LinearCoordination(DrummerModification):
 
         modified_beats = []
 
-        # Priority system for linear playing
+        # Priority system for linear playing (keys are DrumInstrument objects from registry)
         priority = {
-            DrumInstrument.SNARE: 5,
-            DrumInstrument.KICK: 4,
-            DrumInstrument.CRASH: 3,
-            DrumInstrument.RIDE: 3,
-            DrumInstrument.CHINA: 3,
-            DrumInstrument.MID_TOM: 2,
-            DrumInstrument.FLOOR_TOM: 2,
-            DrumInstrument.CLOSED_HH: 1,
+            snare_sticks: 5,
+            kick: 4,
+            crash: 3,
+            ride: 3,
+            tom_3: 2,
+            tom_4: 2,
+            closed_hh: 1,
         }
 
         for pos in sorted(position_groups.keys()):
@@ -576,7 +582,7 @@ class FastChopsTriplets(DrummerModification):
                     modified_beats.append(
                         Beat(
                             position=pos,
-                            instrument=DrumInstrument.SNARE,
+                            instrument=snare_sticks,
                             velocity=velocity,
                             duration=TIMING.SIXTEENTH_TRIPLET,
                             ghost_note=False,
@@ -809,7 +815,7 @@ class TwistedAccents(DrummerModification):
             # Add accent to unexpected beat
             if (
                 not beat.accent
-                and beat.instrument == DrumInstrument.SNARE
+                and beat.instrument == snare_sticks
                 and random.random() < (self.displacement * intensity * 0.3)
             ):
                 new_accent = True
@@ -867,8 +873,8 @@ class MechanicalPrecision(DrummerModification):
 
             # Normalize velocities
             velocity_target = {
-                DrumInstrument.KICK: VELOCITY.KICK_HEAVY,
-                DrumInstrument.SNARE: VELOCITY.SNARE_HEAVY,
+                kick: VELOCITY.KICK_HEAVY,
+                snare_sticks: VELOCITY.SNARE_HEAVY,
             }.get(beat.instrument, beat.velocity)
 
             new_velocity = int(
@@ -941,7 +947,7 @@ class PolyrhythmApplication(DrummerModification):
             modified_beats.append(
                 Beat(
                     position=pos,
-                    instrument=DrumInstrument.KICK,
+                    instrument=kick,
                     velocity=int(
                         VELOCITY.KICK_HEAVY * (0.9 + effective_intensity * 0.1)
                     ),
@@ -958,7 +964,7 @@ class PolyrhythmApplication(DrummerModification):
             modified_beats.append(
                 Beat(
                     position=pos,
-                    instrument=DrumInstrument.SNARE,
+                    instrument=snare_sticks,
                     velocity=int(VELOCITY.SNARE_HEAVY),
                     duration=TIMING.EIGHTH,
                     ghost_note=False,
@@ -975,9 +981,9 @@ class PolyrhythmApplication(DrummerModification):
                     Beat(
                         position=pos,
                         instrument=(
-                            DrumInstrument.MID_TOM
+                            tom_3
                             if i % 2 == 0
-                            else DrumInstrument.FLOOR_TOM
+                            else tom_4
                         ),
                         velocity=int(
                             VELOCITY.TOM_HEAVY + random.randint(-5, 5)
@@ -989,7 +995,7 @@ class PolyrhythmApplication(DrummerModification):
                 )
 
         # Sort by position for proper sequencing
-        modified_beats.sort(key=lambda b: (b.position, b.instrument.value))
+        modified_beats.sort(key=lambda b: (b.position, b.instrument.name))
 
         return Pattern(
             name=f"{pattern.name}_polyrhythm",

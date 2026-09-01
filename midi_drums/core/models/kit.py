@@ -19,7 +19,7 @@ class DrumInstrument:
     MIDI note mappings live in separate JSON keymap files (midi_drums/mappings/*.json).
     """
     
-    _registry: dict[str, DrumInstrument] = {}  # class-level singleton registry
+    _registry: dict[str, "DrumInstrument"] = {}  # class-level singleton registry
     
     def __init__(self, name: str, description: str = "", metadata: dict | None = None):
         self._name = name
@@ -112,7 +112,7 @@ class InstrumentRegistry:
             return  # Already loaded
         
         if template_path is None:
-            default = Path(__file__).parent.parent / "mappings" / "template.json"
+            default = Path(__file__).parent.parent.parent / "mappings" / "template.json"
             if default.exists():
                 template_path = default
             else:
@@ -151,7 +151,7 @@ class KeymapLoader:
         """Discover and load all keymap files. Returns list of loaded keymaps."""
         cls._loaded_keymaps.clear()
         
-        mappings_dir = Path(__file__).parent.parent / "mappings"
+        mappings_dir = Path(__file__).parent.parent.parent / "mappings"
         if not mappings_dir.exists():
             return []
         
@@ -373,6 +373,63 @@ class DrumKit:
             for name, km in KeymapLoader._loaded_keymaps.items()
             if name != "template"
         }
+    
+    @classmethod
+    def from_preset(cls, preset_name: str) -> "DrumKit":
+        """Create a DrumKit from a named preset.
+        
+        Maps common preset names to keymap files:
+            ezdrummer3 -> ezd3.json
+            gm_drums -> gm.json
+            addictive_drums -> ad2_master.json
+            studio_drummer3 -> ezd3.json
+            bfd3 -> gm.json
+            modo_drums -> ad2_master.json
+        
+        If the preset name matches a loaded keymap file directly, use it.
+        Otherwise falls back to gm.json.
+        """
+        # Direct match: check if there is a keymap that matches
+        for km_name in KeymapLoader._loaded_keymaps:
+            if km_name == preset_name or km_name.lower() == preset_name.lower():
+                return cls.from_keymap_name(preset_name)
+        
+        # Alias mapping
+        alias_map = {
+            "ezdrummer3": "ezd3",
+            "gm_drums": "gm",
+            "addictive_drums": "ad2_master",
+            "studio_drummer3": "ezd3",
+            "bfd3": "gm",
+            "modo_drums": "ad2_master",
+            "ml_drums": "gm",
+        }
+        mapped = alias_map.get(preset_name.lower())
+        if mapped:
+            return cls.from_keymap_name(mapped)
+        
+        # Fallback to gm
+        return cls.from_keymap_name("gm")
+    
+    @classmethod
+    def from_json(cls, path: str | Path | None) -> "DrumKit":
+        """Create a DrumKit from a custom mapping JSON file."""
+        if path is None:
+            raise ValueError("Cannot create DrumKit from None path")
+        
+        data = json.loads(Path(path).read_text(encoding="utf-8"))
+        instruments = data.get("instruments", {})
+        
+        custom_mappings = {}
+        for inst_name, info in instruments.items():
+            note = info.get("midi_note")
+            if note is not None:
+                custom_mappings[inst_name] = int(note)
+        
+        return cls(
+            name=data.get("name", "Custom Kit"),
+            custom_mappings=custom_mappings,
+        )
 
 
 # ── Module Initialization ───────────────────────────────────────────────────

@@ -7,9 +7,9 @@ DrummerModification system instead of manual pattern manipulation.
 import random
 
 from midi_drums.config import TIMING, VELOCITY
+from midi_drums.core.models.kit import InstrumentRegistry
 from midi_drums.core.models.pattern import Pattern
 from midi_drums.core.models.song import Fill
-from midi_drums.core.value_objects.drum_instrument import DrumInstrument
 from midi_drums.modifications import (
     HeavyAccents,
     MinimalCreativity,
@@ -142,7 +142,7 @@ class RoederPlugin(DrummerPlugin):
         # RIDE cymbal timekeeping (Neurosis uses ride for atmospheric wash)
         builder.pattern.add_beat(
             TIMING.QUARTER * 3 + TIMING.EIGHTH_TRIPLET,
-            DrumInstrument.RIDE,
+            InstrumentRegistry.get("ride_1_tip_hit_softer"),
             VELOCITY.CHINA_ACCENT - 10,
         )
         # CRASH_CHOKED_B for atmospheric swell
@@ -165,7 +165,7 @@ class RoederPlugin(DrummerPlugin):
         for i in range(4):
             builder.pattern.add_beat(
                 TIMING.HALF * i,
-                DrumInstrument.FLOOR_TOM,
+                InstrumentRegistry.get("tom_4_open_hit"),
                 min(VELOCITY.TOM_HEAVY + random.randint(-5, 10), 127),
             )
         return builder.build()
@@ -180,12 +180,12 @@ class RoederPlugin(DrummerPlugin):
         # Single rack + single floor tom setup (per interview)
         builder.kick(0.0, VELOCITY.KICK_HEAVY)
         builder.pattern.add_beat(
-            TIMING.HALF, DrumInstrument.MID_TOM, VELOCITY.TOM_HEAVY
+            TIMING.HALF, InstrumentRegistry.get("tom_3_open_hit"), VELOCITY.TOM_HEAVY
         )
         builder.snare(TIMING.HALF * 3, VELOCITY.SNARE_ACCENT)
         builder.pattern.add_beat(
             TIMING.DOTTED_EIGHTH,
-            DrumInstrument.FLOOR_TOM,
+            InstrumentRegistry.get("tom_4_open_hit"),
             min(VELOCITY.TOM_HEAVY + 5, 127),
         )
         return builder.build()
@@ -198,8 +198,8 @@ class RoederPlugin(DrummerPlugin):
 
         builder = PatternBuilder("roeder_souls_at_zero_buildup")
         phases = [
-            (0.0, DrumInstrument.FLOOR_TOM, VELOCITY.TOM_ACCENT),
-            (TIMING.HALF, DrumInstrument.FLOOR_TOM, VELOCITY.TOM_HEAVY),
+            (0.0, InstrumentRegistry.get("tom_4_open_hit"), VELOCITY.TOM_ACCENT),
+            (TIMING.HALF, InstrumentRegistry.get("tom_4_open_hit"), VELOCITY.TOM_HEAVY),
             (
                 TIMING.HALF * 2,
                 None,
@@ -209,7 +209,14 @@ class RoederPlugin(DrummerPlugin):
         ]
         for offset, inst, vel in phases:
             if inst is not None:
-                builder.tom(offset, inst.value, vel)
+                # Map instrument to tom variant
+                inst_name = inst.name if inst else ""
+                if "tom_4" in inst_name:
+                    builder.tom(offset, "FLOOR", vel)
+                elif "tom_3" in inst_name:
+                    builder.tom(offset, "MID", vel)
+                else:
+                    builder.tom(offset, "MID", vel)
             else:
                 builder.kick(offset, vel)
         builder.snare(
@@ -226,11 +233,11 @@ class RoederPlugin(DrummerPlugin):
 
         builder = PatternBuilder("roeder_wounds_sludge")
         interlock = [
-            (0.0, DrumInstrument.FLOOR_TOM, VELOCITY.TOM_HEAVY),
+            (0.0, InstrumentRegistry.get("tom_4_open_hit"), VELOCITY.TOM_HEAVY),
             (TIMING.HALF, "KICK", VELOCITY.KICK_HEAVY),
             (
                 TIMING.HALF * 2,
-                DrumInstrument.MID_TOM,
+                InstrumentRegistry.get("tom_3_open_hit"),
                 min(VELOCITY.TOM_HEAVY + random.randint(-5, 10), 127),
             ),
             (TIMING.HALF * 3, "KICK", min(VELOCITY.KICK_HEAVY + 8, 127)),
@@ -256,16 +263,16 @@ class RoederPlugin(DrummerPlugin):
         for i in range(4):
             pos = TIMING.HALF * i
             builder.pattern.add_beat(
-                pos, DrumInstrument.RIDE, VELOCITY.CHINA_ACCENT - 10
+                pos, InstrumentRegistry.get("ride_1_tip_hit_softer"), VELOCITY.CHINA_ACCENT - 10
             )
         builder.tom(
             TIMING.EIGHTH_TRIPLET,
-            DrumInstrument.FLOOR_TOM.value,
+            InstrumentRegistry.get("tom_4_open_hit"),
             VELOCITY.TOM_LIGHT,
         )
         builder.tom(
             TIMING.HALF * 3 + TIMING.EIGHTH_TRIPLET,
-            DrumInstrument.MID_TOM.value,
+            InstrumentRegistry.get("tom_3_open_hit"),
             VELOCITY.TOM_ACCENT,
         )
         # CRASH_CHOKED_A for cavernous cutoff

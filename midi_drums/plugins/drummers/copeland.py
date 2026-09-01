@@ -10,9 +10,9 @@ other drummer plugins.
 import random
 
 from midi_drums.config import TIMING, VELOCITY
+from midi_drums.core.models.kit import InstrumentRegistry
 from midi_drums.core.models.pattern import Pattern
 from midi_drums.core.models.song import Fill
-from midi_drums.core.value_objects.drum_instrument import DrumInstrument
 from midi_drums.generation.builders.pattern_builder import PatternBuilder
 from midi_drums.modifications import (
     GhostNoteLayer,
@@ -127,19 +127,19 @@ class CopelandPlugin(DrummerPlugin):
         the reggae/ska-derived off-beat emphasis Copeland brought into rock.
         """
         builder = PatternBuilder("copeland_skank_hihat")
-        builder.pattern.add_beat(0.0, DrumInstrument.RIM, VELOCITY.SNARE_LIGHT)
+        builder.pattern.add_beat(0.0, InstrumentRegistry.get("snare_side_stick"), VELOCITY.SNARE_LIGHT)
         # TIGHT_HH_CLOSED for reggae skank pocket depth (tight dry HH)
         builder.pattern.add_beat(
             TIMING.SIXTEENTH,
-            DrumInstrument.TIGHT_HH_CLOSED,
+            InstrumentRegistry.get("hihat_closed_1_tip_closed_1_hit"),
             VELOCITY.HIHAT_ACCENT,
         )
         builder.pattern.add_beat(
-            TIMING.SIXTEENTH * 2, DrumInstrument.RIM, VELOCITY.SNARE_LIGHT
+            TIMING.SIXTEENTH * 2, InstrumentRegistry.get("snare_side_stick"), VELOCITY.SNARE_LIGHT
         )
         builder.pattern.add_beat(
             TIMING.SIXTEENTH * 3,
-            DrumInstrument.TIGHT_HH_CLOSED,
+            InstrumentRegistry.get("hihat_closed_1_tip_closed_1_hit"),
             VELOCITY.HIHAT_ACCENT,
         )
         return builder.build()
@@ -153,13 +153,13 @@ class CopelandPlugin(DrummerPlugin):
         subdivision.
         """
         builder = PatternBuilder("copeland_displaced_accent")
-        builder.pattern.add_beat(0.0, DrumInstrument.RIM, VELOCITY.SNARE_LIGHT)
+        builder.pattern.add_beat(0.0, InstrumentRegistry.get("snare_side_stick"), VELOCITY.SNARE_LIGHT)
         builder.pattern.add_beat(
-            TIMING.SIXTEENTH, DrumInstrument.RIM, VELOCITY.SNARE_NORMAL
+            TIMING.SIXTEENTH, InstrumentRegistry.get("snare_side_stick"), VELOCITY.SNARE_NORMAL
         )
         builder.pattern.add_beat(
             TIMING.SIXTEENTH * 2,
-            DrumInstrument.SNARE,
+            InstrumentRegistry.get("snare_sticks"),
             VELOCITY.SNARE_ACCENT,
             accent=True,
         )
@@ -176,15 +176,15 @@ class CopelandPlugin(DrummerPlugin):
         """
         builder = PatternBuilder("copeland_syncopated_tom_skip")
         builder.pattern.add_beat(
-            0.0, DrumInstrument.MID_TOM, VELOCITY.TOM_ACCENT
+            0.0, InstrumentRegistry.get("tom_3_open_hit"), VELOCITY.TOM_ACCENT
         )
         builder.pattern.add_beat(
             TIMING.DOTTED_SIXTEENTH,
-            DrumInstrument.FLOOR_TOM,
+            InstrumentRegistry.get("tom_4_open_hit"),
             VELOCITY.TOM_HEAVY,
         )
         builder.pattern.add_beat(
-            TIMING.DOTTED_EIGHTH, DrumInstrument.RIM, VELOCITY.SNARE_ACCENT
+            TIMING.DOTTED_EIGHTH, InstrumentRegistry.get("snare_side_stick"), VELOCITY.SNARE_ACCENT
         )
         return builder.build()
 
@@ -198,11 +198,10 @@ class CopelandPlugin(DrummerPlugin):
         """
         builder = PatternBuilder("copeland_octoban_off_beat")
         # Tight, percussive 16th-note pattern packed into one beat
-        # (fills render within a single beat — see midi_drums/export/midi/engine.py)
         for i in range(4):
             pos = i * TIMING.SIXTEENTH
             builder.pattern.add_beat(
-                pos, DrumInstrument.RIDE_BELL, VELOCITY.TOM_LIGHT
+                pos, InstrumentRegistry.get("ride_1_bell"), VELOCITY.TOM_LIGHT
             )
         return builder.build()
 
@@ -218,25 +217,25 @@ class CopelandPlugin(DrummerPlugin):
         sequence = [
             (
                 0.0,
-                DrumInstrument.MID_TOM,
+                InstrumentRegistry.get("tom_3_open_hit"),
                 VELOCITY.TOM_ACCENT,
             ),  # Bonang "leader"
             (
                 TIMING.EIGHTH,
-                DrumInstrument.CHINA,
+                InstrumentRegistry.get("cymbal_5_hit"),
                 VELOCITY.CHINA_ACCENT,
             ),  # Gong punctuation
             (
                 TIMING.SIXTEENTH * 2,
-                DrumInstrument.FLOOR_TOM,
+                InstrumentRegistry.get("tom_4_open_hit"),
                 VELOCITY.TOM_HEAVY,
             ),
             (
                 TIMING.DOTTED_EIGHTH,
-                DrumInstrument.MID_TOM,
+                InstrumentRegistry.get("tom_3_open_hit"),
                 VELOCITY.TOM_ACCENT - 5,
             ),
-            (0.875, DrumInstrument.CHINA, VELOCITY.CHINA_ACCENT + 3),
+            (0.875, InstrumentRegistry.get("cymbal_5_hit"), VELOCITY.CHINA_ACCENT + 3),
         ]
         for pos, instrument, velocity in sequence:
             builder.pattern.add_beat(pos, instrument, velocity)
@@ -247,15 +246,15 @@ class CopelandPlugin(DrummerPlugin):
         builder = PatternBuilder("copeland_reggae_skank")
         # Skank groove packed into one beat (fills render within a single beat)
         # Downbeat rim + off-beat hi-hats compressed to 16th-note spacing
-        builder.pattern.add_beat(0.0, DrumInstrument.RIM, VELOCITY.SNARE_NORMAL)
+        builder.pattern.add_beat(0.0, InstrumentRegistry.get("snare_side_stick"), VELOCITY.SNARE_NORMAL)
         builder.pattern.add_beat(
             TIMING.SIXTEENTH * 2,
-            DrumInstrument.CLOSED_HH,
+            InstrumentRegistry.get("hihat_closed_1_tip_closed_1_hit"),
             VELOCITY.HIHAT_NORMAL,
         )
         builder.pattern.add_beat(
             TIMING.SIXTEENTH * 3,
-            DrumInstrument.OPEN_HH_1,
+            InstrumentRegistry.get("hihat_open_a"),
             VELOCITY.HIHAT_ACCENT,
         )
         # Closing crash accent at resolution (within render window)
@@ -272,26 +271,26 @@ class CopelandPlugin(DrummerPlugin):
         builder = PatternBuilder("copeland_message_box_tom")
         # Alternating mid/floor tom packed into one beat
         for i in range(8):
-            pos = TIMING.THIRTY_SECOND * i  # 8 hits within <1.0 bar
+            pos = TIMING.THIRTY_SECOND * i
             if i % 3 == 0:
                 builder.pattern.add_beat(
                     pos,
-                    DrumInstrument.FLOOR_TOM,
+                    InstrumentRegistry.get("tom_4_open_hit"),
                     min(VELOCITY.TOM_HEAVY + random.randint(5, 10), 127),
                 )
             elif i % 2 == 0:
                 builder.pattern.add_beat(
                     pos,
-                    DrumInstrument.MID_TOM,
+                    InstrumentRegistry.get("tom_3_open_hit"),
                     VELOCITY.TOM_NORMAL + random.randint(-3, 5),
                 )
             else:
                 builder.pattern.add_beat(
-                    pos, DrumInstrument.FLOOR_TOM, VELOCITY.TOM_LIGHT
+                    pos, InstrumentRegistry.get("tom_4_open_hit"), VELOCITY.TOM_LIGHT
                 )
         # Cross-stick punctuation at resolution (within fill window)
         builder.pattern.add_beat(
-            TIMING.DOTTED_EIGHTH, DrumInstrument.RIM, VELOCITY.SNARE_NORMAL
+            TIMING.DOTTED_EIGHTH, InstrumentRegistry.get("snare_side_stick"), VELOCITY.SNARE_NORMAL
         )
         return builder.build()
 
@@ -311,14 +310,14 @@ class CopelandPlugin(DrummerPlugin):
             if random.random() < 0.5:
                 builder.pattern.add_beat(
                     pos,
-                    DrumInstrument.SNARE,
+                    InstrumentRegistry.get("snare_sticks"),
                     min(VELOCITY.SNARE_GHOST + random.randint(0, 10), 127),
                 )
         for i in range(8):
             if i % 2 == 1:  # On the off-beats
                 builder.pattern.add_beat(
                     TIMING.THIRTY_SECOND * i,
-                    DrumInstrument.CLOSED_HH,
+                    InstrumentRegistry.get("hihat_closed_1_tip_closed_1_hit"),
                     VELOCITY.HIHAT_ACCENT + random.randint(-3, 5),
                 )
         return builder.build()

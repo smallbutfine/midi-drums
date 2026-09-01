@@ -8,7 +8,9 @@ This test suite validates the pattern template system including:
 """
 
 from midi_drums.config import TIMING
-from midi_drums.core.value_objects.drum_instrument import DrumInstrument
+from midi_drums.core.models.kit import (
+    InstrumentRegistry,
+)
 from midi_drums.patterns import (
     BasicGroove,
     BlastBeat,
@@ -21,6 +23,20 @@ from midi_drums.patterns import (
     create_basic_rock_pattern,
     create_metal_pattern,
 )
+
+# Instrument lookups used throughout these tests
+_KICK = InstrumentRegistry.get("kick")
+_SNARE = InstrumentRegistry.get("snare_sticks")
+_HIHAT_CLOSED_1 = InstrumentRegistry.get("hihat_closed_1_tip_closed_1_hit")
+_HIHAT_CLOSED_BELL = InstrumentRegistry.get("hihat_closed_bell")
+_HIHAT_CLOSED_2 = InstrumentRegistry.get("hihat_closed_2_tip_closed_2_hit")
+_ALL_HIHAT = frozenset([_HIHAT_CLOSED_1, _HIHAT_CLOSED_BELL, _HIHAT_CLOSED_2])
+_RIDE = InstrumentRegistry.get("ride_1_tip_hit_softer")
+_CRASH = InstrumentRegistry.get("cymbal_1_hit")
+_CHINA = InstrumentRegistry.get("cymbal_5_hit")
+_TOM2 = InstrumentRegistry.get("tom_2_open_hit")
+_TOM3 = InstrumentRegistry.get("tom_3_open_hit")
+_TOM4 = InstrumentRegistry.get("tom_4_open_hit")
 
 
 def test_basic_groove_template():
@@ -40,21 +56,12 @@ def test_basic_groove_template():
     )
 
     # Should have kicks, snares, and hihats
-    kick_count = sum(
-        1 for b in pattern.beats if b.instrument == DrumInstrument.KICK
-    )
-    snare_count = sum(
-        1 for b in pattern.beats if b.instrument == DrumInstrument.SNARE
-    )
+    kick_count = sum(1 for b in pattern.beats if b.instrument == _KICK)
+    snare_count = sum(1 for b in pattern.beats if b.instrument == _SNARE)
     hihat_count = sum(
         1
         for b in pattern.beats
-        if b.instrument
-        in (
-            DrumInstrument.CLOSED_HH,
-            DrumInstrument.CLOSED_HH_EDGE,
-            DrumInstrument.CLOSED_HH_TIP,
-        )
+        if b.instrument in _ALL_HIHAT
     )
 
     assert kick_count == 2, f"Expected 2 kicks, got {kick_count}"
@@ -79,9 +86,7 @@ def test_double_bass_template():
 
     pattern = TemplateComposer("test_double_bass").add(template).build(bars=1)
 
-    kick_count = sum(
-        1 for b in pattern.beats if b.instrument == DrumInstrument.KICK
-    )
+    kick_count = sum(1 for b in pattern.beats if b.instrument == _KICK)
 
     # Should have 16th note kicks (16 per bar)
     assert kick_count == 16, f"Expected 16 kicks, got {kick_count}"
@@ -90,7 +95,7 @@ def test_double_bass_template():
     gallop = DoubleBassPedal(pattern_type="gallop")
     gallop_pattern = TemplateComposer("test_gallop").add(gallop).build(bars=1)
     gallop_kicks = sum(
-        1 for b in gallop_pattern.beats if b.instrument == DrumInstrument.KICK
+        1 for b in gallop_pattern.beats if b.instrument == _KICK
     )
 
     assert gallop_kicks == 6, f"Expected 6 gallop kicks, got {gallop_kicks}"
@@ -109,12 +114,8 @@ def test_blast_beat_template():
 
     pattern = TemplateComposer("test_blast").add(template).build(bars=1)
 
-    kick_count = sum(
-        1 for b in pattern.beats if b.instrument == DrumInstrument.KICK
-    )
-    snare_count = sum(
-        1 for b in pattern.beats if b.instrument == DrumInstrument.SNARE
-    )
+    kick_count = sum(1 for b in pattern.beats if b.instrument == _KICK)
+    snare_count = sum(1 for b in pattern.beats if b.instrument == _SNARE)
 
     # Traditional blast: kick + snare on every 8th (8 times)
     assert kick_count == 8, f"Expected 8 kicks, got {kick_count}"
@@ -124,7 +125,7 @@ def test_blast_beat_template():
     hammer = BlastBeat(style="hammer")
     hammer_pattern = TemplateComposer("test_hammer").add(hammer).build(bars=1)
     hammer_snares = sum(
-        1 for b in hammer_pattern.beats if b.instrument == DrumInstrument.SNARE
+        1 for b in hammer_pattern.beats if b.instrument == _SNARE
     )
 
     # Hammer blast has 16th note snares (16 per bar)
@@ -145,9 +146,7 @@ def test_jazz_ride_template():
 
     pattern = TemplateComposer("test_jazz").add(template).build(bars=1)
 
-    ride_count = sum(
-        1 for b in pattern.beats if b.instrument == DrumInstrument.RIDE
-    )
+    ride_count = sum(1 for b in pattern.beats if b.instrument == _RIDE)
 
     # Should have ride cymbal hits on swing pattern
     assert ride_count > 0, f"Expected ride hits, got {ride_count}"
@@ -168,13 +167,11 @@ def test_funk_ghost_notes_template():
 
     pattern = TemplateComposer("test_funk").add(template).build(bars=1)
 
-    snare_count = sum(
-        1 for b in pattern.beats if b.instrument == DrumInstrument.SNARE
-    )
+    snare_count = sum(1 for b in pattern.beats if b.instrument == _SNARE)
     ghost_count = sum(
         1
         for b in pattern.beats
-        if b.instrument == DrumInstrument.SNARE and b.ghost_note
+        if b.instrument == _SNARE and b.ghost_note
     )
 
     # Should have main snares + ghost notes
@@ -194,9 +191,7 @@ def test_crash_accents_template():
 
     pattern = TemplateComposer("test_crash").add(template).build(bars=1)
 
-    crash_count = sum(
-        1 for b in pattern.beats if b.instrument == DrumInstrument.CRASH
-    )
+    crash_count = sum(1 for b in pattern.beats if b.instrument == _CRASH)
 
     assert crash_count == 2, f"Expected 2 crashes, got {crash_count}"
 
@@ -216,7 +211,7 @@ def test_tom_fill_template():
     tom_count = sum(
         1
         for b in pattern.beats
-        if b.instrument in [DrumInstrument.MID_TOM, DrumInstrument.FLOOR_TOM]
+        if b.instrument in (_TOM3, _TOM4, InstrumentRegistry.get("tom_1_open_hit"))
     )
 
     assert tom_count > 0, f"Expected tom fills, got {tom_count}"
@@ -281,9 +276,7 @@ def test_convenience_functions():
     assert len(metal.beats) > 0
 
     # Metal with double bass should have more kicks
-    kick_count = sum(
-        1 for b in metal.beats if b.instrument == DrumInstrument.KICK
-    )
+    kick_count = sum(1 for b in metal.beats if b.instrument == _KICK)
     assert (
         kick_count >= 16
     ), f"Expected many kicks in metal pattern, got {kick_count}"

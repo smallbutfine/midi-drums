@@ -7,7 +7,7 @@ conventions of tests/unit/test_ride_hihat_switching.py.
 
 import pytest
 
-from midi_drums.core.value_objects.drum_instrument import DrumInstrument
+from midi_drums.core.models.kit import InstrumentRegistry
 from midi_drums.core.value_objects.generation_parameters import (
     GenerationParameters,
 )
@@ -17,38 +17,24 @@ SECTIONS = ["intro", "verse", "chorus", "breakdown", "bridge", "outro"]
 
 
 def _kick_positions(pattern):
-    return {
-        b.position for b in pattern.beats if b.instrument == DrumInstrument.KICK
-    }
+    kick = InstrumentRegistry.get("kick")
+    return {b.position for b in pattern.beats if b.instrument == kick}
 
 
 def _snare_positions(pattern):
-    return {
-        b.position
-        for b in pattern.beats
-        if b.instrument == DrumInstrument.SNARE
-    }
+    snare = InstrumentRegistry.get("snare_sticks")
+    return {b.position for b in pattern.beats if b.instrument == snare}
 
 
 def _hihat_count(pattern):
-    return sum(
-        1
-        for b in pattern.beats
-        if b.instrument
-        in {
-            DrumInstrument.CLOSED_HH,
-            DrumInstrument.CLOSED_HH_EDGE,
-            DrumInstrument.CLOSED_HH_TIP,
-            DrumInstrument.OPEN_HH,
-            DrumInstrument.PEDAL_HH,
-            DrumInstrument.TIGHT_HH_A,
-            DrumInstrument.TIGHT_HH_B,
-            DrumInstrument.TIGHT_HH_C,
-            DrumInstrument.TIGHT_HH_EDGE,
-            DrumInstrument.TIGHT_HH_TIP,
-            DrumInstrument.TIGHT_HH_CLOSED,
-        }
-    )
+    hh_instruments = frozenset([
+        InstrumentRegistry.get("hihat_closed_1_tip_closed_1_hit"),
+        InstrumentRegistry.get("hihat_closed_bell"),
+        InstrumentRegistry.get("hihat_closed_2_tip_closed_2_hit"),
+        InstrumentRegistry.get("hihat_open_a"),
+        InstrumentRegistry.get("hihat_pedal_closed"),
+    ])
+    return sum(1 for b in pattern.beats if b.instrument in hh_instruments)
 
 
 @pytest.mark.unit

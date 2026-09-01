@@ -7,9 +7,9 @@ DrummerModification system instead of manual pattern manipulation.
 import random
 
 from midi_drums.config import TIMING, VELOCITY
+from midi_drums.core.models.kit import InstrumentRegistry
 from midi_drums.core.models.pattern import Pattern
 from midi_drums.core.models.song import Fill
-from midi_drums.core.value_objects.drum_instrument import DrumInstrument
 from midi_drums.generation.builders.pattern_builder import PatternBuilder
 from midi_drums.modifications import (
     SpeedPrecision,
@@ -193,7 +193,7 @@ class DeePlugin(DrummerPlugin):
                 builder.snare(offset, min(vel, 127))
             else:
                 builder.pattern.add_beat(
-                    offset, DrumInstrument.CHINA, min(vel, 127)
+                    offset, InstrumentRegistry.get("cymbal_5_hit"), min(vel, 127)
                 )
         return builder.build()
 
@@ -233,13 +233,13 @@ class DeePlugin(DrummerPlugin):
             elif i < 4:
                 builder.pattern.add_beat(
                     pos,
-                    DrumInstrument.MID_TOM,
+                    InstrumentRegistry.get("tom_3_open_hit"),
                     min(VELOCITY.TOM_ACCENT + (i - 2) * 5, 127),
                 )
             else:
                 builder.pattern.add_beat(
                     pos,
-                    DrumInstrument.FLOOR_TOM,
+                    InstrumentRegistry.get("tom_4_open_hit"),
                     min(VELOCITY.TOM_HEAVY + (i - 4) * 5, 127),
                 )
         # Crash accent on resolution
@@ -256,16 +256,16 @@ class DeePlugin(DrummerPlugin):
         builder = PatternBuilder("dee_abigail_tom_cascade")
         # Descending cascade: rack → mid → floor with increasing intensity
         cascade_sequence = [
-            (0.0, DrumInstrument.MID_TOM, VELOCITY.TOM_ACCENT),
-            (TIMING.EIGHTH, DrumInstrument.MID_TOM, VELOCITY.TOM_HEAVY),
+            (0.0, InstrumentRegistry.get("tom_3_open_hit"), VELOCITY.TOM_ACCENT),
+            (TIMING.EIGHTH, InstrumentRegistry.get("tom_3_open_hit"), VELOCITY.TOM_HEAVY),
             (
                 TIMING.HALF,
-                DrumInstrument.FLOOR_TOM,
+                InstrumentRegistry.get("tom_4_open_hit"),
                 min(VELOCITY.TOM_HEAVY + 10, 127),
             ),
             (
                 TIMING.DOTTED_EIGHTH,
-                DrumInstrument.FLOOR_TOM,
+                InstrumentRegistry.get("tom_4_open_hit"),
                 min(VELOCITY.TOM_HEAVY + 15, 127),
             ),
         ]
@@ -293,7 +293,7 @@ class DeePlugin(DrummerPlugin):
         # SPLASH cymbal swell for horror metal punctuation
         builder.pattern.add_beat(
             TIMING.HALF * 3 + TIMING.SIXTEENTH,
-            DrumInstrument.SPLASH,
+            InstrumentRegistry.get("cymbal_6_hit"),
             VELOCITY.CHINA_ACCENT,
         )
         return builder.build()

@@ -14,10 +14,12 @@ from __future__ import annotations
 from dataclasses import dataclass
 
 from midi_drums.config import VELOCITY
+from midi_drums.core.models.kit import InstrumentRegistry
 from midi_drums.core.models.pattern import Beat, Pattern
-from midi_drums.core.value_objects.drum_instrument import DrumInstrument
 from midi_drums.core.value_objects.riff_accent import RiffAccentMap
 from midi_drums.modifications.drummer_mods import DrummerModification
+
+kick = InstrumentRegistry.get("kick")
 
 
 @dataclass
@@ -72,7 +74,7 @@ class RiffLockTransform(DrummerModification):
         new_pattern.metadata["riff_locked"] = True
 
         kicks = [
-            b for b in new_pattern.beats if b.instrument == DrumInstrument.KICK
+            b for b in new_pattern.beats if b.instrument == kick
         ]
         kicks.sort(key=lambda k: k.position)
 
@@ -98,7 +100,7 @@ class RiffLockTransform(DrummerModification):
             if closest_kick is None or min_dist > self.max_displacement_beats:
                 new_kick = Beat(
                     position=accent.position,
-                    instrument=DrumInstrument.KICK,
+                    instrument=kick,
                     velocity=int(VELOCITY.KICK_HEAVY * accent.strength),
                     duration=0.1,
                     ghost_note=False,
@@ -107,7 +109,7 @@ class RiffLockTransform(DrummerModification):
                 # Insert in sorted position
                 inserted = False
                 for i, existing in enumerate(new_pattern.beats):
-                    if existing.instrument != DrumInstrument.KICK:
+                    if existing.instrument != kick:
                         continue
                     if (
                         self._beat_distance(

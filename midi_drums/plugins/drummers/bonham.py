@@ -7,9 +7,9 @@ DrummerModification system instead of manual pattern manipulation.
 import random
 
 from midi_drums.config import TIMING, VELOCITY
+from midi_drums.core.models.kit import InstrumentRegistry
 from midi_drums.core.models.pattern import Pattern
 from midi_drums.core.models.song import Fill
-from midi_drums.core.value_objects.drum_instrument import DrumInstrument
 from midi_drums.modifications import (
     BehindBeatTiming,
     HeavyAccents,
@@ -136,15 +136,15 @@ class BonhamPlugin(DrummerPlugin):
         builder = PatternBuilder("bonham_sixtuplet_run")
         # 6 notes: mid → floor → mid → snare → mid → kick (snare-tom run)
         sequence = [
-            (0.0, DrumInstrument.MID_TOM),
-            (TIMING.EIGHTH_TRIPLET, DrumInstrument.FLOOR_TOM),
-            (TIMING.EIGHTH_TRIPLET * 2, DrumInstrument.MID_TOM),
+            (0.0, InstrumentRegistry.get("tom_3_open_hit")),
+            (TIMING.EIGHTH_TRIPLET, InstrumentRegistry.get("tom_4_open_hit")),
+            (TIMING.EIGHTH_TRIPLET * 2, InstrumentRegistry.get("tom_3_open_hit")),
             (
                 TIMING.EIGHTH_TRIPLET * 3 + TIMING.SIXTEENTH,
-                DrumInstrument.SNARE,
+                InstrumentRegistry.get("snare_sticks"),
             ),
-            (TIMING.QUARTER + TIMING.SIXTEENTH, DrumInstrument.MID_TOM),
-            (TIMING.HALF, DrumInstrument.KICK),
+            (TIMING.QUARTER + TIMING.SIXTEENTH, InstrumentRegistry.get("tom_3_open_hit")),
+            (TIMING.HALF, InstrumentRegistry.get("kick")),
         ]
         for pos, inst in sequence:
             builder.pattern.add_beat(
@@ -175,9 +175,9 @@ class BonhamPlugin(DrummerPlugin):
         # Varied tom hits simulating hand strikes
         for pos in [0.0, 0.25, 0.5, 0.75, 1.0, 1.25, 1.5, 1.75]:
             inst = (
-                DrumInstrument.MID_TOM
+                InstrumentRegistry.get("tom_3_open_hit")
                 if pos % 0.5 == 0
-                else DrumInstrument.FLOOR_TOM
+                else InstrumentRegistry.get("tom_4_open_hit")
             )
             velocity = VELOCITY.TOM_HEAVY + random.randint(-8, 12)
             builder.pattern.add_beat(pos, inst, velocity)
@@ -202,7 +202,7 @@ class BonhamPlugin(DrummerPlugin):
             if i % 4 == 0:
                 builder.pattern.add_beat(
                     pos,
-                    DrumInstrument.MID_TOM,
+                    InstrumentRegistry.get("tom_3_open_hit"),
                     min(VELOCITY.TOM_ACCENT + random.randint(-5, 10), 127),
                 )
         return builder.build()
@@ -226,7 +226,7 @@ class BonhamPlugin(DrummerPlugin):
         # Descending tom run (rack → mid → floor)
         for i in range(4):
             pos = TIMING.QUARTER * 2 + i * TIMING.SIXTEENTH
-            inst = DrumInstrument.MID_TOM if i < 2 else DrumInstrument.FLOOR_TOM
+            inst = InstrumentRegistry.get("tom_3_open_hit") if i < 2 else InstrumentRegistry.get("tom_4_open_hit")
             builder.pattern.add_beat(
                 pos,
                 inst,
@@ -281,7 +281,7 @@ class BonhamPlugin(DrummerPlugin):
         builder.ride(4.0, VELOCITY.RIDE_ACCENT)
         builder.pattern.add_beat(
             3.875,
-            DrumInstrument.RIDE_BELL,
+            InstrumentRegistry.get("ride_1_bell"),
             VELOCITY.RIDE_BELL_ACCENT,
         )
         return builder.build()

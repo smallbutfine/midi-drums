@@ -7,9 +7,9 @@ DrummerModification system instead of manual pattern manipulation.
 import random
 
 from midi_drums.config import TIMING, VELOCITY
+from midi_drums.core.models.kit import InstrumentRegistry
 from midi_drums.core.models.pattern import Pattern
 from midi_drums.core.models.song import Fill
-from midi_drums.core.value_objects.drum_instrument import DrumInstrument
 from midi_drums.modifications import (
     BehindBeatTiming,
     FastChopsTriplets,
@@ -138,9 +138,9 @@ class ChambersPlugin(DrummerPlugin):
             builder.pattern.add_beat(
                 pos,
                 (
-                    DrumInstrument.OPEN_HH_SOFT
+                    InstrumentRegistry.get("hihat_open_a")
                     if open_flag
-                    else DrumInstrument.TIGHT_HH_CLOSED
+                    else InstrumentRegistry.get("hihat_closed_1_tip_closed_1_hit")
                 ),
                 velocity,
             )
@@ -199,13 +199,13 @@ class ChambersPlugin(DrummerPlugin):
         builder.snare(TIMING.HALF, VELOCITY.SNARE_HEAVY)
         builder.pattern.add_beat(
             TIMING.HALF + TIMING.SIXTEENTH,
-            DrumInstrument.MID_TOM,
+            InstrumentRegistry.get("tom_3_open_hit"),
             VELOCITY.TOM_NORMAL,
         )
         builder.kick(TIMING.DOTTED_EIGHTH, VELOCITY.KICK_NORMAL)
         builder.pattern.add_beat(
             TIMING.HALF + TIMING.EIGHTH * 2,
-            DrumInstrument.FLOOR_TOM,
+            InstrumentRegistry.get("tom_4_open_hit"),
             VELOCITY.TOM_HEAVY,
         )
         builder.snare(TIMING.QUARTER * 4, VELOCITY.SNARE_ACCENT)
@@ -236,7 +236,7 @@ class ChambersPlugin(DrummerPlugin):
             if random.random() < 0.65:
                 builder.pattern.add_beat(
                     pos,
-                    DrumInstrument.SNARE,
+                    InstrumentRegistry.get("snare_sticks"),
                     VELOCITY.SNARE_GHOST + random.randint(0, 12),
                 )
         return builder.build()
@@ -286,14 +286,14 @@ class ChambersPlugin(DrummerPlugin):
                 # Accent hit on floor tom
                 builder.tom(
                     pos,
-                    DrumInstrument.FLOOR_TOM.value,
+                    InstrumentRegistry.get("tom_4_open_hit"),
                     VELOCITY.TOM_HEAVY + random.randint(-5, 10),
                 )
             elif i % 2 == 0:
                 # Ghost note on mid tom
                 builder.pattern.add_beat(
                     pos,
-                    DrumInstrument.MID_TOM,
+                    InstrumentRegistry.get("tom_3_open_hit"),
                     VELOCITY.SNARE_GHOST + random.randint(0, 8),
                 )
             else:
@@ -326,7 +326,7 @@ class ChambersPlugin(DrummerPlugin):
             if random.random() < 0.5:
                 builder.pattern.add_beat(
                     pos,
-                    DrumInstrument.SNARE,
+                    InstrumentRegistry.get("snare_sticks"),
                     VELOCITY.SNARE_GHOST + random.randint(0, 10),
                 )
         # Tight closed hi-hat

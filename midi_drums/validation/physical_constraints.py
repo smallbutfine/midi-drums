@@ -8,8 +8,8 @@ import logging
 from dataclasses import dataclass
 from enum import Enum
 
+from midi_drums.core.models.kit import DrumInstrument, InstrumentRegistry
 from midi_drums.core.models.pattern import Pattern
-from midi_drums.core.value_objects.drum_instrument import DrumInstrument
 
 logger = logging.getLogger(__name__)
 
@@ -56,55 +56,40 @@ class PhysicalValidator:
 
     # Instruments played by hands
     HAND_INSTRUMENTS = {
-        DrumInstrument.RIDE,
-        DrumInstrument.RIDE_BELL,
-        DrumInstrument.CLOSED_HH,
-        DrumInstrument.CLOSED_HH_EDGE,
-        DrumInstrument.CLOSED_HH_TIP,
-        DrumInstrument.TIGHT_HH_EDGE,
-        DrumInstrument.TIGHT_HH_TIP,
-        DrumInstrument.OPEN_HH,
-        DrumInstrument.OPEN_HH_1,
-        DrumInstrument.OPEN_HH_2,
-        DrumInstrument.OPEN_HH_3,
-        DrumInstrument.OPEN_HH_MAX,
-        DrumInstrument.SNARE,
-        DrumInstrument.RIM,
-        DrumInstrument.MID_TOM,
-        DrumInstrument.FLOOR_TOM,
-        DrumInstrument.CRASH,
-        DrumInstrument.SPLASH,
-        DrumInstrument.CHINA,
+        InstrumentRegistry.get("ride_1_tip_hit_softer"),
+        InstrumentRegistry.get("ride_1_bell"),
+        InstrumentRegistry.get("hihat_closed_1_tip_closed_1_hit"),
+        InstrumentRegistry.get("hihat_closed_bell"),
+        InstrumentRegistry.get("hihat_closed_2_tip_closed_2_hit"),
+        InstrumentRegistry.get("hihat_open_a"),
+        InstrumentRegistry.get("snare_sticks"),
+        InstrumentRegistry.get("snare_side_stick"),
+        InstrumentRegistry.get("tom_3_open_hit"),
+        InstrumentRegistry.get("tom_4_open_hit"),
+        InstrumentRegistry.get("cymbal_1_hit"),
+        InstrumentRegistry.get("cymbal_6_hit"),
+        InstrumentRegistry.get("cymbal_5_hit"),
     }
 
-    # Instruments played by feet
     FOOT_INSTRUMENTS = {
-        DrumInstrument.KICK,  # Right foot
-        DrumInstrument.PEDAL_HH,  # Left foot
+        InstrumentRegistry.get("kick"),  # Right foot
+        InstrumentRegistry.get("hihat_pedal_closed"),  # Left foot
     }
 
-    # Ride cymbal instruments
     RIDE_INSTRUMENTS = {
-        DrumInstrument.RIDE,
-        DrumInstrument.RIDE_BELL,
+        InstrumentRegistry.get("ride_1_tip_hit_softer"),
+        InstrumentRegistry.get("ride_1_bell"),
     }
 
-    # Hi-hat hand instruments (cannot coexist with ride)
     HIHAT_HAND_INSTRUMENTS = {
-        DrumInstrument.CLOSED_HH,
-        DrumInstrument.CLOSED_HH_EDGE,
-        DrumInstrument.CLOSED_HH_TIP,
-        DrumInstrument.TIGHT_HH_EDGE,
-        DrumInstrument.TIGHT_HH_TIP,
-        DrumInstrument.OPEN_HH,
-        DrumInstrument.OPEN_HH_1,
-        DrumInstrument.OPEN_HH_2,
-        DrumInstrument.OPEN_HH_3,
-        DrumInstrument.OPEN_HH_MAX,
+        InstrumentRegistry.get("hihat_closed_1_tip_closed_1_hit"),
+        InstrumentRegistry.get("hihat_closed_bell"),
+        InstrumentRegistry.get("hihat_closed_2_tip_closed_2_hit"),
+        InstrumentRegistry.get("hihat_open_a"),
     }
 
     # Hi-hat foot (CAN coexist with ride)
-    HIHAT_FOOT = {DrumInstrument.PEDAL_HH}
+    HIHAT_FOOT = {InstrumentRegistry.get("hihat_pedal_closed")}
 
     def __init__(self, timing_tolerance: float = 0.01):
         """Initialize validator.

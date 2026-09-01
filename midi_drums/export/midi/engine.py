@@ -65,15 +65,29 @@ def _mid_note(instrument) -> int:
     """
     if isinstance(instrument, int):
         return instrument
-    if not hasattr(instrument, "value"):
-        name = str(instrument).split(".")[-1]
-        return _INSTR_NOTE.get(name, 60)
-    name = (
-        str(instrument.value).split(".")[-1]
-        if hasattr(instrument.value, "__name__")
-        else str(instrument)
-    )
-    return _INSTR_NOTE.get(name, int(instrument.value))
+    # Use drum kit resolution via registry where possible
+    from midi_drums.core.models.kit import KeymapLoader
+
+    inst_name = str(instrument)
+    note = KeymapLoader.get_midi_note(inst_name, "ezd3")
+    if note is not None:
+        return note
+    # Last resort: fallback defaults
+    _INSTR_NOTE = {
+        "KICK": 36,
+        "SNARE": 38,
+        "RIM": 40,
+        "MID_TOM": 47,
+        "FLOOR_TOM": 43,
+        "CRASH": 49,
+        "RIDE": 51,
+        "SPLASH": 55,
+        "CHINA": 52,
+        "CLOSED_HH": 42,
+        "PEDAL_HH": 44,
+        "OPEN_HH": 46,
+    }
+    return _INSTR_NOTE.get(inst_name, 60)
 
 
 class MIDIEngine:
@@ -83,7 +97,7 @@ class MIDIEngine:
     """
 
     def __init__(self, drum_kit: DrumKit | None = None):
-        self.drum_kit = drum_kit or DrumKit.create_ezdrummer3_kit()
+        self.drum_kit = drum_kit or DrumKit.from_keymap_name("ezd3")
 
     # ------------------------------------------------------------------
     # Note resolution
@@ -93,7 +107,34 @@ class MIDIEngine:
         """Resolve a DrumInstrument (or int) to a MIDI note using this engine's drum kit."""
         if isinstance(instrument, int):
             return instrument
-        return self.drum_kit.get_midi_note(instrument)
+        
+        # Get the instrument name string for lookup
+        inst_name = instrument.name if hasattr(instrument, 'name') else str(instrument)
+        
+        # Try custom mappings first (instrument name -> MIDI note)
+        if inst_name in self.drum_kit.custom_mappings:
+            return self.drum_kit.custom_mappings[inst_name]
+        
+        # Fall back to keymap loader
+        from midi_drums.core.models.kit import KeymapLoader
+        note = KeymapLoader.get_midi_note(inst_name, "ezd3")
+        if note is not None:
+            return note
+        
+        # Final fallback: standard drum defaults (including template keys)
+        _INSTR_NOTE = {
+            "KICK": 36, "SNARE_DRUM": 38, "RIM": 40,
+            "MID_TOM": 47, "FLOOR_TOM": 43, "CRASH": 49,
+            "RIDE": 51, "SPLASH": 55, "CHINA": 52,
+            "CLOSED_HH": 42, "PEDAL_HH": 44, "OPEN_HH": 46,
+            # Template key names -> GM equivalents
+            "kick": 36, "snare_sticks": 38, "snare_side_stick": 37,
+            "tom_1_open_hit": 50, "tom_2_open_hit": 48, "tom_3_open_hit": 47,
+            "tom_4_open_hit": 45, "cymbal_1_hit": 49, "cymbal_4_hit": 52,
+            "ride_1_tip_hit_softer": 51, "hihat_closed_1_tip_closed_1_hit": 42,
+            "hihat_open_a": 46, "hihat_pedal_closed": 44,
+        }
+        return _INSTR_NOTE.get(inst_name, 60)
 
     # ------------------------------------------------------------------
     # Public write methods

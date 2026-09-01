@@ -11,9 +11,24 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 
 from midi_drums.config import TIMING, VELOCITY
+from midi_drums.core.models.kit import DrumInstrument, InstrumentRegistry
 from midi_drums.core.models.pattern import Pattern
-from midi_drums.core.value_objects.drum_instrument import DrumInstrument
 from midi_drums.generation.builders.pattern_builder import PatternBuilder
+
+
+closed_hh = InstrumentRegistry.get("hihat_closed_1_tip_closed_1_hit")
+closed_hh_edge = InstrumentRegistry.get("hihat_closed_2_tip_closed_2_hit")
+ride = InstrumentRegistry.get("ride_1_tip_hit_softer")
+ride_bell = InstrumentRegistry.get("ride_1_bell")
+ride_shaft = InstrumentRegistry.get("ride_1_shaft_hit_stronger")
+crash_light = InstrumentRegistry.get("cymbal_2_hit")
+crash_heavy = InstrumentRegistry.get("cymbal_4_hit")
+crash_splash = InstrumentRegistry.get("cymbal_6_hit")
+mid_tom = InstrumentRegistry.get("tom_3_open_hit")
+floor_tom = InstrumentRegistry.get("tom_4_open_hit")
+tom_edge_1 = InstrumentRegistry.get("tom_1_rimshot_open_hit_dbl")
+tom_edge_floor = InstrumentRegistry.get("tom_4_rimshot_open_hit_dbl")
+snare_sticks = InstrumentRegistry.get("snare_sticks")
 
 
 class PatternTemplate(ABC):
@@ -94,13 +109,13 @@ class BasicGroove(PatternTemplate):
                     if relative_pos.is_integer():
                         velocity = VELOCITY.HIHAT_ACCENT
                         # Use Edge for accents (more common in rock)
-                        instrument = DrumInstrument.CLOSED_HH_EDGE
+                        instrument = closed_hh_edge
                     else:
                         velocity = int(
                             VELOCITY.HIHAT_NORMAL + (random.random() * 10 - 5)
                         )
                         # Use Tip for softer hits
-                        instrument = DrumInstrument.CLOSED_HH_TIP
+                        instrument = closed_hh
 
                     # Fallback to standard if specific ones aren't available (handled by builder/kit)
                     builder.add_hit(instrument, pos, velocity)
@@ -303,17 +318,12 @@ class SteadyRidePattern(PatternTemplate):
                 # Accents on downbeats
                 if pos.is_integer():
                     velocity = VELOCITY.RIDE_NORMAL
-                    instrument = (
-                        DrumInstrument.RIDE_BELL
-                        if self.use_bell
-                        else DrumInstrument.RIDE
-                    )
+                    instrument = ride_bell if self.use_bell else ride
                 else:
                     velocity = VELOCITY.RIDE_LIGHT + random.randint(-5, 5)
-                    instrument = DrumInstrument.RIDE
-
+                    instrument = ride
                 if self.use_shaft:
-                    instrument = DrumInstrument.RIDE_SHAFT
+                    instrument = ride_shaft
 
                 builder.add_hit(instrument, pos, velocity)
 
@@ -356,7 +366,7 @@ class JazzRidePattern(PatternTemplate):
                     elif self.use_shaft:
                         # AD2 ride shaft hit — metallic, bell-like timbre for metal sections
                         builder.pattern.add_beat(
-                            pos, DrumInstrument.RIDE_SHAFT, velocity
+                            pos, ride_shaft, velocity
                         )
                     else:
                         builder.ride(pos, velocity)
@@ -434,7 +444,7 @@ class FunkGhostNotes(PatternTemplate):
                     # Use add_beat directly to support ghost_note parameter
                     builder.pattern.add_beat(
                         pos,
-                        DrumInstrument.SNARE,
+                        snare_sticks,
                         VELOCITY.SNARE_GHOST,
                         ghost_note=True,
                     )
@@ -475,15 +485,15 @@ class CrashAccents(PatternTemplate):
                     builder.china(abs_pos, velocity)
                 elif self.crash_type == "light":
                     builder.pattern.add_beat(
-                        abs_pos, DrumInstrument.CRASH_LIGHT, velocity
+                        abs_pos, crash_light, velocity
                     )
                 elif self.crash_type == "heavy":
                     builder.pattern.add_beat(
-                        abs_pos, DrumInstrument.CRASH_HEAVY, velocity
+                        abs_pos, crash_heavy, velocity
                     )
                 elif self.crash_type == "splash":
                     builder.pattern.add_beat(
-                        abs_pos, DrumInstrument.CRASH_SPLASH, velocity
+                        abs_pos, crash_splash, velocity
                     )
                 else:
                     builder.crash(abs_pos, velocity)
@@ -530,18 +540,17 @@ class TomFill(PatternTemplate):
         if not self.use_edge:
             # Standard GM toms
             return [
-                DrumInstrument.MID_TOM,
-                DrumInstrument.MID_TOM,
-                DrumInstrument.FLOOR_TOM,
-                DrumInstrument.FLOOR_TOM,
+                mid_tom,
+                mid_tom,
+                floor_tom,
+                floor_tom,
             ]
         else:
-            # AD2 edge/rim shots for aggressive attack (rock/metal)
             return [
-                DrumInstrument.TOM_EDGE_1,  # Tight high tom rim
-                DrumInstrument.TOM_EDGE_1,
-                DrumInstrument.TOM_EDGE_FLOOR,  # Floor tom edge
-                DrumInstrument.TOM_EDGE_FLOOR,
+                tom_edge_1,
+                tom_edge_1,
+                tom_edge_floor,
+                tom_edge_floor,
             ]
 
     def _descending_fill(
@@ -569,10 +578,10 @@ class TomFill(PatternTemplate):
     ):
         """Around the kit fill."""
         instruments = [
-            DrumInstrument.MID_TOM,
-            DrumInstrument.FLOOR_TOM,
-            DrumInstrument.MID_TOM,
-            DrumInstrument.FLOOR_TOM,
+            mid_tom,
+            floor_tom,
+            mid_tom,
+            floor_tom,
         ]
 
         for i in range(min(num_notes, len(instruments))):

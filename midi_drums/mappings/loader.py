@@ -2,7 +2,6 @@
 
 import json
 from pathlib import Path
-from typing import Any
 
 
 # ── Keymap Metadata ──────────────────────────────────────────────────────────
@@ -78,7 +77,6 @@ def get_mapped_instruments(keymap_name: str, mappings_dir: Path | None = None) -
 
 def get_unmapped_instruments(keymap_name: str, mappings_dir: Path | None = None) -> set[str]:
     """Get instruments that are present in the template but have null MIDI notes in the keymap."""
-    tmpl = load_template()
     mapped = get_mapped_instruments(keymap_name, mappings_dir)
     all_instruments = get_all_instruments()
     return all_instruments - mapped
@@ -108,7 +106,6 @@ def print_keymap_summary(keymaps: list[KeymapInfo] | None = None) -> None:
     if keymaps is None:
         keymaps = discover_keymaps()
 
-    tmpl = load_template()
     all_instruments = get_all_instruments()
     total_instruments = len(all_instruments)
 

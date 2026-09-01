@@ -23,9 +23,9 @@ This plugin implements his style using composable modifications:
 import random
 
 from midi_drums.config import TIMING, VELOCITY
+from midi_drums.core.models.kit import InstrumentRegistry
 from midi_drums.core.models.pattern import Pattern
 from midi_drums.core.models.song import Fill
-from midi_drums.core.value_objects.drum_instrument import DrumInstrument
 from midi_drums.modifications import (
     BehindBeatTiming,
     FastChopsTriplets,
@@ -169,7 +169,7 @@ class SmithPlugin(DrummerPlugin):
         # Snare ghost notes densely layered (P-Funk lineage)
         builder.pattern.add_beat(
             TIMING.QUARTER + TIMING.SIXTEENTH,
-            DrumInstrument.SNARE_RIMSHOT,
+            InstrumentRegistry.get("snare_side_stick"),
             VELOCITY.SNARE_HEAVY,
         )
         builder.snare(TIMING.HALF * 3 + TIMING.SIXTEENTH, VELOCITY.SNARE_NORMAL)
@@ -178,7 +178,7 @@ class SmithPlugin(DrummerPlugin):
             if random.random() < 0.7:
                 builder.pattern.add_beat(
                     pos,
-                    DrumInstrument.SNARE,
+                    InstrumentRegistry.get("snare_sticks"),
                     min(VELOCITY.SNARE_GHOST + random.randint(0, 15), 127),
                 )
 
@@ -215,7 +215,7 @@ class SmithPlugin(DrummerPlugin):
         # Heavy snare backbeats with ghost notes between
         builder.pattern.add_beat(
             TIMING.QUARTER,
-            DrumInstrument.SNARE_RIMSHOT,
+            InstrumentRegistry.get("snare_side_stick"),
             VELOCITY.SNARE_HEAVY,
         )
         builder.snare(TIMING.HALF * 3, min(VELOCITY.SNARE_HEAVY + 5, 127))
@@ -226,7 +226,7 @@ class SmithPlugin(DrummerPlugin):
             if random.random() < 0.6:
                 builder.pattern.add_beat(
                     pos,
-                    DrumInstrument.SNARE,
+                    InstrumentRegistry.get("snare_sticks"),
                     VELOCITY.SNARE_GHOST + random.randint(2, 15),
                 )
 
@@ -234,7 +234,7 @@ class SmithPlugin(DrummerPlugin):
         for i in range(4):
             builder.pattern.add_beat(
                 TIMING.HALF * i,
-                DrumInstrument.OPEN_HH,
+                InstrumentRegistry.get("hihat_open_a"),
                 min(VELOCITY.HIHAT_NORMAL + 5 + random.randint(-3, 8), 127),
             )
 
@@ -269,7 +269,7 @@ class SmithPlugin(DrummerPlugin):
             pos = TIMING.EIGHTH * (i + 0.5)
             builder.pattern.add_beat(
                 pos,
-                DrumInstrument.SNARE,
+                InstrumentRegistry.get("snare_sticks"),
                 VELOCITY.SNARE_GHOST + random.randint(5, 18),
             )
 
@@ -312,7 +312,7 @@ class SmithPlugin(DrummerPlugin):
         for i in range(8):
             builder.pattern.add_beat(
                 TIMING.EIGHTH * i,
-                DrumInstrument.RIDE,
+                InstrumentRegistry.get("ride_1_tip_hit_softer"),
                 VELOCITY.HIHAT_LIGHT + 3,
             )
 
@@ -343,13 +343,13 @@ class SmithPlugin(DrummerPlugin):
 
         # Tom cascade: rapid descent from rack to floor (the signature fill)
         tom_sequence = [
-            (TIMING.QUARTER * 0.5, DrumInstrument.MID_TOM),
-            (TIMING.QUARTER * 1.0, DrumInstrument.MID_TOM),
-            (TIMING.QUARTER * 1.5, DrumInstrument.FLOOR_TOM),
-            (TIMING.QUARTER * 2.0, DrumInstrument.FLOOR_TOM),
-            (TIMING.QUARTER * 2.5, DrumInstrument.MID_TOM),
-            (TIMING.QUARTER * 3.0, DrumInstrument.FLOOR_TOM),
-            (TIMING.HALF * 4 - TIMING.SIXTEENTH, DrumInstrument.FLOOR_TOM),
+            (TIMING.QUARTER * 0.5, InstrumentRegistry.get("tom_3_open_hit")),
+            (TIMING.QUARTER * 1.0, InstrumentRegistry.get("tom_3_open_hit")),
+            (TIMING.QUARTER * 1.5, InstrumentRegistry.get("tom_4_open_hit")),
+            (TIMING.QUARTER * 2.0, InstrumentRegistry.get("tom_4_open_hit")),
+            (TIMING.QUARTER * 2.5, InstrumentRegistry.get("tom_3_open_hit")),
+            (TIMING.QUARTER * 3.0, InstrumentRegistry.get("tom_4_open_hit")),
+            (TIMING.HALF * 4 - TIMING.SIXTEENTH, InstrumentRegistry.get("tom_4_open_hit")),
         ]
         for pos, inst in tom_sequence:
             builder.pattern.add_beat(
@@ -362,7 +362,7 @@ class SmithPlugin(DrummerPlugin):
         for i in range(4):
             builder.pattern.add_beat(
                 TIMING.HALF * i + TIMING.QUARTER,
-                DrumInstrument.CRASH,
+                InstrumentRegistry.get("cymbal_1_hit"),
                 VELOCITY.CHINA_ACCENT - 10,
             )
 
@@ -407,7 +407,7 @@ class SmithPlugin(DrummerPlugin):
                 # Ghost note snare rim
                 builder.pattern.add_beat(
                     pos,
-                    DrumInstrument.SNARE,
+                    InstrumentRegistry.get("snare_sticks"),
                     VELOCITY.SNARE_GHOST + random.randint(3, 15),
                 )
             else:
@@ -448,7 +448,7 @@ class SmithPlugin(DrummerPlugin):
             if random.random() < 0.5:
                 builder.pattern.add_beat(
                     pos,
-                    DrumInstrument.SNARE,
+                    InstrumentRegistry.get("snare_sticks"),
                     VELOCITY.SNARE_GHOST + random.randint(2, 14),
                 )
 
@@ -495,16 +495,16 @@ class SmithPlugin(DrummerPlugin):
                 builder.pattern.add_beat(
                     pos,
                     (
-                        DrumInstrument.MID_TOM
+                        InstrumentRegistry.get("tom_3_open_hit")
                         if i < 8
-                        else DrumInstrument.FLOOR_TOM
+                        else InstrumentRegistry.get("tom_4_open_hit")
                     ),
                     min(VELOCITY.TOM_HEAVY + random.randint(-5, 12), 127),
                 )
 
         # Cymbal crash punctuation at fill transition points
         builder.pattern.add_beat(
-            TIMING.HALF * 4, DrumInstrument.CRASH, VELOCITY.CHINA_ACCENT
+            TIMING.HALF * 4, InstrumentRegistry.get("cymbal_1_hit"), VELOCITY.CHINA_ACCENT
         )
 
         return builder.build()

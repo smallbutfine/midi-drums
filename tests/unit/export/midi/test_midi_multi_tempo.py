@@ -11,20 +11,26 @@ import io
 
 import pytest
 
+from midi_drums.core.models.kit import InstrumentRegistry
 from midi_drums.core.models.pattern import Beat, Pattern
 from midi_drums.core.models.song import Section, Song, SongSegment
-from midi_drums.core.value_objects.drum_instrument import DrumInstrument
 from midi_drums.core.value_objects.time_signature import TimeSignature
 from midi_drums.export.midi.engine import MIDIEngine
+
+
+# Instrument references for tests
+_KICK = InstrumentRegistry.get("kick")
+_SNARE = InstrumentRegistry.get("snare_sticks")
+_CLOSED_HH = InstrumentRegistry.get("hihat_closed_1_tip_closed_1_hit")
 
 
 def _fixture_pattern() -> Pattern:
     pattern = Pattern("fixture_pattern")
     pattern.beats = [
-        Beat(0.0, DrumInstrument.KICK, 105, 0.1),
-        Beat(1.0, DrumInstrument.SNARE, 110, 0.1),
-        Beat(0.5, DrumInstrument.CLOSED_HH, 80, 0.1),
-        Beat(1.5, DrumInstrument.CLOSED_HH, 80, 0.1),
+        Beat(0.0, _KICK, 105, 0.1),
+        Beat(1.0, _SNARE, 110, 0.1),
+        Beat(0.5, _CLOSED_HH, 80, 0.1),
+        Beat(1.5, _CLOSED_HH, 80, 0.1),
     ]
     return pattern
 

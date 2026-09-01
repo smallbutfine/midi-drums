@@ -13,9 +13,9 @@ stripping existing elements rather than just layering new ones.
 import random
 
 from midi_drums.config import TIMING, VELOCITY
+from midi_drums.core.models.kit import InstrumentRegistry
 from midi_drums.core.models.pattern import Beat, Pattern
 from midi_drums.core.models.song import Fill
-from midi_drums.core.value_objects.drum_instrument import DrumInstrument
 from midi_drums.generation.builders.pattern_builder import PatternBuilder
 from midi_drums.modifications import BehindBeatTiming, HeavyAccents
 from midi_drums.plugins.interfaces.drummer_plugin import DrummerPlugin
@@ -164,24 +164,23 @@ class MoonPlugin(DrummerPlugin):
         timekeeping cymbals to ghost-note levels and boosting nearby crashes.
         """
         for beat in pattern.beats:
-            if beat.instrument == DrumInstrument.RIDE:
+            if beat.instrument == InstrumentRegistry.get("ride_1_tip_hit_softer"):
                 # Ride becomes sparse "panic button" accents only
                 beat.velocity = min(127, beat.velocity - 30)
-            elif beat.instrument == DrumInstrument.CLOSED_HH:
+            elif beat.instrument == InstrumentRegistry.get("hihat_closed_1_tip_closed_1_hit"):
                 # Hi-hat is mostly ignored — reduce to ghost notes
                 beat.velocity = min(
                     80, beat.velocity
                 )  # Max at ghost-note range
             elif beat.instrument in [
-                DrumInstrument.CLOSED_HH_EDGE,
-                DrumInstrument.CLOSED_HH_TIP,
-                DrumInstrument.TIGHT_HH_A,
-                DrumInstrument.TIGHT_HH_B,
-                DrumInstrument.TIGHT_HH_C,
+                InstrumentRegistry.get("hihat_closed_bell"),
+                InstrumentRegistry.get("hihat_closed_2_tip_closed_2_hit"),
+                InstrumentRegistry.get("hihat_closed_1_shaft_closed_1_hit_dbl"),
+                InstrumentRegistry.get("hihat_closed_2_shaft_closed_2_hit_dbl"),
             ]:
                 # AD2 tight HH variants — same treatment
                 beat.velocity = min(80, beat.velocity)
-            elif beat.instrument == DrumInstrument.OPEN_HH:
+            elif beat.instrument == InstrumentRegistry.get("hihat_open_a"):
                 # Open HH only on strong accents
                 if beat.velocity < 90:
                     beat.velocity = 75
@@ -204,14 +203,14 @@ class MoonPlugin(DrummerPlugin):
             # Check if something is already there — Moon's crashes are sparse but impactful
             existing_nearby = any(
                 abs(b.position - pos) < 0.05
-                and b.instrument == DrumInstrument.CRASH
+                and b.instrument == InstrumentRegistry.get("cymbal_1_hit")
                 for b in pattern.beats
             )
             if not existing_nearby and random.random() < 0.4:
                 new_beats.append(
                     Beat(
                         position=pos,
-                        instrument=DrumInstrument.CRASH,
+                        instrument=InstrumentRegistry.get("cymbal_1_hit"),
                         velocity=random.randint(105, 125),
                         duration=1.5,
                     )
@@ -226,7 +225,7 @@ class MoonPlugin(DrummerPlugin):
                 new_beats.append(
                     Beat(
                         position=pos,
-                        instrument=DrumInstrument.CHINA,
+                        instrument=InstrumentRegistry.get("cymbal_5_hit"),
                         velocity=random.randint(95, 115),
                         duration=1.0,
                     )
@@ -258,7 +257,7 @@ class MoonPlugin(DrummerPlugin):
             new_beats.append(
                 Beat(
                     position=pos,
-                    instrument=DrumInstrument.FLOOR_TOM,
+                    instrument=InstrumentRegistry.get("tom_4_open_hit"),
                     velocity=random.randint(90, 120),
                     duration=0.6,
                 )
@@ -271,9 +270,9 @@ class MoonPlugin(DrummerPlugin):
                 break
             if random.random() < 0.15:
                 inst = (
-                    DrumInstrument.MID_TOM
+                    InstrumentRegistry.get("tom_3_open_hit")
                     if i < 2
-                    else DrumInstrument.FLOOR_TOM
+                    else InstrumentRegistry.get("tom_4_open_hit")
                 )
                 new_beats.append(
                     Beat(
@@ -300,8 +299,8 @@ class MoonPlugin(DrummerPlugin):
             existing = any(
                 abs(b.position - pos) < 0.03
                 and (
-                    b.instrument == DrumInstrument.CRASH
-                    or b.instrument == DrumInstrument.RIDE
+                    b.instrument == InstrumentRegistry.get("cymbal_1_hit")
+                    or b.instrument == InstrumentRegistry.get("ride_1_tip_hit_softer")
                 )
                 for b in pattern.beats
             )
@@ -309,7 +308,7 @@ class MoonPlugin(DrummerPlugin):
                 pattern.beats.append(
                     Beat(
                         position=pos,
-                        instrument=DrumInstrument.CRASH_HEAVY,
+                        instrument=InstrumentRegistry.get("cymbal_4_hit"),
                         velocity=random.randint(115, 127),
                         duration=2.0,
                     )
@@ -334,7 +333,7 @@ class MoonPlugin(DrummerPlugin):
         for i in range(8):
             pos = i * TIMING.SIXTEENTH
             vel = 75 + i * 6  # Crescendo from ghost-note whisper
-            builder.pattern.add_beat(pos, DrumInstrument.FLOOR_TOM, vel)
+            builder.pattern.add_beat(pos, InstrumentRegistry.get("tom_4_open_hit"), vel)
 
         # Kick on the downbeat transition
         builder.kick(4.0, VELOCITY.KICK_HEAVY)
@@ -354,16 +353,16 @@ class MoonPlugin(DrummerPlugin):
         # Crash bombardment pattern across the bar
         builder.crash(0.0, VELOCITY.CRASH_HEAVY)
         builder.pattern.add_beat(
-            TIMING.SIXTEENTH, DrumInstrument.FLOOR_TOM, 105
+            TIMING.SIXTEENTH, InstrumentRegistry.get("tom_4_open_hit"), 105
         )
         builder.crash(TIMING.DOTTED_EIGHTH, VELOCITY.CRASH_LIGHT)
-        builder.pattern.add_beat(1.5, DrumInstrument.MID_TOM, 95)
+        builder.pattern.add_beat(1.5, InstrumentRegistry.get("tom_3_open_hit"), 95)
         builder.crash(2.0, VELOCITY.CRASH_HEAVY)
         builder.pattern.add_beat(
-            TIMING.SIXTEENTH_TRIPLET * 4, DrumInstrument.FLOOR_TOM, 110
+            TIMING.SIXTEENTH_TRIPLET * 4, InstrumentRegistry.get("tom_4_open_hit"), 110
         )
         builder.crash(TIMING.DOTTED_EIGHTH * 2, VELOCITY.CRASH_LIGHT)
-        builder.pattern.add_beat(3.5, DrumInstrument.MID_TOM, 90)
+        builder.pattern.add_beat(3.5, InstrumentRegistry.get("tom_3_open_hit"), 90)
         builder.crash(4.0, VELOCITY.CRASH_HEAVY)
 
         # Kick pulse underneath the chaos
@@ -382,14 +381,14 @@ class MoonPlugin(DrummerPlugin):
 
         # Thunderous crash hits building in intensity
         builder.crash(0.0, 120)
-        builder.pattern.add_beat(TIMING.EIGHTH, DrumInstrument.FLOOR_TOM, 100)
+        builder.pattern.add_beat(TIMING.EIGHTH, InstrumentRegistry.get("tom_4_open_hit"), 100)
         builder.crash(TIMING.SIXTEENTH * 3, 125)
         builder.kick(1.0, VELOCITY.KICK_HEAVY)
         builder.crash(2.0, 118)
-        builder.pattern.add_beat(2.5, DrumInstrument.FLOOR_TOM, 105)
+        builder.pattern.add_beat(2.5, InstrumentRegistry.get("tom_4_open_hit"), 105)
         builder.crash(TIMING.SIXTEENTH * 6, 127)  # Climactic crash
         builder.kick(3.0, VELOCITY.KICK_HEAVY)
-        builder.pattern.add_beat(3.5, DrumInstrument.MID_TOM, 95)
+        builder.pattern.add_beat(3.5, InstrumentRegistry.get("tom_3_open_hit"), 95)
         builder.crash(4.0, 127)  # Final thunderous crash
 
         return builder.build()
@@ -404,14 +403,14 @@ class MoonPlugin(DrummerPlugin):
 
         # Descending floor-tom cascade (simulating multiple floor toms)
         sequence = [
-            (0.0, DrumInstrument.FLOOR_TOM, 120),
-            (TIMING.SIXTEENTH * 3, DrumInstrument.FLOOR_TOM, 118),
-            (TIMING.EIGHTH, DrumInstrument.MID_TOM, 115),
-            (TIMING.SIXTEENTH * 6, DrumInstrument.FLOOR_TOM, 112),
-            (TIMING.DOTTED_EIGHTH, DrumInstrument.MID_TOM, 108),
-            (TIMING.SIXTEENTH * 10, DrumInstrument.FLOOR_TOM, 105),
-            (1.625, DrumInstrument.MID_TOM, 100),
-            (TIMING.DOTTED_EIGHTH * 2, DrumInstrument.FLOOR_TOM, 95),
+            (0.0, InstrumentRegistry.get("tom_4_open_hit"), 120),
+            (TIMING.SIXTEENTH * 3, InstrumentRegistry.get("tom_4_open_hit"), 118),
+            (TIMING.EIGHTH, InstrumentRegistry.get("tom_3_open_hit"), 115),
+            (TIMING.SIXTEENTH * 6, InstrumentRegistry.get("tom_4_open_hit"), 112),
+            (TIMING.DOTTED_EIGHTH, InstrumentRegistry.get("tom_3_open_hit"), 108),
+            (TIMING.SIXTEENTH * 10, InstrumentRegistry.get("tom_4_open_hit"), 105),
+            (1.625, InstrumentRegistry.get("tom_3_open_hit"), 100),
+            (TIMING.DOTTED_EIGHTH * 2, InstrumentRegistry.get("tom_4_open_hit"), 95),
         ]
 
         for pos, inst, vel in sequence:
@@ -432,30 +431,30 @@ class MoonPlugin(DrummerPlugin):
         builder = PatternBuilder("moon_see_way_tom_cascade")
 
         # Rapid 16th-note floor-to-mid tom descent with accelerando feel
-        builder.pattern.add_beat(0.0, DrumInstrument.FLOOR_TOM, 125)
+        builder.pattern.add_beat(0.0, InstrumentRegistry.get("tom_4_open_hit"), 125)
         builder.pattern.add_beat(
-            TIMING.SIXTEENTH * 3, DrumInstrument.FLOOR_TOM, 122
+            TIMING.SIXTEENTH * 3, InstrumentRegistry.get("tom_4_open_hit"), 122
         )
-        builder.pattern.add_beat(TIMING.EIGHTH, DrumInstrument.MID_TOM, 118)
+        builder.pattern.add_beat(TIMING.EIGHTH, InstrumentRegistry.get("tom_3_open_hit"), 118)
         builder.pattern.add_beat(
-            TIMING.SIXTEENTH * 6, DrumInstrument.FLOOR_TOM, 115
+            TIMING.SIXTEENTH * 6, InstrumentRegistry.get("tom_4_open_hit"), 115
         )
         builder.kick(0.75, VELOCITY.KICK_HEAVY)
 
         # Mid-tom run with crash landing
         builder.pattern.add_beat(
-            TIMING.DOTTED_EIGHTH, DrumInstrument.MID_TOM, 110
+            TIMING.DOTTED_EIGHTH, InstrumentRegistry.get("tom_3_open_hit"), 110
         )
         builder.pattern.add_beat(
-            TIMING.SIXTEENTH * 11, DrumInstrument.FLOOR_TOM, 127
+            TIMING.SIXTEENTH * 11, InstrumentRegistry.get("tom_4_open_hit"), 127
         )
         builder.crash(1.875, VELOCITY.CRASH_HEAVY)
 
         # Repeat with variation on second half of bar
-        builder.pattern.add_beat(2.0, DrumInstrument.FLOOR_TOM, 120)
-        builder.pattern.add_beat(2.5, DrumInstrument.MID_TOM, 115)
+        builder.pattern.add_beat(2.0, InstrumentRegistry.get("tom_4_open_hit"), 120)
+        builder.pattern.add_beat(2.5, InstrumentRegistry.get("tom_3_open_hit"), 115)
         builder.kick(TIMING.SIXTEENTH * 9, VELOCITY.KICK_HEAVY)
-        builder.pattern.add_beat(3.0, DrumInstrument.FLOOR_TOM, 118)
+        builder.pattern.add_beat(3.0, InstrumentRegistry.get("tom_4_open_hit"), 118)
         builder.crash(3.75, VELOCITY.CRASH_HEAVY)
 
         return builder.build()
@@ -472,17 +471,17 @@ class MoonPlugin(DrummerPlugin):
         # The main bombardment hit on beat 1 — this is what he called his "panic button"
         builder.crash(0.0, VELOCITY.CRASH_HEAVY)
         builder.pattern.add_beat(
-            0.0, DrumInstrument.RIDE_BELL_ALT, VELOCITY.CRASH_LIGHT
+            0.0, InstrumentRegistry.get("ride_2_bell"), VELOCITY.CRASH_LIGHT
         )
 
         # Second half of the bar — another massive crash to keep tension up
         builder.crash(2.5, 127)
         builder.kick(2.5, VELOCITY.KICK_HEAVY)
-        builder.pattern.add_beat(2.5, DrumInstrument.FLOOR_TOM, 120)
+        builder.pattern.add_beat(2.5, InstrumentRegistry.get("tom_4_open_hit"), 120)
 
         # Build-up to the final crash
         builder.pattern.add_beat(
-            TIMING.SIXTEENTH * 8, DrumInstrument.FLOOR_TOM, 110
+            TIMING.SIXTEENTH * 8, InstrumentRegistry.get("tom_4_open_hit"), 110
         )
         builder.kick(TIMING.SIXTEENTH * 7, VELOCITY.KICK_ACCENT)
         builder.crash(3.5, 125)
@@ -508,12 +507,12 @@ class MoonPlugin(DrummerPlugin):
                 builder.kick(pos, VELOCITY.KICK_HEAVY)
             else:
                 builder.pattern.add_beat(
-                    pos, DrumInstrument.FLOOR_TOM, 110 + (i % 3) * 5
+                    pos, InstrumentRegistry.get("tom_4_open_hit"), 110 + (i % 3) * 5
                 )
 
         # Mid-tom bridge into the final crash
         builder.pattern.add_beat(
-            TIMING.DOTTED_EIGHTH * 2, DrumInstrument.MID_TOM, 105
+            TIMING.DOTTED_EIGHTH * 2, InstrumentRegistry.get("tom_3_open_hit"), 105
         )
         builder.kick(TIMING.SIXTEENTH * 14, VELOCITY.KICK_ACCENT)
 
@@ -541,6 +540,6 @@ class MoonPlugin(DrummerPlugin):
                 builder.kick(pos, VELOCITY.KICK_HEAVY)
 
         # Final floor-tom hit to anchor the chaos before section change
-        builder.pattern.add_beat(3.75, DrumInstrument.FLOOR_TOM, 115)
+        builder.pattern.add_beat(3.75, InstrumentRegistry.get("tom_4_open_hit"), 115)
 
         return builder.build()

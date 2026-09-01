@@ -9,12 +9,17 @@ from __future__ import annotations
 
 import io
 
+from midi_drums.core.models.kit import InstrumentRegistry
 from midi_drums.core.models.pattern import Beat, Pattern
-from midi_drums.core.value_objects.drum_instrument import DrumInstrument
 from midi_drums.export.midi.engine import (
     MIDIEngine,
     _dedupe_by_instrument_position,
 )
+
+# Instrument references for tests
+_CRASH = InstrumentRegistry.get("cymbal_1_hit")
+_KICK = InstrumentRegistry.get("kick")
+_SNARE = InstrumentRegistry.get("snare_sticks")
 
 
 def _note_ons_from_pattern(pattern: Pattern) -> list[dict]:
@@ -34,26 +39,24 @@ def _note_ons_from_pattern(pattern: Pattern) -> list[dict]:
 
 class TestDedupeByInstrumentPosition:
     def test_keeps_loudest_of_colliding_beats(self):
-        quiet = Beat(position=0.0, instrument=DrumInstrument.CRASH, velocity=80)
-        loud = Beat(position=0.0, instrument=DrumInstrument.CRASH, velocity=110)
+        quiet = Beat(position=0.0, instrument=_CRASH, velocity=80)
+        loud = Beat(position=0.0, instrument=_CRASH, velocity=110)
 
         result = _dedupe_by_instrument_position([quiet, loud])
 
         assert result == [loud]
 
     def test_result_independent_of_input_order(self):
-        quiet = Beat(position=0.0, instrument=DrumInstrument.CRASH, velocity=80)
-        loud = Beat(position=0.0, instrument=DrumInstrument.CRASH, velocity=110)
+        quiet = Beat(position=0.0, instrument=_CRASH, velocity=80)
+        loud = Beat(position=0.0, instrument=_CRASH, velocity=110)
 
         assert _dedupe_by_instrument_position(
             [quiet, loud]
         ) == _dedupe_by_instrument_position([loud, quiet])
 
     def test_different_instruments_at_same_position_both_kept(self):
-        crash = Beat(
-            position=0.0, instrument=DrumInstrument.CRASH, velocity=110
-        )
-        kick = Beat(position=0.0, instrument=DrumInstrument.KICK, velocity=100)
+        crash = Beat(position=0.0, instrument=_CRASH, velocity=110)
+        kick = Beat(position=0.0, instrument=_KICK, velocity=100)
 
         result = _dedupe_by_instrument_position([crash, kick])
 
@@ -62,12 +65,8 @@ class TestDedupeByInstrumentPosition:
         assert kick in result
 
     def test_same_instrument_different_positions_both_kept(self):
-        first = Beat(
-            position=0.0, instrument=DrumInstrument.CRASH, velocity=110
-        )
-        second = Beat(
-            position=1.0, instrument=DrumInstrument.CRASH, velocity=110
-        )
+        first = Beat(position=0.0, instrument=_CRASH, velocity=110)
+        second = Beat(position=1.0, instrument=_CRASH, velocity=110)
 
         result = _dedupe_by_instrument_position([first, second])
 
@@ -79,8 +78,8 @@ class TestDedupeByInstrumentPosition:
 class TestPatternToMidiDedup:
     def test_colliding_beats_produce_order_independent_output(self):
         """Order-independent dedup: both orderings produce the same MIDI."""
-        quiet = Beat(position=0.0, instrument=DrumInstrument.CRASH, velocity=80)
-        loud = Beat(position=0.0, instrument=DrumInstrument.CRASH, velocity=110)
+        quiet = Beat(position=0.0, instrument=_CRASH, velocity=80)
+        loud = Beat(position=0.0, instrument=_CRASH, velocity=110)
 
         notes_quiet_first = _note_ons_from_pattern(
             Pattern(name="a", beats=[quiet, loud])
@@ -93,8 +92,8 @@ class TestPatternToMidiDedup:
 
     def test_colliding_beats_keep_the_loudest(self):
         """Only the loudest note survives colliding pair."""
-        quiet = Beat(position=0.0, instrument=DrumInstrument.CRASH, velocity=80)
-        loud = Beat(position=0.0, instrument=DrumInstrument.CRASH, velocity=110)
+        quiet = Beat(position=0.0, instrument=_CRASH, velocity=80)
+        loud = Beat(position=0.0, instrument=_CRASH, velocity=110)
 
         notes_colliding = _note_ons_from_pattern(
             Pattern(name="colliding", beats=[quiet, loud])
@@ -108,10 +107,8 @@ class TestPatternToMidiDedup:
 
     def test_non_colliding_beats_are_both_kept(self):
         """Two instruments at same position both produce note_on events."""
-        crash = Beat(
-            position=0.0, instrument=DrumInstrument.CRASH, velocity=110
-        )
-        kick = Beat(position=0.0, instrument=DrumInstrument.KICK, velocity=100)
+        crash = Beat(position=0.0, instrument=_CRASH, velocity=110)
+        kick = Beat(position=0.0, instrument=_KICK, velocity=100)
 
         notes_both = _note_ons_from_pattern(
             Pattern(name="both", beats=[crash, kick])
@@ -132,7 +129,7 @@ class TestSongToMidiDedup:
 
         from midi_drums.core.models.song import Section, Song
 
-        beat = Beat(position=0.0, instrument=DrumInstrument.KICK, velocity=100)
+        beat = Beat(position=0.0, instrument=_KICK, velocity=100)
         p1 = Pattern(name="p1", beats=[beat])
         p2 = Pattern(name="p2", beats=[beat])  # same note at t=0
 
@@ -163,12 +160,8 @@ class TestSongToMidiDedup:
 
         from midi_drums.core.models.song import Section, Song
 
-        beat_kick = Beat(
-            position=0.0, instrument=DrumInstrument.KICK, velocity=100
-        )
-        beat_snare = Beat(
-            position=0.0, instrument=DrumInstrument.SNARE, velocity=105
-        )
+        beat_kick = Beat(position=0.0, instrument=_KICK, velocity=100)
+        beat_snare = Beat(position=0.0, instrument=_SNARE, velocity=105)
         p1 = Pattern(name="p1", beats=[beat_kick])
 
         song = Song(

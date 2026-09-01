@@ -15,7 +15,7 @@ from typing import TYPE_CHECKING
 
 from midi_drums.core.models.pattern import Beat, Pattern
 from midi_drums.core.models.song import Fill, Section, Song
-from midi_drums.core.value_objects.drum_instrument import DrumInstrument
+from midi_drums.core.models.kit import DrumInstrument, InstrumentRegistry
 from midi_drums.core.value_objects.generation_parameters import (
     GenerationParameters,
 )
@@ -401,32 +401,32 @@ class ComposerV2:
         # cycle extracted few/no beats (e.g., a sparse pattern bar).
         # Without this, alternating bars can be near-empty before drummer mods.
         from midi_drums.config import VELOCITY
-        from midi_drums.core.value_objects.drum_instrument import DrumInstrument
 
-        has_kick = any(b[1] == DrumInstrument.KICK for b in extracted_beats)
+        kick = InstrumentRegistry.get("kick")
+        has_kick = any(b[1] == kick for b in extracted_beats)
         # Backbeat positions: odd beat indices (beats 2, 4, 6... 1-indexed) =
         # positions 1.0, 3.0, 5.0... where traditional rock/metal backbeats land
         backbeat_positions = [i for i in range(beats_per_bar) if i % 2 == 1]
+        snare_sticks = InstrumentRegistry.get("snare_sticks")
         has_snare_backbeat = any(
-            b[1] == DrumInstrument.SNARE
+            b[1] == snare_sticks
             and any(abs(b[0] - bp) < 0.1 for bp in backbeat_positions)
             for b in extracted_beats
         )
+        closed_hh = InstrumentRegistry.get("hihat_closed_1_tip_closed_1_hit")
+        open_hh = InstrumentRegistry.get("hihat_open_a")
+        ride = InstrumentRegistry.get("ride_1_tip_hit_softer")
+        crash = InstrumentRegistry.get("cymbal_1_hit")
         has_timekeeping_cymbal = any(
             b[1]
-            in (
-                DrumInstrument.CLOSED_HH,
-                DrumInstrument.OPEN_HH,
-                DrumInstrument.RIDE,
-                DrumInstrument.CRASH,
-            )
+            in (closed_hh, open_hh, ride, crash)
             for b in extracted_beats
         )
 
         # Always ensure kick on the downbeat if not present
         if not has_kick:
             extracted_beats.append(
-                (0.0, DrumInstrument.KICK, int(VELOCITY.KICK_HEAVY))
+                (0.0, kick, int(VELOCITY.KICK_HEAVY))
             )
 
         # Force snare on backbeat only for genres that expect it (rock, metal, etc.)
@@ -439,7 +439,7 @@ class ComposerV2:
             extracted_beats.append(
                 (
                     beats_per_bar / 2,
-                    DrumInstrument.SNARE,
+                    snare_sticks,
                     int(VELOCITY.SNARE_ACCENT),
                 )
             )
@@ -452,7 +452,7 @@ class ComposerV2:
                 extracted_beats.append(
                     (
                         q * beats_per_bar / 4,
-                        DrumInstrument.CLOSED_HH,
+                        closed_hh,
                         VELOCITY.HIHAT_NORMAL,
                     )
                 )
@@ -460,12 +460,7 @@ class ComposerV2:
             # Ensure cymbal coverage across quarters too
             cymbal_quarters: set[int] = set()
             for pos, inst, _vel in extracted_beats:
-                if inst in (
-                    DrumInstrument.CLOSED_HH,
-                    DrumInstrument.OPEN_HH,
-                    DrumInstrument.RIDE,
-                    DrumInstrument.CRASH,
-                ):
+                if inst in (closed_hh, open_hh, ride, crash):
                     q = min(int(pos * 4), 3)
                     cymbal_quarters.add(q)
             for q in range(4):
@@ -473,7 +468,7 @@ class ComposerV2:
                     extracted_beats.append(
                         (
                             q * beats_per_bar / 4,
-                            DrumInstrument.CLOSED_HH,
+                            closed_hh,
                             VELOCITY.HIHAT_NORMAL,
                         )
                     )
@@ -521,18 +516,21 @@ class ComposerV2:
                 # Fill empty bars with a complete pattern: all quarters
                 from midi_drums.config import VELOCITY
 
+                kick = InstrumentRegistry.get("kick")
+                closed_hh = InstrumentRegistry.get("hihat_closed_1_tip_closed_1_hit")
+                snare_sticks = InstrumentRegistry.get("snare_sticks")
                 # Quarter 0 (downbeat): kick + hi-hat
                 combined.beats.append(
                     Beat(
                         position=fill_pos,
-                        instrument=DrumInstrument.KICK,
+                        instrument=kick,
                         velocity=int(VELOCITY.KICK_HEAVY),
                     )
                 )
                 combined.beats.append(
                     Beat(
                         position=fill_pos,
-                        instrument=DrumInstrument.CLOSED_HH,
+                        instrument=closed_hh,
                         velocity=80,
                     )
                 )
@@ -540,7 +538,7 @@ class ComposerV2:
                 combined.beats.append(
                     Beat(
                         position=fill_pos + beats_per_bar / 4,
-                        instrument=DrumInstrument.CLOSED_HH,
+                        instrument=closed_hh,
                         velocity=60,
                     )
                 )
@@ -548,14 +546,14 @@ class ComposerV2:
                 combined.beats.append(
                     Beat(
                         position=fill_pos + beats_per_bar / 2,
-                        instrument=DrumInstrument.SNARE,
+                        instrument=snare_sticks,
                         velocity=int(VELOCITY.SNARE_NORMAL),
                     )
                 )
                 combined.beats.append(
                     Beat(
                         position=fill_pos + beats_per_bar / 2,
-                        instrument=DrumInstrument.CLOSED_HH,
+                        instrument=closed_hh,
                         velocity=80,
                     )
                 )
@@ -563,7 +561,7 @@ class ComposerV2:
                 combined.beats.append(
                     Beat(
                         position=fill_pos + beats_per_bar * 3 / 4,
-                        instrument=DrumInstrument.CLOSED_HH,
+                        instrument=closed_hh,
                         velocity=60,
                     )
                 )

@@ -7,8 +7,8 @@ preserving musical intent.
 import logging
 from collections import defaultdict
 
+from midi_drums.core.models.kit import InstrumentRegistry
 from midi_drums.core.models.pattern import Pattern
-from midi_drums.core.value_objects.drum_instrument import DrumInstrument
 
 logger = logging.getLogger(__name__)
 
@@ -18,70 +18,52 @@ class PatternFixer:
 
     # Ride cymbal instruments
     RIDE_INSTRUMENTS = {
-        DrumInstrument.RIDE,
-        DrumInstrument.RIDE_BELL,
+        InstrumentRegistry.get("ride_1_tip_hit_softer"),
+        InstrumentRegistry.get("ride_1_bell"),
     }
 
     # Hi-hat hand instruments that conflict with ride
     HIHAT_HAND_INSTRUMENTS = {
-        DrumInstrument.CLOSED_HH,
-        DrumInstrument.CLOSED_HH_EDGE,
-        DrumInstrument.CLOSED_HH_TIP,
-        DrumInstrument.TIGHT_HH_EDGE,
-        DrumInstrument.TIGHT_HH_TIP,
-        DrumInstrument.OPEN_HH,
-        DrumInstrument.OPEN_HH_1,
-        DrumInstrument.OPEN_HH_2,
-        DrumInstrument.OPEN_HH_3,
-        DrumInstrument.OPEN_HH_MAX,
+        InstrumentRegistry.get("hihat_closed_1_tip_closed_1_hit"),
+        InstrumentRegistry.get("hihat_closed_bell"),
+        InstrumentRegistry.get("hihat_closed_2_tip_closed_2_hit"),
+        InstrumentRegistry.get("hihat_open_a"),
     }
 
     # All hand instruments (mirrors PhysicalValidator.HAND_INSTRUMENTS)
     HAND_INSTRUMENTS = {
-        DrumInstrument.RIDE,
-        DrumInstrument.RIDE_BELL,
-        DrumInstrument.CLOSED_HH,
-        DrumInstrument.CLOSED_HH_EDGE,
-        DrumInstrument.CLOSED_HH_TIP,
-        DrumInstrument.TIGHT_HH_EDGE,
-        DrumInstrument.TIGHT_HH_TIP,
-        DrumInstrument.OPEN_HH,
-        DrumInstrument.OPEN_HH_1,
-        DrumInstrument.OPEN_HH_2,
-        DrumInstrument.OPEN_HH_3,
-        DrumInstrument.OPEN_HH_MAX,
-        DrumInstrument.SNARE,
-        DrumInstrument.RIM,
-        DrumInstrument.MID_TOM,
-        DrumInstrument.FLOOR_TOM,
-        DrumInstrument.CRASH,
-        DrumInstrument.SPLASH,
-        DrumInstrument.CHINA,
+        InstrumentRegistry.get("ride_1_tip_hit_softer"),
+        InstrumentRegistry.get("ride_1_bell"),
+        InstrumentRegistry.get("hihat_closed_1_tip_closed_1_hit"),
+        InstrumentRegistry.get("hihat_closed_bell"),
+        InstrumentRegistry.get("hihat_closed_2_tip_closed_2_hit"),
+        InstrumentRegistry.get("hihat_open_a"),
+        InstrumentRegistry.get("snare_sticks"),
+        InstrumentRegistry.get("snare_side_stick"),
+        InstrumentRegistry.get("tom_3_open_hit"),
+        InstrumentRegistry.get("tom_4_open_hit"),
+        InstrumentRegistry.get("cymbal_1_hit"),
+        InstrumentRegistry.get("cymbal_6_hit"),
+        InstrumentRegistry.get("cymbal_5_hit"),
     }
 
     # Priority for retaining hand instruments when > 2 are simultaneous.
     # Higher number = keep this first.  Cymbals (crash/splash/china) are
     # lowest priority because they are the most dispensable ornaments.
     HAND_PRIORITY: dict = {
-        DrumInstrument.SNARE: 10,
-        DrumInstrument.CLOSED_HH: 9,
-        DrumInstrument.CLOSED_HH_EDGE: 9,
-        DrumInstrument.CLOSED_HH_TIP: 9,
-        DrumInstrument.OPEN_HH: 8,
-        DrumInstrument.OPEN_HH_1: 8,
-        DrumInstrument.OPEN_HH_2: 8,
-        DrumInstrument.OPEN_HH_3: 8,
-        DrumInstrument.OPEN_HH_MAX: 8,
-        DrumInstrument.TIGHT_HH_EDGE: 8,
-        DrumInstrument.TIGHT_HH_TIP: 8,
-        DrumInstrument.RIDE: 7,
-        DrumInstrument.RIDE_BELL: 7,
-        DrumInstrument.RIM: 6,
-        DrumInstrument.FLOOR_TOM: 5,
-        DrumInstrument.MID_TOM: 5,
-        DrumInstrument.CRASH: 4,
-        DrumInstrument.SPLASH: 3,
-        DrumInstrument.CHINA: 3,
+        InstrumentRegistry.get("snare_sticks"): 10,
+        InstrumentRegistry.get("hihat_closed_1_tip_closed_1_hit"): 9,
+        InstrumentRegistry.get("hihat_closed_bell"): 9,
+        InstrumentRegistry.get("hihat_closed_2_tip_closed_2_hit"): 9,
+        InstrumentRegistry.get("hihat_open_a"): 8,
+        InstrumentRegistry.get("ride_1_tip_hit_softer"): 7,
+        InstrumentRegistry.get("ride_1_bell"): 7,
+        InstrumentRegistry.get("snare_side_stick"): 6,
+        InstrumentRegistry.get("tom_4_open_hit"): 5,
+        InstrumentRegistry.get("tom_3_open_hit"): 5,
+        InstrumentRegistry.get("cymbal_1_hit"): 4,
+        InstrumentRegistry.get("cymbal_6_hit"): 3,
+        InstrumentRegistry.get("cymbal_5_hit"): 3,
     }
 
     def __init__(self, timing_tolerance: float = 0.01):
@@ -268,7 +250,7 @@ class PatternFixer:
 
                     foot_beat = Beat(
                         position=hihat_beats[0].position,
-                        instrument=DrumInstrument.PEDAL_HH,
+                        instrument=InstrumentRegistry.get("hihat_pedal_closed"),
                         velocity=foot_velocity,
                         duration=0.25,
                     )

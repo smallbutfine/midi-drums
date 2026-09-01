@@ -20,8 +20,13 @@ wants to promote timekeeping to a cymbal not yet listed here must add it in
 this one place; every consumer picks up the change automatically.
 """
 
-from midi_drums.core.value_objects.drum_instrument import DrumInstrument
+from midi_drums.core.models.kit import InstrumentRegistry  # noqa: E402
 
-PROMOTABLE_TIMEKEEPING_CYMBALS = frozenset(
-    {DrumInstrument.RIDE, DrumInstrument.CRASH, DrumInstrument.CHINA}
-)
+# All ride and crash variants that can serve as timekeeper (AD2 master template)
+PROMOTABLE_TIMEKEEPING_CYMBALS = frozenset([
+    InstrumentRegistry.get("ride_1_tip_hit_softer"),
+    InstrumentRegistry.get("ride_2_tip_hit_softer"),
+    InstrumentRegistry.get("cymbal_1_hit"),  # crash
+    InstrumentRegistry.get("cymbal_4_hit"),  # heavy crash
+    InstrumentRegistry.get("cymbal_5_hit"),  # china
+])

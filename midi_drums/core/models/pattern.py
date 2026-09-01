@@ -5,7 +5,7 @@ import random
 from dataclasses import dataclass, field
 from typing import Any
 
-from midi_drums.core.value_objects.drum_instrument import DrumInstrument
+from midi_drums.core.models.kit import DrumInstrument
 from midi_drums.core.value_objects.time_signature import TimeSignature
 
 logger = logging.getLogger(__name__)

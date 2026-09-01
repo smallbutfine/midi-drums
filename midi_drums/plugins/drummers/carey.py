@@ -10,9 +10,9 @@ Fear Inoculum.
 
 import random
 
+from midi_drums.core.models.kit import InstrumentRegistry
 from midi_drums.core.models.pattern import Beat, Pattern
 from midi_drums.core.models.song import Fill
-from midi_drums.core.value_objects.drum_instrument import DrumInstrument
 from midi_drums.plugins.interfaces.drummer_plugin import DrummerPlugin
 
 
@@ -167,14 +167,14 @@ class CareyPlugin(DrummerPlugin):
     def _apply_tool_groove_space(self, pattern: Pattern) -> Pattern:
         """Apply the "Tool groove" - spaciousness with intentional space."""
         for beat in pattern.beats:
-            if beat.instrument == DrumInstrument.KICK:
+            if beat.instrument == InstrumentRegistry.get("kick"):
                 beat.velocity = min(127, beat.velocity + 15)
                 beat.duration = max(0.3, beat.duration * 1.4)
-            elif beat.instrument == DrumInstrument.SNARE:
+            elif beat.instrument == InstrumentRegistry.get("snare_sticks"):
                 beat.velocity = min(127, beat.velocity + 10)
             elif beat.instrument in [
-                DrumInstrument.FLOOR_TOM,
-                DrumInstrument.MID_TOM,
+                InstrumentRegistry.get("tom_4_open_hit"),
+                InstrumentRegistry.get("tom_3_open_hit"),
             ]:
                 beat.duration = max(0.4, beat.duration * 2.0)
         return pattern
@@ -186,7 +186,7 @@ class CareyPlugin(DrummerPlugin):
         new_beats = list(pattern.beats)
 
         for beat in pattern.beats:
-            if beat.instrument == DrumInstrument.KICK:
+            if beat.instrument == InstrumentRegistry.get("kick"):
                 pos = beat.position
                 for i in range(1, 4):  # At most 3 extra kicks per original
                     added = track_fn(1)  # Check/track before adding
@@ -219,7 +219,7 @@ class CareyPlugin(DrummerPlugin):
                 new_beats.append(
                     Beat(
                         position=pos,
-                        instrument=DrumInstrument.FLOOR_TOM,
+                        instrument=InstrumentRegistry.get("tom_4_open_hit"),
                         velocity=90 + random.randint(-10, 25),
                         duration=0.8,
                     )
@@ -233,7 +233,7 @@ class CareyPlugin(DrummerPlugin):
                 new_beats.append(
                     Beat(
                         position=pos,
-                        instrument=DrumInstrument.MID_TOM,
+                        instrument=InstrumentRegistry.get("tom_3_open_hit"),
                         velocity=80 + random.randint(-5, 20),
                         duration=0.4,
                     )
@@ -256,7 +256,7 @@ class CareyPlugin(DrummerPlugin):
                 new_beats.append(
                     Beat(
                         position=pos,
-                        instrument=DrumInstrument.SNARE,
+                        instrument=InstrumentRegistry.get("snare_sticks"),
                         velocity=100 + random.randint(-10, 25),
                         duration=0.1,
                     )
@@ -271,9 +271,9 @@ class CareyPlugin(DrummerPlugin):
                     Beat(
                         position=pos,
                         instrument=(
-                            DrumInstrument.FLOOR_TOM
+                            InstrumentRegistry.get("tom_4_open_hit")
                             if i < 2
-                            else DrumInstrument.MID_TOM
+                            else InstrumentRegistry.get("tom_3_open_hit")
                         ),
                         velocity=95 + random.randint(-5, 20),
                         duration=0.3,
@@ -294,7 +294,7 @@ class CareyPlugin(DrummerPlugin):
                 new_beats.append(
                     Beat(
                         position=pos,
-                        instrument=DrumInstrument.CRASH,
+                        instrument=InstrumentRegistry.get("cymbal_1_hit"),
                         velocity=100 + random.randint(-10, 20),
                         duration=2.0,
                     )
@@ -306,7 +306,7 @@ class CareyPlugin(DrummerPlugin):
                 break
             if random.random() < 0.1:
                 eth_inst = random.choice(
-                    [DrumInstrument.CHINA, DrumInstrument.RIDE_BELL]
+                    [InstrumentRegistry.get("cymbal_5_hit"), InstrumentRegistry.get("ride_1_bell")]
                 )
                 new_beats.append(
                     Beat(
@@ -337,16 +337,16 @@ class CareyPlugin(DrummerPlugin):
         # Signature Quintuplet Tom Cascade (5 notes in 4/4 space)
         sequence = [
             # Floor tom foundation building upward
-            (0.0, DrumInstrument.FLOOR_TOM, 120),
-            (0.8, DrumInstrument.FLOOR_TOM, 115),
+            (0.0, InstrumentRegistry.get("tom_4_open_hit"), 120),
+            (0.8, InstrumentRegistry.get("tom_4_open_hit"), 115),
             # Mid tom cascade building intensity
-            (1.6, DrumInstrument.MID_TOM, 110),
-            (2.4, DrumInstrument.MID_TOM, 105),
+            (1.6, InstrumentRegistry.get("tom_3_open_hit"), 110),
+            (2.4, InstrumentRegistry.get("tom_3_open_hit"), 105),
             # Kick transition with crash accent
-            (3.2, DrumInstrument.KICK, 100),
-            (4.0, DrumInstrument.FLOOR_TOM, 125),
-            (4.8, DrumInstrument.SPLASH, 95),
-            (4.8, DrumInstrument.CRASH_HEAVY, 115),
+            (3.2, InstrumentRegistry.get("kick"), 100),
+            (4.0, InstrumentRegistry.get("tom_4_open_hit"), 125),
+            (4.8, InstrumentRegistry.get("cymbal_6_hit"), 95),
+            (4.8, InstrumentRegistry.get("cymbal_4_hit"), 115),
         ]
 
         for pos, instrument, velocity in sequence:
@@ -358,7 +358,7 @@ class CareyPlugin(DrummerPlugin):
             builder.kick(pos, 90 + random.randint(-10, 20))
 
         # SPLASH cymbal — Sacred Geometry era texture
-        builder.pattern.add_beat(4.8, DrumInstrument.SPLASH, 90)
+        builder.pattern.add_beat(4.8, InstrumentRegistry.get("cymbal_6_hit"), 90)
 
         return builder.build()
 
@@ -376,7 +376,7 @@ class CareyPlugin(DrummerPlugin):
         # Layer 1: Floor tom quintuplet pattern
         for i in range(5):
             pos = i * 0.8
-            builder.pattern.add_beat(pos, DrumInstrument.FLOOR_TOM, 85 + i * 4)
+            builder.pattern.add_beat(pos, InstrumentRegistry.get("tom_4_open_hit"), 85 + i * 4)
 
         # Layer 2: Kick drum on quarter notes (creates 3 vs 2 feel)
         for i in range(5):
@@ -410,19 +410,19 @@ class CareyPlugin(DrummerPlugin):
 
         # Mimic tabla-like rhythmic phrasing across the Mandala pad's pentatonic timbre
         sequence = [
-            (0.0, DrumInstrument.RIDE_BELL, 95),  # Mandala pad — "daya" (right)
-            (0.375, DrumInstrument.FLOOR_TOM, 100),  # Deep tom underneath
-            (0.75, DrumInstrument.RIDE_BELL, 90),  # Mandala pad — "baya" (left)
-            (1.125, DrumInstrument.CHINA, 85),  # Ethnic accent
-            (1.5, DrumInstrument.FLOOR_TOM, 95),  # Deep tom resonance
+            (0.0, InstrumentRegistry.get("ride_1_bell"), 95),  # Mandala pad — "daya" (right)
+            (0.375, InstrumentRegistry.get("tom_4_open_hit"), 100),  # Deep tom underneath
+            (0.75, InstrumentRegistry.get("ride_1_bell"), 90),  # Mandala pad — "baya" (left)
+            (1.125, InstrumentRegistry.get("cymbal_5_hit"), 85),  # Ethnic accent
+            (1.5, InstrumentRegistry.get("tom_4_open_hit"), 95),  # Deep tom resonance
             (
                 2.0,
-                DrumInstrument.RIDE_BELL,
+                InstrumentRegistry.get("ride_1_bell"),
                 92,
             ),  # Mandala pad phrase resolution
             (
                 2.75,
-                DrumInstrument.KICK,
+                InstrumentRegistry.get("kick"),
                 105,
             ),  # Kick on off-beat for Tool groove
         ]
@@ -454,7 +454,7 @@ class CareyPlugin(DrummerPlugin):
 
         # Floor tom accents aligning with kick on beats 2 and 4
         for beat in [1.6, 3.6]:
-            builder.pattern.add_beat(beat, DrumInstrument.FLOOR_TOM, 98)
+            builder.pattern.add_beat(beat, InstrumentRegistry.get("tom_4_open_hit"), 98)
 
         return builder.build()
 
@@ -474,19 +474,19 @@ class CareyPlugin(DrummerPlugin):
 
         # Ascending pentatonic tom cascade (floor → mid → rack pitch mapping)
         sequence = [
-            (0.0, DrumInstrument.FLOOR_TOM, 115),  # Deepest tone
-            (0.8, DrumInstrument.FLOOR_TOM, 110),
-            (1.6, DrumInstrument.MID_TOM, 105),
-            (2.4, DrumInstrument.MID_TOM, 100),
-            (3.2, DrumInstrument.KICK, 95),  # Kick transition
+            (0.0, InstrumentRegistry.get("tom_4_open_hit"), 115),  # Deepest tone
+            (0.8, InstrumentRegistry.get("tom_4_open_hit"), 110),
+            (1.6, InstrumentRegistry.get("tom_3_open_hit"), 105),
+            (2.4, InstrumentRegistry.get("tom_3_open_hit"), 100),
+            (3.2, InstrumentRegistry.get("kick"), 95),  # Kick transition
         ]
 
         for pos, instrument, velocity in sequence:
             builder.pattern.add_beat(pos, instrument, velocity)
 
         # Return to floor tom on bar boundary with China accent
-        builder.pattern.add_beat(4.0, DrumInstrument.FLOOR_TOM, 125)
-        builder.pattern.add_beat(4.0, DrumInstrument.CHINA, 110)
+        builder.pattern.add_beat(4.0, InstrumentRegistry.get("tom_4_open_hit"), 125)
+        builder.pattern.add_beat(4.0, InstrumentRegistry.get("cymbal_5_hit"), 110)
 
         return builder.build()
 
@@ -511,7 +511,7 @@ class CareyPlugin(DrummerPlugin):
 
         # Floor tom underpinning
         for beat in [1.0, 3.0]:
-            builder.pattern.add_beat(beat, DrumInstrument.FLOOR_TOM, 105)
+            builder.pattern.add_beat(beat, InstrumentRegistry.get("tom_4_open_hit"), 105)
 
         return builder.build()
 
@@ -531,25 +531,25 @@ class CareyPlugin(DrummerPlugin):
 
         # Deep taiko-style foundation (floor tom + kick)
         builder.kick(0.0, 115)
-        builder.pattern.add_beat(0.0, DrumInstrument.FLOOR_TOM, 120)
+        builder.pattern.add_beat(0.0, InstrumentRegistry.get("tom_4_open_hit"), 120)
 
         builder.kick(1.0, 110)
-        builder.pattern.add_beat(1.0, DrumInstrument.FLOOR_TOM, 115)
+        builder.pattern.add_beat(1.0, InstrumentRegistry.get("tom_4_open_hit"), 115)
 
         # Ethnic percussion simulation (china/cymbal accents on off-beats)
         for i in [0.5, 1.5]:
             pos = i
             builder.pattern.add_beat(
-                pos, DrumInstrument.CHINA, 90 + random.randint(-5, 15)
+                pos, InstrumentRegistry.get("cymbal_5_hit"), 90 + random.randint(-5, 15)
             )
 
         # Timpani-like rolls on toms (deep, resonant tones)
         for i in range(8):
             pos = i * 0.25
             if i % 3 == 0:
-                builder.pattern.add_beat(pos, DrumInstrument.MID_TOM, 80)
+                builder.pattern.add_beat(pos, InstrumentRegistry.get("tom_3_open_hit"), 80)
             elif i % 3 == 1:
-                builder.pattern.add_beat(pos, DrumInstrument.FLOOR_TOM, 85)
+                builder.pattern.add_beat(pos, InstrumentRegistry.get("tom_4_open_hit"), 85)
 
         return builder.build()
 
@@ -572,14 +572,14 @@ class CareyPlugin(DrummerPlugin):
             # Extended sustain creates the "swell" effect (simulated)
             if random.random() < 0.7:
                 builder.pattern.add_beat(
-                    pos + 0.25, DrumInstrument.RIDE_BELL, 85
+                    pos + 0.25, InstrumentRegistry.get("ride_1_bell"), 85
                 )
 
         # Chinese cymbal accents for ethnic texture
         for i in [1.0, 3.0]:
             pos = i
             builder.pattern.add_beat(
-                pos, DrumInstrument.CHINA, 95 + random.randint(-5, 10)
+                pos, InstrumentRegistry.get("cymbal_5_hit"), 95 + random.randint(-5, 10)
             )
 
         return builder.build()

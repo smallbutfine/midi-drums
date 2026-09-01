@@ -4,9 +4,9 @@ import math
 from abc import ABC, abstractmethod
 
 from midi_drums.config import VELOCITY
+from midi_drums.core.models.kit import DrumInstrument, InstrumentRegistry
 from midi_drums.core.models.pattern import Pattern
 from midi_drums.core.models.song import Fill
-from midi_drums.core.value_objects.drum_instrument import DrumInstrument
 from midi_drums.core.value_objects.generation_parameters import (
     GenerationParameters,
 )
@@ -18,20 +18,14 @@ from midi_drums.core.value_objects.timekeeping import (
 # regardless of complexity.
 _RIDE_SECTIONS = frozenset({"chorus", "bridge", "pre_chorus"})
 
-_HIHAT_INSTRUMENTS = frozenset(
-    {
-        DrumInstrument.CLOSED_HH,
-        DrumInstrument.CLOSED_HH_EDGE,
-        DrumInstrument.CLOSED_HH_TIP,
-        DrumInstrument.OPEN_HH,
-        DrumInstrument.TIGHT_HH_A,
-        DrumInstrument.TIGHT_HH_B,
-        DrumInstrument.TIGHT_HH_C,
-        DrumInstrument.TIGHT_HH_EDGE,
-        DrumInstrument.TIGHT_HH_TIP,
-        DrumInstrument.TIGHT_HH_CLOSED,
-    }
-)
+_HIHAT_INSTRUMENTS = frozenset([
+    InstrumentRegistry.get("hihat_closed_1_tip_closed_1_hit"),
+    InstrumentRegistry.get("hihat_closed_bell"),
+    InstrumentRegistry.get("hihat_closed_2_tip_closed_2_hit"),
+    InstrumentRegistry.get("hihat_open_a"),
+    InstrumentRegistry.get("hihat_closed_1_shaft_closed_1_hit_dbl"),
+    InstrumentRegistry.get("hihat_closed_2_shaft_closed_2_hit_dbl"),
+])
 
 
 class GenrePlugin(ABC):
@@ -149,7 +143,7 @@ class GenrePlugin(ABC):
         # Apply power adjustment to kick and snare
         power_boost = int((blended_power - own_profile["power"]) * 20)
         for beat in adapted.beats:
-            if beat.instrument in [DrumInstrument.KICK, DrumInstrument.SNARE]:
+            if beat.instrument in [InstrumentRegistry.get("kick"), InstrumentRegistry.get("snare_sticks")]:
                 beat.velocity = max(1, min(127, beat.velocity + power_boost))
 
         # Apply aggression (tighter timing for high aggression)
@@ -177,7 +171,7 @@ class GenrePlugin(ABC):
                 snare_positions = [
                     b.position
                     for b in adapted.beats
-                    if b.instrument == DrumInstrument.SNARE
+                    if b.instrument == InstrumentRegistry.get("snare_sticks")
                 ]
                 for pos in snare_positions:
                     if random.random() < density_increase:
@@ -186,7 +180,7 @@ class GenrePlugin(ABC):
 
                         ghost = Beat(
                             position=max(0, pos - 0.125),
-                            instrument=DrumInstrument.SNARE,
+                            instrument=InstrumentRegistry.get("snare_sticks"),
                             velocity=max(40, int(50 * (1 - blend_amount))),
                             duration=0.05,
                             ghost_note=True,
@@ -217,7 +211,7 @@ class GenrePlugin(ABC):
         #36 item 2), so a new cymbal choice must be added to that shared
         set, not just returned here.
         """
-        return DrumInstrument.RIDE
+        return InstrumentRegistry.get("ride_1_tip_hit_softer")
 
     def _apply_ride_hihat_logic(
         self,
@@ -272,7 +266,7 @@ class GenrePlugin(ABC):
         existing_pedal_positions = {
             beat.position
             for beat in switched.beats
-            if beat.instrument == DrumInstrument.PEDAL_HH
+            if beat.instrument == InstrumentRegistry.get("hihat_pedal_closed")
         }
         beats_per_bar = switched.time_signature.beats_per_bar
         for bar in range(math.ceil(switched.duration_bars())):
@@ -282,7 +276,7 @@ class GenrePlugin(ABC):
                 position = bar_offset + beat_num
                 if position not in existing_pedal_positions:
                     switched.add_beat(
-                        position, DrumInstrument.PEDAL_HH, VELOCITY.HIHAT_PEDAL
+                        position, InstrumentRegistry.get("hihat_pedal_closed"), VELOCITY.HIHAT_PEDAL
                     )
                 beat_num += 2.0
 

@@ -10,9 +10,9 @@ techniques for his unique signature fills.
 """
 
 from midi_drums.config import TIMING, VELOCITY
+from midi_drums.core.models.kit import InstrumentRegistry
 from midi_drums.core.models.pattern import Pattern
 from midi_drums.core.models.song import Fill
-from midi_drums.core.value_objects.drum_instrument import DrumInstrument
 from midi_drums.generation.builders.pattern_builder import PatternBuilder
 from midi_drums.modifications import (
     BehindBeatTiming,
@@ -156,7 +156,7 @@ class WattsPlugin(DrummerPlugin):
 
         # Limit total crashes — he used maybe 1-2 per 4-bar phrase max
         for beat in pattern.beats:
-            if beat.instrument == DrumInstrument.CRASH:
+            if beat.instrument == InstrumentRegistry.get("cymbal_1_hit"):
                 crash_count += 1
                 if crash_count > 3:  # Cap at ~3 crashes per pattern
                     # Reduce velocity to ghost-note level (effectively removing it)
@@ -165,9 +165,9 @@ class WattsPlugin(DrummerPlugin):
                     # Keep but slightly reduce — make it feel intentional
                     beat.velocity = max(95, beat.velocity - 10)
             elif beat.instrument in [
-                DrumInstrument.CRASH_LIGHT,
-                DrumInstrument.CRASH_HEAVY,
-                DrumInstrument.RIDE_BELL_ALT,
+                InstrumentRegistry.get("cymbal_2_hit"),
+                InstrumentRegistry.get("cymbal_4_hit"),
+                InstrumentRegistry.get("ride_2_bell"),
             ]:
                 if crash_count > 3:
                     beat.velocity = min(70, beat.velocity)
@@ -265,7 +265,7 @@ class WattsPlugin(DrummerPlugin):
         # Sparse floor-tom pattern (very restrained)
         for i in range(4):
             pos = i * 2.0
-            builder.pattern.add_beat(pos, DrumInstrument.FLOOR_TOM, 95)
+            builder.pattern.add_beat(pos, InstrumentRegistry.get("tom_4_open_hit"), 95)
 
         # Kick pulse underneath (never too many hits)
         builder.kick(0.0, VELOCITY.KICK_LIGHT)
@@ -296,10 +296,10 @@ class WattsPlugin(DrummerPlugin):
 
         # Sparse tom work — just enough to drive the groove
         builder.pattern.add_beat(
-            TIMING.SIXTEENTH * 3, DrumInstrument.FLOOR_TOM, 85
+            TIMING.SIXTEENTH * 3, InstrumentRegistry.get("tom_4_open_hit"), 85
         )
         builder.pattern.add_beat(
-            TIMING.SIXTEENTH * 7, DrumInstrument.MID_TOM, 80
+            TIMING.SIXTEENTH * 7, InstrumentRegistry.get("tom_3_open_hit"), 80
         )
 
         # Backbeat — essential but never aggressive
@@ -318,12 +318,12 @@ class WattsPlugin(DrummerPlugin):
         builder = PatternBuilder("watts_jumpin_flash")
 
         # Building tom fill (but restrained)
-        builder.pattern.add_beat(0.0, DrumInstrument.MID_TOM, 90)
+        builder.pattern.add_beat(0.0, InstrumentRegistry.get("tom_3_open_hit"), 90)
         builder.pattern.add_beat(
-            TIMING.SIXTEENTH * 3, DrumInstrument.MID_TOM, 95
+            TIMING.SIXTEENTH * 3, InstrumentRegistry.get("tom_3_open_hit"), 95
         )
         builder.pattern.add_beat(
-            TIMING.EIGHTH * 2, DrumInstrument.FLOOR_TOM, 100
+            TIMING.EIGHTH * 2, InstrumentRegistry.get("tom_4_open_hit"), 100
         )
 
         # Classic rock snare build-up

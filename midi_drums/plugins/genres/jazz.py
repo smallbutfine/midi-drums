@@ -6,9 +6,9 @@ full functional equivalence with the original jazz.py plugin.
 """
 
 from midi_drums.config import TIMING
+from midi_drums.core.models.kit import DrumInstrument
 from midi_drums.core.models.pattern import Pattern
 from midi_drums.core.models.song import Fill
-from midi_drums.core.value_objects.drum_instrument import DrumInstrument
 from midi_drums.core.value_objects.generation_parameters import (
     GenerationParameters,
 )

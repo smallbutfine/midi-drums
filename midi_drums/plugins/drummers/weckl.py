@@ -7,9 +7,9 @@ DrummerModification system instead of manual pattern manipulation.
 import random
 
 from midi_drums.config import TIMING, VELOCITY
+from midi_drums.core.models.kit import InstrumentRegistry
 from midi_drums.core.models.pattern import Pattern
 from midi_drums.core.models.song import Fill
-from midi_drums.core.value_objects.drum_instrument import DrumInstrument
 from midi_drums.modifications import (
     GhostNoteLayer,
     LinearCoordination,
@@ -120,12 +120,12 @@ class WecklPlugin(DrummerPlugin):
         builder.kick(0.0, VELOCITY.KICK_NORMAL)
         builder.snare(TIMING.EIGHTH + TIMING.SIXTEENTH, VELOCITY.SNARE_HEAVY)
         builder.pattern.add_beat(
-            TIMING.EIGHTH * 3, DrumInstrument.MID_TOM, VELOCITY.TOM_HEAVY
+            TIMING.EIGHTH * 3, InstrumentRegistry.get("tom_3_open_hit"), VELOCITY.TOM_HEAVY
         )
         builder.snare(TIMING.HALF, VELOCITY.SNARE_NORMAL)
         builder.kick(TIMING.HALF + TIMING.SIXTEENTH * 2, VELOCITY.KICK_LIGHT)
         builder.pattern.add_beat(
-            TIMING.HALF * 3, DrumInstrument.FLOOR_TOM, VELOCITY.TOM_ACCENT
+            TIMING.HALF * 3, InstrumentRegistry.get("tom_4_open_hit"), VELOCITY.TOM_ACCENT
         )
         for i in range(8):
             vel = VELOCITY.HIHAT_NORMAL + random.randint(-5, 5)
@@ -137,7 +137,7 @@ class WecklPlugin(DrummerPlugin):
             builder.ride(pos, VELOCITY.RIDE_NORMAL)
         builder.pattern.add_beat(
             TIMING.EIGHTH + TIMING.SIXTEENTH,
-            DrumInstrument.RIDE_BELL,
+            InstrumentRegistry.get("ride_1_bell"),
             VELOCITY.RIDE_BELL_ACCENT,
         )
         return builder.build()
@@ -164,9 +164,9 @@ class WecklPlugin(DrummerPlugin):
             elif name == "snare":
                 builder.snare(pos, vel)
             elif name == "mid_tom":
-                builder.pattern.add_beat(pos, DrumInstrument.MID_TOM, vel)
+                builder.pattern.add_beat(pos, InstrumentRegistry.get("tom_3_open_hit"), vel)
             elif name == "floor_tom":
-                builder.pattern.add_beat(pos, DrumInstrument.FLOOR_TOM, vel)
+                builder.pattern.add_beat(pos, InstrumentRegistry.get("tom_4_open_hit"), vel)
         return builder.build()
 
     def _create_ghost_note_pattern_fill(self) -> Pattern:
@@ -186,7 +186,7 @@ class WecklPlugin(DrummerPlugin):
             if pos > 0 and pos < 4.0:
                 builder.pattern.add_beat(
                     pos,
-                    DrumInstrument.SNARE,
+                    InstrumentRegistry.get("snare_sticks"),
                     VELOCITY.SNARE_GHOST + random.randint(0, 10),
                 )
         return builder.build()
@@ -207,11 +207,11 @@ class WecklPlugin(DrummerPlugin):
         builder.snare(TIMING.HALF * 3, VELOCITY.SNARE_HEAVY)
         # Tom accents (layer 3 — always offset from kick/snare)
         builder.pattern.add_beat(
-            TIMING.EIGHTH_TRIPLET, DrumInstrument.MID_TOM, VELOCITY.TOM_ACCENT
+            TIMING.EIGHTH_TRIPLET, InstrumentRegistry.get("tom_3_open_hit"), VELOCITY.TOM_ACCENT
         )
         builder.pattern.add_beat(
             TIMING.DOTTED_EIGHTH * 2,
-            DrumInstrument.FLOOR_TOM,
+            InstrumentRegistry.get("tom_4_open_hit"),
             VELOCITY.TOM_HEAVY,
         )
         return builder.build()
@@ -236,9 +236,9 @@ class WecklPlugin(DrummerPlugin):
                 builder.snare(pos, VELOCITY.SNARE_LIGHT + random.randint(0, 8))
             elif i < 12:
                 inst = (
-                    DrumInstrument.MID_TOM
+                    InstrumentRegistry.get("tom_3_open_hit")
                     if i < 9
-                    else DrumInstrument.FLOOR_TOM
+                    else InstrumentRegistry.get("tom_4_open_hit")
                 )
                 builder.pattern.add_beat(
                     pos,
@@ -264,21 +264,21 @@ class WecklPlugin(DrummerPlugin):
         # Linear 32nd-note run across kit — no overlap
         linear_hits = [
             (0.0, "kick"),
-            (1 / 32, DrumInstrument.MID_TOM),
+            (1 / 32, InstrumentRegistry.get("tom_3_open_hit")),
             (2 / 32, "snare"),
-            (3 / 32, DrumInstrument.FLOOR_TOM),
+            (3 / 32, InstrumentRegistry.get("tom_4_open_hit")),
             (4 / 32, "kick"),
             (5 / 32, "snare"),
-            (6 / 32, DrumInstrument.MID_TOM),
+            (6 / 32, InstrumentRegistry.get("tom_3_open_hit")),
             (7 / 32, "kick"),
             (8 / 32, "snare"),
-            (9 / 32, DrumInstrument.FLOOR_TOM),
+            (9 / 32, InstrumentRegistry.get("tom_4_open_hit")),
             (10 / 32, "kick"),
             (11 / 32, "snare"),
-            (12 / 32, DrumInstrument.MID_TOM),
+            (12 / 32, InstrumentRegistry.get("tom_3_open_hit")),
             (13 / 32, "kick"),
             (14 / 32, "snare"),
-            (15 / 32, DrumInstrument.FLOOR_TOM),
+            (15 / 32, InstrumentRegistry.get("tom_4_open_hit")),
         ]
         for i, (_pos_value, instrument_or_name) in enumerate(linear_hits):
             pos = TIMING.SIXTEENTH * i
@@ -337,10 +337,10 @@ class WecklPlugin(DrummerPlugin):
         builder = PatternBuilder("weckl_linear_tom_excursion")
         # Four-tom run (rack → mid → floor → extra tom) in 16th notes
         toms = [
-            DrumInstrument.MID_TOM,
-            DrumInstrument.MID_TOM,
-            DrumInstrument.FLOOR_TOM,
-            DrumInstrument.FLOOR_TOM,
+            InstrumentRegistry.get("tom_3_open_hit"),
+            InstrumentRegistry.get("tom_3_open_hit"),
+            InstrumentRegistry.get("tom_4_open_hit"),
+            InstrumentRegistry.get("tom_4_open_hit"),
         ]
         for i, tom in enumerate(toms):
             pos = TIMING.SIXTEENTH * i

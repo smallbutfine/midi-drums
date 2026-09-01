@@ -6,7 +6,7 @@ import numpy as np
 import pytest
 
 from midi_drums.core.models.pattern import Beat, Pattern
-from midi_drums.core.value_objects.drum_instrument import DrumInstrument
+from midi_drums.core.models.kit import InstrumentRegistry
 from midi_drums.generation.builders.pattern_builder import PatternBuilder
 from midi_drums.humanization import AdvancedHumanizer
 
@@ -45,10 +45,11 @@ def pattern_with_accents():
     builder.kick(2.0, 100)
 
     # Snare with accent
-    builder.pattern.add_beat(1.0, DrumInstrument.SNARE, 110, accent=True)
+    snare_inst = InstrumentRegistry.get("snare_sticks")
+    builder.pattern.add_beat(1.0, snare_inst, 110, accent=True)
 
     # Snare with ghost note
-    builder.pattern.add_beat(1.5, DrumInstrument.SNARE, 40, ghost_note=True)
+    builder.pattern.add_beat(1.5, snare_inst, 40, ghost_note=True)
 
     # Normal snare
     builder.snare(3.0, 100)
@@ -333,16 +334,14 @@ class TestMicroTiming:
         humanized = humanizer.humanize_pattern(simultaneous_pattern)
 
         # Find crash and kick that were originally simultaneous
+        crash_inst = InstrumentRegistry.get("cymbal_1_hit")
+        kick_inst = InstrumentRegistry.get("kick")
         crash = next(
-            (
-                b
-                for b in humanized.beats
-                if b.instrument == DrumInstrument.CRASH
-            ),
+            (b for b in humanized.beats if b.instrument == crash_inst),
             None,
         )
         kick = next(
-            (b for b in humanized.beats if b.instrument == DrumInstrument.KICK),
+            (b for b in humanized.beats if b.instrument == kick_inst),
             None,
         )
 
@@ -432,7 +431,8 @@ class TestEdgeCases:
 
     def test_single_beat_pattern(self):
         """Test humanization on pattern with single beat."""
-        single = Pattern("single", beats=[Beat(0.0, DrumInstrument.KICK, 100)])
+        kick_inst = InstrumentRegistry.get("kick")
+        single = Pattern("single", beats=[Beat(0.0, kick_inst, 100)])
         humanizer = AdvancedHumanizer(humanization_amount=0.5)
 
         humanized = humanizer.humanize_pattern(single)

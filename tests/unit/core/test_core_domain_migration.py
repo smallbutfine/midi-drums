@@ -79,11 +79,12 @@ class TestNewImportPaths:
         assert TimeSignature().beats_per_bar == 4.0
 
     def test_drum_instrument_importable_from_value_objects(self):
-        from midi_drums.core.value_objects.drum_instrument import (
-            DrumInstrument,
-        )
+        from midi_drums.core.models.kit import InstrumentRegistry
 
-        assert DrumInstrument.KICK.value == 36
+        InstrumentRegistry.ensure_loaded()
+        kick = InstrumentRegistry.get("kick")
+        assert kick is not None
+        assert kick.name == "kick"
 
     def test_generation_parameters_importable_from_value_objects(self):
         from midi_drums.core.value_objects.generation_parameters import (

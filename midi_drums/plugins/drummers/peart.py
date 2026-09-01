@@ -8,9 +8,9 @@ other seven drummer plugins.
 """
 
 from midi_drums.config import TIMING, VELOCITY
+from midi_drums.core.models.kit import InstrumentRegistry
 from midi_drums.core.models.pattern import Pattern
 from midi_drums.core.models.song import Fill
-from midi_drums.core.value_objects.drum_instrument import DrumInstrument
 from midi_drums.generation.builders.pattern_builder import PatternBuilder
 from midi_drums.modifications import (
     LinearCoordination,
@@ -116,17 +116,17 @@ class PeartPlugin(DrummerPlugin):
         """
         builder = PatternBuilder("peart_quintuplet_toms")
         instruments = [
-            DrumInstrument.MID_TOM,
-            DrumInstrument.MID_TOM,
-            DrumInstrument.FLOOR_TOM,
-            DrumInstrument.FLOOR_TOM,
-            DrumInstrument.KICK,
+            InstrumentRegistry.get("tom_3_open_hit"),
+            InstrumentRegistry.get("tom_3_open_hit"),
+            InstrumentRegistry.get("tom_4_open_hit"),
+            InstrumentRegistry.get("tom_4_open_hit"),
+            InstrumentRegistry.get("kick"),
         ]
         for i, instrument in enumerate(instruments):
             position = i * TIMING.SIXTEENTH_QUINTUPLET
             velocity = (
                 VELOCITY.KICK_HEAVY
-                if instrument == DrumInstrument.KICK
+                if instrument == InstrumentRegistry.get("kick")
                 else VELOCITY.TOM_HEAVY
             )
             builder.pattern.add_beat(position, instrument, velocity)
@@ -138,7 +138,7 @@ class PeartPlugin(DrummerPlugin):
         # SPLASH cymbal swell at resolution (Peart's Sacred Geometry signature)
         builder.pattern.add_beat(
             TIMING.DOTTED_EIGHTH,
-            DrumInstrument.SPLASH,
+            InstrumentRegistry.get("cymbal_6_hit"),
             VELOCITY.CHINA_ACCENT,
         )
 
@@ -171,14 +171,14 @@ class PeartPlugin(DrummerPlugin):
         """
         builder = PatternBuilder("peart_china_punctuation")
         builder.pattern.add_beat(
-            0.0, DrumInstrument.MID_TOM, VELOCITY.TOM_HEAVY
+            0.0, InstrumentRegistry.get("tom_3_open_hit"), VELOCITY.TOM_HEAVY
         )
         builder.pattern.add_beat(
-            TIMING.SIXTEENTH, DrumInstrument.FLOOR_TOM, VELOCITY.TOM_ACCENT
+            TIMING.SIXTEENTH, InstrumentRegistry.get("tom_4_open_hit"), VELOCITY.TOM_ACCENT
         )
         builder.kick(TIMING.DOTTED_EIGHTH, VELOCITY.KICK_ACCENT)
         builder.pattern.add_beat(
-            TIMING.DOTTED_EIGHTH, DrumInstrument.CHINA, VELOCITY.CHINA_ACCENT
+            TIMING.DOTTED_EIGHTH, InstrumentRegistry.get("cymbal_5_hit"), VELOCITY.CHINA_ACCENT
         )
         # CRASH_HEAVY resolution - full-kit impact punctuation
         builder.crash(
@@ -198,28 +198,28 @@ class PeartPlugin(DrummerPlugin):
         builder = PatternBuilder("peart_r30_rotation")
         # Ascending cascade across tom heights simulating rotation
         sequence = [
-            (0.0, DrumInstrument.MID_TOM, VELOCITY.TOM_HEAVY),
+            (0.0, InstrumentRegistry.get("tom_3_open_hit"), VELOCITY.TOM_HEAVY),
             (
                 TIMING.SIXTEENTH * 1,
-                DrumInstrument.FLOOR_TOM,
+                InstrumentRegistry.get("tom_4_open_hit"),
                 VELOCITY.TOM_HEAVY + 2,
             ),
             (
                 TIMING.SIXTEENTH * 2,
-                DrumInstrument.KICK,
+                InstrumentRegistry.get("kick"),
                 VELOCITY.KICK_HEAVY - 5,
             ),
             (
                 TIMING.SIXTEENTH * 3,
-                DrumInstrument.MID_TOM,
+                InstrumentRegistry.get("tom_3_open_hit"),
                 VELOCITY.TOM_HEAVY + 4,
             ),
             (
                 TIMING.DOTTED_EIGHTH,
-                DrumInstrument.FLOOR_TOM,
+                InstrumentRegistry.get("tom_4_open_hit"),
                 VELOCITY.TOM_ACCENT,
             ),
-            (0.875, DrumInstrument.CHINA, VELOCITY.CHINA_ACCENT),
+            (0.875, InstrumentRegistry.get("cymbal_5_hit"), VELOCITY.CHINA_ACCENT),
         ]
         for pos, instrument, velocity in sequence:
             builder.pattern.add_beat(pos, instrument, velocity)
@@ -239,14 +239,14 @@ class PeartPlugin(DrummerPlugin):
         builder = PatternBuilder("peart_malletkat_electronic")
         # Pentatonic metallic pattern simulating MalletKAT strikes
         builder.pattern.add_beat(
-            0.0, DrumInstrument.RIDE_SHAFT, VELOCITY.TOM_ACCENT
+            0.0, InstrumentRegistry.get("ride_1_shaft_hit_stronger"), VELOCITY.TOM_ACCENT
         )
         builder.pattern.add_beat(
-            TIMING.EIGHTH, DrumInstrument.CHINA, VELOCITY.CHINA_ACCENT
+            TIMING.EIGHTH, InstrumentRegistry.get("cymbal_5_hit"), VELOCITY.CHINA_ACCENT
         )
         builder.kick(TIMING.SIXTEENTH * 2, VELOCITY.KICK_HEAVY - 10)
         builder.pattern.add_beat(
-            TIMING.DOTTED_EIGHTH, DrumInstrument.RIDE_SHAFT, VELOCITY.TOM_HEAVY
+            TIMING.DOTTED_EIGHTH, InstrumentRegistry.get("ride_1_shaft_hit_stronger"), VELOCITY.TOM_HEAVY
         )
         return builder.build()
 
@@ -262,16 +262,16 @@ class PeartPlugin(DrummerPlugin):
         for group in range(3):
             offset = group * TIMING.SIXTEENTH
             builder.pattern.add_beat(
-                offset, DrumInstrument.SNARE, VELOCITY.SNARE_HEAVY
+                offset, InstrumentRegistry.get("snare_sticks"), VELOCITY.SNARE_HEAVY
             )
             builder.pattern.add_beat(
                 offset + TIMING.SIXTEENTH,
-                DrumInstrument.MID_TOM,
+                InstrumentRegistry.get("tom_3_open_hit"),
                 VELOCITY.TOM_HEAVY,
             )
             builder.pattern.add_beat(
                 offset + TIMING.DOTTED_SIXTEENTH,
-                DrumInstrument.CHINA,
+                InstrumentRegistry.get("cymbal_5_hit"),
                 VELOCITY.CHINA_ACCENT,
             )
         # Final resolution at beat 0.875 (within render window)

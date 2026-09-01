@@ -15,9 +15,7 @@ def test_imports():
         # Test that imports work (imports are only used for testing)
         from midi_drums import Beat, DrumGenerator  # noqa: F401
         from midi_drums.api.python_api import DrumGeneratorAPI  # noqa: F401
-        from midi_drums.core.value_objects.drum_instrument import (  # noqa: F401
-            DrumInstrument,
-        )
+        from midi_drums.core.models.kit import DrumInstrument  # noqa: F401
         from midi_drums.core.value_objects.generation_parameters import (  # noqa: F401
             GenerationParameters,
         )

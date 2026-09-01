@@ -6,9 +6,9 @@ full functional equivalence with the original funk.py plugin.
 """
 
 from midi_drums.config import TIMING
+from midi_drums.core.models.kit import DrumInstrument, InstrumentRegistry
 from midi_drums.core.models.pattern import Pattern
 from midi_drums.core.models.song import Fill
-from midi_drums.core.value_objects.drum_instrument import DrumInstrument
 from midi_drums.core.value_objects.generation_parameters import (
     GenerationParameters,
 )
@@ -2352,9 +2352,9 @@ class FunkGenrePlugin(GenrePlugin):
             return result
 
         tight_map = {
-            "tight_a": DrumInstrument.TIGHT_HH_A,
-            "tight_b": DrumInstrument.TIGHT_HH_B,
-            "tight_c": DrumInstrument.TIGHT_HH_C,
+            "tight_a": InstrumentRegistry.get("hihat_closed_1_tip_closed_1_hit"),
+            "tight_b": InstrumentRegistry.get("hihat_closed_1_shaft_closed_1_hit_dbl"),
+            "tight_c": InstrumentRegistry.get("hihat_closed_bell"),
         }
         tight_instr = tight_map.get(tight_key)
         if not tight_instr:
@@ -2365,9 +2365,9 @@ class FunkGenrePlugin(GenrePlugin):
         tuned = result.copy()
         for beat in tuned.beats:
             if beat.instrument not in (
-                DrumInstrument.CLOSED_HH,
-                DrumInstrument.TIGHT_HH_EDGE,
-                DrumInstrument.TIGHT_HH_TIP,
+                InstrumentRegistry.get("hihat_closed_1_tip_closed_1_hit"),
+                InstrumentRegistry.get("hihat_closed_bell"),
+                InstrumentRegistry.get("hihat_closed_2_tip_closed_2_hit"),
             ):
                 continue
             # Don't override beats already promoted to ride/crash

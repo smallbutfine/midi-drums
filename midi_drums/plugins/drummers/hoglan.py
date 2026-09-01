@@ -7,9 +7,9 @@ DrummerModification system instead of manual pattern manipulation.
 import random
 
 from midi_drums.config import TIMING, VELOCITY
+from midi_drums.core.models.kit import InstrumentRegistry
 from midi_drums.core.models.pattern import Pattern
 from midi_drums.core.models.song import Fill
-from midi_drums.core.value_objects.drum_instrument import DrumInstrument
 from midi_drums.generation.builders.pattern_builder import PatternBuilder
 from midi_drums.modifications import (
     HeavyAccents,
@@ -189,7 +189,7 @@ class HoglanPlugin(DrummerPlugin):
                 builder.snare(pos, velocity)
             elif instr_name == "ride_cymbal":
                 builder.pattern.add_beat(
-                    pos, DrumInstrument.RIDE_SHAFT, velocity
+                    pos, InstrumentRegistry.get("ride_1_shaft_hit_stronger"), velocity
                 )
         return builder.build()
 
@@ -297,7 +297,7 @@ class HoglanPlugin(DrummerPlugin):
         builder.kick(TIMING.HALF, min(VELOCITY.KICK_HEAVY, 127))
         # RIDE cymbal for Dethklok/Metallica metallic timekeeping
         builder.pattern.add_beat(
-            TIMING.QUARTER, DrumInstrument.RIDE, VELOCITY.CHINA_ACCENT - 5
+            TIMING.QUARTER, InstrumentRegistry.get("ride_1_tip_hit_softer"), VELOCITY.CHINA_ACCENT - 5
         )
         return builder.build()
 

@@ -12,6 +12,10 @@ if sys.platform == "win32":
     sys.stdout.reconfigure(encoding="utf-8")
 
 from midi_drums import DrumGenerator
+from midi_drums.core.models.kit import InstrumentRegistry
+
+_KICK = InstrumentRegistry.get("kick")
+_SNARE = InstrumentRegistry.get("snare_sticks")
 
 
 def test_intensity_profiles():
@@ -45,8 +49,8 @@ def analyze_pattern_characteristics(pattern, name):
         return
 
     # Calculate statistics
-    kick_beats = [b for b in pattern.beats if b.instrument.value == 36]
-    snare_beats = [b for b in pattern.beats if b.instrument.value == 38]
+    kick_beats = [b for b in pattern.beats if b.instrument == _KICK]
+    snare_beats = [b for b in pattern.beats if b.instrument == _SNARE]
 
     avg_kick_velocity = (
         sum(b.velocity for b in kick_beats) / len(kick_beats)

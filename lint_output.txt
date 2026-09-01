@@ -1,0 +1,1403 @@
+warning: The `ignore-init-module-imports` option is deprecated and will be removed in a future release. Ruff's handling of imports in `__init__.py` files has been improved (in preview) and unused imports will always be flagged.
+F821 Undefined name `DrumInstrument`
+    --> midi_drums\plugins\genres\metal.py:1549:10
+     |
+1547 |     def _high_energy_timekeeper(
+1548 |         self, section: str, parameters: GenerationParameters
+1549 |     ) -> DrumInstrument:
+     |          ^^^^^^^^^^^^^^
+1550 |         """China cymbal for thrash/death styles, ride cymbal otherwise.
+     |
+
+F821 Undefined name `DrumInstrument`
+    --> midi_drums\plugins\genres\rock.py:1566:10
+     |
+1564 |     def _high_energy_timekeeper(
+1565 |         self, section: str, parameters: GenerationParameters
+1566 |     ) -> DrumInstrument:
+     |          ^^^^^^^^^^^^^^
+1567 |         """Crash-ride for hard/punk styles, ride cymbal otherwise.
+     |
+
+F821 Undefined name `DrumInstrument`
+  --> midi_drums\validation\physical_constraints.py:31:23
+   |
+30 |     time: float
+31 |     instruments: list[DrumInstrument]
+   |                       ^^^^^^^^^^^^^^
+32 |     reason: str
+33 |     severity: str = "error"  # error, warning
+   |
+
+F811 Redefinition of unused `TestPresetsDivergeOnNoteMapping` from line 13
+  --> tests\unit\core\test_kit_mappings.py:47:7
+   |
+47 | class TestPresetsDivergeOnNoteMapping:
+   |       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ `TestPresetsDivergeOnNoteMapping` redefined here
+48 |     """`get_midi_note()` must differ across presets for EZDrummer-specific
+49 |     articulations - previously every preset resolved identically because
+   |
+  ::: tests\unit\core\test_kit_mappings.py:13:7
+   |
+12 | @pytest.mark.skip(reason="Deeply coupled to old DrumInstrument enum — needs rewrite for dynamic registry")
+13 | class TestPresetsDivergeOnNoteMapping:
+   |       ------------------------------- previous definition of `TestPresetsDivergeOnNoteMapping` here
+14 |     pass
+   |
+help: Remove definition: `TestPresetsDivergeOnNoteMapping`
+
+F821 Undefined name `DrumInstrument`
+  --> tests\unit\core\test_kit_mappings.py:55:13
+   |
+53 |         "instrument",
+54 |         [
+55 |             DrumInstrument.CLOSED_HH_EDGE,
+   |             ^^^^^^^^^^^^^^
+56 |             DrumInstrument.CLOSED_HH_TIP,
+57 |             DrumInstrument.TIGHT_HH_EDGE,
+   |
+
+F821 Undefined name `DrumInstrument`
+  --> tests\unit\core\test_kit_mappings.py:56:13
+   |
+54 |         [
+55 |             DrumInstrument.CLOSED_HH_EDGE,
+56 |             DrumInstrument.CLOSED_HH_TIP,
+   |             ^^^^^^^^^^^^^^
+57 |             DrumInstrument.TIGHT_HH_EDGE,
+58 |             DrumInstrument.TIGHT_HH_TIP,
+   |
+
+F821 Undefined name `DrumInstrument`
+  --> tests\unit\core\test_kit_mappings.py:57:13
+   |
+55 |             DrumInstrument.CLOSED_HH_EDGE,
+56 |             DrumInstrument.CLOSED_HH_TIP,
+57 |             DrumInstrument.TIGHT_HH_EDGE,
+   |             ^^^^^^^^^^^^^^
+58 |             DrumInstrument.TIGHT_HH_TIP,
+59 |             DrumInstrument.OPEN_HH_1,
+   |
+
+F821 Undefined name `DrumInstrument`
+  --> tests\unit\core\test_kit_mappings.py:58:13
+   |
+56 |             DrumInstrument.CLOSED_HH_TIP,
+57 |             DrumInstrument.TIGHT_HH_EDGE,
+58 |             DrumInstrument.TIGHT_HH_TIP,
+   |             ^^^^^^^^^^^^^^
+59 |             DrumInstrument.OPEN_HH_1,
+60 |             DrumInstrument.OPEN_HH_2,
+   |
+
+F821 Undefined name `DrumInstrument`
+  --> tests\unit\core\test_kit_mappings.py:59:13
+   |
+57 |             DrumInstrument.TIGHT_HH_EDGE,
+58 |             DrumInstrument.TIGHT_HH_TIP,
+59 |             DrumInstrument.OPEN_HH_1,
+   |             ^^^^^^^^^^^^^^
+60 |             DrumInstrument.OPEN_HH_2,
+61 |             DrumInstrument.OPEN_HH_3,
+   |
+
+F821 Undefined name `DrumInstrument`
+  --> tests\unit\core\test_kit_mappings.py:60:13
+   |
+58 |             DrumInstrument.TIGHT_HH_TIP,
+59 |             DrumInstrument.OPEN_HH_1,
+60 |             DrumInstrument.OPEN_HH_2,
+   |             ^^^^^^^^^^^^^^
+61 |             DrumInstrument.OPEN_HH_3,
+62 |             DrumInstrument.OPEN_HH_MAX,
+   |
+
+F821 Undefined name `DrumInstrument`
+  --> tests\unit\core\test_kit_mappings.py:61:13
+   |
+59 |             DrumInstrument.OPEN_HH_1,
+60 |             DrumInstrument.OPEN_HH_2,
+61 |             DrumInstrument.OPEN_HH_3,
+   |             ^^^^^^^^^^^^^^
+62 |             DrumInstrument.OPEN_HH_MAX,
+63 |         ],
+   |
+
+F821 Undefined name `DrumInstrument`
+  --> tests\unit\core\test_kit_mappings.py:62:13
+   |
+60 |             DrumInstrument.OPEN_HH_2,
+61 |             DrumInstrument.OPEN_HH_3,
+62 |             DrumInstrument.OPEN_HH_MAX,
+   |             ^^^^^^^^^^^^^^
+63 |         ],
+64 |     )
+   |
+
+F821 Undefined name `DrumKit`
+  --> tests\unit\core\test_kit_mappings.py:66:18
+   |
+64 |     )
+65 |     def test_ezdrummer3_and_gm_diverge(self, instrument):
+66 |         ez_kit = DrumKit.create_ezdrummer3_kit()
+   |                  ^^^^^^^
+67 |         gm_kit = DrumKit.create_gm_drums_kit()
+   |
+
+F821 Undefined name `DrumKit`
+  --> tests\unit\core\test_kit_mappings.py:67:18
+   |
+65 |     def test_ezdrummer3_and_gm_diverge(self, instrument):
+66 |         ez_kit = DrumKit.create_ezdrummer3_kit()
+67 |         gm_kit = DrumKit.create_gm_drums_kit()
+   |                  ^^^^^^^
+68 |
+69 |         assert ez_kit.get_midi_note(instrument) != gm_kit.get_midi_note(
+   |
+
+F821 Undefined name `DrumKit`
+  --> tests\unit\core\test_kit_mappings.py:74:18
+   |
+73 |     def test_gm_collapses_closed_hihat_family_to_gm_closed_hihat(self):
+74 |         gm_kit = DrumKit.create_gm_drums_kit()
+   |                  ^^^^^^^
+75 |
+76 |         for instrument in (
+   |
+
+F821 Undefined name `DrumInstrument`
+  --> tests\unit\core\test_kit_mappings.py:77:13
+   |
+76 |         for instrument in (
+77 |             DrumInstrument.CLOSED_HH_EDGE,
+   |             ^^^^^^^^^^^^^^
+78 |             DrumInstrument.CLOSED_HH_TIP,
+79 |             DrumInstrument.TIGHT_HH_EDGE,
+   |
+
+F821 Undefined name `DrumInstrument`
+  --> tests\unit\core\test_kit_mappings.py:78:13
+   |
+76 |         for instrument in (
+77 |             DrumInstrument.CLOSED_HH_EDGE,
+78 |             DrumInstrument.CLOSED_HH_TIP,
+   |             ^^^^^^^^^^^^^^
+79 |             DrumInstrument.TIGHT_HH_EDGE,
+80 |             DrumInstrument.TIGHT_HH_TIP,
+   |
+
+F821 Undefined name `DrumInstrument`
+  --> tests\unit\core\test_kit_mappings.py:79:13
+   |
+77 |             DrumInstrument.CLOSED_HH_EDGE,
+78 |             DrumInstrument.CLOSED_HH_TIP,
+79 |             DrumInstrument.TIGHT_HH_EDGE,
+   |             ^^^^^^^^^^^^^^
+80 |             DrumInstrument.TIGHT_HH_TIP,
+81 |         ):
+   |
+
+F821 Undefined name `DrumInstrument`
+  --> tests\unit\core\test_kit_mappings.py:80:13
+   |
+78 |             DrumInstrument.CLOSED_HH_TIP,
+79 |             DrumInstrument.TIGHT_HH_EDGE,
+80 |             DrumInstrument.TIGHT_HH_TIP,
+   |             ^^^^^^^^^^^^^^
+81 |         ):
+82 |             assert (
+   |
+
+F821 Undefined name `DrumInstrument`
+  --> tests\unit\core\test_kit_mappings.py:84:20
+   |
+82 |             assert (
+83 |                 gm_kit.get_midi_note(instrument)
+84 |                 == DrumInstrument.CLOSED_HH.value
+   |                    ^^^^^^^^^^^^^^
+85 |             )
+   |
+
+F821 Undefined name `DrumKit`
+  --> tests\unit\core\test_kit_mappings.py:88:18
+   |
+87 |     def test_gm_collapses_open_hihat_family_to_gm_open_hihat(self):
+88 |         gm_kit = DrumKit.create_gm_drums_kit()
+   |                  ^^^^^^^
+89 |
+90 |         for instrument in (
+   |
+
+F821 Undefined name `DrumInstrument`
+  --> tests\unit\core\test_kit_mappings.py:91:13
+   |
+90 |         for instrument in (
+91 |             DrumInstrument.OPEN_HH_1,
+   |             ^^^^^^^^^^^^^^
+92 |             DrumInstrument.OPEN_HH_2,
+93 |             DrumInstrument.OPEN_HH_3,
+   |
+
+F821 Undefined name `DrumInstrument`
+  --> tests\unit\core\test_kit_mappings.py:92:13
+   |
+90 |         for instrument in (
+91 |             DrumInstrument.OPEN_HH_1,
+92 |             DrumInstrument.OPEN_HH_2,
+   |             ^^^^^^^^^^^^^^
+93 |             DrumInstrument.OPEN_HH_3,
+94 |             DrumInstrument.OPEN_HH_MAX,
+   |
+
+F821 Undefined name `DrumInstrument`
+  --> tests\unit\core\test_kit_mappings.py:93:13
+   |
+91 |             DrumInstrument.OPEN_HH_1,
+92 |             DrumInstrument.OPEN_HH_2,
+93 |             DrumInstrument.OPEN_HH_3,
+   |             ^^^^^^^^^^^^^^
+94 |             DrumInstrument.OPEN_HH_MAX,
+95 |         ):
+   |
+
+F821 Undefined name `DrumInstrument`
+  --> tests\unit\core\test_kit_mappings.py:94:13
+   |
+92 |             DrumInstrument.OPEN_HH_2,
+93 |             DrumInstrument.OPEN_HH_3,
+94 |             DrumInstrument.OPEN_HH_MAX,
+   |             ^^^^^^^^^^^^^^
+95 |         ):
+96 |             assert (
+   |
+
+F821 Undefined name `DrumInstrument`
+  --> tests\unit\core\test_kit_mappings.py:97:53
+   |
+95 |         ):
+96 |             assert (
+97 |                 gm_kit.get_midi_note(instrument) == DrumInstrument.OPEN_HH.value
+   |                                                     ^^^^^^^^^^^^^^
+98 |             )
+   |
+
+F821 Undefined name `DrumKit`
+   --> tests\unit\core\test_kit_mappings.py:101:18
+    |
+100 |     def test_ezdrummer3_still_uses_its_own_extended_articulation_notes(self):
+101 |         ez_kit = DrumKit.create_ezdrummer3_kit()
+    |                  ^^^^^^^
+102 |
+103 |         assert ez_kit.get_midi_note(DrumInstrument.OPEN_HH_MAX) == 60
+    |
+
+F821 Undefined name `DrumInstrument`
+   --> tests\unit\core\test_kit_mappings.py:103:37
+    |
+101 |         ez_kit = DrumKit.create_ezdrummer3_kit()
+102 |
+103 |         assert ez_kit.get_midi_note(DrumInstrument.OPEN_HH_MAX) == 60
+    |                                     ^^^^^^^^^^^^^^
+104 |         assert ez_kit.get_midi_note(DrumInstrument.CLOSED_HH_EDGE) == 22
+    |
+
+F821 Undefined name `DrumInstrument`
+   --> tests\unit\core\test_kit_mappings.py:104:37
+    |
+103 |         assert ez_kit.get_midi_note(DrumInstrument.OPEN_HH_MAX) == 60
+104 |         assert ez_kit.get_midi_note(DrumInstrument.CLOSED_HH_EDGE) == 22
+    |                                     ^^^^^^^^^^^^^^
+105 |
+106 |     def test_shared_instruments_still_agree_across_presets(self):
+    |
+
+F821 Undefined name `DrumKit`
+   --> tests\unit\core\test_kit_mappings.py:107:18
+    |
+106 |     def test_shared_instruments_still_agree_across_presets(self):
+107 |         ez_kit = DrumKit.create_ezdrummer3_kit()
+    |                  ^^^^^^^
+108 |         gm_kit = DrumKit.create_gm_drums_kit()
+    |
+
+F821 Undefined name `DrumKit`
+   --> tests\unit\core\test_kit_mappings.py:108:18
+    |
+106 |     def test_shared_instruments_still_agree_across_presets(self):
+107 |         ez_kit = DrumKit.create_ezdrummer3_kit()
+108 |         gm_kit = DrumKit.create_gm_drums_kit()
+    |                  ^^^^^^^
+109 |
+110 |         for instrument in (
+    |
+
+F821 Undefined name `DrumInstrument`
+   --> tests\unit\core\test_kit_mappings.py:111:13
+    |
+110 |         for instrument in (
+111 |             DrumInstrument.KICK,
+    |             ^^^^^^^^^^^^^^
+112 |             DrumInstrument.SNARE,
+113 |             DrumInstrument.CLOSED_HH,
+    |
+
+F821 Undefined name `DrumInstrument`
+   --> tests\unit\core\test_kit_mappings.py:112:13
+    |
+110 |         for instrument in (
+111 |             DrumInstrument.KICK,
+112 |             DrumInstrument.SNARE,
+    |             ^^^^^^^^^^^^^^
+113 |             DrumInstrument.CLOSED_HH,
+114 |             DrumInstrument.CRASH,
+    |
+
+F821 Undefined name `DrumInstrument`
+   --> tests\unit\core\test_kit_mappings.py:113:13
+    |
+111 |             DrumInstrument.KICK,
+112 |             DrumInstrument.SNARE,
+113 |             DrumInstrument.CLOSED_HH,
+    |             ^^^^^^^^^^^^^^
+114 |             DrumInstrument.CRASH,
+115 |             DrumInstrument.RIDE,
+    |
+
+F821 Undefined name `DrumInstrument`
+   --> tests\unit\core\test_kit_mappings.py:114:13
+    |
+112 |             DrumInstrument.SNARE,
+113 |             DrumInstrument.CLOSED_HH,
+114 |             DrumInstrument.CRASH,
+    |             ^^^^^^^^^^^^^^
+115 |             DrumInstrument.RIDE,
+116 |         ):
+    |
+
+F821 Undefined name `DrumInstrument`
+   --> tests\unit\core\test_kit_mappings.py:115:13
+    |
+113 |             DrumInstrument.CLOSED_HH,
+114 |             DrumInstrument.CRASH,
+115 |             DrumInstrument.RIDE,
+    |             ^^^^^^^^^^^^^^
+116 |         ):
+117 |             assert ez_kit.get_midi_note(instrument) == gm_kit.get_midi_note(
+    |
+
+F811 Redefinition of unused `TestAddictiveDrumsHasVendorSpecificNotes` from line 18
+   --> tests\unit\core\test_kit_mappings.py:122:7
+    |
+122 | class TestAddictiveDrumsHasVendorSpecificNotes:
+    |       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ `TestAddictiveDrumsHasVendorSpecificNotes` redefined here
+123 |     """AD2 uses its own keymap (XLN Audio, June 2021) — must differ from GM.
+    |
+   ::: tests\unit\core\test_kit_mappings.py:18:7
+    |
+ 17 | @pytest.mark.skip(reason="Deeply coupled to old DrumInstrument enum — needs rewrite for dynamic registry")
+ 18 | class TestAddictiveDrumsHasVendorSpecificNotes:
+    |       ---------------------------------------- previous definition of `TestAddictiveDrumsHasVendorSpecificNotes` here
+ 19 |     pass
+    |
+help: Remove definition: `TestAddictiveDrumsHasVendorSpecificNotes`
+
+F821 Undefined name `DrumKit`
+   --> tests\unit\core\test_kit_mappings.py:129:18
+    |
+128 |     def test_addictive_drums_presets_differ_from_gm(self):
+129 |         ad_kit = DrumKit.create_addictive_drums_kit()
+    |                  ^^^^^^^
+130 |         gm_kit = DrumKit.create_gm_drums_kit()
+    |
+
+F821 Undefined name `DrumKit`
+   --> tests\unit\core\test_kit_mappings.py:130:18
+    |
+128 |     def test_addictive_drums_presets_differ_from_gm(self):
+129 |         ad_kit = DrumKit.create_addictive_drums_kit()
+130 |         gm_kit = DrumKit.create_gm_drums_kit()
+    |                  ^^^^^^^
+131 |
+132 |         # Hi-hat positions differ between AD2 and GM
+    |
+
+F821 Undefined name `DrumInstrument`
+   --> tests\unit\core\test_kit_mappings.py:134:13
+    |
+132 |         # Hi-hat positions differ between AD2 and GM
+133 |         for instrument in (
+134 |             DrumInstrument.CLOSED_HH,
+    |             ^^^^^^^^^^^^^^
+135 |             DrumInstrument.OPEN_HH,
+136 |             DrumInstrument.CLOSED_HH_EDGE,
+    |
+
+F821 Undefined name `DrumInstrument`
+   --> tests\unit\core\test_kit_mappings.py:135:13
+    |
+133 |         for instrument in (
+134 |             DrumInstrument.CLOSED_HH,
+135 |             DrumInstrument.OPEN_HH,
+    |             ^^^^^^^^^^^^^^
+136 |             DrumInstrument.CLOSED_HH_EDGE,
+137 |             DrumInstrument.OPEN_HH_1,
+    |
+
+F821 Undefined name `DrumInstrument`
+   --> tests\unit\core\test_kit_mappings.py:136:13
+    |
+134 |             DrumInstrument.CLOSED_HH,
+135 |             DrumInstrument.OPEN_HH,
+136 |             DrumInstrument.CLOSED_HH_EDGE,
+    |             ^^^^^^^^^^^^^^
+137 |             DrumInstrument.OPEN_HH_1,
+138 |         ):
+    |
+
+F821 Undefined name `DrumInstrument`
+   --> tests\unit\core\test_kit_mappings.py:137:13
+    |
+135 |             DrumInstrument.OPEN_HH,
+136 |             DrumInstrument.CLOSED_HH_EDGE,
+137 |             DrumInstrument.OPEN_HH_1,
+    |             ^^^^^^^^^^^^^^
+138 |         ):
+139 |             assert ad_kit.get_midi_note(instrument) != gm_kit.get_midi_note(
+    |
+
+F821 Undefined name `DrumKit`
+   --> tests\unit\core\test_kit_mappings.py:144:18
+    |
+143 |     def test_addictive_drums_presets_differ_from_ezdrummer3(self):
+144 |         ad_kit = DrumKit.create_addictive_drums_kit()
+    |                  ^^^^^^^
+145 |         ez_kit = DrumKit.create_ezdrummer3_kit()
+    |
+
+F821 Undefined name `DrumKit`
+   --> tests\unit\core\test_kit_mappings.py:145:18
+    |
+143 |     def test_addictive_drums_presets_differ_from_ezdrummer3(self):
+144 |         ad_kit = DrumKit.create_addictive_drums_kit()
+145 |         ez_kit = DrumKit.create_ezdrummer3_kit()
+    |                  ^^^^^^^
+146 |
+147 |         # Core hi-hat notes differ between AD2 and EZD3 extended positions
+    |
+
+F821 Undefined name `DrumInstrument`
+   --> tests\unit\core\test_kit_mappings.py:148:37
+    |
+147 |         # Core hi-hat notes differ between AD2 and EZD3 extended positions
+148 |         assert ad_kit.get_midi_note(DrumInstrument.CLOSED_HH_EDGE) != (
+    |                                     ^^^^^^^^^^^^^^
+149 |             ez_kit.get_midi_note(DrumInstrument.CLOSED_HH_EDGE)
+150 |         )
+    |
+
+F821 Undefined name `DrumInstrument`
+   --> tests\unit\core\test_kit_mappings.py:149:34
+    |
+147 |         # Core hi-hat notes differ between AD2 and EZD3 extended positions
+148 |         assert ad_kit.get_midi_note(DrumInstrument.CLOSED_HH_EDGE) != (
+149 |             ez_kit.get_midi_note(DrumInstrument.CLOSED_HH_EDGE)
+    |                                  ^^^^^^^^^^^^^^
+150 |         )
+151 |         assert ad_kit.get_midi_note(DrumInstrument.OPEN_HH_1) != (
+    |
+
+F821 Undefined name `DrumInstrument`
+   --> tests\unit\core\test_kit_mappings.py:151:37
+    |
+149 |             ez_kit.get_midi_note(DrumInstrument.CLOSED_HH_EDGE)
+150 |         )
+151 |         assert ad_kit.get_midi_note(DrumInstrument.OPEN_HH_1) != (
+    |                                     ^^^^^^^^^^^^^^
+152 |             ez_kit.get_midi_note(DrumInstrument.OPEN_HH_1)
+153 |         )
+    |
+
+F821 Undefined name `DrumInstrument`
+   --> tests\unit\core\test_kit_mappings.py:152:34
+    |
+150 |         )
+151 |         assert ad_kit.get_midi_note(DrumInstrument.OPEN_HH_1) != (
+152 |             ez_kit.get_midi_note(DrumInstrument.OPEN_HH_1)
+    |                                  ^^^^^^^^^^^^^^
+153 |         )
+    |
+
+F821 Undefined name `DrumKit`
+   --> tests\unit\core\test_kit_mappings.py:157:18
+    |
+155 |     def test_addictive_drums_core_instruments_match_gm_notes(self):
+156 |         """Core drums (kick, snare) are the same MIDI notes across presets."""
+157 |         ad_kit = DrumKit.create_addictive_drums_kit()
+    |                  ^^^^^^^
+158 |
+159 |         assert ad_kit.get_midi_note(DrumInstrument.KICK) == 36
+    |
+
+F821 Undefined name `DrumInstrument`
+   --> tests\unit\core\test_kit_mappings.py:159:37
+    |
+157 |         ad_kit = DrumKit.create_addictive_drums_kit()
+158 |
+159 |         assert ad_kit.get_midi_note(DrumInstrument.KICK) == 36
+    |                                     ^^^^^^^^^^^^^^
+160 |         assert ad_kit.get_midi_note(DrumInstrument.SNARE) == 38
+    |
+
+F821 Undefined name `DrumInstrument`
+   --> tests\unit\core\test_kit_mappings.py:160:37
+    |
+159 |         assert ad_kit.get_midi_note(DrumInstrument.KICK) == 36
+160 |         assert ad_kit.get_midi_note(DrumInstrument.SNARE) == 38
+    |                                     ^^^^^^^^^^^^^^
+
+F811 Redefinition of unused `TestAddictiveDrumsExtendedInstruments` from line 23
+   --> tests\unit\core\test_kit_mappings.py:163:7
+    |
+163 | class TestAddictiveDrumsExtendedInstruments:
+    |       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ `TestAddictiveDrumsExtendedInstruments` redefined here
+164 |     """Verify AD2's vendor-specific instruments resolve to correct MIDI notes."""
+    |
+   ::: tests\unit\core\test_kit_mappings.py:23:7
+    |
+ 22 | @pytest.mark.skip(reason="Deeply coupled to old DrumInstrument enum — needs rewrite for dynamic registry")
+ 23 | class TestAddictiveDrumsExtendedInstruments:
+    |       ------------------------------------- previous definition of `TestAddictiveDrumsExtendedInstruments` here
+ 24 |     pass
+    |
+help: Remove definition: `TestAddictiveDrumsExtendedInstruments`
+
+F821 Undefined name `DrumKit`
+   --> tests\unit\core\test_kit_mappings.py:167:14
+    |
+166 |     def test_brush_sweeps_resolve_to_vendor_notes(self):
+167 |         ad = DrumKit.create_addictive_drums_kit()
+    |              ^^^^^^^
+168 |         assert ad.get_midi_note(DrumInstrument.BRUSH_SWEEP_A) == 35
+169 |         assert ad.get_midi_note(DrumInstrument.BRUSH_SWEEP_B) == 34
+    |
+
+F821 Undefined name `DrumInstrument`
+   --> tests\unit\core\test_kit_mappings.py:168:33
+    |
+166 |     def test_brush_sweeps_resolve_to_vendor_notes(self):
+167 |         ad = DrumKit.create_addictive_drums_kit()
+168 |         assert ad.get_midi_note(DrumInstrument.BRUSH_SWEEP_A) == 35
+    |                                 ^^^^^^^^^^^^^^
+169 |         assert ad.get_midi_note(DrumInstrument.BRUSH_SWEEP_B) == 34
+170 |         assert ad.get_midi_note(DrumInstrument.BRUSH_SWEEP_C) == 33
+    |
+
+F821 Undefined name `DrumInstrument`
+   --> tests\unit\core\test_kit_mappings.py:169:33
+    |
+167 |         ad = DrumKit.create_addictive_drums_kit()
+168 |         assert ad.get_midi_note(DrumInstrument.BRUSH_SWEEP_A) == 35
+169 |         assert ad.get_midi_note(DrumInstrument.BRUSH_SWEEP_B) == 34
+    |                                 ^^^^^^^^^^^^^^
+170 |         assert ad.get_midi_note(DrumInstrument.BRUSH_SWEEP_C) == 33
+171 |         assert ad.get_midi_note(DrumInstrument.BRUSH_SWEEP_D) == 32
+    |
+
+F821 Undefined name `DrumInstrument`
+   --> tests\unit\core\test_kit_mappings.py:170:33
+    |
+168 |         assert ad.get_midi_note(DrumInstrument.BRUSH_SWEEP_A) == 35
+169 |         assert ad.get_midi_note(DrumInstrument.BRUSH_SWEEP_B) == 34
+170 |         assert ad.get_midi_note(DrumInstrument.BRUSH_SWEEP_C) == 33
+    |                                 ^^^^^^^^^^^^^^
+171 |         assert ad.get_midi_note(DrumInstrument.BRUSH_SWEEP_D) == 32
+172 |         assert ad.get_midi_note(DrumInstrument.BRUSH_SWEEP_E) == 31
+    |
+
+F821 Undefined name `DrumInstrument`
+   --> tests\unit\core\test_kit_mappings.py:171:33
+    |
+169 |         assert ad.get_midi_note(DrumInstrument.BRUSH_SWEEP_B) == 34
+170 |         assert ad.get_midi_note(DrumInstrument.BRUSH_SWEEP_C) == 33
+171 |         assert ad.get_midi_note(DrumInstrument.BRUSH_SWEEP_D) == 32
+    |                                 ^^^^^^^^^^^^^^
+172 |         assert ad.get_midi_note(DrumInstrument.BRUSH_SWEEP_E) == 31
+173 |         assert ad.get_midi_note(DrumInstrument.BRUSH_SWEEP_F) == 30
+    |
+
+F821 Undefined name `DrumInstrument`
+   --> tests\unit\core\test_kit_mappings.py:172:33
+    |
+170 |         assert ad.get_midi_note(DrumInstrument.BRUSH_SWEEP_C) == 33
+171 |         assert ad.get_midi_note(DrumInstrument.BRUSH_SWEEP_D) == 32
+172 |         assert ad.get_midi_note(DrumInstrument.BRUSH_SWEEP_E) == 31
+    |                                 ^^^^^^^^^^^^^^
+173 |         assert ad.get_midi_note(DrumInstrument.BRUSH_SWEEP_F) == 30
+    |
+
+F821 Undefined name `DrumInstrument`
+   --> tests\unit\core\test_kit_mappings.py:173:33
+    |
+171 |         assert ad.get_midi_note(DrumInstrument.BRUSH_SWEEP_D) == 32
+172 |         assert ad.get_midi_note(DrumInstrument.BRUSH_SWEEP_E) == 31
+173 |         assert ad.get_midi_note(DrumInstrument.BRUSH_SWEEP_F) == 30
+    |                                 ^^^^^^^^^^^^^^
+174 |
+175 |     def test_snare_rimshot_is_side_stick(self):
+    |
+
+F821 Undefined name `DrumKit`
+   --> tests\unit\core\test_kit_mappings.py:176:14
+    |
+175 |     def test_snare_rimshot_is_side_stick(self):
+176 |         ad = DrumKit.create_addictive_drums_kit()
+    |              ^^^^^^^
+177 |         # AD2: RIM maps to Side Stick (40), SNARE_RIMSHOT maps to Rimshot (37)
+178 |         assert ad.get_midi_note(DrumInstrument.SNARE_RIMSHOT) == 37
+    |
+
+F821 Undefined name `DrumInstrument`
+   --> tests\unit\core\test_kit_mappings.py:178:33
+    |
+176 |         ad = DrumKit.create_addictive_drums_kit()
+177 |         # AD2: RIM maps to Side Stick (40), SNARE_RIMSHOT maps to Rimshot (37)
+178 |         assert ad.get_midi_note(DrumInstrument.SNARE_RIMSHOT) == 37
+    |                                 ^^^^^^^^^^^^^^
+179 |         assert ad.get_midi_note(DrumInstrument.RIM) == 40
+    |
+
+F821 Undefined name `DrumInstrument`
+   --> tests\unit\core\test_kit_mappings.py:179:33
+    |
+177 |         # AD2: RIM maps to Side Stick (40), SNARE_RIMSHOT maps to Rimshot (37)
+178 |         assert ad.get_midi_note(DrumInstrument.SNARE_RIMSHOT) == 37
+179 |         assert ad.get_midi_note(DrumInstrument.RIM) == 40
+    |                                 ^^^^^^^^^^^^^^
+180 |
+181 |     def test_tom_edge_hits_resolve_to_vendor_notes(self):
+    |
+
+F821 Undefined name `DrumKit`
+   --> tests\unit\core\test_kit_mappings.py:182:14
+    |
+181 |     def test_tom_edge_hits_resolve_to_vendor_notes(self):
+182 |         ad = DrumKit.create_addictive_drums_kit()
+    |              ^^^^^^^
+183 |         assert ad.get_midi_note(DrumInstrument.TOM_EDGE_MID) == 65
+184 |         assert ad.get_midi_note(DrumInstrument.TOM_EDGE_FLOOR) == 65
+    |
+
+F821 Undefined name `DrumInstrument`
+   --> tests\unit\core\test_kit_mappings.py:183:33
+    |
+181 |     def test_tom_edge_hits_resolve_to_vendor_notes(self):
+182 |         ad = DrumKit.create_addictive_drums_kit()
+183 |         assert ad.get_midi_note(DrumInstrument.TOM_EDGE_MID) == 65
+    |                                 ^^^^^^^^^^^^^^
+184 |         assert ad.get_midi_note(DrumInstrument.TOM_EDGE_FLOOR) == 65
+185 |         assert ad.get_midi_note(DrumInstrument.TOM_EDGE_3) == 67
+    |
+
+F821 Undefined name `DrumInstrument`
+   --> tests\unit\core\test_kit_mappings.py:184:33
+    |
+182 |         ad = DrumKit.create_addictive_drums_kit()
+183 |         assert ad.get_midi_note(DrumInstrument.TOM_EDGE_MID) == 65
+184 |         assert ad.get_midi_note(DrumInstrument.TOM_EDGE_FLOOR) == 65
+    |                                 ^^^^^^^^^^^^^^
+185 |         assert ad.get_midi_note(DrumInstrument.TOM_EDGE_3) == 67
+186 |         assert ad.get_midi_note(DrumInstrument.TOM_EDGE_4) == 69
+    |
+
+F821 Undefined name `DrumInstrument`
+   --> tests\unit\core\test_kit_mappings.py:185:33
+    |
+183 |         assert ad.get_midi_note(DrumInstrument.TOM_EDGE_MID) == 65
+184 |         assert ad.get_midi_note(DrumInstrument.TOM_EDGE_FLOOR) == 65
+185 |         assert ad.get_midi_note(DrumInstrument.TOM_EDGE_3) == 67
+    |                                 ^^^^^^^^^^^^^^
+186 |         assert ad.get_midi_note(DrumInstrument.TOM_EDGE_4) == 69
+    |
+
+F821 Undefined name `DrumInstrument`
+   --> tests\unit\core\test_kit_mappings.py:186:33
+    |
+184 |         assert ad.get_midi_note(DrumInstrument.TOM_EDGE_FLOOR) == 65
+185 |         assert ad.get_midi_note(DrumInstrument.TOM_EDGE_3) == 67
+186 |         assert ad.get_midi_note(DrumInstrument.TOM_EDGE_4) == 69
+    |                                 ^^^^^^^^^^^^^^
+187 |
+188 |     def test_tight_hh_closed_resolve_to_vendor_notes(self):
+    |
+
+F821 Undefined name `DrumKit`
+   --> tests\unit\core\test_kit_mappings.py:189:14
+    |
+188 |     def test_tight_hh_closed_resolve_to_vendor_notes(self):
+189 |         ad = DrumKit.create_addictive_drums_kit()
+    |              ^^^^^^^
+190 |         assert ad.get_midi_note(DrumInstrument.TIGHT_HH_EDGE) == 91
+191 |         assert ad.get_midi_note(DrumInstrument.TIGHT_HH_TIP) == 90
+    |
+
+F821 Undefined name `DrumInstrument`
+   --> tests\unit\core\test_kit_mappings.py:190:33
+    |
+188 |     def test_tight_hh_closed_resolve_to_vendor_notes(self):
+189 |         ad = DrumKit.create_addictive_drums_kit()
+190 |         assert ad.get_midi_note(DrumInstrument.TIGHT_HH_EDGE) == 91
+    |                                 ^^^^^^^^^^^^^^
+191 |         assert ad.get_midi_note(DrumInstrument.TIGHT_HH_TIP) == 90
+    |
+
+F821 Undefined name `DrumInstrument`
+   --> tests\unit\core\test_kit_mappings.py:191:33
+    |
+189 |         ad = DrumKit.create_addictive_drums_kit()
+190 |         assert ad.get_midi_note(DrumInstrument.TIGHT_HH_EDGE) == 91
+191 |         assert ad.get_midi_note(DrumInstrument.TIGHT_HH_TIP) == 90
+    |                                 ^^^^^^^^^^^^^^
+192 |
+193 |     def test_crash_choked_resolve_to_vendor_notes(self):
+    |
+
+F821 Undefined name `DrumKit`
+   --> tests\unit\core\test_kit_mappings.py:194:14
+    |
+193 |     def test_crash_choked_resolve_to_vendor_notes(self):
+194 |         ad = DrumKit.create_addictive_drums_kit()
+    |              ^^^^^^^
+195 |         assert ad.get_midi_note(DrumInstrument.CRASH_CHOKED_A) == 80
+196 |         assert ad.get_midi_note(DrumInstrument.CRASH_CHOKED_B) == 79
+    |
+
+F821 Undefined name `DrumInstrument`
+   --> tests\unit\core\test_kit_mappings.py:195:33
+    |
+193 |     def test_crash_choked_resolve_to_vendor_notes(self):
+194 |         ad = DrumKit.create_addictive_drums_kit()
+195 |         assert ad.get_midi_note(DrumInstrument.CRASH_CHOKED_A) == 80
+    |                                 ^^^^^^^^^^^^^^
+196 |         assert ad.get_midi_note(DrumInstrument.CRASH_CHOKED_B) == 79
+197 |         assert ad.get_midi_note(DrumInstrument.CRASH_CHOKED_C) == 71
+    |
+
+F821 Undefined name `DrumInstrument`
+   --> tests\unit\core\test_kit_mappings.py:196:33
+    |
+194 |         ad = DrumKit.create_addictive_drums_kit()
+195 |         assert ad.get_midi_note(DrumInstrument.CRASH_CHOKED_A) == 80
+196 |         assert ad.get_midi_note(DrumInstrument.CRASH_CHOKED_B) == 79
+    |                                 ^^^^^^^^^^^^^^
+197 |         assert ad.get_midi_note(DrumInstrument.CRASH_CHOKED_C) == 71
+198 |         assert ad.get_midi_note(DrumInstrument.CRASH_CHOKED_D) == 68
+    |
+
+F821 Undefined name `DrumInstrument`
+   --> tests\unit\core\test_kit_mappings.py:197:33
+    |
+195 |         assert ad.get_midi_note(DrumInstrument.CRASH_CHOKED_A) == 80
+196 |         assert ad.get_midi_note(DrumInstrument.CRASH_CHOKED_B) == 79
+197 |         assert ad.get_midi_note(DrumInstrument.CRASH_CHOKED_C) == 71
+    |                                 ^^^^^^^^^^^^^^
+198 |         assert ad.get_midi_note(DrumInstrument.CRASH_CHOKED_D) == 68
+    |
+
+F821 Undefined name `DrumInstrument`
+   --> tests\unit\core\test_kit_mappings.py:198:33
+    |
+196 |         assert ad.get_midi_note(DrumInstrument.CRASH_CHOKED_B) == 79
+197 |         assert ad.get_midi_note(DrumInstrument.CRASH_CHOKED_C) == 71
+198 |         assert ad.get_midi_note(DrumInstrument.CRASH_CHOKED_D) == 68
+    |                                 ^^^^^^^^^^^^^^
+199 |
+200 |     def test_ad2_extended_hihat_differ_from_gm(self):
+    |
+
+F821 Undefined name `DrumKit`
+   --> tests\unit\core\test_kit_mappings.py:202:14
+    |
+200 |     def test_ad2_extended_hihat_differ_from_gm(self):
+201 |         """AD2's tight HH notes are high (90-91) unlike GM (42/46)."""
+202 |         ad = DrumKit.create_addictive_drums_kit()
+    |              ^^^^^^^
+203 |         gm = DrumKit.create_gm_drums_kit()
+204 |         for inst in (
+    |
+
+F821 Undefined name `DrumKit`
+   --> tests\unit\core\test_kit_mappings.py:203:14
+    |
+201 |         """AD2's tight HH notes are high (90-91) unlike GM (42/46)."""
+202 |         ad = DrumKit.create_addictive_drums_kit()
+203 |         gm = DrumKit.create_gm_drums_kit()
+    |              ^^^^^^^
+204 |         for inst in (
+205 |             DrumInstrument.TIGHT_HH_EDGE,
+    |
+
+F821 Undefined name `DrumInstrument`
+   --> tests\unit\core\test_kit_mappings.py:205:13
+    |
+203 |         gm = DrumKit.create_gm_drums_kit()
+204 |         for inst in (
+205 |             DrumInstrument.TIGHT_HH_EDGE,
+    |             ^^^^^^^^^^^^^^
+206 |             DrumInstrument.TIGHT_HH_TIP,
+207 |         ):
+    |
+
+F821 Undefined name `DrumInstrument`
+   --> tests\unit\core\test_kit_mappings.py:206:13
+    |
+204 |         for inst in (
+205 |             DrumInstrument.TIGHT_HH_EDGE,
+206 |             DrumInstrument.TIGHT_HH_TIP,
+    |             ^^^^^^^^^^^^^^
+207 |         ):
+208 |             assert ad.get_midi_note(inst) != gm.get_midi_note(inst)
+    |
+
+F811 Redefinition of unused `TestGmBaselineCompleteCoverage` from line 28
+   --> tests\unit\core\test_kit_mappings.py:211:7
+    |
+211 | class TestGmBaselineCompleteCoverage:
+    |       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ `TestGmBaselineCompleteCoverage` redefined here
+212 |     """GM-baseline presets map every core instrument explicitly.
+    |
+   ::: tests\unit\core\test_kit_mappings.py:28:7
+    |
+ 27 | @pytest.mark.skip(reason="Deeply coupled to old DrumInstrument enum — needs rewrite for dynamic registry")
+ 28 | class TestGmBaselineCompleteCoverage:
+    |       ------------------------------ previous definition of `TestGmBaselineCompleteCoverage` here
+ 29 |     pass
+    |
+help: Remove definition: `TestGmBaselineCompleteCoverage`
+
+F821 Undefined name `DrumKit`
+   --> tests\unit\core\test_kit_mappings.py:219:14
+    |
+218 |     def test_every_core_instrument_has_explicit_mapping(self):
+219 |         gm = DrumKit.create_gm_drums_kit()
+    |              ^^^^^^^
+220 |         # All 13 core instruments must be in custom_mappings (explicit)
+221 |         expected = {
+    |
+
+F821 Undefined name `DrumInstrument`
+   --> tests\unit\core\test_kit_mappings.py:222:13
+    |
+220 |         # All 13 core instruments must be in custom_mappings (explicit)
+221 |         expected = {
+222 |             DrumInstrument.KICK,
+    |             ^^^^^^^^^^^^^^
+223 |             DrumInstrument.SNARE,
+224 |             DrumInstrument.RIM,
+    |
+
+F821 Undefined name `DrumInstrument`
+   --> tests\unit\core\test_kit_mappings.py:223:13
+    |
+221 |         expected = {
+222 |             DrumInstrument.KICK,
+223 |             DrumInstrument.SNARE,
+    |             ^^^^^^^^^^^^^^
+224 |             DrumInstrument.RIM,
+225 |             DrumInstrument.CLOSED_HH,
+    |
+
+F821 Undefined name `DrumInstrument`
+   --> tests\unit\core\test_kit_mappings.py:224:13
+    |
+222 |             DrumInstrument.KICK,
+223 |             DrumInstrument.SNARE,
+224 |             DrumInstrument.RIM,
+    |             ^^^^^^^^^^^^^^
+225 |             DrumInstrument.CLOSED_HH,
+226 |             DrumInstrument.PEDAL_HH,
+    |
+
+F821 Undefined name `DrumInstrument`
+   --> tests\unit\core\test_kit_mappings.py:225:13
+    |
+223 |             DrumInstrument.SNARE,
+224 |             DrumInstrument.RIM,
+225 |             DrumInstrument.CLOSED_HH,
+    |             ^^^^^^^^^^^^^^
+226 |             DrumInstrument.PEDAL_HH,
+227 |             DrumInstrument.OPEN_HH,
+    |
+
+F821 Undefined name `DrumInstrument`
+   --> tests\unit\core\test_kit_mappings.py:226:13
+    |
+224 |             DrumInstrument.RIM,
+225 |             DrumInstrument.CLOSED_HH,
+226 |             DrumInstrument.PEDAL_HH,
+    |             ^^^^^^^^^^^^^^
+227 |             DrumInstrument.OPEN_HH,
+228 |             DrumInstrument.MID_TOM,
+    |
+
+F821 Undefined name `DrumInstrument`
+   --> tests\unit\core\test_kit_mappings.py:227:13
+    |
+225 |             DrumInstrument.CLOSED_HH,
+226 |             DrumInstrument.PEDAL_HH,
+227 |             DrumInstrument.OPEN_HH,
+    |             ^^^^^^^^^^^^^^
+228 |             DrumInstrument.MID_TOM,
+229 |             DrumInstrument.FLOOR_TOM,
+    |
+
+F821 Undefined name `DrumInstrument`
+   --> tests\unit\core\test_kit_mappings.py:228:13
+    |
+226 |             DrumInstrument.PEDAL_HH,
+227 |             DrumInstrument.OPEN_HH,
+228 |             DrumInstrument.MID_TOM,
+    |             ^^^^^^^^^^^^^^
+229 |             DrumInstrument.FLOOR_TOM,
+230 |             DrumInstrument.CRASH,
+    |
+
+F821 Undefined name `DrumInstrument`
+   --> tests\unit\core\test_kit_mappings.py:229:13
+    |
+227 |             DrumInstrument.OPEN_HH,
+228 |             DrumInstrument.MID_TOM,
+229 |             DrumInstrument.FLOOR_TOM,
+    |             ^^^^^^^^^^^^^^
+230 |             DrumInstrument.CRASH,
+231 |             DrumInstrument.RIDE,
+    |
+
+F821 Undefined name `DrumInstrument`
+   --> tests\unit\core\test_kit_mappings.py:230:13
+    |
+228 |             DrumInstrument.MID_TOM,
+229 |             DrumInstrument.FLOOR_TOM,
+230 |             DrumInstrument.CRASH,
+    |             ^^^^^^^^^^^^^^
+231 |             DrumInstrument.RIDE,
+232 |             DrumInstrument.RIDE_BELL,
+    |
+
+F821 Undefined name `DrumInstrument`
+   --> tests\unit\core\test_kit_mappings.py:231:13
+    |
+229 |             DrumInstrument.FLOOR_TOM,
+230 |             DrumInstrument.CRASH,
+231 |             DrumInstrument.RIDE,
+    |             ^^^^^^^^^^^^^^
+232 |             DrumInstrument.RIDE_BELL,
+233 |             DrumInstrument.SPLASH,
+    |
+
+F821 Undefined name `DrumInstrument`
+   --> tests\unit\core\test_kit_mappings.py:232:13
+    |
+230 |             DrumInstrument.CRASH,
+231 |             DrumInstrument.RIDE,
+232 |             DrumInstrument.RIDE_BELL,
+    |             ^^^^^^^^^^^^^^
+233 |             DrumInstrument.SPLASH,
+234 |             DrumInstrument.CHINA,
+    |
+
+F821 Undefined name `DrumInstrument`
+   --> tests\unit\core\test_kit_mappings.py:233:13
+    |
+231 |             DrumInstrument.RIDE,
+232 |             DrumInstrument.RIDE_BELL,
+233 |             DrumInstrument.SPLASH,
+    |             ^^^^^^^^^^^^^^
+234 |             DrumInstrument.CHINA,
+235 |         }
+    |
+
+F821 Undefined name `DrumInstrument`
+   --> tests\unit\core\test_kit_mappings.py:234:13
+    |
+232 |             DrumInstrument.RIDE_BELL,
+233 |             DrumInstrument.SPLASH,
+234 |             DrumInstrument.CHINA,
+    |             ^^^^^^^^^^^^^^
+235 |         }
+236 |         mapped = set(gm.custom_mappings.keys())
+    |
+
+F811 Redefinition of unused `TestGmBaselinePresetsAreActuallyGmCompliant` from line 33
+   --> tests\unit\core\test_kit_mappings.py:240:7
+    |
+240 | class TestGmBaselinePresetsAreActuallyGmCompliant:
+    |       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ `TestGmBaselinePresetsAreActuallyGmCompliant` redefined here
+241 |     """Regression: GM-baseline presets must match gm_drums for every DrumInstrument."""
+    |
+   ::: tests\unit\core\test_kit_mappings.py:33:7
+    |
+ 32 | @pytest.mark.skip(reason="Deeply coupled to old DrumInstrument enum — needs rewrite for dynamic registry")
+ 33 | class TestGmBaselinePresetsAreActuallyGmCompliant:
+    |       ------------------------------------------- previous definition of `TestGmBaselinePresetsAreActuallyGmCompliant` here
+ 34 |     pass
+    |
+help: Remove definition: `TestGmBaselinePresetsAreActuallyGmCompliant`
+
+F821 Undefined name `DrumKit`
+   --> tests\unit\core\test_kit_mappings.py:246:13
+    |
+244 |         "factory",
+245 |         [
+246 |             DrumKit.create_studio_drummer3_kit,
+    |             ^^^^^^^
+247 |             DrumKit.create_bfd3_kit,
+248 |             DrumKit.create_modo_drums_kit,
+    |
+
+F821 Undefined name `DrumKit`
+   --> tests\unit\core\test_kit_mappings.py:247:13
+    |
+245 |         [
+246 |             DrumKit.create_studio_drummer3_kit,
+247 |             DrumKit.create_bfd3_kit,
+    |             ^^^^^^^
+248 |             DrumKit.create_modo_drums_kit,
+249 |             DrumKit.create_ml_drums_kit,
+    |
+
+F821 Undefined name `DrumKit`
+   --> tests\unit\core\test_kit_mappings.py:248:13
+    |
+246 |             DrumKit.create_studio_drummer3_kit,
+247 |             DrumKit.create_bfd3_kit,
+248 |             DrumKit.create_modo_drums_kit,
+    |             ^^^^^^^
+249 |             DrumKit.create_ml_drums_kit,
+250 |         ],
+    |
+
+F821 Undefined name `DrumKit`
+   --> tests\unit\core\test_kit_mappings.py:249:13
+    |
+247 |             DrumKit.create_bfd3_kit,
+248 |             DrumKit.create_modo_drums_kit,
+249 |             DrumKit.create_ml_drums_kit,
+    |             ^^^^^^^
+250 |         ],
+251 |     )
+    |
+
+F821 Undefined name `DrumKit`
+   --> tests\unit\core\test_kit_mappings.py:254:18
+    |
+252 |     def test_matches_gm_drums_note_table(self, factory):
+253 |         kit = factory()
+254 |         gm_kit = DrumKit.create_gm_drums_kit()
+    |                  ^^^^^^^
+255 |
+256 |         for instrument in DrumInstrument:
+    |
+
+F821 Undefined name `DrumInstrument`
+   --> tests\unit\core\test_kit_mappings.py:256:27
+    |
+254 |         gm_kit = DrumKit.create_gm_drums_kit()
+255 |
+256 |         for instrument in DrumInstrument:
+    |                           ^^^^^^^^^^^^^^
+257 |             assert kit.get_midi_note(instrument) == gm_kit.get_midi_note(
+258 |                 instrument
+    |
+
+F821 Undefined name `DrumKit`
+   --> tests\unit\core\test_kit_mappings.py:265:17
+    |
+263 |         shared mutable default would let mutating one preset's mappings
+264 |         leak into every other GM-baseline preset."""
+265 |         kit_a = DrumKit.create_bfd3_kit()
+    |                 ^^^^^^^
+266 |         kit_a.custom_mappings[DrumInstrument.KICK] = 1
+    |
+
+F821 Undefined name `DrumInstrument`
+   --> tests\unit\core\test_kit_mappings.py:266:31
+    |
+264 |         leak into every other GM-baseline preset."""
+265 |         kit_a = DrumKit.create_bfd3_kit()
+266 |         kit_a.custom_mappings[DrumInstrument.KICK] = 1
+    |                               ^^^^^^^^^^^^^^
+267 |
+268 |         kit_b = DrumKit.create_modo_drums_kit()
+    |
+
+F821 Undefined name `DrumKit`
+   --> tests\unit\core\test_kit_mappings.py:268:17
+    |
+266 |         kit_a.custom_mappings[DrumInstrument.KICK] = 1
+267 |
+268 |         kit_b = DrumKit.create_modo_drums_kit()
+    |                 ^^^^^^^
+269 |
+270 |         assert (
+    |
+
+F821 Undefined name `DrumInstrument`
+   --> tests\unit\core\test_kit_mappings.py:271:33
+    |
+270 |         assert (
+271 |             kit_b.get_midi_note(DrumInstrument.KICK)
+    |                                 ^^^^^^^^^^^^^^
+272 |             == DrumInstrument.KICK.value
+273 |         )
+    |
+
+F821 Undefined name `DrumInstrument`
+   --> tests\unit\core\test_kit_mappings.py:272:16
+    |
+270 |         assert (
+271 |             kit_b.get_midi_note(DrumInstrument.KICK)
+272 |             == DrumInstrument.KICK.value
+    |                ^^^^^^^^^^^^^^
+273 |         )
+    |
+
+F811 Redefinition of unused `TestDrumKitFromDict` from line 38
+   --> tests\unit\core\test_kit_mappings.py:276:7
+    |
+276 | class TestDrumKitFromDict:
+    |       ^^^^^^^^^^^^^^^^^^^ `TestDrumKitFromDict` redefined here
+277 |     """DrumKit.from_dict() lets users supply a fully custom mapping."""
+    |
+   ::: tests\unit\core\test_kit_mappings.py:38:7
+    |
+ 37 | @pytest.mark.skip(reason="Deeply coupled to old DrumInstrument enum — needs rewrite for dynamic registry")
+ 38 | class TestDrumKitFromDict:
+    |       ------------------- previous definition of `TestDrumKitFromDict` here
+ 39 |     pass
+    |
+help: Remove definition: `TestDrumKitFromDict`
+
+F821 Undefined name `DrumKit`
+   --> tests\unit\core\test_kit_mappings.py:280:15
+    |
+279 |     def test_builds_custom_mappings_from_instrument_names(self):
+280 |         kit = DrumKit.from_dict(
+    |               ^^^^^^^
+281 |             {
+282 |                 "name": "My Custom Kit",
+    |
+
+F821 Undefined name `DrumInstrument`
+   --> tests\unit\core\test_kit_mappings.py:290:34
+    |
+288 |         assert kit.name == "My Custom Kit"
+289 |         assert kit.channel == 3
+290 |         assert kit.get_midi_note(DrumInstrument.KICK) == 35
+    |                                  ^^^^^^^^^^^^^^
+291 |         assert kit.get_midi_note(DrumInstrument.SNARE) == 40
+    |
+
+F821 Undefined name `DrumInstrument`
+   --> tests\unit\core\test_kit_mappings.py:291:34
+    |
+289 |         assert kit.channel == 3
+290 |         assert kit.get_midi_note(DrumInstrument.KICK) == 35
+291 |         assert kit.get_midi_note(DrumInstrument.SNARE) == 40
+    |                                  ^^^^^^^^^^^^^^
+292 |
+293 |     def test_defaults_name_and_channel_when_omitted(self):
+    |
+
+F821 Undefined name `DrumKit`
+   --> tests\unit\core\test_kit_mappings.py:294:15
+    |
+293 |     def test_defaults_name_and_channel_when_omitted(self):
+294 |         kit = DrumKit.from_dict({"mappings": {"KICK": 35}})
+    |               ^^^^^^^
+295 |
+296 |         assert kit.name
+    |
+
+F821 Undefined name `DrumKit`
+   --> tests\unit\core\test_kit_mappings.py:300:15
+    |
+299 |     def test_unmapped_instruments_fall_back_to_enum_value(self):
+300 |         kit = DrumKit.from_dict({"mappings": {"KICK": 35}})
+    |               ^^^^^^^
+301 |
+302 |         assert (
+    |
+
+F821 Undefined name `DrumInstrument`
+   --> tests\unit\core\test_kit_mappings.py:303:31
+    |
+302 |         assert (
+303 |             kit.get_midi_note(DrumInstrument.RIDE) == DrumInstrument.RIDE.value
+    |                               ^^^^^^^^^^^^^^
+304 |         )
+    |
+
+F821 Undefined name `DrumInstrument`
+   --> tests\unit\core\test_kit_mappings.py:303:55
+    |
+302 |         assert (
+303 |             kit.get_midi_note(DrumInstrument.RIDE) == DrumInstrument.RIDE.value
+    |                                                       ^^^^^^^^^^^^^^
+304 |         )
+    |
+
+F821 Undefined name `DrumKit`
+   --> tests\unit\core\test_kit_mappings.py:308:13
+    |
+306 |     def test_unknown_instrument_name_raises_value_error(self):
+307 |         with pytest.raises(ValueError):
+308 |             DrumKit.from_dict({"mappings": {"NOT_A_REAL_INSTRUMENT": 40}})
+    |             ^^^^^^^
+309 |
+310 |     def test_instrument_name_lookup_is_case_insensitive(self):
+    |
+
+F821 Undefined name `DrumKit`
+   --> tests\unit\core\test_kit_mappings.py:311:15
+    |
+310 |     def test_instrument_name_lookup_is_case_insensitive(self):
+311 |         kit = DrumKit.from_dict({"mappings": {"kick": 35}})
+    |               ^^^^^^^
+312 |
+313 |         assert kit.get_midi_note(DrumInstrument.KICK) == 35
+    |
+
+F821 Undefined name `DrumInstrument`
+   --> tests\unit\core\test_kit_mappings.py:313:34
+    |
+311 |         kit = DrumKit.from_dict({"mappings": {"kick": 35}})
+312 |
+313 |         assert kit.get_midi_note(DrumInstrument.KICK) == 35
+    |                                  ^^^^^^^^^^^^^^
+314 |
+315 |     def test_non_numeric_note_value_raises_value_error(self):
+    |
+
+F821 Undefined name `DrumKit`
+   --> tests\unit\core\test_kit_mappings.py:321:13
+    |
+319 |         class's own uniformly-typed ValueError."""
+320 |         with pytest.raises(ValueError):
+321 |             DrumKit.from_dict({"mappings": {"KICK": "thirty-six"}})
+    |             ^^^^^^^
+322 |
+323 |     def test_non_scalar_note_value_raises_value_error_not_type_error(self):
+    |
+
+F821 Undefined name `DrumKit`
+   --> tests\unit\core\test_kit_mappings.py:325:13
+    |
+323 |     def test_non_scalar_note_value_raises_value_error_not_type_error(self):
+324 |         with pytest.raises(ValueError):
+325 |             DrumKit.from_dict({"mappings": {"KICK": [36]}})
+    |             ^^^^^^^
+
+F811 Redefinition of unused `TestDrumKitFromJson` from line 43
+   --> tests\unit\core\test_kit_mappings.py:328:7
+    |
+328 | class TestDrumKitFromJson:
+    |       ^^^^^^^^^^^^^^^^^^^ `TestDrumKitFromJson` redefined here
+329 |     """DrumKit.from_json() loads a mapping file from disk."""
+    |
+   ::: tests\unit\core\test_kit_mappings.py:43:7
+    |
+ 42 | @pytest.mark.skip(reason="Deeply coupled to old DrumInstrument enum — needs rewrite for dynamic registry")
+ 43 | class TestDrumKitFromJson:
+    |       ------------------- previous definition of `TestDrumKitFromJson` here
+ 44 |     pass
+    |
+help: Remove definition: `TestDrumKitFromJson`
+
+F821 Undefined name `json`
+   --> tests\unit\core\test_kit_mappings.py:334:13
+    |
+332 |         mapping_path = tmp_path / "custom_kit.json"
+333 |         mapping_path.write_text(
+334 |             json.dumps(
+    |             ^^^^
+335 |                 {
+336 |                     "name": "File Kit",
+    |
+
+F821 Undefined name `DrumKit`
+   --> tests\unit\core\test_kit_mappings.py:343:15
+    |
+341 |         )
+342 |
+343 |         kit = DrumKit.from_json(mapping_path)
+    |               ^^^^^^^
+344 |
+345 |         assert kit.name == "File Kit"
+    |
+
+F821 Undefined name `DrumInstrument`
+   --> tests\unit\core\test_kit_mappings.py:346:34
+    |
+345 |         assert kit.name == "File Kit"
+346 |         assert kit.get_midi_note(DrumInstrument.KICK) == 35
+    |                                  ^^^^^^^^^^^^^^
+347 |         assert kit.get_midi_note(DrumInstrument.SNARE) == 37
+    |
+
+F821 Undefined name `DrumInstrument`
+   --> tests\unit\core\test_kit_mappings.py:347:34
+    |
+345 |         assert kit.name == "File Kit"
+346 |         assert kit.get_midi_note(DrumInstrument.KICK) == 35
+347 |         assert kit.get_midi_note(DrumInstrument.SNARE) == 37
+    |                                  ^^^^^^^^^^^^^^
+348 |
+349 |     def test_accepts_str_path(self, tmp_path):
+    |
+
+F821 Undefined name `json`
+   --> tests\unit\core\test_kit_mappings.py:352:13
+    |
+350 |         mapping_path = tmp_path / "custom_kit.json"
+351 |         mapping_path.write_text(
+352 |             json.dumps({"mappings": {"KICK": 30}}), encoding="utf-8"
+    |             ^^^^
+353 |         )
+    |
+
+F821 Undefined name `DrumKit`
+   --> tests\unit\core\test_kit_mappings.py:355:15
+    |
+353 |         )
+354 |
+355 |         kit = DrumKit.from_json(str(mapping_path))
+    |               ^^^^^^^
+356 |
+357 |         assert kit.get_midi_note(DrumInstrument.KICK) == 30
+    |
+
+F821 Undefined name `DrumInstrument`
+   --> tests\unit\core\test_kit_mappings.py:357:34
+    |
+355 |         kit = DrumKit.from_json(str(mapping_path))
+356 |
+357 |         assert kit.get_midi_note(DrumInstrument.KICK) == 30
+    |                                  ^^^^^^^^^^^^^^
+
+F811 Redefinition of unused `TestPhysicalValidator` from line 20
+  --> tests\unit\validation\test_physical_constraints.py:24:7
+   |
+24 | class TestPhysicalValidator:
+   |       ^^^^^^^^^^^^^^^^^^^^^ `TestPhysicalValidator` redefined here
+25 |     """Test suite for PhysicalValidator."""
+   |
+  ::: tests\unit\validation\test_physical_constraints.py:20:7
+   |
+19 | @pytest.mark.skip(reason="Uses old DrumInstrument.XXX static members at class level")
+20 | class TestPhysicalValidator:
+   |       --------------------- previous definition of `TestPhysicalValidator` here
+21 |     pass
+   |
+help: Remove definition: `TestPhysicalValidator`
+
+Found 129 errors.

@@ -12,7 +12,7 @@ from typing import TYPE_CHECKING
 
 from midi_drums.config import VELOCITY
 from midi_drums.core.models.pattern import Beat, Pattern
-from midi_drums.core.value_objects.drum_instrument import DrumInstrument
+from midi_drums.core.models.kit import InstrumentRegistry
 
 if TYPE_CHECKING:
     pass
@@ -113,18 +113,17 @@ class BarSelector:
         from midi_drums.config import VELOCITY
 
         for beat in new_beats:
+            kick = InstrumentRegistry.get("kick")
+            snare_sticks = InstrumentRegistry.get("snare_sticks")
             if (
                 beat.instrument
-                in (
-                    DrumInstrument.KICK,
-                    DrumInstrument.SNARE,
-                )
+                in (kick, snare_sticks)
                 and beat.velocity < 40
             ):
                 beat.velocity = max(
                     (
                         int(VELOCITY.KICK_NORMAL)
-                        if beat.instrument == DrumInstrument.KICK
+                        if beat.instrument == kick
                         else int(VELOCITY.SNARE_NORMAL)
                     ),
                     beat.velocity,
@@ -155,11 +154,12 @@ class BarSelector:
         # Bonham: triplet-feel fills appear more often in later bars
         if drummer_name and "bonham" in drummer_name.lower():
             if section_pos > 0.6 and rng.random() < 0.15:
+                tom_4 = InstrumentRegistry.get("tom_4_open_hit")
                 pos = rng.uniform(2.5, beats_per_bar - 0.5)
                 beats.append(
                     Beat(
                         position=pos,
-                        instrument=DrumInstrument.FLOOR_TOM,
+                        instrument=tom_4,
                         velocity=max(
                             1,
                             min(127, VELOCITY.TOM_HEAVY + rng.randint(-10, 10)),
@@ -171,12 +171,13 @@ class BarSelector:
         # Porcaro: shuffle-feel ghost notes on snare (every 4th bar)
         if drummer_name and "porcaro" in drummer_name.lower():
             if section_pos > 0.3 and bar_index % 4 == 0:
+                snare_sticks = InstrumentRegistry.get("snare_sticks")
                 for _i in range(2):
                     pos = rng.uniform(0, beats_per_bar)
                     beats.append(
                         Beat(
                             position=pos,
-                            instrument=DrumInstrument.SNARE,
+                            instrument=snare_sticks,
                             velocity=max(
                                 1,
                                 min(
@@ -191,10 +192,11 @@ class BarSelector:
 
         # All drummers: occasional crash accent on last bar (fill setup)
         if bar_index == section_length - 1 and rng.random() < 0.3:
+            crash = InstrumentRegistry.get("cymbal_1_hit")
             beats.append(
                 Beat(
                     position=beats_per_bar * 3.5,
-                    instrument=DrumInstrument.CRASH,
+                    instrument=crash,
                     velocity=max(
                         1,
                         min(127, VELOCITY.CRASH_ACCENT + rng.randint(-10, 15)),

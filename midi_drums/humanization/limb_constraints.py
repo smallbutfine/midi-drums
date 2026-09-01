@@ -4,7 +4,6 @@ from enum import Enum
 from typing import Dict, List
 
 from midi_drums.core.models.pattern import Beat
-from midi_drums.core.value_objects.drum_instrument import DrumInstrument
 
 
 class Limb(Enum):
@@ -14,52 +13,24 @@ class Limb(Enum):
     RF = "RF"
 
 
-# Mapping instruments to limbs based on standard right-handed playing
-# Note: Can be extended to support lefty/open-handed configurations
-INSTRUMENT_TO_LIMB: Dict[DrumInstrument, Limb] = {
+INSTRUMENT_TO_LIMB: Dict[str, Limb] = {
     # Kick
-    DrumInstrument.KICK: Limb.RF,
+    "kick": Limb.RF,
     # Snare
-    DrumInstrument.SNARE: Limb.LH,
-    DrumInstrument.RIM: Limb.LH,
-    DrumInstrument.SNARE_RIMSHOT: Limb.LH,
+    "snare_sticks": Limb.LH,
+    "snare_rimshot_open_hit": Limb.LH,
+    "snare_side_stick": Limb.LH,
     # Hi-Hats (Assuming standard crossed-handed playing)
-    DrumInstrument.CLOSED_HH: Limb.RH,
-    DrumInstrument.CLOSED_HH_EDGE: Limb.RH,
-    DrumInstrument.CLOSED_HH_TIP: Limb.RH,
-    DrumInstrument.TIGHT_HH_EDGE: Limb.RH,
-    DrumInstrument.TIGHT_HH_TIP: Limb.RH,
-    DrumInstrument.OPEN_HH: Limb.RH,
-    DrumInstrument.OPEN_HH_1: Limb.RH,
-    DrumInstrument.OPEN_HH_2: Limb.RH,
-    DrumInstrument.OPEN_HH_3: Limb.RH,
-    DrumInstrument.OPEN_HH_MAX: Limb.RH,
-    DrumInstrument.PEDAL_HH: Limb.LF,
+    "hihat_closed_1_tip_closed_1_hit": Limb.RH,
+    "hihat_closed_2_tip_closed_2_hit": Limb.RH,
+    "hihat_open_a": Limb.RH,
+    "hihat_pedal_closed": Limb.LF,
     # Toms
-    DrumInstrument.MID_TOM: Limb.RH,
-    DrumInstrument.FLOOR_TOM: Limb.RH,
-    DrumInstrument.TOM_EDGE_MID: Limb.RH,
-    DrumInstrument.TOM_EDGE_FLOOR: Limb.RH,
-    DrumInstrument.TOM_EDGE_3: Limb.RH,
-    DrumInstrument.TOM_EDGE_4: Limb.RH,
-    DrumInstrument.TOM_EDGE_1: Limb.RH,
-    DrumInstrument.TOM_EDGE_2: Limb.RH,
+    "tom_3_open_hit": Limb.RH,
+    "tom_4_open_hit": Limb.RH,
     # Cymbals
-    DrumInstrument.CRASH: Limb.RH,
-    DrumInstrument.RIDE: Limb.RH,
-    DrumInstrument.SPLASH: Limb.RH,
-    DrumInstrument.CHINA: Limb.RH,
-    DrumInstrument.RIDE_BELL: Limb.RH,
-    DrumInstrument.CRASH_CHOKED_A: Limb.RH,
-    DrumInstrument.CRASH_CHOKED_B: Limb.RH,
-    DrumInstrument.CRASH_CHOKED_C: Limb.RH,
-    DrumInstrument.CRASH_CHOKED_D: Limb.RH,
-    DrumInstrument.RIDE_SHAFT: Limb.RH,
-    DrumInstrument.RIDE_BELL_ALT: Limb.RH,
-    DrumInstrument.RIDE_1_TIP: Limb.RH,
-    DrumInstrument.CRASH_HEAVY: Limb.RH,
-    DrumInstrument.CRASH_LIGHT: Limb.RH,
-    DrumInstrument.CRASH_SPLASH: Limb.RH,
+    "cymbal_1_hit": Limb.RH,
+    "ride_1_tip_hit_softer": Limb.RH,
 }
 
 
@@ -69,7 +40,7 @@ class LimbConstraintEngine:
     def __init__(self, conflict_strategy: str = "flam"):
         """
         Args:
-            conflict_strategy: How to resolve limb collisions ("flam" or "prioritize_accent")
+            conflict_strategy: How to resolve limb collisions (flam or prioritize_accent)
         """
         self.conflict_strategy = conflict_strategy
 
@@ -82,7 +53,7 @@ class LimbConstraintEngine:
         sorted_beats = sorted(beats, key=lambda b: b.position)
 
         for beat in sorted_beats:
-            limb = INSTRUMENT_TO_LIMB.get(beat.instrument)
+            limb = INSTRUMENT_TO_LIMB.get(beat.instrument.name)
 
             # If no limb mapping, pass through
             if not limb:
@@ -99,7 +70,6 @@ class LimbConstraintEngine:
                     # Force a micro-timing flam
                     beat.position += 0.005
                 elif self.conflict_strategy == "prioritize_accent":
-                    # Simple drop if lower velocity (skipped here for simplicity)
                     pass
 
             active_limbs[limb] = beat.position

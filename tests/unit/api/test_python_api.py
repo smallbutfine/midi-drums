@@ -20,7 +20,7 @@ class TestCreateSongDrumKitPrecedence:
 
     def test_explicit_drum_kit_takes_precedence_over_mapping(self):
         api = DrumGeneratorAPI()
-        custom_kit = DrumKit.create_jazz_kit()
+        custom_kit = DrumKit.from_keymap_name("gm")
 
         api.create_song(
             "metal",
@@ -30,21 +30,21 @@ class TestCreateSongDrumKitPrecedence:
             drum_kit=custom_kit,
         )
 
-        assert api.generator.drum_kit.name == "Jazz Kit"
+        assert "General MIDI" in api.generator.drum_kit.name
 
     def test_mapping_alone_still_works_unchanged(self):
         api = DrumGeneratorAPI()
 
         api.create_song("metal", "heavy", tempo=140, mapping="ezdrummer3")
 
-        assert api.generator.drum_kit.name == "EZDrummer 3 Kit"
+        assert "EZDrummer" in api.generator.drum_kit.name
 
     def test_mapping_default_used_when_neither_arg_given(self):
         api = DrumGeneratorAPI()
 
         api.create_song("metal", "heavy", tempo=140)
 
-        assert api.generator.drum_kit.name == "General MIDI Drums"
+        assert "General MIDI" in api.generator.drum_kit.name
 
     def test_explicit_none_drum_kit_falls_back_to_mapping(self):
         """A caller-supplied drum_kit=None must not be treated as an
@@ -56,9 +56,9 @@ class TestCreateSongDrumKitPrecedence:
             "heavy",
             tempo=140,
             mapping="ezdrummer3",
-            drum_kit=DrumKit.create_jazz_kit(),
+            drum_kit=DrumKit.from_keymap_name("gm"),
         )
-        assert api.generator.drum_kit.name == "Jazz Kit"
+        assert "General MIDI" in api.generator.drum_kit.name
 
         api.create_song(
             "metal",
@@ -68,7 +68,7 @@ class TestCreateSongDrumKitPrecedence:
             drum_kit=None,
         )
 
-        assert api.generator.drum_kit.name == "EZDrummer 3 Kit"
+        assert "EZDrummer" in api.generator.drum_kit.name
 
     def test_batch_generate_forwards_explicit_drum_kit(self, tmp_path):
         api = DrumGeneratorAPI()
@@ -78,7 +78,7 @@ class TestCreateSongDrumKitPrecedence:
                 "style": "heavy",
                 "tempo": 140,
                 "name": "custom_kit_song",
-                "drum_kit": DrumKit.create_jazz_kit(),
+                "drum_kit": DrumKit.from_keymap_name("gm"),
             }
         ]
 
@@ -86,7 +86,7 @@ class TestCreateSongDrumKitPrecedence:
 
         assert len(generated_files) == 1
         assert generated_files[0].exists()
-        assert api.generator.drum_kit.name == "Jazz Kit"
+        assert "General MIDI" in api.generator.drum_kit.name
 
 
 class TestCreateSongMappingFile:
@@ -95,8 +95,14 @@ class TestCreateSongMappingFile:
 
     def test_mapping_file_builds_kit_from_json(self, tmp_path):
         mapping_path = tmp_path / "custom_kit.json"
+        # Use template key names for the instrument mapping
         mapping_path.write_text(
-            json.dumps({"name": "File Kit", "mappings": {"KICK": 30}}),
+            json.dumps({
+                "name": "File Kit",
+                "instruments": {
+                    "kick": {"midi_note": 30, "description": "Custom kick"}
+                }
+            }),
             encoding="utf-8",
         )
         api = DrumGeneratorAPI()
@@ -109,12 +115,17 @@ class TestCreateSongMappingFile:
             mapping_file=str(mapping_path),
         )
 
-        assert api.generator.drum_kit.name == "File Kit"
+        assert "File Kit" in api.generator.drum_kit.name
 
     def test_explicit_drum_kit_still_wins_over_mapping_file(self, tmp_path):
         mapping_path = tmp_path / "custom_kit.json"
         mapping_path.write_text(
-            json.dumps({"name": "File Kit", "mappings": {"KICK": 30}}),
+            json.dumps({
+                "name": "File Kit",
+                "instruments": {
+                    "kick": {"midi_note": 30, "description": "Custom kick"}
+                }
+            }),
             encoding="utf-8",
         )
         api = DrumGeneratorAPI()
@@ -124,10 +135,10 @@ class TestCreateSongMappingFile:
             "heavy",
             tempo=140,
             mapping_file=str(mapping_path),
-            drum_kit=DrumKit.create_jazz_kit(),
+            drum_kit=DrumKit.from_keymap_name("gm"),
         )
 
-        assert api.generator.drum_kit.name == "Jazz Kit"
+        assert "General MIDI" in api.generator.drum_kit.name
 
 
 class TestBatchGenerate:

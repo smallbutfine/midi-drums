@@ -16,9 +16,9 @@ This plugin implements his style using composable modifications:
 import random
 
 from midi_drums.config import TIMING, VELOCITY
+from midi_drums.core.models.kit import InstrumentRegistry
 from midi_drums.core.models.pattern import Pattern
 from midi_drums.core.models.song import Fill
-from midi_drums.core.value_objects.drum_instrument import DrumInstrument
 from midi_drums.generation.builders.pattern_builder import PatternBuilder
 from midi_drums.modifications import (
     OddTimeAdaptation,
@@ -153,14 +153,14 @@ class HalpernPlugin(DrummerPlugin):
         for i in range(3):
             pos = round(TIMING.HALF + i * TIMING.QUARTER, 6)
             builder.pattern.add_beat(
-                pos, DrumInstrument.TOM_EDGE_MID, VELOCITY.TOM_HEAVY
+                pos, InstrumentRegistry.get("tom_3_rimshot_open_hit_dbl"), VELOCITY.TOM_HEAVY
             )
 
         # RIDE_SHAFT accents (Periphery's metallic shimmer over odd groove)
         for i in range(2):
             pos = round(i * TIMING.HALF + TIMING.EIGHTH, 6)
             builder.pattern.add_beat(
-                pos, DrumInstrument.RIDE_SHAFT, VELOCITY.CHINA_ACCENT - 5
+                pos, InstrumentRegistry.get("ride_1_shaft_hit_stronger"), VELOCITY.CHINA_ACCENT - 5
             )
 
         # Sparse hi-hat (mimicking electronic cymbal triggers)
@@ -182,13 +182,13 @@ class HalpernPlugin(DrummerPlugin):
         for i in range(5):
             pos = round(i * TIMING.HALF * 2 / 5, 6)
             builder.pattern.add_beat(
-                pos, DrumInstrument.MID_TOM, VELOCITY.TOM_HEAVY
+                pos, InstrumentRegistry.get("tom_3_open_hit"), VELOCITY.TOM_HEAVY
             )
 
         for i in range(4):
             pos = round(i * TIMING.HALF * 2 / 4 + 0.1, 6)
             builder.pattern.add_beat(
-                pos, DrumInstrument.FLOOR_TOM, VELOCITY.TOM_ACCENT
+                pos, InstrumentRegistry.get("tom_4_open_hit"), VELOCITY.TOM_ACCENT
             )
 
         # Double-kick foundation
@@ -205,7 +205,7 @@ class HalpernPlugin(DrummerPlugin):
         # SPLASH cymbal swell at fill resolution (Periphery texture)
         builder.pattern.add_beat(
             TIMING.HALF * 2 - TIMING.SIXTEENTH,
-            DrumInstrument.SPLASH,
+            InstrumentRegistry.get("cymbal_6_hit"),
             VELOCITY.CHINA_ACCENT,
         )
 
@@ -234,7 +234,7 @@ class HalpernPlugin(DrummerPlugin):
             pos = round(i * TIMING.HALF * 2 / 11 + 0.05, 6)
             builder.pattern.add_beat(
                 pos,
-                DrumInstrument.SNARE,
+                InstrumentRegistry.get("snare_sticks"),
                 VELOCITY.SNARE_GHOST + random.randint(0, 8),
             )
 
@@ -242,7 +242,7 @@ class HalpernPlugin(DrummerPlugin):
         for i in range(3):
             pos = round(TIMING.HALF + i * TIMING.QUARTER + 0.25, 6)
             builder.pattern.add_beat(
-                pos, DrumInstrument.FLOOR_TOM, VELOCITY.TOM_HEAVY
+                pos, InstrumentRegistry.get("tom_4_open_hit"), VELOCITY.TOM_HEAVY
             )
 
         return builder.build()
@@ -266,9 +266,9 @@ class HalpernPlugin(DrummerPlugin):
             builder.pattern.add_beat(
                 pos,
                 (
-                    DrumInstrument.MID_TOM
+                    InstrumentRegistry.get("tom_3_open_hit")
                     if i % 2 == 0
-                    else DrumInstrument.FLOOR_TOM
+                    else InstrumentRegistry.get("tom_4_open_hit")
                 ),
                 VELOCITY.TOM_HEAVY,
             )
@@ -278,7 +278,7 @@ class HalpernPlugin(DrummerPlugin):
             pos = TIMING.SIXTEENTH * i
             builder.pattern.add_beat(
                 pos,
-                DrumInstrument.RIDE_SHAFT,
+                InstrumentRegistry.get("ride_1_shaft_hit_stronger"),
                 VELOCITY.CHINA_ACCENT - random.randint(5, 20),
             )
 
@@ -310,14 +310,14 @@ class HalpernPlugin(DrummerPlugin):
         for i in range(4):
             pos = round(TIMING.HALF * 0.5 + i * TIMING.QUARTER * 1.5, 6)
             builder.pattern.add_beat(
-                pos, DrumInstrument.FLOOR_TOM, VELOCITY.TOM_ACCENT
+                pos, InstrumentRegistry.get("tom_4_open_hit"), VELOCITY.TOM_ACCENT
             )
 
         # Ride cymbal accents (simulating atmospheric pads)
         for i in range(4):
             pos = round(TIMING.EIGHTH * i + TIMING.SIXTEENTH, 6)
             builder.pattern.add_beat(
-                pos, DrumInstrument.RIDE_BELL_ALT, VELOCITY.CHINA_ACCENT - 10
+                pos, InstrumentRegistry.get("ride_2_bell"), VELOCITY.CHINA_ACCENT - 10
             )
 
         return builder.build()
@@ -356,9 +356,9 @@ class HalpernPlugin(DrummerPlugin):
             builder.pattern.add_beat(
                 pos,
                 (
-                    DrumInstrument.MID_TOM
+                    InstrumentRegistry.get("tom_3_open_hit")
                     if i % 2 == 0
-                    else DrumInstrument.FLOOR_TOM
+                    else InstrumentRegistry.get("tom_4_open_hit")
                 ),
                 VELOCITY.TOM_HEAVY,
             )
@@ -398,7 +398,7 @@ class HalpernPlugin(DrummerPlugin):
         # SPLASH swell at final resolution
         builder.pattern.add_beat(
             TIMING.DOTTED_EIGHTH * 2,
-            DrumInstrument.SPLASH,
+            InstrumentRegistry.get("cymbal_6_hit"),
             VELOCITY.CHINA_ACCENT,
         )
         return builder.build()
@@ -417,7 +417,7 @@ class HalpernPlugin(DrummerPlugin):
             pos = round(i * TIMING.HALF * 2 / 11, 6)
             builder.pattern.add_beat(
                 pos,
-                DrumInstrument.MID_TOM,
+                InstrumentRegistry.get("tom_3_open_hit"),
                 VELOCITY.TOM_HEAVY if i % 4 == 0 else VELOCITY.TOM_NORMAL,
             )
 
@@ -426,7 +426,7 @@ class HalpernPlugin(DrummerPlugin):
             pos = round(i * TIMING.HALF * 2 / 7 + TIMING.SIXTEENTH, 6)
             builder.pattern.add_beat(
                 pos,
-                DrumInstrument.FLOOR_TOM,
+                InstrumentRegistry.get("tom_4_open_hit"),
                 VELOCITY.TOM_ACCENT if i % 2 == 0 else VELOCITY.TOM_HEAVY,
             )
 

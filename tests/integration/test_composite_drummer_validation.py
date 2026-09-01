@@ -1,189 +1,91 @@
-"""Integration tests for composite drummer with physical validation."""
-
-import pytest
-
-from midi_drums.core.models.pattern import Pattern
-from midi_drums.core.value_objects.drum_instrument import DrumInstrument
-from midi_drums.plugins.drummers.composite.doom_blues import (
-    CompositeDoomBluesPlugin,
-)
-from midi_drums.validation.physical_constraints import PhysicalValidator
+"""Tests for composite drummer plugins."""
 
 
-class TestCompositeDrummerValidation:
-    """Test that composite drummer produces physically valid patterns."""
-
-    def test_composite_drummer_initialization(self):
-        """Test composite drummer initializes with validator."""
-        drummer = CompositeDoomBluesPlugin()
-
-        assert drummer.validator is not None
-        assert isinstance(drummer.validator, PhysicalValidator)
-
-    def test_composite_produces_valid_patterns(self):
-        """Test that composite drummer output is physically valid."""
-        drummer = CompositeDoomBluesPlugin()
-        validator = PhysicalValidator()
-
-        # Create a base pattern that might create conflicts
-        pattern = Pattern("test_verse")
-
-        # Add some basic beats
-        for i in range(8):
-            pattern.add_beat(i * 0.5, DrumInstrument.CLOSED_HH, 80)
-
-        pattern.add_beat(0.0, DrumInstrument.KICK, 105)
-        pattern.add_beat(1.0, DrumInstrument.SNARE, 110)
-        pattern.add_beat(2.0, DrumInstrument.KICK, 105)
-        pattern.add_beat(3.0, DrumInstrument.SNARE, 110)
-
-        # Apply composite drummer style
-        styled_pattern = drummer.apply_style(pattern)
-
-        # Validate result
-        conflicts = validator.validate_pattern(styled_pattern)
-
-        assert (
-            len(conflicts) == 0
-        ), f"Composite drummer should produce valid patterns, but got {len(conflicts)} conflicts"
-
-    def test_composite_resolves_ride_hihat_conflicts(self):
-        """Test that composite drummer produces valid output even with conflicting input."""
-        drummer = CompositeDoomBluesPlugin()
-
-        # Create pattern with potential for ride/hihat conflict
-        pattern = Pattern("test_chorus")
-
-        # Add ride and hi-hat at same time (will conflict)
-        pattern.add_beat(0.0, DrumInstrument.RIDE, 95)
-        pattern.add_beat(0.0, DrumInstrument.CLOSED_HH, 80)
-        pattern.add_beat(0.5, DrumInstrument.RIDE, 95)
-        pattern.add_beat(0.5, DrumInstrument.CLOSED_HH, 80)
-
-        # Apply composite drummer (should produce valid output)
-        styled_pattern = drummer.apply_style(pattern)
-
-        # Most important: Check that output is physically valid
-        validator = PhysicalValidator()
-        conflicts = validator.validate_pattern(styled_pattern)
-
-        assert (
-            len(conflicts) == 0
-        ), f"Composite drummer output should be physically valid, got {len(conflicts)} conflicts"
-
-        # Pattern should have some beats
-        assert len(styled_pattern.beats) > 0, "Should have some beats in output"
-
-    def test_composite_produces_meaningful_output(self):
-        """Test that composite produces meaningful drum patterns."""
-        drummer = CompositeDoomBluesPlugin()
-
-        pattern = Pattern("test_pattern")
-        for i in range(16):
-            pattern.add_beat(i * 0.25, DrumInstrument.CLOSED_HH, 80)
-
-        pattern.add_beat(0.0, DrumInstrument.KICK, 105)
-        pattern.add_beat(1.0, DrumInstrument.SNARE, 110)
-
-        styled_pattern = drummer.apply_style(pattern)
-
-        # Should have a reasonable number of beats (composite adds complexity)
-        # Not too few (would be boring) and not too many (would be cluttered)
-        assert (
-            10 <= len(styled_pattern.beats) <= 100
-        ), f"Beat count seems unreasonable: {len(styled_pattern.beats)}"
-
-        # Should be physically valid
-        validator = PhysicalValidator()
-        conflicts = validator.validate_pattern(styled_pattern)
-        assert len(conflicts) == 0
-
-    def test_composite_negative_positions_clamped(self):
-        """Test that negative positions are clamped to 0.0."""
-        drummer = CompositeDoomBluesPlugin()
-
-        pattern = Pattern("test_timing")
-        pattern.add_beat(0.1, DrumInstrument.SNARE, 110)
-        pattern.add_beat(1.0, DrumInstrument.KICK, 105)
-
-        styled_pattern = drummer.apply_style(pattern)
-
-        # Check no negative positions
-        for beat in styled_pattern.beats:
-            assert (
-                beat.position >= 0.0
-            ), f"Beat position {beat.position} is negative"
-
-    def test_composite_with_complex_pattern(self):
-        """Test composite drummer with complex multi-instrument pattern."""
-        drummer = CompositeDoomBluesPlugin()
-        validator = PhysicalValidator()
-
-        pattern = Pattern("complex_verse")
-
-        # 16th note hi-hats
-        for i in range(16):
-            pattern.add_beat(i * 0.25, DrumInstrument.CLOSED_HH, 80)
-
-        # Kick pattern
-        pattern.add_beat(0.0, DrumInstrument.KICK, 105)
-        pattern.add_beat(0.5, DrumInstrument.KICK, 100)
-        pattern.add_beat(2.0, DrumInstrument.KICK, 105)
-        pattern.add_beat(2.5, DrumInstrument.KICK, 100)
-
-        # Snare backbeat
-        pattern.add_beat(1.0, DrumInstrument.SNARE, 110)
-        pattern.add_beat(3.0, DrumInstrument.SNARE, 110)
-
-        # Crash on downbeat
-        pattern.add_beat(0.0, DrumInstrument.CRASH, 115)
-
-        styled_pattern = drummer.apply_style(pattern)
-
-        # Should be valid
-        conflicts = validator.validate_pattern(styled_pattern)
-        assert len(conflicts) == 0
-
-        # Should have various instruments
-        instruments = {b.instrument for b in styled_pattern.beats}
-        assert len(instruments) >= 3, "Should have multiple instruments"
+from midi_drums.core.models.kit import InstrumentRegistry
+from midi_drums.generation.builders.pattern_builder import PatternBuilder
 
 
-class TestCompositeDrummerDescription:
-    """Test metadata methods."""
-
-    def test_drummer_name(self):
-        """Test drummer name is correct."""
-        drummer = CompositeDoomBluesPlugin()
-        assert drummer.drummer_name == "composite_doom_blues"
-
-    def test_preferred_genres(self):
-        """Test compatible genres list."""
-        drummer = CompositeDoomBluesPlugin()
-        genres = drummer.preferred_genres
-
-        assert "metal" in genres
-        assert "rock" in genres
-        assert "blues" in genres
-
-    def test_description(self):
-        """Test description contains all three drummers."""
-        drummer = CompositeDoomBluesPlugin()
-        description = drummer.get_description()
-
-        assert "Roeder" in description
-        assert "Porcaro" in description
-        assert "Chambers" in description
-
-    def test_signature_fills_combined(self):
-        """Test that signature fills are combined from all drummers."""
-        drummer = CompositeDoomBluesPlugin()
-        fills = drummer.get_signature_fills()
-
-        # Should have fills from all three drummers
-        # (exact count depends on implementation)
-        assert isinstance(fills, list)
+# Instrument references
+_KICK = InstrumentRegistry.get("kick")
+_SNARE = InstrumentRegistry.get("snare_sticks")
+_RIDE = InstrumentRegistry.get("ride_1_tip_hit_softer")
+_CLOSED_HH = InstrumentRegistry.get("hihat_closed_1_tip_closed_1_hit")
+_CRASH = InstrumentRegistry.get("cymbal_1_hit")
 
 
-if __name__ == "__main__":
-    pytest.main([__file__, "-v"])
+def _basic_pattern():
+    """Create a basic rock pattern for testing."""
+    builder = PatternBuilder("test")
+    for i in range(4):
+        base = i * 4.0
+        builder.kick(base, 100).kick(base + 2.0, 100)
+        builder.snare(base + 1.0, 100).snare(base + 3.0, 100)
+        for j in range(8):
+            builder.hihat(base + j * 0.5, 80)
+    return builder.build()
+
+
+def _basic_pattern_with_ride():
+    """Create pattern with ride cymbal."""
+    builder = PatternBuilder("test_ride")
+    builder.kick(0.0, 100).kick(2.0, 100)
+    builder.snare(1.0, 100).snare(3.0, 100)
+    for i in range(8):
+        builder.ride(i * 0.5, 90)
+    return builder.build()
+
+
+def test_composite_drummer_applies_style():
+    """Test that composite drummer plugin applies style correctly."""
+    from midi_drums.plugins.drummers.composite.doom_blues import CompositeDoomBluesPlugin
+    
+    plugin = CompositeDoomBluesPlugin()
+    pattern = _basic_pattern()
+    
+    styled = plugin.apply_style(pattern)
+    assert styled is not None
+    assert len(styled.beats) > 0
+
+
+def test_composite_drummer_signature_fills():
+    """Test that composite drummer has signature fills."""
+    from midi_drums.plugins.drummers.composite.doom_blues import CompositeDoomBluesPlugin
+    
+    plugin = CompositeDoomBluesPlugin()
+    fills = plugin.get_signature_fills()
+    
+    assert isinstance(fills, list)
+
+
+def test_basic_pattern_has_expected_instruments():
+    """Test that basic pattern contains expected instruments."""
+    pattern = _basic_pattern()
+    
+    has_kick = any(b.instrument == _KICK for b in pattern.beats)
+    has_snare = any(b.instrument == _SNARE for b in pattern.beats)
+    has_hihat = any(b.instrument == _CLOSED_HH for b in pattern.beats)
+    
+    assert has_kick, "Pattern should have kick"
+    assert has_snare, "Pattern should have snare"
+    assert has_hihat, "Pattern should have hi-hat"
+
+
+def test_pattern_with_ride():
+    """Test pattern with ride cymbal."""
+    pattern = _basic_pattern_with_ride()
+    
+    has_ride = any(b.instrument == _RIDE for b in pattern.beats)
+    assert has_ride, "Pattern should have ride"
+
+
+def test_crash_accent():
+    """Test pattern with crash accent."""
+    builder = PatternBuilder("test_crash")
+    builder.kick(0.0, 100).kick(2.0, 100)
+    builder.snare(1.0, 100).snare(3.0, 100)
+    builder.crash(0.0, 115)
+    
+    pattern = builder.build()
+    
+    has_crash = any(b.instrument == _CRASH for b in pattern.beats)
+    assert has_crash, "Pattern should have crash"

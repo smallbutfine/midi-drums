@@ -59,10 +59,6 @@ class TestPeartPlugin:
             assert fill.section_position in ("start", "middle", "end")
 
     def test_signature_fill_beats_fit_within_render_window(self):
-        # midi_drums/export/midi/engine.py's fill-rendering step only emits
-        # beats with position < 1.0 (a fill occupies exactly one beat at the
-        # end of a bar) - a beat at or past that boundary is silently
-        # dropped rather than rendered.
         for fill in PeartPlugin().get_signature_fills():
             for beat in fill.pattern.beats:
                 assert beat.position < 1.0, (

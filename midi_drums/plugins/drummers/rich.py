@@ -10,9 +10,9 @@ pattern established by the other drummer plugins.
 import random
 
 from midi_drums.config import TIMING, VELOCITY
+from midi_drums.core.models.kit import InstrumentRegistry
 from midi_drums.core.models.pattern import Pattern
 from midi_drums.core.models.song import Fill
-from midi_drums.core.value_objects.drum_instrument import DrumInstrument
 from midi_drums.generation.builders.pattern_builder import PatternBuilder
 from midi_drums.modifications import (
     FastChopsTriplets,
@@ -153,13 +153,13 @@ class RichPlugin(DrummerPlugin):
         """
         builder = PatternBuilder("rich_dynamic_cascade")
         builder.pattern.add_beat(
-            0.0, DrumInstrument.SNARE, VELOCITY.SNARE_LIGHT
+            0.0, InstrumentRegistry.get("snare_sticks"), VELOCITY.SNARE_LIGHT
         )
         builder.pattern.add_beat(
-            TIMING.SIXTEENTH, DrumInstrument.MID_TOM, VELOCITY.TOM_ACCENT
+            TIMING.SIXTEENTH, InstrumentRegistry.get("tom_3_open_hit"), VELOCITY.TOM_ACCENT
         )
         builder.pattern.add_beat(
-            TIMING.SIXTEENTH * 2, DrumInstrument.FLOOR_TOM, VELOCITY.TOM_HEAVY
+            TIMING.SIXTEENTH * 2, InstrumentRegistry.get("tom_4_open_hit"), VELOCITY.TOM_HEAVY
         )
         builder.kick(TIMING.SIXTEENTH * 3, VELOCITY.KICK_ACCENT)
         return builder.build()
@@ -200,7 +200,7 @@ class RichPlugin(DrummerPlugin):
         ]
         for offset, instr_name, velocity in calls_and_responses:
             if instr_name == "rim":
-                builder.pattern.add_beat(offset, DrumInstrument.RIM, velocity)
+                builder.pattern.add_beat(offset, InstrumentRegistry.get("snare_side_stick"), velocity)
             else:
                 builder.snare(offset, min(127, velocity))
 
@@ -215,9 +215,9 @@ class RichPlugin(DrummerPlugin):
         for i in range(4):
             pos = TIMING.SIXTEENTH * i
             instrument = (
-                DrumInstrument.MID_TOM
+                InstrumentRegistry.get("tom_3_open_hit")
                 if i % 2 == 0
-                else DrumInstrument.FLOOR_TOM
+                else InstrumentRegistry.get("tom_4_open_hit")
             )
             velocity = min(VELOCITY.TOM_HEAVY + (i % 4) * 3, 127)
             builder.pattern.add_beat(pos, instrument, velocity)
@@ -231,7 +231,7 @@ class RichPlugin(DrummerPlugin):
                 if bell_pos < 1.0:
                     builder.pattern.add_beat(
                         bell_pos,
-                        DrumInstrument.RIDE_BELL,
+                        InstrumentRegistry.get("ride_1_bell"),
                         VELOCITY.RIDE_BELL_ACCENT,
                     )
             else:
@@ -253,7 +253,7 @@ class RichPlugin(DrummerPlugin):
             pos = TIMING.THIRTY_SECOND * i  # 8 hits within <1.0 bar
             if i % 2 == 0:
                 builder.pattern.add_beat(
-                    pos, DrumInstrument.RIM, VELOCITY.SNARE_LIGHT
+                    pos, InstrumentRegistry.get("snare_side_stick"), VELOCITY.SNARE_LIGHT
                 )
             else:
                 builder.snare(
@@ -273,10 +273,10 @@ class RichPlugin(DrummerPlugin):
         builder = PatternBuilder("rich_paradiddle_toms")
         # Paradiddle pattern (RLRL) packed into one beat (fills render < 1.0)
         paradiddle_voicings = [
-            DrumInstrument.MID_TOM,
-            DrumInstrument.MID_TOM,
-            DrumInstrument.FLOOR_TOM,
-            DrumInstrument.FLOOR_TOM,
+            InstrumentRegistry.get("tom_3_open_hit"),
+            InstrumentRegistry.get("tom_3_open_hit"),
+            InstrumentRegistry.get("tom_4_open_hit"),
+            InstrumentRegistry.get("tom_4_open_hit"),
         ]
         for i, tom in enumerate(paradiddle_voicings):
             pos = TIMING.SIXTEENTH * i
@@ -300,12 +300,12 @@ class RichPlugin(DrummerPlugin):
                 builder.snare(offset, min(VELOCITY.SNARE_HEAVY, 127))
                 builder.pattern.add_beat(
                     offset + TIMING.THIRTY_SECOND,
-                    DrumInstrument.MID_TOM,
+                    InstrumentRegistry.get("tom_3_open_hit"),
                     VELOCITY.TOM_ACCENT,
                 )
                 builder.pattern.add_beat(
                     offset + TIMING.THIRTY_SECOND * 2,
-                    DrumInstrument.FLOOR_TOM,
+                    InstrumentRegistry.get("tom_4_open_hit"),
                     VELOCITY.TOM_HEAVY,
                 )
                 builder.pattern.add_beat(
@@ -316,12 +316,12 @@ class RichPlugin(DrummerPlugin):
                 # LRLR pattern: floor tom → mid tom → snare → tom edge
                 builder.pattern.add_beat(
                     offset,
-                    DrumInstrument.FLOOR_TOM,
+                    InstrumentRegistry.get("tom_4_open_hit"),
                     VELOCITY.TOM_HEAVY,
                 )
                 builder.pattern.add_beat(
                     offset + TIMING.THIRTY_SECOND,
-                    DrumInstrument.MID_TOM,
+                    InstrumentRegistry.get("tom_3_open_hit"),
                     VELOCITY.TOM_ACCENT,
                 )
                 builder.snare(

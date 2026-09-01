@@ -26,7 +26,7 @@ import pytest
 
 from midi_drums.config import VELOCITY
 from midi_drums.core.models.pattern import Beat, Pattern
-from midi_drums.core.value_objects.drum_instrument import DrumInstrument
+from midi_drums.core.models.kit import InstrumentRegistry
 from midi_drums.core.value_objects.generation_parameters import (
     GenerationParameters,
 )
@@ -36,6 +36,14 @@ from midi_drums.modifications.drummer_mods import (
     SpeedPrecision,
 )
 from midi_drums.plugins.interfaces.genre_plugin import GenrePlugin
+
+
+# Instrument references for tests
+_CRASH = InstrumentRegistry.get("cymbal_1_hit")
+_KICK = InstrumentRegistry.get("kick")
+_CLOSED_HH = InstrumentRegistry.get("hihat_closed_1_tip_closed_1_hit")
+_RIDE = InstrumentRegistry.get("ride_1_tip_hit_softer")
+_PEDAL_HH = InstrumentRegistry.get("hihat_pedal_closed")
 
 
 class _StubGenrePlugin(GenrePlugin):
@@ -65,19 +73,19 @@ class _InvalidTimekeeperPlugin(_StubGenrePlugin):
     """
 
     def _high_energy_timekeeper(self, section, parameters):
-        return DrumInstrument.SPLASH
+        return InstrumentRegistry.get("cymbal_6_hit")
 
 
 @pytest.mark.unit
 class TestBeatInstrumentPromotedFlag:
     def test_default_is_false(self):
-        beat = Beat(position=0.0, instrument=DrumInstrument.CRASH)
+        beat = Beat(position=0.0, instrument=_CRASH)
         assert beat.instrument_promoted is False
 
     def test_apply_ride_hihat_logic_sets_flag_on_promoted_beats_only(self):
         pattern = Pattern(name="test")
-        pattern.add_beat(0.0, DrumInstrument.KICK)
-        pattern.add_beat(1.0, DrumInstrument.CLOSED_HH)
+        pattern.add_beat(0.0, _KICK)
+        pattern.add_beat(1.0, _CLOSED_HH)
 
         plugin = _StubGenrePlugin()
         params = GenerationParameters(genre="stub")
@@ -86,14 +94,14 @@ class TestBeatInstrumentPromotedFlag:
         by_instrument = {
             beat.instrument: beat
             for beat in result.beats
-            if beat.instrument != DrumInstrument.PEDAL_HH
+            if beat.instrument != _PEDAL_HH
         }
-        assert by_instrument[DrumInstrument.RIDE].instrument_promoted is True
-        assert by_instrument[DrumInstrument.KICK].instrument_promoted is False
+        assert by_instrument[_RIDE].instrument_promoted is True
+        assert by_instrument[_KICK].instrument_promoted is False
 
     def test_rejects_timekeeper_outside_shared_registry(self):
         pattern = Pattern(name="test")
-        pattern.add_beat(0.0, DrumInstrument.CLOSED_HH)
+        pattern.add_beat(0.0, _CLOSED_HH)
 
         plugin = _InvalidTimekeeperPlugin()
         params = GenerationParameters(genre="stub")
@@ -109,7 +117,7 @@ class TestInstrumentPromotedPropagation:
         pattern.beats.append(
             Beat(
                 position=0.0,
-                instrument=DrumInstrument.CRASH,
+                instrument=_CRASH,
                 instrument_promoted=True,
             )
         )
@@ -123,7 +131,7 @@ class TestInstrumentPromotedPropagation:
         pattern.beats.append(
             Beat(
                 position=0.0,
-                instrument=DrumInstrument.CRASH,
+                instrument=_CRASH,
                 instrument_promoted=True,
             )
         )
@@ -143,7 +151,7 @@ def _pattern_with_genuine_and_promoted_crash() -> Pattern:
     pattern.beats.append(
         Beat(
             position=0.0,
-            instrument=DrumInstrument.CRASH,
+            instrument=_CRASH,
             velocity=VELOCITY.CRASH_ACCENT,
             instrument_promoted=False,
         )
@@ -151,7 +159,7 @@ def _pattern_with_genuine_and_promoted_crash() -> Pattern:
     pattern.beats.append(
         Beat(
             position=2.0,
-            instrument=DrumInstrument.CRASH,
+            instrument=_CRASH,
             velocity=80,
             instrument_promoted=True,
         )

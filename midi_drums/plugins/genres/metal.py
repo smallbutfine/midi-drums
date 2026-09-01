@@ -6,9 +6,9 @@ full functional equivalence with the original metal.py plugin.
 """
 
 from midi_drums.config import TIMING
+from midi_drums.core.models.kit import DrumInstrument, InstrumentRegistry
 from midi_drums.core.models.pattern import Pattern
 from midi_drums.core.models.song import Fill
-from midi_drums.core.value_objects.drum_instrument import DrumInstrument
 from midi_drums.core.value_objects.generation_parameters import (
     GenerationParameters,
 )
@@ -24,9 +24,9 @@ from midi_drums.plugins.interfaces.genre_plugin import GenrePlugin
 
 # AD2 extended crash/tom variants for timbral variety across metal styles
 _AD2_CRASH = {
-    "heavy": DrumInstrument.CRASH_HEAVY,
-    "light": DrumInstrument.CRASH_LIGHT,
-    "splash": DrumInstrument.CRASH_SPLASH,
+    "heavy": InstrumentRegistry.get("cymbal_4_hit"),
+    "light": InstrumentRegistry.get("cymbal_2_hit"),
+    "splash": InstrumentRegistry.get("cymbal_6_hit"),
 }
 
 # Styles that use china cymbal (rather than ride) as the high-energy
@@ -1559,7 +1559,7 @@ class MetalGenrePlugin(GenrePlugin):
         issue #36 item 3.
         """
         if parameters.style in _CHINA_TIMEKEEPER_STYLES:
-            return DrumInstrument.CHINA
+            return InstrumentRegistry.get("cymbal_5_hit")
         return super()._high_energy_timekeeper(section, parameters)
 
     # -------------------------------------------------------------------------

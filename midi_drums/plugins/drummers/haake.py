@@ -15,9 +15,9 @@ This plugin implements his style using composable modifications:
 """
 
 from midi_drums.config import TIMING, VELOCITY
+from midi_drums.core.models.kit import InstrumentRegistry
 from midi_drums.core.models.pattern import Pattern
 from midi_drums.core.models.song import Fill
-from midi_drums.core.value_objects.drum_instrument import DrumInstrument
 from midi_drums.generation.builders.pattern_builder import PatternBuilder
 from midi_drums.modifications import (
     MechanicalPrecision,
@@ -140,7 +140,7 @@ class HaakePlugin(DrummerPlugin):
         for i in range(7):
             pos = round(i * left_interval, 6)
             builder.pattern.add_beat(
-                pos, DrumInstrument.MID_TOM, VELOCITY.TOM_HEAVY
+                pos, InstrumentRegistry.get("tom_3_open_hit"), VELOCITY.TOM_HEAVY
             )
 
         # Right hand: 5 hits offset (creates 7-over-5 interlock)
@@ -148,7 +148,7 @@ class HaakePlugin(DrummerPlugin):
         for i in range(5):
             pos = round(i * right_interval + right_interval / 2, 6)
             builder.pattern.add_beat(
-                pos, DrumInstrument.FLOOR_TOM, VELOCITY.TOM_ACCENT
+                pos, InstrumentRegistry.get("tom_4_open_hit"), VELOCITY.TOM_ACCENT
             )
 
         # Sparse double-kick foundation on the "one" and syncopated
@@ -179,11 +179,11 @@ class HaakePlugin(DrummerPlugin):
 
         # Tom-edge accents (sparse but cutting through)
         builder.pattern.add_beat(
-            TIMING.HALF * 4 / 5, DrumInstrument.TOM_EDGE_MID, VELOCITY.TOM_HEAVY
+            TIMING.HALF * 4 / 5, InstrumentRegistry.get("tom_3_rimshot_open_hit_dbl"), VELOCITY.TOM_HEAVY
         )
         builder.pattern.add_beat(
             TIMING.HALF * 8 / 5,
-            DrumInstrument.TOM_EDGE_FLOOR,
+            InstrumentRegistry.get("tom_4_rimshot_open_hit_dbl"),
             VELOCITY.TOM_ACCENT,
         )
 
@@ -194,12 +194,12 @@ class HaakePlugin(DrummerPlugin):
         # Chug-chick choked crash accents — defining Meshuggah articulation
         builder.pattern.add_beat(
             TIMING.HALF * 3 / 2,
-            DrumInstrument.CRASH_CHOKED_A,
+            InstrumentRegistry.get("cymbal_1_choke"),
             VELOCITY.CRASH_ACCENT,
         )
         builder.pattern.add_beat(
             TIMING.HALF * 7 / 4,
-            DrumInstrument.CRASH_CHOKED_D,
+            InstrumentRegistry.get("cymbal_4_choke"),
             VELOCITY.CHINA_NORMAL,
         )
 
@@ -230,7 +230,7 @@ class HaakePlugin(DrummerPlugin):
         for i in range(4):
             tom_pos = round(TIMING.HALF * 2 + i * TIMING.QUARTER + 0.3, 6)
             builder.pattern.add_beat(
-                tom_pos, DrumInstrument.MID_TOM, VELOCITY.TOM_ACCENT
+                tom_pos, InstrumentRegistry.get("tom_3_open_hit"), VELOCITY.TOM_ACCENT
             )
 
         return builder.build()
@@ -261,9 +261,9 @@ class HaakePlugin(DrummerPlugin):
             builder.pattern.add_beat(
                 pos,
                 (
-                    DrumInstrument.FLOOR_TOM
+                    InstrumentRegistry.get("tom_4_open_hit")
                     if i % 2 == 0
-                    else DrumInstrument.MID_TOM
+                    else InstrumentRegistry.get("tom_3_open_hit")
                 ),
                 VELOCITY.TOM_NORMAL,
             )
@@ -318,7 +318,7 @@ class HaakePlugin(DrummerPlugin):
         for i in range(3):
             pos = round(i * TIMING.HALF * 2 / 3, 6)
             builder.pattern.add_beat(
-                pos, DrumInstrument.RIDE, VELOCITY.CHINA_ACCENT
+                pos, InstrumentRegistry.get("ride_1_tip_hit_softer"), VELOCITY.CHINA_ACCENT
             )
 
         return builder.build()
@@ -350,7 +350,7 @@ class HaakePlugin(DrummerPlugin):
         # Single devastating tom accent (sparse but impactful)
         builder.pattern.add_beat(
             TIMING.DOTTED_EIGHTH * 2,
-            DrumInstrument.FLOOR_TOM,
+            InstrumentRegistry.get("tom_4_open_hit"),
             VELOCITY.TOM_ACCENT,
         )
 
@@ -373,14 +373,14 @@ class HaakePlugin(DrummerPlugin):
         for i in range(5):
             pos = round(i * TIMING.HALF * 2 / 5 + 0.1, 6)
             builder.pattern.add_beat(
-                pos, DrumInstrument.RIDE, VELOCITY.CHINA_ACCENT - 10
+                pos, InstrumentRegistry.get("ride_1_tip_hit_softer"), VELOCITY.CHINA_ACCENT - 10
             )
 
         # Crash accents placed between beat positions (unconventional)
         for i in range(3):
             pos = round(TIMING.HALF + i * TIMING.QUARTER + 0.25, 6)
             builder.pattern.add_beat(
-                pos, DrumInstrument.CRASH, VELOCITY.CHINA_ACCENT - 15
+                pos, InstrumentRegistry.get("cymbal_1_hit"), VELOCITY.CHINA_ACCENT - 15
             )
 
         # Snare on backbeats (anchoring the polyrhythm)

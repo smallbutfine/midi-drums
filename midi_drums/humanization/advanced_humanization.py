@@ -6,8 +6,8 @@ inspired by Toontrack MIDI libraries and real drummer analysis.
 
 import random
 
+from midi_drums.core.models.kit import DrumInstrument
 from midi_drums.core.models.pattern import Beat, Pattern
-from midi_drums.core.value_objects.drum_instrument import DrumInstrument
 from midi_drums.humanization.limb_constraints import LimbConstraintEngine
 
 # Try to import numpy for Gaussian distribution, fallback to random if not available
@@ -35,54 +35,31 @@ class AdvancedHumanizer:
 
     # Instrument timing characteristics (ms offset at 120 BPM baseline)
     # Positive = behind beat, Negative = ahead of beat
-    INSTRUMENT_TIMING_BIAS = {
-        DrumInstrument.KICK: -2.0,  # Kicks lead slightly (drives rhythm)
-        DrumInstrument.SNARE: 0.0,  # Snare is reference point
-        DrumInstrument.RIM: 0.0,
-        DrumInstrument.CLOSED_HH: 0.0,  # Hi-hat is metronomic reference
-        DrumInstrument.CLOSED_HH_EDGE: 0.0,
-        DrumInstrument.CLOSED_HH_TIP: 0.0,
-        DrumInstrument.TIGHT_HH_EDGE: 0.0,
-        DrumInstrument.TIGHT_HH_TIP: 0.0,
-        DrumInstrument.OPEN_HH: 1.0,  # Open hi-hat slightly behind
-        DrumInstrument.OPEN_HH_1: 1.0,
-        DrumInstrument.OPEN_HH_2: 1.0,
-        DrumInstrument.OPEN_HH_3: 1.0,
-        DrumInstrument.OPEN_HH_MAX: 1.0,
-        DrumInstrument.PEDAL_HH: 0.0,
-        DrumInstrument.RIDE: 1.0,  # Ride slightly behind
-        DrumInstrument.RIDE_BELL: 1.0,
-        DrumInstrument.CRASH: 2.0,  # Crashes behind (heavy cymbals)
-        DrumInstrument.SPLASH: 1.5,
-        DrumInstrument.CHINA: 2.0,
-        DrumInstrument.MID_TOM: 0.5,
-        DrumInstrument.FLOOR_TOM: 0.5,
+    INSTRUMENT_TIMING_BIAS: dict[str, float] = {
+        "kick": -2.0,
+        "snare_sticks": 0.0,
+        "hihat_closed_1_tip_closed_1_hit": 0.0,
+        "hihat_closed_2_tip_closed_2_hit": 0.0,
+        "hihat_open_a": 1.0,
+        "hihat_pedal_closed": 0.0,
+        "ride_1_tip_hit_softer": 1.0,
+        "ride_1_bell": 1.0,
+        "cymbal_1_hit": 2.0,
+        "tom_3_open_hit": 0.5,
+        "tom_4_open_hit": 0.5,
     }
 
-    # Timing tightness by instrument (standard deviation in ms)
-    # Smaller = tighter timing
-    TIMING_TIGHTNESS = {
-        DrumInstrument.KICK: 3.0,
-        DrumInstrument.SNARE: 4.0,
-        DrumInstrument.RIM: 4.0,
-        DrumInstrument.CLOSED_HH: 2.0,  # Tightest (metronomic)
-        DrumInstrument.CLOSED_HH_EDGE: 2.0,
-        DrumInstrument.CLOSED_HH_TIP: 2.0,
-        DrumInstrument.TIGHT_HH_EDGE: 2.0,
-        DrumInstrument.TIGHT_HH_TIP: 2.0,
-        DrumInstrument.OPEN_HH: 3.0,
-        DrumInstrument.OPEN_HH_1: 3.0,
-        DrumInstrument.OPEN_HH_2: 3.0,
-        DrumInstrument.OPEN_HH_3: 3.0,
-        DrumInstrument.OPEN_HH_MAX: 3.0,
-        DrumInstrument.PEDAL_HH: 2.5,
-        DrumInstrument.RIDE: 5.0,
-        DrumInstrument.RIDE_BELL: 4.0,
-        DrumInstrument.CRASH: 6.0,  # Loosest (heavy, reactive)
-        DrumInstrument.SPLASH: 5.0,
-        DrumInstrument.CHINA: 6.0,
-        DrumInstrument.MID_TOM: 5.0,
-        DrumInstrument.FLOOR_TOM: 5.0,
+    TIMING_TIGHTNESS: dict[str, float] = {
+        "kick": 3.0,
+        "snare_sticks": 4.0,
+        "hihat_closed_1_tip_closed_1_hit": 2.0,
+        "hihat_open_a": 3.0,
+        "hihat_pedal_closed": 2.5,
+        "ride_1_tip_hit_softer": 5.0,
+        "ride_1_bell": 4.0,
+        "cymbal_1_hit": 6.0,
+        "tom_3_open_hit": 5.0,
+        "tom_4_open_hit": 5.0,
     }
 
     # Velocity ranges by hit type
@@ -192,21 +169,9 @@ class AdvancedHumanizer:
     def _gaussian_timing_offset(
         self, instrument: DrumInstrument, position: float
     ) -> float:
-        """Generate Gaussian timing offset for instrument.
-
-        Uses instrument-specific timing bias and tightness.
-        Downbeats are naturally tighter (50% tighter timing).
-
-        Args:
-            instrument: Drum instrument
-            position: Beat position in pattern
-
-        Returns:
-            Timing offset in beats (can be positive or negative)
-        """
-        # Get instrument characteristics
-        bias_ms = self.INSTRUMENT_TIMING_BIAS.get(instrument, 0.0)
-        tightness_ms = self.TIMING_TIGHTNESS.get(instrument, 4.0)
+        """Generate Gaussian timing offset for instrument."""
+        bias_ms = self.INSTRUMENT_TIMING_BIAS.get(instrument.name, 0.0)
+        tightness_ms = self.TIMING_TIGHTNESS.get(instrument.name, 4.0)
 
         # Downbeats are tighter (50% reduction in variance)
         is_downbeat = position % 1.0 < 0.01
@@ -342,36 +307,25 @@ class AdvancedHumanizer:
                 )
             ]
 
-        # Multiple instruments - apply relational micro-timing
-        instruments = {b.instrument for b in beats}
+        instruments_names = {b.instrument.name for b in beats}
         timed_beats = []
 
+        kick_key = "kick"
+        snare_key = "snare_sticks"
+        crash_key = "cymbal_1_hit"
+
         for beat in beats:
-            # Base Gaussian offset
             offset = self._gaussian_timing_offset(beat.instrument, position)
             offset *= context["timing_multiplier"]
 
-            # Apply micro-flams for simultaneous kick + snare
-            # In real playing, kick leads by 1-3ms
-            if (
-                beat.instrument == DrumInstrument.KICK
-                and DrumInstrument.SNARE in instruments
-            ):
-                offset -= 0.002  # Kick 2ms early
+            if beat.instrument.name == kick_key and snare_key in instruments_names:
+                offset -= 0.002
 
-            elif (
-                beat.instrument == DrumInstrument.SNARE
-                and DrumInstrument.KICK in instruments
-            ):
-                offset += 0.001  # Snare 1ms late (total 3ms flam)
+            elif beat.instrument.name == snare_key and kick_key in instruments_names:
+                offset += 0.001
 
-            # Crashes naturally slightly behind everything
-            if beat.instrument in {
-                DrumInstrument.CRASH,
-                DrumInstrument.CHINA,
-                DrumInstrument.SPLASH,
-            }:
-                offset += 0.003  # 3ms extra delay on crashes
+            if beat.instrument.name in (crash_key, "cymbal_2_hit", "cymbal_6_hit"):
+                offset += 0.003
 
             timed_beats.append(
                 Beat(
