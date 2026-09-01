@@ -1,96 +1,196 @@
-"""Drum instrument value object - standard MIDI note mappings."""
+"""Dynamic DrumInstrument registration system.
 
-from enum import Enum
+All instruments are discovered at runtime by loading the master template.
+No hardcoded enum members — everything comes from JSON keymaps.
+
+Usage:
+    # At program startup, register all instruments once
+    from midi_drums.core.value_objects.drum_instrument import InstrumentRegistry
+    
+    registry = InstrumentRegistry.load_from_template()  # or load_custom(template_path)
+    
+    # Now access instruments by string name
+    kick = registry.get("kick")           # -> DrumInstrument("kick")
+    snare = registry.get("snare_1")       # -> DrumInstrument("snare_1")
+    
+    # Get all registered instruments
+    for inst in registry.all():
+        print(f"{inst.name} -> {inst.description}")
+"""
+
+from __future__ import annotations
+
+import json
+from pathlib import Path
+from typing import Any
 
 
-class DrumInstrument(Enum):
-    """Standard drum kit instruments with MIDI note mappings."""
+class DrumInstrument:
+    """A drum instrument identity — dynamically registered from keymaps.
+    
+    Instruments have NO MIDI note values baked in. Notes live in separate
+    keymap files (JSON) that map instrument names to specific notes.
+    
+    Each instance is a string-backed value object with metadata attached.
+    """
+    
+    _registry: dict[str, DrumInstrument] = {}  # class-level registry
+    
+    def __init__(self, name: str, description: str = "", metadata: dict | None = None):
+        self._name = name
+        self._description = description
+        self._metadata = metadata or {}
+        
+        if self not in DrumInstrument._registry.values():
+            DrumInstrument._registry[name] = self
+    
+    @property
+    def name(self) -> str:
+        return self._name
+    
+    @property
+    def description(self) -> str:
+        return self._description
+    
+    @property
+    def metadata(self) -> dict:
+        return self._metadata.copy()  # return a copy to prevent mutation
+    
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, DrumInstrument):
+            return False
+        return self.name == other.name
+    
+    def __hash__(self) -> int:
+        return hash(self.name)
+    
+    def __str__(self) -> str:
+        return self.name
+    
+    def __repr__(self) -> str:
+        return f"DrumInstrument('{self.name}')"
 
-    # Core instruments (GM-standard positions)
-    KICK = 36
-    SNARE = 38
-    RIM = 40
-    MID_TOM = 47
-    FLOOR_TOM = 43
-    CRASH = 49
-    RIDE = 51
-    SPLASH = 55
-    CHINA = 52
 
-    # --- Extended hi-hat (EZDrummer-specific, non-GM) ---
-    CLOSED_HH = 42  # GM standard
-    CLOSED_HH_EDGE = 22  # EZDrummer specific
-    CLOSED_HH_TIP = 61  # EZDrummer specific
-    TIGHT_HH_EDGE = 62  # EZDrummer specific
-    TIGHT_HH_TIP = 63  # EZDrummer specific
-    PEDAL_HH = 44
-    OPEN_HH = 46  # GM standard
-    OPEN_HH_1 = 24  # EZDrummer specific
-    OPEN_HH_2 = 25  # EZDrummer specific
-    OPEN_HH_3 = 26  # EZDrummer specific
-    OPEN_HH_MAX = 60  # EZDrummer specific - fully open
+class InstrumentRegistry:
+    """Manages all registered drum instruments across all keymaps.
+    
+    This is the single source of truth for which instruments exist.
+    MIDI note mappings live in separate keymap files.
+    """
+    
+    _instruments: dict[str, DrumInstrument] = {}
+    
+    @classmethod
+    def clear(cls) -> None:
+        """Clear all registered instruments (useful for testing)."""
+        cls._instruments.clear()
+    
+    @classmethod
+    def register(
+        cls,
+        name: str,
+        description: str = "",
+        metadata: dict | None = None,
+    ) -> DrumInstrument:
+        """Register a new instrument or retrieve existing one by name.
+        
+        If the instrument already exists in the registry, returns the existing instance
+        (singleton behavior). Creates a new one otherwise.
+        
+        Args:
+            name: Unique string identifier for this instrument (e.g., 'kick', 'snare_1')
+            description: Human-readable description of the instrument/articulation
+            metadata: Optional dict with additional attributes
+        
+        Returns:
+            The DrumInstrument instance (always the same object for the same name)
+        """
+        if name in cls._instruments:
+            return cls._instruments[name]
+        
+        inst = DrumInstrument(
+            name=name,
+            description=description,
+            metadata=metadata or {}
+        )
+        cls._instruments[name] = inst
+        return inst
+    
+    @classmethod
+    def get(cls, name: str) -> DrumInstrument | None:
+        """Get a registered instrument by name, or None if not found."""
+        return cls._instruments.get(name)
+    
+    @classmethod
+    def all(cls) -> list[DrumInstrument]:
+        """Return all registered instruments as a list."""
+        return list(cls._instruments.values())
+    
+    @classmethod
+    def all_names(cls) -> set[str]:
+        """Return all registered instrument names as a set."""
+        return set(cls._instruments.keys())
+    
+    @classmethod
+    def load_from_template(
+        cls,
+        template_path: str | Path | None = None,
+    ) -> None:
+        """Load all instruments from a master template keymap file.
+        
+        Scans the template's instrument keys and registers each one with its description.
+        This should be called once at program startup to initialize the registry.
+        
+        Args:
+            template_path: Path to the master template JSON file.
+                          Defaults to midi_drums/mappings/template.json
+        """
+        if template_path is None:
+            # Default path relative to this module's location
+            from pathlib import Path as _Path
+            default = _Path(__file__).parent.parent / "mappings" / "template.json"
+            if default.exists():
+                template_path = default
+            else:
+                raise FileNotFoundError(
+                    f"Template not found at {default}. Specify path explicitly."
+                )
+        
+        data = json.loads(Path(template_path).read_text(encoding="utf-8"))
+        instruments = data.get("instruments", {})
+        
+        for name, info in instruments.items():
+            cls.register(
+                name=name,
+                description=info.get("description", ""),
+                metadata={"source": data.get("source", "template")}
+            )
+    
+    @classmethod
+    def load_custom(cls, template_path: str | Path) -> None:
+        """Alias for load_from_template — explicit method name."""
+        cls.load_from_template(template_path)
 
-    # --- Ride bell ---
-    RIDE_BELL = 53
 
-    # === Addictive Drums 2 extended instruments ===
-    # Base values chosen to avoid GM percussion conflicts. Non-AD2 presets
-    # do not map these explicitly (safe: unmapped -> enum fallback, no sound).
+# ── Convenience Functions ───────────────────────────────────────────────────
 
-    # Brush sweep presets (Snare brush sweep zones)
-    BRUSH_SWEEP_A = 35  # Close Soft Tap
-    BRUSH_SWEEP_B = 34  # Sweep Mute
-    BRUSH_SWEEP_C = 33  # Slow Dark Accent
-    BRUSH_SWEEP_D = 32  # Fast Dark Accent
-    BRUSH_SWEEP_E = 31  # Slow Bright Accent
-    BRUSH_SWEEP_F = 30  # Fast Bright Accent
+def get_instrument(name: str) -> DrumInstrument:
+    """Get a registered instrument by name. Raises KeyError if not found."""
+    inst = InstrumentRegistry.get(name)
+    if inst is None:
+        available = ", ".join(sorted(InstrumentRegistry.all_names()))
+        raise KeyError(
+            f"Unknown drum instrument '{name}'. "
+            f"Available: {available}"
+        )
+    return inst
 
-    # Snare rim / side stick variants
-    SNARE_RIMSHOT = 92  # Unique: A#5 AD2 Cymbal Choke zone (rim articulation)
 
-    # Tight hi-hat (velocity-tunable AD2 zones)
-    TIGHT_HH_CLOSED = 91  # G5 - highest tight closed
+def get_all_instruments() -> list[DrumInstrument]:
+    """Get all registered instruments."""
+    return InstrumentRegistry.all()
 
-    # Tom edge hits (rimmed tom strikes)
-    TOM_EDGE_MID = 65  # Floor Tom Open Hit (AD2 mid edge)
-    TOM_EDGE_FLOOR = 65  # Floor Tom Open Hit
-    TOM_EDGE_3 = 67  # Tom 3 Rimshot Open Hit
-    TOM_EDGE_4 = 69  # Tom 2 Rimshot Open Hit
 
-    # Crash choke articulations
-    CRASH_CHOKED_A = 80  # F#5 - Choke A
-    CRASH_CHOKED_B = 79  # G4  - Choke B
-    CRASH_CHOKED_C = 71  # F3  - Choke C
-    CRASH_CHOKED_D = 68  # E3  - Choke D
-
-    # === AD2 extended zones not in standard GM ===
-    # These are unique to Addictive Drums 2 and provide timbral variety
-    # All MIDI values taken from the AD2 keymap PDF (Addictive Drums 2 Keymap.pdf)
-
-    # --- Ride cymbal variants (different striking positions) ---
-    RIDE_SHAFT = 94  # B3 - Ride shaft hit (metallic, bell-like timbre) for metal sections
-    RIDE_BELL_ALT = 85  # C#5 - Alt bell position for fills/accents
-    RIDE_1_TIP = 60  # C3 - Softer ride tip for verses/intros
-
-    # --- Tom edge/rim across ALL toms (aggressive attack in rock/metal) ---
-    TOM_EDGE_1 = 72  # F#4 - Tom 1 Rimshot Open Hit (tight high tom)
-    TOM_EDGE_2 = 70  # A#3 - Tom 2 Rimshot Open Hit (mid tom)
-
-    # --- Crash cymbal types (different pitches/timbres for variety) ---
-    CRASH_HEAVY = 89  # F5 - Heavy crash for choruses/dynamics
-    CRASH_LIGHT = 77  # F4 - Light/medium crash for verses
-    CRASH_SPLASH = 93  # A5 - High splashy crash for fills
-
-    # --- Tight HH full range (funk/rock pocket depth control) ---
-    TIGHT_HH_A = 54  # B2 - Looser tight HH for funk groove
-    TIGHT_HH_B = 56  # C3 - Medium-tight HH
-    TIGHT_HH_C = 58  # D#3 - Tightest control (punk/alternative)
-
-    # --- Open HH full range ---
-    OPEN_HH_SOFT = 27  # A#1 - Softer open crash cymbal
-    OPEN_HH_FULL = 28  # C2 - Full open for dramatic sections
-
-    # --- Flexi triggers (multi-hit tom zones for progressive patterns) ---
-    FLEXI_1 = 95  # B4 - Flexi Tom 1 trigger
-    FLEXI_2 = 96  # C#5 - Flexi Tom 2 trigger
-    FLEXI_3 = 101  # A#5 - Flexi Tom 3 trigger
+def register_instrument(name: str, description: str = "") -> DrumInstrument:
+    """Register a new instrument directly (alias for registry.register)."""
+    return InstrumentRegistry.register(name, description)

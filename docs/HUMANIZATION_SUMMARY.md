@@ -190,7 +190,7 @@ Located in: `tests/unit/humanization/test_advanced_humanization.py`
 
 **Run Tests:**
 ```bash
-cd C:\dev\python\projects\midi_drums
+cd midi-drums
 pytest tests/unit/humanization/test_advanced_humanization.py -v
 ```
 
@@ -352,7 +352,7 @@ All code is fully documented with:
 
 ### 1. Generate Enhanced Doom Blues Track
 ```bash
-cd C:\dev\python\projects\midi_drums
+cd midi-drums
 python generate_doom_blues_enhanced_humanization.py
 ```
 
