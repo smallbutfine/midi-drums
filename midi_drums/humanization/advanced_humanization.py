@@ -318,13 +318,23 @@ class AdvancedHumanizer:
             offset = self._gaussian_timing_offset(beat.instrument, position)
             offset *= context["timing_multiplier"]
 
-            if beat.instrument.name == kick_key and snare_key in instruments_names:
+            if (
+                beat.instrument.name == kick_key
+                and snare_key in instruments_names
+            ):
                 offset -= 0.002
 
-            elif beat.instrument.name == snare_key and kick_key in instruments_names:
+            elif (
+                beat.instrument.name == snare_key
+                and kick_key in instruments_names
+            ):
                 offset += 0.001
 
-            if beat.instrument.name in (crash_key, "cymbal_2_hit", "cymbal_6_hit"):
+            if beat.instrument.name in (
+                crash_key,
+                "cymbal_2_hit",
+                "cymbal_6_hit",
+            ):
                 offset += 0.003
 
             timed_beats.append(

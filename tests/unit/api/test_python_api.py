@@ -26,7 +26,7 @@ class TestCreateSongDrumKitPrecedence:
             "metal",
             "heavy",
             tempo=140,
-            mapping="ezdrummer3",
+            mapping="gm",
             drum_kit=custom_kit,
         )
 
@@ -35,9 +35,9 @@ class TestCreateSongDrumKitPrecedence:
     def test_mapping_alone_still_works_unchanged(self):
         api = DrumGeneratorAPI()
 
-        api.create_song("metal", "heavy", tempo=140, mapping="ezdrummer3")
+        api.create_song("metal", "heavy", tempo=140, mapping="gm")
 
-        assert "EZDrummer" in api.generator.drum_kit.name
+        assert "General MIDI" in api.generator.drum_kit.name
 
     def test_mapping_default_used_when_neither_arg_given(self):
         api = DrumGeneratorAPI()
@@ -55,7 +55,7 @@ class TestCreateSongDrumKitPrecedence:
             "metal",
             "heavy",
             tempo=140,
-            mapping="ezdrummer3",
+            mapping="gm",
             drum_kit=DrumKit.from_keymap_name("gm"),
         )
         assert "General MIDI" in api.generator.drum_kit.name
@@ -64,11 +64,11 @@ class TestCreateSongDrumKitPrecedence:
             "metal",
             "heavy",
             tempo=140,
-            mapping="ezdrummer3",
+            mapping="gm",
             drum_kit=None,
         )
 
-        assert "EZDrummer" in api.generator.drum_kit.name
+        assert "General MIDI" in api.generator.drum_kit.name
 
     def test_batch_generate_forwards_explicit_drum_kit(self, tmp_path):
         api = DrumGeneratorAPI()
@@ -97,12 +97,14 @@ class TestCreateSongMappingFile:
         mapping_path = tmp_path / "custom_kit.json"
         # Use template key names for the instrument mapping
         mapping_path.write_text(
-            json.dumps({
-                "name": "File Kit",
-                "instruments": {
-                    "kick": {"midi_note": 30, "description": "Custom kick"}
+            json.dumps(
+                {
+                    "name": "File Kit",
+                    "instruments": {
+                        "kick": {"midi_note": 30, "description": "Custom kick"}
+                    },
                 }
-            }),
+            ),
             encoding="utf-8",
         )
         api = DrumGeneratorAPI()
@@ -111,7 +113,7 @@ class TestCreateSongMappingFile:
             "metal",
             "heavy",
             tempo=140,
-            mapping="ezdrummer3",
+            mapping="gm",
             mapping_file=str(mapping_path),
         )
 
@@ -120,12 +122,14 @@ class TestCreateSongMappingFile:
     def test_explicit_drum_kit_still_wins_over_mapping_file(self, tmp_path):
         mapping_path = tmp_path / "custom_kit.json"
         mapping_path.write_text(
-            json.dumps({
-                "name": "File Kit",
-                "instruments": {
-                    "kick": {"midi_note": 30, "description": "Custom kick"}
+            json.dumps(
+                {
+                    "name": "File Kit",
+                    "instruments": {
+                        "kick": {"midi_note": 30, "description": "Custom kick"}
+                    },
                 }
-            }),
+            ),
             encoding="utf-8",
         )
         api = DrumGeneratorAPI()

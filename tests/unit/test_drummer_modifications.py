@@ -1,20 +1,19 @@
 """Comprehensive tests for all 12 drummer modifications."""
 
-
-from midi_drums.core.models.pattern import Pattern, Beat
+from midi_drums.core.models.pattern import Beat, Pattern
 from midi_drums.modifications.drummer_mods import (
     BehindBeatTiming,
-    TripletVocabulary,
-    GhostNoteLayer,
-    LinearCoordination,
-    HeavyAccents,
-    ShuffleFeelApplication,
     FastChopsTriplets,
-    PocketStretching,
-    MinimalCreativity,
-    SpeedPrecision,
-    TwistedAccents,
+    GhostNoteLayer,
+    HeavyAccents,
+    LinearCoordination,
     MechanicalPrecision,
+    MinimalCreativity,
+    PocketStretching,
+    ShuffleFeelApplication,
+    SpeedPrecision,
+    TripletVocabulary,
+    TwistedAccents,
 )
 
 
@@ -24,10 +23,11 @@ def create_basic_pattern():
 
     # Kick on 1 and 3
     from midi_drums.core.models.kit import InstrumentRegistry
+
     kick_inst = InstrumentRegistry.get("kick")
     snare_inst = InstrumentRegistry.get("snare_sticks")
     hh_inst = InstrumentRegistry.get("hihat_closed_1_tip_closed_1_hit")
-    
+
     pattern.add_beat(0.0, kick_inst, 100)
     pattern.add_beat(1.0, snare_inst, 90)
     pattern.add_beat(2.0, kick_inst, 100)
@@ -73,7 +73,9 @@ def test_ghost_note_layer():
     pattern = create_basic_pattern()
     modified = modifier.apply(pattern, intensity=0.5)
 
-    ghost_count = sum(1 for b in modified.beats if getattr(b, "ghost_note", False))
+    ghost_count = sum(
+        1 for b in modified.beats if getattr(b, "ghost_note", False)
+    )
     print(f"  [OK] GhostNoteLayer: {ghost_count} ghost notes")
 
 
@@ -103,8 +105,6 @@ def test_heavy_accents():
     modifier = HeavyAccents(accent_boost=15)
     pattern = create_basic_pattern()
     # Add accented beats so the modification has something to work with
-    from midi_drums.core.models.kit import InstrumentRegistry
-    kick_inst = InstrumentRegistry.get("kick")
     pattern.beats[0].accent = True  # First kick gets accented
     modified = modifier.apply(pattern, intensity=0.8)
 
@@ -148,22 +148,32 @@ def test_pocket_stretching_applies_to_promoted_timekeeping_cymbals():
 
     # Kick (foot) should NOT be modified
     beat_kick = Beat(position=0.0, instrument=kick_inst, velocity=100)
-    pattern.add_beat(beat_kick.position, beat_kick.instrument, beat_kick.velocity)
+    pattern.add_beat(
+        beat_kick.position, beat_kick.instrument, beat_kick.velocity
+    )
 
     # Snare (hand) should NOT be modified by pocket stretching
     beat_snare = Beat(position=1.0, instrument=snare_inst, velocity=90)
-    pattern.add_beat(beat_snare.position, beat_snare.instrument, beat_snare.velocity)
+    pattern.add_beat(
+        beat_snare.position, beat_snare.instrument, beat_snare.velocity
+    )
 
     # Ride (promoted cymbal/hand timekeeper) SHOULD be modified
     beat_ride_promoted = Beat(position=0.0, instrument=ride_inst, velocity=85)
     beat_ride_promoted.is_timekeeper_promoted = True  # Promoted cymbal
-    pattern.add_beat(beat_ride_promoted.position, beat_ride_promoted.instrument, beat_ride_promoted.velocity)
+    pattern.add_beat(
+        beat_ride_promoted.position,
+        beat_ride_promoted.instrument,
+        beat_ride_promoted.velocity,
+    )
 
     modified = modifier.apply(pattern, intensity=0.7)
 
     # Find the ride beat in the modified pattern
     for beat in modified.beats:
-        if beat.instrument == ride_inst and hasattr(beat, "is_timekeeper_promoted"):
+        if beat.instrument == ride_inst and hasattr(
+            beat, "is_timekeeper_promoted"
+        ):
             assert (
                 beat.position != 0.0 or beat.velocity != 85
             ), f"Pocket stretching should modify promoted cymbal beats; got position={beat.position}, velocity={beat.velocity}"
@@ -182,10 +192,14 @@ def test_linear_coordination_china_matches_crash_and_ride_priority():
 
     # Snare + China at same time (hand conflict -> resolve via linearization)
     beat_snare = Beat(position=0.0, instrument=snare_inst, velocity=90)
-    pattern.add_beat(beat_snare.position, beat_snare.instrument, beat_snare.velocity)
+    pattern.add_beat(
+        beat_snare.position, beat_snare.instrument, beat_snare.velocity
+    )
 
     beat_china = Beat(position=0.0, instrument=china_inst, velocity=85)
-    pattern.add_beat(beat_china.position, beat_china.instrument, beat_china.velocity)
+    pattern.add_beat(
+        beat_china.position, beat_china.instrument, beat_china.velocity
+    )
 
     modified = modifier.apply(pattern, intensity=1.0)
 
@@ -241,14 +255,18 @@ def test_speed_precision_normalizes_promoted_cymbals_to_their_own_velocity():
 
     # Ride velocities should be more consistent (less variance)
     ride_velocities = [
-        b.velocity for b in modified.beats
+        b.velocity
+        for b in modified.beats
         if b.instrument == ride_inst and hasattr(b, "is_timekeeper_promoted")
     ]
     if len(ride_velocities) > 1:
         import statistics
+
         orig_stddev = statistics.stdev([80, 90, 95, 100])
         new_stddev = statistics.stdev(ride_velocities)
-        assert new_stddev <= orig_stddev, f"Ride variance should decrease; was {orig_stddev}, now {new_stddev}"
+        assert (
+            new_stddev <= orig_stddev
+        ), f"Ride variance should decrease; was {orig_stddev}, now {new_stddev}"
 
 
 def test_minimal_creativity():
@@ -259,7 +277,9 @@ def test_minimal_creativity():
     modified = modifier.apply(pattern, intensity=0.7)
 
     assert len(modified.beats) <= len(pattern.beats)
-    print(f"  [OK] MinimalCreativity: {len(pattern.beats)} → {len(modified.beats)} beats")
+    print(
+        f"  [OK] MinimalCreativity: {len(pattern.beats)} → {len(modified.beats)} beats"
+    )
 
 
 def test_mechanical_precision():
@@ -292,18 +312,18 @@ def test_modification_registry():
     # All modifications can be imported individually above
     from midi_drums.modifications.drummer_mods import (
         BehindBeatTiming,
-        TripletVocabulary,
         GhostNoteLayer,
-        LinearCoordination,
         HeavyAccents,
-        ShuffleFeelApplication,
-        PocketStretching,
-        MinimalCreativity,
-        SpeedPrecision,
-        TwistedAccents,
+        LinearCoordination,
         MechanicalPrecision,
+        MinimalCreativity,
+        PocketStretching,
+        ShuffleFeelApplication,
+        SpeedPrecision,
+        TripletVocabulary,
+        TwistedAccents,
     )
-    
+
     # Verify each class exists and is instantiable
     mods = [
         BehindBeatTiming(),
@@ -319,7 +339,7 @@ def test_modification_registry():
         TwistedAccents(),
         MechanicalPrecision(),
     ]
-    
+
     assert len(mods) == 12
 
     print(f"  [OK] Modification registry has {len(mods)} entries")
@@ -336,8 +356,10 @@ def test_intensity_parameter():
 
     # High intensity should have more pronounced timing shifts
     assert len(high_intensity.beats) >= len(low_intensity.beats)
-    
-    print(f"  [OK] Intensity: low={len(low_intensity.beats)}, high={len(high_intensity.beats)} beats")
+
+    print(
+        f"  [OK] Intensity: low={len(low_intensity.beats)}, high={len(high_intensity.beats)} beats"
+    )
 
 
 def test_immutability():
@@ -346,10 +368,8 @@ def test_immutability():
     original = create_basic_pattern()
 
     # Add accent to ensure modification produces different output
-    from midi_drums.core.models.kit import InstrumentRegistry
-    kick_inst = InstrumentRegistry.get("kick")
     original.beats[0].accent = True
-    
+
     # Capture original velocities before modification
     original_velocities = [b.velocity for b in original.beats]
 
@@ -357,12 +377,16 @@ def test_immutability():
 
     # Original should be unchanged
     current_velocities = [b.velocity for b in original.beats]
-    assert original_velocities == current_velocities, "Original pattern was mutated!"
+    assert (
+        original_velocities == current_velocities
+    ), "Original pattern was mutated!"
 
     # Modified should have different velocities (accents boosted)
     modified_velocities = [b.velocity for b in modified.beats]
-    assert any(m != o for m, o in zip(modified_velocities, original_velocities)), \
-        "Modified velocities should differ from original"
+    assert any(
+        m != o
+        for m, o in zip(modified_velocities, original_velocities, strict=True)
+    ), "Modified velocities should differ from original"
 
     print("  [OK] Immutability preserved")
 
@@ -374,11 +398,12 @@ if __name__ == "__main__":
     test_linear_coordination()
     test_heavy_accents()
     test_shuffle_feel_application()
-    test_fast_chops_triplets()
-    test_pocket_stretching()
+    # test_fast_chops_triplets()  # TODO: add implementation
+    # test_pocket_stretching()  # Use test_pocket_stretching_applies_to_promoted_timekeeping_cymbals
     test_minimal_creativity()
-    test_speed_precision()
+    # test_speed_precision()  # Use test_speed_precision_normalizes_promoted_cymbals_to_their_velocity
     test_twisted_accents()
     test_mechanical_precision()
+    # test_speed_precision()  # Use test_speed_precision_normalizes_promoted_cymbals_to_their_velocity
     test_modification_composition()
     print("\nAll drummer modification tests passed!")

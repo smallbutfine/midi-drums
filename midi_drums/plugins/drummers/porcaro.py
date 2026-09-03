@@ -1,13 +1,14 @@
-"""Jeff Porcaro drummer plugin - refactored using composable modifications.
+"""Jeff Porcaro drummer plugin using full AD2 kit vocabulary for studio precision.
 
-Reduced from ~369 lines to ~63 lines (83% reduction) by using the
-DrummerModification system instead of manual pattern manipulation.
+Fills now use snare_side_stick prominently (cross-stick/groove texture), tight_hh for
+tight hi-hat work, ride_bell/ride_shaft for half-time shuffle timekeeping, tom variations
+(HIGH/MID/LOW/FLOOR) across the full kit, and cymbal_open + crash_choked for tight studio
+transitions — matching his Toto / Steely Dan session-work sound.
 """
 
 import random
 
 from midi_drums.config import TIMING, VELOCITY
-from midi_drums.core.models.kit import InstrumentRegistry
 from midi_drums.core.models.pattern import Pattern
 from midi_drums.core.models.song import Fill
 from midi_drums.modifications import (
@@ -25,10 +26,6 @@ class PorcaroPlugin(DrummerPlugin):
     - Ghost notes for groove texture
     - Studio precision and consistency
     - Sophisticated feel and dynamics
-
-    Implemented using composable modifications:
-    - ShuffleFeelApplication: Applies Porcaro's legendary shuffle feel
-    - GhostNoteLayer: Adds characteristic ghost notes between main hits
     """
 
     def __init__(self):
@@ -54,17 +51,12 @@ class PorcaroPlugin(DrummerPlugin):
         return styled
 
     def get_signature_fills(self) -> list[Fill]:
-        """Return Jeff Porcaro's signature fill patterns.
+        """Return Jeff Porcaro's signature fill patterns using full AD2 kit.
 
-        Verified via Steely Dan/Toto career and documented recordings:
-          - Rosanna shuffle: half-time kick/snare + ghost notes (Toto IV, 1982)
-          - Half-time shuffle: minimal kick, triplet ghost-note snare
-          - Ghost note showcase: dense 16th-note ghost-snare vocabulary
-          - Studio precision: clean tom-to-kick resolution fill
-          - Aja fusion groove: sophisticated linear jazz fusion fill
-          - Chain of fools grooves: Motown-influenced backbeat with pocket
-          - Waiter's pad: tight snare/tom interlock (documented in Toto live)
-          - Rosanna variation: triplet shuffle on ride cymbal + ghost notes
+        Uses snare_side_stick prominently for cross-stick/groove texture, tight_hh for tight
+        hi-hat work, ride_bell/ride_shaft for half-time shuffle timekeeping, tom variations
+        (HIGH/MID/LOW/FLOOR) across the full kit, and cymbal_open + crash_choked for tight
+        studio transitions — matching his Toto / Steely Dan sound.
         """
         return [
             Fill(
@@ -73,12 +65,12 @@ class PorcaroPlugin(DrummerPlugin):
                 section_position="start",
             ),
             Fill(
-                pattern=self._create_half_time_shuffle(),
+                pattern=self._create_half_time_shuffle_fill(),
                 trigger_probability=0.8,
                 section_position="middle",
             ),
             Fill(
-                pattern=self._create_ghost_note_fill(),
+                pattern=self._create_ghost_note_showcase(),
                 trigger_probability=0.7,
                 section_position="middle",
             ),
@@ -93,246 +85,211 @@ class PorcaroPlugin(DrummerPlugin):
                 section_position="middle",
             ),
             Fill(
+                pattern=self._create_chain_of_fools_grooves(),
+                trigger_probability=0.7,
+                section_position="start",
+            ),
+            Fill(
                 pattern=self._create_waiters_pad_interlock(),
                 trigger_probability=0.65,
                 section_position="end",
             ),
             Fill(
-                pattern=self._create_rosanna_triplet_variation(),
-                trigger_probability=0.7,
+                pattern=self._create_rosanna_variation_fill(),
+                trigger_probability=0.85,
                 section_position="start",
-            ),
-            Fill(
-                pattern=self._create_chain_of_fools_backbeat(),
-                trigger_probability=0.6,
-                section_position="end",
             ),
         ]
 
     def _create_rosanna_shuffle(self) -> Pattern:
-        """The famous Rosanna Shuffle (Toto IV, 1982)."""
+        """Rosanna shuffle — ride_bell timekeeping + snare_side_stick ghost notes + tom_FLOOR."""
         from midi_drums.generation.builders.pattern_builder import (
             PatternBuilder,
         )
 
-        builder = PatternBuilder("porcaro_rosanna_shuffle")
-        builder.kick(0.0, VELOCITY.KICK_LIGHT)
-        builder.kick(TIMING.HALF, 105)
-        builder.snare(TIMING.HALF, VELOCITY.SNARE_HEAVY)
-
-        # Rosanna shuffle ride cymbal pattern (the defining voice of this groove)
-        for i in range(8):
-            pos = i * TIMING.EIGHTH
-            if i % 2 == 0:
-                builder.ride(pos, VELOCITY.RIDE_NORMAL)
-            else:
-                builder.pattern.add_beat(
-                    pos + TIMING.SIXTEENTH,
-                    InstrumentRegistry.get("ride_1_bell"),
-                    VELOCITY.RIDE_LIGHT,
-                )
-        ghost = [TIMING.EIGHTH_TRIPLET * i for i in range(1, 12)]
-        for pos in ghost:
-            if random.random() < 0.7:
-                builder.pattern.add_beat(
-                    pos, InstrumentRegistry.get("snare_sticks"), VELOCITY.SNARE_GHOST
-                )
-        for i in range(8):
-            open_flag = i % 4 in [1, 3]
-            vel = 75 if not open_flag else VELOCITY.HIHAT_ACCENT
-            builder.pattern.add_beat(
-                i * TIMING.EIGHTH,
-                (
-                    InstrumentRegistry.get("hihat_open_a")
-                    if open_flag
-                    else InstrumentRegistry.get("hihat_closed_bell")
-                ),
-                vel,
+        builder = PatternBuilder("porcaro_rosanna")
+        # Half-time shuffle with ride bell as timekeeper (signature Rosanna sound)
+        for i in range(6):
+            pos = TIMING.EIGHTH_TRIPLET * i
+            builder.ride_bell(pos, VELOCITY.RIDE_NORMAL + random.randint(-5, 8))
+        # Snare side stick (cross-stick) for groove texture
+        for i in [1, 3, 5]:
+            pos = TIMING.EIGHTH_TRIPLET * i
+            builder.snare_side_stick(
+                pos, VELOCITY.SNARE_GHOST + random.randint(0, 5)
             )
+        # tom_MID + FLOOR accents (half-time kick pattern)
+        builder.tom(TIMING.QUARTER, "MID", VELOCITY.TOM_NORMAL)
+        builder.tom(TIMING.HALF * 3, "FLOOR", VELOCITY.TOM_HEAVY - 5)
+        # Tight hi-hat open for shuffle punctuation
+        builder.tight_hh(4.0 - TIMING.EIGHTH_TRIPLET, open=True)
         return builder.build()
 
-    def _create_half_time_shuffle(self) -> Pattern:
-        """Half-time shuffle variation."""
+    def _create_half_time_shuffle_fill(self) -> Pattern:
+        """Half-time shuffle — ride_shaft + snare_side_stick ghost notes + tom_edge rimshots."""
         from midi_drums.generation.builders.pattern_builder import (
             PatternBuilder,
         )
 
         builder = PatternBuilder("porcaro_half_time_shuffle")
-        builder.kick(0.0, VELOCITY.KICK_LIGHT)
-        builder.snare(TIMING.HALF, VELOCITY.SNARE_HEAVY)
-        builder.kick(TIMING.HALF + TIMING.EIGHTH_TRIPLET, VELOCITY.KICK_NORMAL)
-        for pos in [0.5, 1.0, 1.5, 2.5, 3.0, 3.5]:
-            builder.pattern.add_beat(
-                pos, InstrumentRegistry.get("snare_sticks"), VELOCITY.SNARE_GHOST
+        # ride_shaft as timekeeper for half-time shuffle feel
+        for i in range(6):
+            pos = TIMING.EIGHTH_TRIPLET * i
+            builder.ride_shaft(pos, VELOCITY.RIDE_NORMAL)
+        # snare_side_stick ghost notes (signature Porcaro groove texture)
+        for i in [0, 2, 4]:
+            pos = TIMING.EIGHTH_TRIPLET * i
+            builder.snare_side_stick(
+                pos, VELOCITY.SNARE_GHOST + random.randint(0, 5)
             )
+        # tom_edge rimshots for shuffle accent texture
+        builder.tom_edge(
+            TIMING.HALF + TIMING.EIGHTH_TRIPLET, "MID", VELOCITY.TOM_HEAVY - 8
+        )
+        builder.tom_edge(TIMING.HALF * 3, "LOW", VELOCITY.TOM_HEAVY - 5)
+        # Tight hi-hat resolution
+        builder.tight_hh(4.0 - TIMING.SIXTEENTH, open=False)
         return builder.build()
 
-    def _create_ghost_note_fill(self) -> Pattern:
-        """Dense ghost-note showcase."""
+    def _create_ghost_note_showcase(self) -> Pattern:
+        """Ghost note showcase — snare_side_stick dense grid + tom_1 rimshot accents."""
         from midi_drums.generation.builders.pattern_builder import (
             PatternBuilder,
         )
 
         builder = PatternBuilder("porcaro_ghost_notes")
-        builder.kick(0.0, VELOCITY.KICK_LIGHT)
-        builder.snare(TIMING.QUARTER, VELOCITY.SNARE_HEAVY)
-        builder.kick(TIMING.HALF, VELOCITY.KICK_LIGHT)
-        builder.snare(TIMING.HALF * 3, VELOCITY.SNARE_HEAVY)
+        # Dense snare side stick ghost-note grid (signature Porcaro technique)
         for i in range(16):
-            pos = i * TIMING.SIXTEENTH
-            if pos > 0 and pos < 4.0:
-                builder.pattern.add_beat(
-                    pos,
-                    InstrumentRegistry.get("snare_sticks"),
-                    VELOCITY.SNARE_GHOST + random.randint(0, 15),
-                )
+            pos = TIMING.SIXTEENTH * i
+            builder.snare_side_stick(
+                pos, VELOCITY.SNARE_GHOST + random.randint(-3, 8)
+            )
+        # tom_1 rimshot accents for structure
+        builder.tom_edge(TIMING.QUARTER, "1", VELOCITY.TOM_NORMAL)
+        builder.tom_edge(TIMING.HALF * 3, "1", VELOCITY.TOM_HEAVY - 5)
+        # Tight hi-hat open for groove punctuation
+        builder.tight_hh(4.0 - TIMING.EIGHTH_TRIPLET, open=True)
         return builder.build()
 
     def _create_studio_precision_fill(self) -> Pattern:
-        """Clean studio precision fill."""
+        """Studio precision — tom cascade with ride_bell stinger + cymbal_choke."""
         from midi_drums.generation.builders.pattern_builder import (
             PatternBuilder,
         )
 
         builder = PatternBuilder("porcaro_studio_precision")
-        builder.snare(0.0, VELOCITY.SNARE_NORMAL)
-        builder.pattern.add_beat(
-            TIMING.EIGHTH, InstrumentRegistry.get("tom_3_open_hit"), VELOCITY.TOM_NORMAL
+        # Tom cascade through MID and FLOOR (tight studio feel)
+        for i in range(4):
+            pos = TIMING.EIGHTH_TRIPLET * i
+            variant = "MID" if i < 2 else "FLOOR"
+            builder.tom(
+                pos, variant, VELOCITY.TOM_NORMAL + random.randint(-5, 8)
+            )
+        # snare_rimshot for precision accent (studio perfection)
+        builder.snare_rimshot(TIMING.HALF * 3, VELOCITY.SNARE_RIMSHOT)
+        # ride_bell stinger resolution
+        builder.ride_bell(
+            4.0 - TIMING.EIGHTH_TRIPLET, VELOCITY.RIDE_BELL_ACCENT
         )
-        builder.pattern.add_beat(
-            TIMING.HALF, InstrumentRegistry.get("tom_3_open_hit"), VELOCITY.TOM_HEAVY
-        )
-        builder.pattern.add_beat(
-            TIMING.DOTTED_EIGHTH,
-            InstrumentRegistry.get("tom_4_open_hit"),
-            VELOCITY.TOM_HEAVY + 2,
-        )
-        builder.kick(TIMING.QUARTER, VELOCITY.KICK_HEAVY)
+        # crash_choked for tight studio transition
+        builder.crash_choked(4.0 - TIMING.SIXTEENTH, "2")
         return builder.build()
 
     def _create_aja_fusion_groove(self) -> Pattern:
-        """Aja-era linear jazz fusion fill.
-
-        Steely Dan's Aja (1977) era showcases Porcaro's sophisticated linear
-        coordination — kick, snare, and toms never overlap. This fill reflects
-        that vocabulary with clean 16th-note linear sequencing.
-        """
+        """Aja fusion groove — ride_bell/ride_shaft + tom variations + snare_rimshot."""
         from midi_drums.generation.builders.pattern_builder import (
             PatternBuilder,
         )
 
-        builder = PatternBuilder("porcaro_aja_linear")
-        # Linear sequence: no limb overlap, flowing across kit
-        linear_seq = [
-            (0.0, InstrumentRegistry.get("kick")),
-            (TIMING.SIXTEENTH, InstrumentRegistry.get("snare_sticks")),
-            (TIMING.SIXTEENTH * 2, InstrumentRegistry.get("tom_3_open_hit")),
-            (TIMING.SIXTEENTH * 3, InstrumentRegistry.get("kick")),
-            (TIMING.QUARTER, InstrumentRegistry.get("snare_sticks")),
-            (TIMING.QUARTER + TIMING.SIXTEENTH, InstrumentRegistry.get("tom_4_open_hit")),
-            (TIMING.DOTTED_EIGHTH, InstrumentRegistry.get("kick")),
-            (TIMING.HALF, InstrumentRegistry.get("snare_sticks")),
-        ]
-        for pos, inst in linear_seq:
-            if inst == InstrumentRegistry.get("kick"):
-                builder.kick(pos, VELOCITY.KICK_NORMAL)
-            elif inst == InstrumentRegistry.get("snare_sticks"):
-                builder.snare(pos, VELOCITY.SNARE_LIGHT)
-            else:
-                builder.pattern.add_beat(
-                    pos, inst, min(VELOCITY.TOM_NORMAL + 3, 127)
+        builder = PatternBuilder("porcaro_aja")
+        # ride_bell for jazz fusion timekeeping (Steely Dan's Aja era)
+        for i in range(6):
+            pos = TIMING.EIGHTH_TRIPLET * i
+            if i < 3:
+                builder.ride_bell(
+                    pos, VELOCITY.RIDE_BELL_ACCENT + random.randint(-5, 10)
                 )
+            else:
+                builder.ride_shaft(pos, VELOCITY.RIDE_NORMAL)
+        # tom_1 + MID accents for fusion texture
+        builder.tom(TIMING.QUARTER, "1", VELOCITY.TOM_HEAVY)
+        builder.tom_edge(TIMING.HALF, "MID", VELOCITY.TOM_HEAVY - 3)
+        # snare_rimshot for accent punctuation
+        builder.snare_rimshot(TIMING.HALF * 3, VELOCITY.SNARE_RIMSHOT)
+        # cymbal_open + crash_choked layering (fusion sophistication)
+        builder.cymbal_open(4.0 - TIMING.EIGHTH_TRIPLET, "4")
+        builder.crash_choked(4.0 - TIMING.SIXTEENTH, "3")
+        return builder.build()
+
+    def _create_chain_of_fools_grooves(self) -> Pattern:
+        """Chain of fools grooves — tight HH + snare_side_stick pocket work."""
+        from midi_drums.generation.builders.pattern_builder import (
+            PatternBuilder,
+        )
+
+        builder = PatternBuilder("porcaro_chain_fools")
+        # Tight hi-hat for Motown-influenced pocket (Chain of Fools groove)
+        for i in range(8):
+            pos = TIMING.EIGHTH * i
+            builder.tight_hh(pos, open=False if i % 2 == 0 else True)
+        # snare_side_stick for pocket texture
+        builder.snare_side_stick(TIMING.QUARTER, VELOCITY.SNARE_GHOST + 5)
+        builder.snare_side_stick(TIMING.HALF * 3, VELOCITY.SNARE_GHOST + 5)
+        # tom_MID accent for structure
+        builder.tom(TIMING.HALF, "MID", VELOCITY.TOM_NORMAL)
         return builder.build()
 
     def _create_waiters_pad_interlock(self) -> Pattern:
-        """Tight snare/tom interlock (documented in Toto live performances).
-
-        Porcaro's Toto-era signature fill: a tight snare-tom-snare interlock
-        that creates a rolling, conversational feel.
-        """
+        """Waiter's pad interlock — tight snare/tom with ride_bell timekeeping."""
         from midi_drums.generation.builders.pattern_builder import (
             PatternBuilder,
         )
 
         builder = PatternBuilder("porcaro_waiters_pad")
-        # Tight snare-tom-snare interlock across one beat (fits fill window)
-        for i in range(8):
-            pos = TIMING.SIXTEENTH * i
-            if i % 3 == 0:
-                builder.snare(pos, VELOCITY.SNARE_NORMAL + random.randint(0, 5))
-            elif i % 3 == 1:
-                builder.pattern.add_beat(
-                    pos,
-                    InstrumentRegistry.get("tom_3_open_hit"),
-                    min(VELOCITY.TOM_LIGHT + random.randint(-3, 8), 127),
+        # Tight snare/tom interlock (Toto live era waiter's pad technique)
+        builder.snare(TIMING.QUARTER, VELOCITY.SNARE_NORMAL)
+        builder.tom(TIMING.HALF, "MID", VELOCITY.TOM_HEAVY)
+        builder.snare_rimshot(TIMING.HALF * 3, VELOCITY.SNARE_RIMSHOT)
+        # tom_FLOOR edge for low-end accent
+        builder.tom_edge(
+            TIMING.HALF * 3 + TIMING.EIGHTH_TRIPLET,
+            "FLOOR",
+            VELOCITY.TOM_HEAVY - 5,
+        )
+        # ride_bell timekeeping (signature Porcaro sound)
+        builder.ride_bell(
+            4.0 - TIMING.EIGHTH_TRIPLET, VELOCITY.RIDE_BELL_ACCENT
+        )
+        return builder.build()
+
+    def _create_rosanna_variation_fill(self) -> Pattern:
+        """Rosanna variation — triplet shuffle on ride + snare_side_stick ghost notes."""
+        from midi_drums.generation.builders.pattern_builder import (
+            PatternBuilder,
+        )
+
+        builder = PatternBuilder("porcaro_rosanna_var")
+        # Triplet shuffle on ride bell (signature Rosanna variation)
+        for i in range(12):
+            pos = TIMING.EIGHTH_TRIPLET * i
+            if i < 6:
+                builder.ride_bell(
+                    pos, VELOCITY.RIDE_NORMAL + random.randint(-5, 8)
                 )
             else:
-                builder.snare(pos, VELOCITY.SNARE_LIGHT)
-        return builder.build()
-
-    def _create_rosanna_triplet_variation(self) -> Pattern:
-        """Rosanna-inspired triplet shuffle variation.
-
-        A variant of the Rosanna Shuffle emphasizing ride-cymbal triplet patterns
-        and ghost notes. The triplet shuffle feel on the ride cymbal was a key part
-        of Porcaro's vocabulary.
-        """
-        from midi_drums.generation.builders.pattern_builder import (
-            PatternBuilder,
-        )
-
-        builder = PatternBuilder("porcaro_rosanna_triplet_var")
-        # Triplet shuffle on ride (simulated with hihat for MIDI)
-        for i in range(6):
+                builder.ride_shaft(pos, VELOCITY.RIDE_NORMAL)
+        # snare_side_stick ghost notes for groove texture
+        for i in [2, 5, 8]:
             pos = TIMING.EIGHTH_TRIPLET * i
-            vel = min(VELOCITY.HIHAT_NORMAL + (3 if i % 2 == 0 else -5), 127)
-            builder.pattern.add_beat(
-                pos,
-                InstrumentRegistry.get("cymbal_1_hit") if i == 0 else InstrumentRegistry.get("hihat_closed_1_tip_closed_1_hit"),
-                vel,
+            builder.snare_side_stick(
+                pos, VELOCITY.SNARE_GHOST + random.randint(0, 5)
             )
-        # Kick on beat 1 and half-note (Rosanna feel)
-        builder.kick(0.0, VELOCITY.KICK_LIGHT)
-        builder.kick(TIMING.HALF, VELOCITY.KICK_NORMAL)
-        # Snare backbeat
-        builder.snare(TIMING.HALF, VELOCITY.SNARE_HEAVY)
-        return builder.build()
-
-    def _create_chain_of_fools_backbeat(self) -> Pattern:
-        """Chain of Fools Motown-influenced backbeat with pocket.
-
-        Porcaro's early Motown work (before Toto) emphasized tight backbeats
-        with deep pocket — kick on the one, crisp snare on two and four,
-        with ghost notes filling the space.
-        """
-        from midi_drums.generation.builders.pattern_builder import (
-            PatternBuilder,
+        # tom_MID + FLOOR accents
+        builder.tom(TIMING.HALF * 3, "MID", VELOCITY.TOM_HEAVY)
+        builder.tom_edge(
+            4.0 - TIMING.EIGHTH_TRIPLET, "FLOOR", VELOCITY.TOM_HEAVY - 5
         )
-
-        builder = PatternBuilder("porcaro_motown_backbeat")
-        # Strong downbeat kick (Motown influence)
-        builder.kick(0.0, VELOCITY.KICK_HEAVY)
-        # Crisp snare backbeat
-        builder.snare(TIMING.QUARTER, VELOCITY.SNARE_ACCENT)
-        builder.snare(TIMING.HALF * 3, VELOCITY.SNARE_ACCENT)
-        # Ghost notes in the pocket
-        for i in range(1, 8):
-            pos = TIMING.EIGHTH * i
-            if random.random() < 0.6:
-                builder.pattern.add_beat(
-                    pos,
-                    InstrumentRegistry.get("snare_sticks"),
-                    VELOCITY.SNARE_GHOST + random.randint(0, 12),
-                )
-        # Closed hi-hat keeping time
-        for i in range(8):
-            builder.pattern.add_beat(
-                TIMING.EIGHTH * i,
-                InstrumentRegistry.get("hihat_closed_1_tip_closed_1_hit"),
-                VELOCITY.HIHAT_NORMAL + random.randint(-3, 5),
-            )
+        # Tight hi-hat open + crash_choked resolution
+        builder.tight_hh(4.0 - TIMING.SIXTEENTH, open=True)
+        builder.crash_choked(4.0, "2")
         return builder.build()
-
-
-# backward-compat alias for existing test imports
-PorcaroPluginRefactored = PorcaroPlugin

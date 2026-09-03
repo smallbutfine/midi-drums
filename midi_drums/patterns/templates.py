@@ -15,7 +15,6 @@ from midi_drums.core.models.kit import DrumInstrument, InstrumentRegistry
 from midi_drums.core.models.pattern import Pattern
 from midi_drums.generation.builders.pattern_builder import PatternBuilder
 
-
 closed_hh = InstrumentRegistry.get("hihat_closed_1_tip_closed_1_hit")
 closed_hh_edge = InstrumentRegistry.get("hihat_closed_2_tip_closed_2_hit")
 ride = InstrumentRegistry.get("ride_1_tip_hit_softer")
@@ -365,9 +364,7 @@ class JazzRidePattern(PatternTemplate):
                         builder.ride_bell(pos, velocity)
                     elif self.use_shaft:
                         # AD2 ride shaft hit — metallic, bell-like timbre for metal sections
-                        builder.pattern.add_beat(
-                            pos, ride_shaft, velocity
-                        )
+                        builder.pattern.add_beat(pos, ride_shaft, velocity)
                     else:
                         builder.ride(pos, velocity)
 
@@ -484,17 +481,11 @@ class CrashAccents(PatternTemplate):
                 if self.use_china:
                     builder.china(abs_pos, velocity)
                 elif self.crash_type == "light":
-                    builder.pattern.add_beat(
-                        abs_pos, crash_light, velocity
-                    )
+                    builder.pattern.add_beat(abs_pos, crash_light, velocity)
                 elif self.crash_type == "heavy":
-                    builder.pattern.add_beat(
-                        abs_pos, crash_heavy, velocity
-                    )
+                    builder.pattern.add_beat(abs_pos, crash_heavy, velocity)
                 elif self.crash_type == "splash":
-                    builder.pattern.add_beat(
-                        abs_pos, crash_splash, velocity
-                    )
+                    builder.pattern.add_beat(abs_pos, crash_splash, velocity)
                 else:
                     builder.crash(abs_pos, velocity)
 

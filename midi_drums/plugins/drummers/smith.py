@@ -1,29 +1,13 @@
-"""Chad Smith drummer plugin - Red Hot Chili Peppers style funk-rock fusion.
+"""Chad Smith drummer plugin using full AD2 kit for RHCP funk-rock style.
 
-Chad Smith (RHCP, Chickenfoot, Bombastic Meatbats) is known for:
-- Funk-rock groove mastery — deep pocket grooves with hard rock power
-- Heavy snare ghost notes learned from Larry Fratangelo (P-Funk lineage)
-- Fast double-bass technique influenced by Buddy Rich and John Bonham
-- Syncopated kick patterns locking tightly with Flea's bass guitar
-- Massive tom fills across large drum kits (23-piece kit live)
-- Behind-the-beat pocket feel with driving forward motion
-- Influences: David Garibaldi, Jabo Starks, Clyde Stubblefield, Buddy Rich
-
-Signature tracks: "Give It Away", "Can't Stop", "Dani California", "Under the Bridge",
-"Snowjob" (Chickenfoot), plus Chickenfoot and Bombastic Meatbats material.
-
-This plugin implements his style using composable modifications:
-- GhostNoteLayer: Heavy snare ghost note density (P-Funk lineage)
-- BehindBeatTiming: Pocket feel with slight drag
-- HeavyAccents: Hard rock power for RHCP/Chickenfoot
-- FastChopsTriplets: Rapid-fire fills (Buddy Rich influence)
-- PocketStretching: Funk pocket tension/release
+Fills now use ALL toms (HIGH/MID/LOW/FLOOR) for massive tom fills, snare_rimshot/snare_side_stick
+for funk groove texture, crash(4-6) + cymbal_open layering for RHCP big cymbal sound, and
+tight_hh + ride_bell for tight pocket timekeeping — matching his RHCP / Chickenfoot sound.
 """
 
 import random
 
 from midi_drums.config import TIMING, VELOCITY
-from midi_drums.core.models.kit import InstrumentRegistry
 from midi_drums.core.models.pattern import Pattern
 from midi_drums.core.models.song import Fill
 from midi_drums.modifications import (
@@ -46,13 +30,6 @@ class SmithPlugin(DrummerPlugin):
     - Syncopated kick patterns locking with bass guitar
     - Massive tom fills across large drum kits
     - Behind-the-beat pocket feel with driving forward motion
-
-    Implemented using composable modifications:
-    - GhostNoteLayer: Heavy ghost note density for funk texture
-    - BehindBeatTiming: Slightly behind the beat for pocket feel
-    - HeavyAccents: Hard rock power and dynamic contrast
-    - FastChopsTriplets: Rapid-fire fills (Buddy Rich influence)
-    - PocketStretching: Funk groove tension and release
     """
 
     def __init__(self):
@@ -75,7 +52,6 @@ class SmithPlugin(DrummerPlugin):
         styled = pattern.copy()
         styled.name = f"{pattern.name}_chadsmith"
 
-        # Layer modifications for Chad Smith's sound
         styled = self.ghost_notes.apply(styled, intensity=0.8)
         styled = self.behind_beat.apply(styled, intensity=0.5)
         styled = self.accents.apply(styled, intensity=0.7)
@@ -85,430 +61,256 @@ class SmithPlugin(DrummerPlugin):
         return styled
 
     def get_signature_fills(self) -> list[Fill]:
-        """Return Chad Smith's signature fill patterns.
+        """Return Chad Smith's signature fill patterns using full AD2 kit.
 
-        Based on RHCP, Chickenfoot, and Bombastic Meatbats discography:
-          - Give It Away funk groove: syncopated kick locked with bass
-          - Can't Stop gallop: iconic double-kick + snare ghost notes
-          - Dani California driving rock: heavy forward motion funk-rock
-          - Under the Bridge sparse atmospheric: minimal but powerful
-          - Snowjob Chickenfoot: massive tom fills, hard rock power
-          - Bombastic Meatbats fusion: pure funk-tom vocabulary
-          - RHCP live one-drop: deep pocket with double-bass accent
-          - Fast hand-chops: Buddy Rich-style rapid-fire snare/tom
+        Uses ALL toms (HIGH/MID/LOW/FLOOR) for massive tom fills, snare_rimshot/snare_side_stick
+        for funk groove texture, crash(4-6) + cymbal_open layering for RHCP big cymbal sound, and
+        tight_hh + ride_bell for tight pocket timekeeping — matching his RHCP / Chickenfoot sound.
         """
         return [
             Fill(
-                pattern=self._create_give_it_away_funk(),
-                trigger_probability=0.95,
-                section_position="start",
-            ),
-            Fill(
-                pattern=self._create_cant_stop_gallop(),
+                pattern=self._create_give_it_away_funk_fill(),
                 trigger_probability=0.9,
-                section_position="middle",
-            ),
-            Fill(
-                pattern=self._create_dani_california_driving_rock(),
-                trigger_probability=0.85,
-                section_position="end",
-            ),
-            Fill(
-                pattern=self._create_under_the_bridge_sparse(),
-                trigger_probability=0.7,
                 section_position="start",
             ),
             Fill(
-                pattern=self._create_snowjob_tom_fills(),
+                pattern=self._create_cant_stop_gallop_fill(),
                 trigger_probability=0.85,
                 section_position="middle",
             ),
             Fill(
-                pattern=self._create_bombastic_meatbats_fusion(),
-                trigger_probability=0.75,
-                section_position="end",
-            ),
-            Fill(
-                pattern=self._create_live_one_drop(),
+                pattern=self._create_dani_california_drive_fill(),
                 trigger_probability=0.8,
-                section_position="start",
+                section_position="end",
             ),
             Fill(
-                pattern=self._create_fast_hand_chops_showcase(),
+                pattern=self._create_under_the_bridge_sparse_fill(),
+                trigger_probability=0.7,
+                section_position="end",
+            ),
+            Fill(
+                pattern=self._create_snowjob_chickenfoot_fill(),
+                trigger_probability=0.85,
+                section_position="end",
+            ),
+            Fill(
+                pattern=self._create_bombastic_meatbats_funk_fill(),
                 trigger_probability=0.75,
+                section_position="middle",
+            ),
+            Fill(
+                pattern=self._create_rhcp_live_one_drop_fill(),
+                trigger_probability=0.8,
+                section_position="end",
+            ),
+            Fill(
+                pattern=self._create_fast_hand_chops_fill(),
+                trigger_probability=0.7,
                 section_position="middle",
             ),
         ]
 
-    def _create_give_it_away_funk(self) -> Pattern:
-        """Give It Away funk groove with syncopated kick locked with bass.
-
-        The iconic RHCP track where Chad's drumming is almost entirely
-        syncopated, avoiding the downbeat in favor of locking with Flea's
-        walking bass line. Heavy ghost notes on snare create rhythmic tension.
-        """
+    def _create_give_it_away_funk_fill(self) -> Pattern:
+        """Give It Away funk fill — syncopated kick + snare_side_stick + ALL toms."""
         from midi_drums.generation.builders.pattern_builder import (
             PatternBuilder,
         )
 
         builder = PatternBuilder("smith_give_it_away")
-
-        # Kick pattern avoiding beat 1 — locks with Flea's bass (syncopated)
-        kick_hits = [
-            (TIMING.EIGHTH * 0.5, VELOCITY.KICK_HEAVY),  # "and" of 1
-            (
-                TIMING.HALF + TIMING.EIGHTH * 0.5,
-                VELOCITY.KICK_HEAVY,
-            ),  # "and" of 3
-            (TIMING.HALF * 2 - TIMING.SIXTEENTH, VELOCITY.KICK_NORMAL),
-            (TIMING.HALF * 3 + TIMING.EIGHTH_TRIPLET, VELOCITY.KICK_HEAVY),
-        ]
-        for offset, vel in kick_hits:
-            builder.kick(offset, vel)
-
-        # Snare ghost notes densely layered (P-Funk lineage)
-        builder.pattern.add_beat(
-            TIMING.QUARTER + TIMING.SIXTEENTH,
-            InstrumentRegistry.get("snare_side_stick"),
-            VELOCITY.SNARE_HEAVY,
-        )
-        builder.snare(TIMING.HALF * 3 + TIMING.SIXTEENTH, VELOCITY.SNARE_NORMAL)
-        for i in range(1, 8):
-            pos = TIMING.EIGHTH * i - TIMING.SIXTEENTH
-            if random.random() < 0.7:
-                builder.pattern.add_beat(
-                    pos,
-                    InstrumentRegistry.get("snare_sticks"),
-                    min(VELOCITY.SNARE_GHOST + random.randint(0, 15), 127),
-                )
-
-        # Tight closed hi-hat (driving the groove)
+        # Syncopated kick locked with bass (RHCP signature lock)
         for i in range(8):
-            builder.hihat(TIMING.EIGHTH * i, VELOCITY.HIHAT_NORMAL)
-
+            pos = TIMING.EIGHTH_TRIPLET * i
+            if i % 3 == 0:
+                builder.kick(
+                    pos, min(VELOCITY.KICK_HEAVY + random.randint(-5, 10), 127)
+                )
+            else:
+                # Snare side stick (ghost note groove texture)
+                builder.snare_side_stick(
+                    pos, VELOCITY.SNARE_GHOST + random.randint(3, 8)
+                )
+        # tom cascading across ALL toms (massive RHCP kit sound)
+        for i in range(4):
+            pos = TIMING.HALF + TIMING.EIGHTH_TRIPLET * i
+            variant = ["HIGH", "MID", "LOW", "FLOOR"][i]
+            builder.tom(pos, variant, VELOCITY.TOM_HEAVY - (i * 3))
+        # tight_hh + crash_4/5 layering (RHCP big cymbal sound)
+        builder.tight_hh(4.0 - TIMING.EIGHTH_TRIPLET, open=True)
+        builder.crash(4.0 - TIMING.SIXTEENTH, "4")
         return builder.build()
 
-    def _create_cant_stop_gallop(self) -> Pattern:
-        """Can't Stop iconic double-kick + snare ghost note groove.
-
-        The most recognizable Chad Smith pattern: continuous eighth-note
-        double-bass gallop locking with Flea's descending bass line, heavy
-        snare on 2 and 4 buried under dense ghost notes. The gallop creates
-        relentless forward motion while the pocket stays deep.
-        """
+    def _create_cant_stop_gallop_fill(self) -> Pattern:
+        """Can't Stop gallop — double-kick + snare_ghost notes + tom_FLOOR accent."""
         from midi_drums.generation.builders.pattern_builder import (
             PatternBuilder,
         )
 
-        builder = PatternBuilder("smith_cant_stop_gallop")
-
-        # Continuous double-kick gallop (the signature)
+        builder = PatternBuilder("smith_cant_stop")
+        # Double-kick gallop (signature Can't Stop rhythm)
         for i in range(8):
-            pos = TIMING.EIGHTH * i
-            vel = (
-                VELOCITY.KICK_HEAVY
-                if i % 2 == 0
-                else min(VELOCITY.KICK_NORMAL + 10, 127)
+            pos = TIMING.EIGHTH_TRIPLET * i
+            builder.kick(
+                pos, min(VELOCITY.KICK_HEAVY + random.randint(-5, 10), 127)
             )
-            builder.kick(pos, vel)
-
-        # Heavy snare backbeats with ghost notes between
-        builder.pattern.add_beat(
-            TIMING.QUARTER,
-            InstrumentRegistry.get("snare_side_stick"),
-            VELOCITY.SNARE_HEAVY,
+        # snare_side_stick ghost notes (funk groove texture)
+        for i in [2, 5]:
+            pos = TIMING.EIGHTH_TRIPLET * i
+            builder.snare_side_stick(pos, VELOCITY.SNARE_GHOST + 5)
+        # tom_MID + FLOOR accents for funk-tom vocabulary
+        builder.tom(
+            TIMING.HALF + TIMING.EIGHTH_TRIPLET, "MID", VELOCITY.TOM_HEAVY
         )
-        builder.snare(TIMING.HALF * 3, min(VELOCITY.SNARE_HEAVY + 5, 127))
-
-        # Ghost note net between beats (dense for funk feel)
-        for i in range(1, 8):
-            pos = TIMING.EIGHTH * i
-            if random.random() < 0.6:
-                builder.pattern.add_beat(
-                    pos,
-                    InstrumentRegistry.get("snare_sticks"),
-                    VELOCITY.SNARE_GHOST + random.randint(2, 15),
-                )
-
-        # Open hi-hat accents (RHCP live style — slightly open)
-        for i in range(4):
-            builder.pattern.add_beat(
-                TIMING.HALF * i,
-                InstrumentRegistry.get("hihat_open_a"),
-                min(VELOCITY.HIHAT_NORMAL + 5 + random.randint(-3, 8), 127),
-            )
-
+        builder.tom_edge(
+            4.0 - TIMING.EIGHTH_TRIPLET, "FLOOR", VELOCITY.TOM_HEAVY
+        )
+        # ride_bell for funk rhythm punctuation
+        builder.ride_bell(4.0 - TIMING.SIXTEENTH, VELOCITY.RIDE_BELL_ACCENT)
         return builder.build()
 
-    def _create_dani_california_driving_rock(self) -> Pattern:
-        """Dani California driving funk-rock pattern.
-
-        From Dani California — a more straight-ahead rock groove that still
-        retains Chad's pocket feel. Heavy double-bass accents, powerful snare,
-        and the characteristic behind-the-beat drag on cymbal crashes.
-        """
+    def _create_dani_california_drive_fill(self) -> Pattern:
+        """Dani California driving rock — ALL toms with heavy snare_rimshot accents."""
         from midi_drums.generation.builders.pattern_builder import (
             PatternBuilder,
         )
 
         builder = PatternBuilder("smith_dani_california")
-
-        # Driving kick pattern with double-bass accents
-        builder.kick(0.0, VELOCITY.KICK_HEAVY)
-        builder.kick(TIMING.EIGHTH_TRIPLET * 2, VELOCITY.KICK_NORMAL)
-        builder.kick(TIMING.HALF, VELOCITY.KICK_HEAVY)
-        builder.kick(TIMING.HALF + TIMING.SIXTEENTH, VELOCITY.KICK_NORMAL)
-        builder.kick(TIMING.HALF * 3, VELOCITY.KICK_HEAVY)
-
-        # Heavy snare backbeats
-        builder.snare(TIMING.QUARTER, min(VELOCITY.SNARE_HEAVY + 5, 127))
-        builder.snare(TIMING.HALF * 3, min(VELOCITY.SNARE_HEAVY + 3, 127))
-
-        # Ghost note fill on the transition (bars 2-3 approach)
-        for i in range(4):
-            pos = TIMING.EIGHTH * (i + 0.5)
-            builder.pattern.add_beat(
-                pos,
-                InstrumentRegistry.get("snare_sticks"),
-                VELOCITY.SNARE_GHOST + random.randint(5, 18),
-            )
-
-        # Hi-hat driving eighth notes with open accents
+        # Driving tom cascade through ALL toms (RHCP forward motion)
         for i in range(8):
-            open_flag = i % 4 == 0
-            builder.hihat(
-                TIMING.EIGHTH * i,
-                VELOCITY.HIHAT_NORMAL + (6 if open_flag else 0),
-                open=open_flag,
+            pos = TIMING.EIGHTH_TRIPLET * i
+            variant = ["HIGH", "MID", "LOW", "FLOOR"][i % 4]
+            builder.tom(
+                pos, variant, VELOCITY.TOM_HEAVY + random.randint(-5, 10)
             )
-
+        # snare_rimshot for hard rock accent texture
+        builder.snare_rimshot(TIMING.HALF * 3, VELOCITY.SNARE_HEAVY)
+        # tom_EDGE rimshot on FLOOR (low-end punch)
+        builder.tom_edge(
+            4.0 - TIMING.EIGHTH_TRIPLET, "FLOOR", VELOCITY.TOM_HEAVY
+        )
+        # Big crash_5/6 layering (RHCP big cymbal sound)
+        builder.crash(4.0 - TIMING.SIXTEENTH, "5")
         return builder.build()
 
-    def _create_under_the_bridge_sparse(self) -> Pattern:
-        """Under the Bridge sparse atmospheric pattern.
-
-        From Under the Bridge — Chad's most minimal pattern. Sparse kick hits,
-        light snare on 2 and 4, tight closed hi-hat. The drumming serves the song
-        by staying out of the way, then explodes in the chorus. This fill captures
-        the verse approach: room to breathe with deep pocket feel.
-        """
+    def _create_under_the_bridge_sparse_fill(self) -> Pattern:
+        """Under the Bridge sparse atmospheric — FLOOR/LOW toms + ride_bell."""
         from midi_drums.generation.builders.pattern_builder import (
             PatternBuilder,
         )
 
-        builder = PatternBuilder("smith_under_bridge_sparse")
-
-        # Sparse kick — only on key downbeats and transitions
-        builder.kick(0.0, VELOCITY.KICK_NORMAL)
-        builder.kick(
-            TIMING.HALF, min(VELOCITY.KICK_LIGHT + 5, VELOCITY.KICK_NORMAL)
-        )
-
-        # Light snare backbeats (not heavy — song demands restraint)
-        builder.snare(TIMING.QUARTER, VELOCITY.SNARE_NORMAL - 3)
-        builder.snare(TIMING.HALF * 3, VELOCITY.SNARE_NORMAL - 2)
-
-        # RIDE cymbal timekeeping (warm wash for sparse RHCP verse)
-        for i in range(8):
-            builder.pattern.add_beat(
-                TIMING.EIGHTH * i,
-                InstrumentRegistry.get("ride_1_tip_hit_softer"),
-                VELOCITY.HIHAT_LIGHT + 3,
-            )
-
-        return builder.build()
-
-    def _create_snowjob_tom_fills(self) -> Pattern:
-        """Snowjob massive tom fills (Chickenfoot).
-
-        From Chickenfoot's Snowjob — Chad unleashes his signature massive tom
-        fills across a huge kit. Heavy, powerful, with dramatic cascades from
-        rack to floor tom. The hard rock context means everything is played loud
-        and accented, unlike the funk grooves where he uses ghost notes.
-        """
-        from midi_drums.generation.builders.pattern_builder import (
-            PatternBuilder,
-        )
-
-        builder = PatternBuilder("smith_snowjob_tom_fills")
-
-        # Heavy kick foundation (hard rock context)
+        builder = PatternBuilder("smith_under_bridge")
+        # Sparse but powerful (minimal tom work with maximum impact)
+        builder.tom(0.0, "FLOOR", min(VELOCITY.TOM_HEAVY + 15, 127))
+        # ride_bell for atmospheric timekeeping (sparse RHCP era feel)
         for i in range(4):
-            builder.kick(TIMING.HALF * i, min(VELOCITY.KICK_HEAVY + 5, 127))
+            pos = TIMING.EIGHTH_TRIPLET * (i + 2)
+            builder.ride_bell(pos, VELOCITY.RIDE_BELL_ACCENT - (i * 3))
+        # tom_LOW accent with heavy accent
+        builder.tom(TIMING.HALF * 3, "LOW", VELOCITY.TOM_HEAVY - 5)
+        # cymbal_open + crash_choke layering for sparse punctuation
+        builder.cymbal_open(4.0 - TIMING.EIGHTH_TRIPLET, "4")
+        builder.crash_choked(4.0 - TIMING.SIXTEENTH, "3")
+        return builder.build()
 
-        # Massive snare on every bar boundary with heavy accent
-        builder.snare(0.0, min(VELOCITY.SNARE_HEAVY + 10, 127))
-        builder.snare(TIMING.HALF * 2, min(VELOCITY.SNARE_HEAVY + 8, 127))
-        builder.snare(TIMING.HALF * 3, VELOCITY.SNARE_HEAVY)
+    def _create_snowjob_chickenfoot_fill(self) -> Pattern:
+        """Snowjob Chickenfoot — massive tom fills across ALL toms + crash_6."""
+        from midi_drums.generation.builders.pattern_builder import (
+            PatternBuilder,
+        )
 
-        # Tom cascade: rapid descent from rack to floor (the signature fill)
-        tom_sequence = [
-            (TIMING.QUARTER * 0.5, InstrumentRegistry.get("tom_3_open_hit")),
-            (TIMING.QUARTER * 1.0, InstrumentRegistry.get("tom_3_open_hit")),
-            (TIMING.QUARTER * 1.5, InstrumentRegistry.get("tom_4_open_hit")),
-            (TIMING.QUARTER * 2.0, InstrumentRegistry.get("tom_4_open_hit")),
-            (TIMING.QUARTER * 2.5, InstrumentRegistry.get("tom_3_open_hit")),
-            (TIMING.QUARTER * 3.0, InstrumentRegistry.get("tom_4_open_hit")),
-            (TIMING.HALF * 4 - TIMING.SIXTEENTH, InstrumentRegistry.get("tom_4_open_hit")),
-        ]
-        for pos, inst in tom_sequence:
-            builder.pattern.add_beat(
+        builder = PatternBuilder("smith_snowjob")
+        # Massive tom fills across ALL toms (Chickenfoot's hard rock power)
+        for i in range(10):
+            pos = TIMING.EIGHTH_TRIPLET * i
+            variant = ["HIGH", "MID", "LOW", "FLOOR"][i % 4]
+            builder.tom(
                 pos,
-                inst,
-                min(VELOCITY.TOM_HEAVY + random.randint(0, 12), 127),
+                variant,
+                min(VELOCITY.TOM_HEAVY + random.randint(-5, 20), 127),
             )
-
-        # Crash accents after fills (chicken on top)
-        for i in range(4):
-            builder.pattern.add_beat(
-                TIMING.HALF * i + TIMING.QUARTER,
-                InstrumentRegistry.get("cymbal_1_hit"),
-                VELOCITY.CHINA_ACCENT - 10,
-            )
-
+        # snare_rimshot for hard rock accent texture
+        builder.snare_rimshot(TIMING.HALF * 3, VELOCITY.SNARE_HEAVY)
+        # tom_EDGE rimshot on FLOOR (deepest punch)
+        builder.tom_edge(
+            4.0 - TIMING.EIGHTH_TRIPLET, "FLOOR", VELOCITY.TOM_HEAVY + 10
+        )
+        # Big crash_6 resolution (Chickenfoot's massive cymbal sound)
+        builder.crash(4.0 - TIMING.SIXTEENTH, "6")
         return builder.build()
 
-    def _create_bombastic_meatbats_fusion(self) -> Pattern:
-        """Bombastic Meatbats pure funk-tom vocabulary showcase.
-
-        From Chad Smith's Bombastic Meatbats — an all-instrumental funk/fusion
-        band. This captures the essence of Chad's funk drumming without rock
-        compression: deep pocket, syncopated kick patterns, and extensive tom
-        work using rim/edge hits for tonal variety. Influenced by David Garibaldi
-        (Tower of Power) and Clyde Stubblefield (James Brown).
-        """
+    def _create_bombastic_meatbats_funk_fill(self) -> Pattern:
+        """Bombastic Meatbats funk — ALL toms + snare_side_stick funk groove."""
         from midi_drums.generation.builders.pattern_builder import (
             PatternBuilder,
         )
 
-        builder = PatternBuilder("smith_meatbats_fusion")
+        builder = PatternBuilder("smith_bombastic")
+        # Funk-tom vocabulary across ALL toms (RHCP funk mastery)
+        for i in range(8):
+            pos = TIMING.EIGHTH_TRIPLET * i
+            variant = ["HIGH", "MID", "LOW", "FLOOR"][i % 4]
+            builder.tom(
+                pos, variant, VELOCITY.TOM_HEAVY + random.randint(-5, 10)
+            )
+        # snare_side_stick for funk groove texture (P-Funk lineage)
+        for i in [1, 3, 5]:
+            pos = TIMING.EIGHTH_TRIPLET * i
+            builder.snare_side_stick(
+                pos, VELOCITY.SNARE_GHOST + random.randint(3, 8)
+            )
+        # tom_MID + FLOOR accents + ride_bell resolution
+        builder.tom(TIMING.HALF * 3, "MID", VELOCITY.TOM_HEAVY)
+        builder.ride_bell(
+            4.0 - TIMING.EIGHTH_TRIPLET, VELOCITY.RIDE_BELL_ACCENT
+        )
+        return builder.build()
 
-        # Syncopated kick pattern (funk foundation — locks with bass)
-        kick_hits = [
-            (0.0, VELOCITY.KICK_HEAVY),
-            (TIMING.EIGHTH * 1.5, VELOCITY.KICK_NORMAL),
-            (TIMING.HALF + TIMING.SIXTEENTH, VELOCITY.KICK_HEAVY),
-            (TIMING.HALF * 3 + TIMING.EIGHTH_TRIPLET, VELOCITY.KICK_NORMAL),
-        ]
-        for offset, vel in kick_hits:
-            builder.kick(offset, vel)
+    def _create_rhcp_live_one_drop_fill(self) -> Pattern:
+        """RHCP live one-drop — deep pocket with tom_FLOOR + crash_4/5."""
+        from midi_drums.generation.builders.pattern_builder import (
+            PatternBuilder,
+        )
 
-        # Heavy tom rim/edge work with tight ghost notes on snare
-        for i in range(16):
-            pos = TIMING.SIXTEENTH * i
-            if i % 4 == 0:
-                # Accent on floor tom edge (deep tone)
-                builder.tom_edge(
-                    pos,
-                    "FLOOR",
-                    min(VELOCITY.TOM_HEAVY + random.randint(-5, 12), 127),
-                )
-            elif i % 3 == 0:
-                # Ghost note snare rim
-                builder.pattern.add_beat(
-                    pos,
-                    InstrumentRegistry.get("snare_sticks"),
-                    VELOCITY.SNARE_GHOST + random.randint(3, 15),
-                )
+        builder = PatternBuilder("smith_one_drop")
+        # Deep pocket groove (one-drop feel with double-bass accent)
+        for i in range(6):
+            pos = TIMING.EIGHTH_TRIPLET * i
+            if i % 3 == 0:
+                builder.kick(pos, VELOCITY.KICK_HEAVY)
             else:
-                # Mid tom rim shot for tonal variety
-                builder.tom_edge(pos, "MID", VELOCITY.TOM_NORMAL)
-
-        # Tight hi-hat keeping the pocket
-        for i in range(8):
-            builder.tight_hh(TIMING.EIGHTH * i, open=False)
-
-        return builder.build()
-
-    def _create_live_one_drop(self) -> Pattern:
-        """RHCP live one-drop with double-bass accent.
-
-        A live-performance groove combining the reggae/funk one-drop feel (kick
-        only on 1) with Chad's signature double-bass accents during transitions.
-        Deep pocket, heavy ghost notes, and the characteristic behind-the-beat
-        drag that makes the groove feel both laid-back and powerful.
-        """
-        from midi_drums.generation.builders.pattern_builder import (
-            PatternBuilder,
-        )
-
-        builder = PatternBuilder("smith_one_drop_live")
-
-        # One-drop: kick only on 1 (deep pocket foundation)
-        builder.kick(0.0, min(VELOCITY.KICK_HEAVY + 5, 127))
-
-        # Double-bass accent during transition (Chad's flair)
-        builder.kick(TIMING.HALF + TIMING.EIGHTH, VELOCITY.KICK_NORMAL)
-        builder.kick(TIMING.HALF * 2 - TIMING.SIXTEENTH, VELOCITY.KICK_HEAVY)
-
-        # Snare on 3 (one-drop style) with ghost notes
-        builder.snare(TIMING.HALF * 3, VELOCITY.SNARE_HEAVY)
-        for i in range(1, 8):
-            pos = TIMING.EIGHTH * i - TIMING.SIXTEENTH
-            if random.random() < 0.5:
-                builder.pattern.add_beat(
-                    pos,
-                    InstrumentRegistry.get("snare_sticks"),
-                    VELOCITY.SNARE_GHOST + random.randint(2, 14),
+                builder.tom(
+                    pos, "FLOOR", VELOCITY.TOM_HEAVY + random.randint(-5, 10)
                 )
-
-        # Tight hi-hat (not open — keeping the pocket tight)
-        for i in range(8):
-            builder.tight_hh(TIMING.EIGHTH * i, open=False)
-
+        # snare_side_stick for pocket texture (behind-the-beat feel)
+        builder.snare_side_stick(TIMING.HALF * 3, VELOCITY.SNARE_GHOST + 5)
+        # tom_FLOOR edge + crash_4/5 punctuated resolution
+        builder.tom_edge(
+            4.0 - TIMING.EIGHTH_TRIPLET, "FLOOR", VELOCITY.TOM_HEAVY
+        )
+        builder.crash(4.0 - TIMING.SIXTEENTH, "4")
         return builder.build()
 
-    def _create_fast_hand_chops_showcase(self) -> Pattern:
-        """Fast hand-chops rapid-fire snare/tom showcase (Buddy Rich influence).
-
-        Chad's Buddy Rich-influenced rapid-fire fills feature fast alternating
-        snare and tom hits with thunderous double-bass underneath. The fills
-        demonstrate technical speed while staying musical — no gratuitous
-        busywork, just devastating power and precision derived from his classical
-        drum corps background and years of practicing with the RHCP's relentless
-        touring schedule.
-        """
+    def _create_fast_hand_chops_fill(self) -> Pattern:
+        """Fast hand chops — Buddy Rich-style rapid-fire snare/tom vocabulary."""
         from midi_drums.generation.builders.pattern_builder import (
             PatternBuilder,
         )
 
         builder = PatternBuilder("smith_fast_chops")
-
-        # Thunderous double-kick foundation
+        # Rapid snare rimshot (Buddy Rich single-stroke speed influence)
         for i in range(16):
-            pos = TIMING.SIXTEENTH * i
-            vel = (
-                VELOCITY.KICK_HEAVY
-                if i % 2 == 0
-                else min(VELOCITY.KICK_NORMAL + 15, 127)
-            )
-            builder.kick(pos, vel)
-
-        # Rapid snare/tom alternating pattern (hand chops)
-        for i in range(16):
-            pos = TIMING.SIXTEENTH * i
-            if i % 4 == 0:
-                builder.snare(
-                    pos, min(VELOCITY.SNARE_HEAVY + random.randint(0, 8), 127)
-                )
-            elif i % 2 == 0:
-                builder.pattern.add_beat(
-                    pos,
-                    (
-                        InstrumentRegistry.get("tom_3_open_hit")
-                        if i < 8
-                        else InstrumentRegistry.get("tom_4_open_hit")
-                    ),
-                    min(VELOCITY.TOM_HEAVY + random.randint(-5, 12), 127),
-                )
-
-        # Cymbal crash punctuation at fill transition points
-        builder.pattern.add_beat(
-            TIMING.HALF * 4, InstrumentRegistry.get("cymbal_1_hit"), VELOCITY.CHINA_ACCENT
+            pos = TIMING.EIGHTH_TRIPLET * i
+            vel = VELOCITY.SNARE_HEAVY + random.randint(-5, 10) + (i // 4) * 3
+            builder.snare_rimshot(pos, min(vel, 127))
+        # Tom cascading with rimshot texture across HIGH/MID → LOW/FLOOR
+        for i in range(4):
+            pos = TIMING.HALF + TIMING.EIGHTH_TRIPLET * i
+            variant = "HIGH" if i < 2 else "LOW"
+            builder.tom_edge(pos, variant, VELOCITY.TOM_HEAVY)
+        # tom_FLOOR final accent + crash_6 punctuation (massive finish)
+        builder.tom(
+            4.0 - TIMING.EIGHTH_TRIPLET,
+            "FLOOR",
+            min(VELOCITY.TOM_HEAVY + 15, 127),
         )
-
+        builder.crash(4.0 - TIMING.SIXTEENTH, "6")
         return builder.build()
-
-
-# backward-compat alias for existing test imports
-SmithPluginRefactored = SmithPlugin

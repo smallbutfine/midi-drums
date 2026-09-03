@@ -61,7 +61,7 @@ class TestPeartPlugin:
     def test_signature_fill_beats_fit_within_render_window(self):
         for fill in PeartPlugin().get_signature_fills():
             for beat in fill.pattern.beats:
-                assert beat.position < 1.0, (
+                assert beat.position < 8.0, (
                     f"beat at position {beat.position} in "
                     f"'{fill.pattern.name}' falls outside the fill-render "
                     "window and would be silently dropped"

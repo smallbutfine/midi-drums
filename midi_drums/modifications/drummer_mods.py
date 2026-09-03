@@ -76,7 +76,9 @@ def _is_thinnable_cymbal(beat: Beat) -> bool:
 _SPEED_PRECISION_TARGETS = {
     InstrumentRegistry.get("kick"): VELOCITY.KICK_HEAVY,
     InstrumentRegistry.get("snare_sticks"): VELOCITY.SNARE_HEAVY,
-    InstrumentRegistry.get("hihat_closed_1_tip_closed_1_hit"): VELOCITY.HIHAT_NORMAL,
+    InstrumentRegistry.get(
+        "hihat_closed_1_tip_closed_1_hit"
+    ): VELOCITY.HIHAT_NORMAL,
     InstrumentRegistry.get("ride_1_tip_hit_softer"): VELOCITY.RIDE_NORMAL,
     InstrumentRegistry.get("cymbal_1_hit"): VELOCITY.CRASH_NORMAL,
 }
@@ -980,11 +982,7 @@ class PolyrhythmApplication(DrummerModification):
                 modified_beats.append(
                     Beat(
                         position=pos,
-                        instrument=(
-                            tom_3
-                            if i % 2 == 0
-                            else tom_4
-                        ),
+                        instrument=(tom_3 if i % 2 == 0 else tom_4),
                         velocity=int(
                             VELOCITY.TOM_HEAVY + random.randint(-5, 5)
                         ),

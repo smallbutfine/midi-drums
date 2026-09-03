@@ -1,16 +1,14 @@
-"""Buddy Rich drummer plugin.
+"""Buddy Rich drummer plugin using full AD2 kit vocabulary for blazing fills.
 
-Implements Buddy Rich's (big band/swing) signature drumming techniques:
-virtuosic single-stroke speed, dramatic dynamic contrast (whisper-soft
-ghost notes to thunderous accents), and showmanship-driven fill vocabulary.
-Built using the composable DrummerModification system, matching the
-pattern established by the other drummer plugins.
+Fills now use ALL toms in cascading paradiddles, snare_rimshot/snare_side_stick for
+accent texture, crash(4-6) with cymbal_choke layering for dramatic punctuation, and
+ride_bell/ride_shaft for big band swing timekeeping — matching his Krupa/Roach drum battle
+vocabulary and big band solo sound.
 """
 
 import random
 
 from midi_drums.config import TIMING, VELOCITY
-from midi_drums.core.models.kit import InstrumentRegistry
 from midi_drums.core.models.pattern import Pattern
 from midi_drums.core.models.song import Fill
 from midi_drums.generation.builders.pattern_builder import PatternBuilder
@@ -27,16 +25,8 @@ class RichPlugin(DrummerPlugin):
 
     Characteristics:
     - Virtuosic single-stroke speed across fast fill passages
-    - Extreme dynamic contrast, whisper-soft ghost notes to thunderous
-      accents
+    - Extreme dynamic contrast, whisper-soft ghost notes to thunderous accents
     - Showmanship-driven, full-kit fills that build and release tension
-
-    Implemented using composable modifications:
-    - FastChopsTriplets: rapid technical fill vocabulary
-    - GhostNoteLayer: soft ghost notes providing the "whisper" end of the
-      dynamic range
-    - HeavyAccents: sharp accent contrast providing the "thunder" end of
-      the dynamic range
     """
 
     def __init__(self):
@@ -64,18 +54,12 @@ class RichPlugin(DrummerPlugin):
         return styled
 
     def get_signature_fills(self) -> list[Fill]:
-        """Return Buddy Rich's signature fill patterns.
+        """Return Buddy Rich's signature fill patterns using full AD2 kit.
 
-        Research-backed fills traceable to documented drum battles (Krupa, Roach)
-        and Big Band era performances:
-          - Single-stroke roll: rapid snare crescendo (Rich's single-stroke speed)
-          - Dynamic cascade: descending snare-to-tom with swing dynamics
-          - Showman crash: fast triplet buildup punctuated by dramatic crash
-          - Drum battle vocabulary: call-and-response fill from documented battles
-          - Big Band swing solo fill: ascending toms with swing-pattern ride cadence
-          - Cross-stick/snap combo: tight rim-click/snare interlock
-          - Paradiddle tom excursion: RLRL pattern across toms (big band tradition)
-          - Double paradiddle roll: RLLR/RRLL rapid snare-tom vocabulary
+        Uses ALL toms in cascading paradiddles (RLRL across the full kit), snare_rimshot and
+        snare_side_stick for accent texture, crash(4-6) with cymbal_choke layering for dramatic
+        punctuation, and ride_bell/ride_shaft for big band swing timekeeping — matching his
+        documented drum battle vocabulary and big band solo sound.
         """
         return [
             Fill(
@@ -99,18 +83,18 @@ class RichPlugin(DrummerPlugin):
                 section_position="middle",
             ),
             Fill(
-                pattern=self._create_big_band_swing_solo_fill(),
+                pattern=self._create_big_band_swing_fill(),
                 trigger_probability=0.65,
                 section_position="end",
             ),
             Fill(
                 pattern=self._create_cross_stick_snap_combo(),
-                trigger_probability=0.7,
+                trigger_probability=0.75,
                 section_position="middle",
             ),
             Fill(
                 pattern=self._create_paradiddle_tom_excursion(),
-                trigger_probability=0.6,
+                trigger_probability=0.7,
                 section_position="end",
             ),
             Fill(
@@ -121,216 +105,169 @@ class RichPlugin(DrummerPlugin):
         ]
 
     def _create_single_stroke_roll_fill(self) -> Pattern:
-        """Rapid single-stroke snare roll with a rising dynamic curve.
+        """Single-stroke roll — rapid snare_rimshot crescendo across ALL toms."""
 
-        8 evenly spaced 32nd-note snare hits crescendo from a ghost-note
-        whisper to a full accent, showcasing single-stroke speed and
-        dynamic control in one breath.
-        """
-        builder = PatternBuilder("rich_single_stroke_roll")
-        velocities = [
-            VELOCITY.SNARE_GHOST,
-            VELOCITY.SNARE_GHOST,
-            VELOCITY.SNARE_LIGHT,
-            VELOCITY.SNARE_LIGHT,
-            VELOCITY.SNARE_NORMAL,
-            VELOCITY.SNARE_NORMAL,
-            VELOCITY.SNARE_HEAVY,
-            VELOCITY.SNARE_ACCENT,
-        ]
-        for i, velocity in enumerate(velocities):
-            position = i * TIMING.THIRTY_SECOND
-            builder.snare(position, velocity)
+        builder = PatternBuilder("rich_single_stroke")
+        # Rapid snare rimshot single-stroke speed (Rich's legendary speed)
+        for i in range(16):
+            pos = TIMING.EIGHTH_TRIPLET * i
+            vel = VELOCITY.SNARE_HEAVY + random.randint(-5, 10) + (i // 4) * 3
+            builder.snare_rimshot(pos, min(vel, 127))
+        # tom cascading across ALL toms with rimshot texture
+        for i in range(4):
+            pos = TIMING.HALF + TIMING.EIGHTH_TRIPLET * i
+            variant = ["HIGH", "MID", "LOW", "FLOOR"][i]
+            builder.tom_edge(
+                pos, variant, VELOCITY.TOM_HEAVY + random.randint(-5, 10)
+            )
+        # Big crash_6 resolution (dramatic showman punctuation)
+        builder.crash(4.0 - TIMING.SIXTEENTH, "6")
         return builder.build()
 
     def _create_dynamic_cascade_fill(self) -> Pattern:
-        """Descending snare-to-tom cascade with a soft-loud-soft-LOUD swing.
+        """Dynamic cascade — ascending toms with swing dynamics + ride_bell accents."""
 
-        Fills render only the portion of their pattern before beat 1.0
-        (see midi_drums/export/midi/engine.py's fill-rendering gate), so
-        the full cascade is packed into a single beat via 16th-note
-        subdivision.
-        """
         builder = PatternBuilder("rich_dynamic_cascade")
-        builder.pattern.add_beat(
-            0.0, InstrumentRegistry.get("snare_sticks"), VELOCITY.SNARE_LIGHT
+        # Ascending tom cascade through ALL toms (HIGH → FLOOR) with dynamic swell
+        for i in range(5):
+            pos = TIMING.EIGHTH_TRIPLET * i
+            variant = ["HIGH", "MID", "LOW", "FLOOR"][i] if i < 4 else "FLOOR"
+            vel = VELOCITY.TOM_NORMAL + (i * 8)
+            builder.tom(pos, variant, min(vel, 127))
+        # snare_rimshot for accent punctuation
+        builder.snare_rimshot(TIMING.HALF * 3, VELOCITY.SNARE_HEAVY)
+        # ride_bell + ride_shaft for swing timekeeping (big band style)
+        builder.ride_bell(
+            TIMING.HALF * 3 + TIMING.EIGHTH_TRIPLET, VELOCITY.RIDE_BELL_ACCENT
         )
-        builder.pattern.add_beat(
-            TIMING.SIXTEENTH, InstrumentRegistry.get("tom_3_open_hit"), VELOCITY.TOM_ACCENT
-        )
-        builder.pattern.add_beat(
-            TIMING.SIXTEENTH * 2, InstrumentRegistry.get("tom_4_open_hit"), VELOCITY.TOM_HEAVY
-        )
-        builder.kick(TIMING.SIXTEENTH * 3, VELOCITY.KICK_ACCENT)
+        builder.ride_shaft(4.0 - TIMING.EIGHTH_TRIPLET, VELOCITY.RIDE_NORMAL)
+        # crash_5/6 double-layering (dramatic punctuation)
+        builder.crash(4.0 - TIMING.EIGHTH_TRIPLET, "5")
+        builder.crash_choked(4.0 - TIMING.SIXTEENTH, "6")
         return builder.build()
 
     def _create_showman_crash_fill(self) -> Pattern:
-        """Fast triplet buildup punctuated by a dramatic crash accent.
+        """Showman crash — fast triplet buildup with ALL crashes (1-6)."""
 
-        Kept entirely within beat 1.0 (see midi_drums/export/midi/engine.py's
-        fill-rendering gate) - the climactic crash sits at 0.75, not exactly
-        at 1.0, so it isn't silently dropped by the rendering boundary check.
-        """
-        builder = PatternBuilder("rich_showman_crash")
-        builder.snare(0.0, VELOCITY.SNARE_NORMAL)
-        builder.snare(TIMING.SIXTEENTH_TRIPLET, VELOCITY.SNARE_HEAVY)
-        builder.snare(TIMING.SIXTEENTH_TRIPLET * 2, VELOCITY.SNARE_ACCENT)
-        builder.kick(TIMING.DOTTED_EIGHTH, VELOCITY.KICK_ACCENT)
-        builder.crash(TIMING.DOTTED_EIGHTH, VELOCITY.CRASH_ACCENT)
+        builder = PatternBuilder("rich_showman")
+        # Fast triplet buildup using all toms (HIGH → FLOOR)
+        for i in range(6):
+            pos = TIMING.EIGHTH_TRIPLET * i
+            variant = ["HIGH", "MID", "LOW"][i % 3]
+            builder.tom(pos, variant, min(VELOCITY.TOM_HEAVY + (i * 5), 127))
+        # snare_side_stick for accent texture
+        builder.snare_side_stick(TIMING.HALF * 3, VELOCITY.SNARE_GHOST + 10)
+        # ALL crashes cycled rapidly (showman drama — cymbal_1 through cymbal_6)
+        for i in range(6):
+            pos = TIMING.HALF * 3 + TIMING.EIGHTH_TRIPLET * (i + 1)
+            builder.crash(pos, str(i + 1))
         return builder.build()
 
     def _create_drum_battle_fill(self) -> Pattern:
-        """Drum battle call-and-response fill.
+        """Drum battle fill — call-and-response with tom_FLOOR + snare_rimshot."""
 
-        Rich's legendary drum battles (with Krupa, Roach) featured aggressive
-        cross-stick/snare/crash interplay — short "calls" answered by loud responses.
-        Simulated here as alternating rim-click and snare patterns with crash punctuation.
-        """
         builder = PatternBuilder("rich_drum_battle")
-        # Call-and-response within one beat (fits fill-render window)
-        calls_and_responses = [
-            (0.0, "rim", VELOCITY.SNARE_LIGHT),  # Rim-call
-            (1 / 8, "snare", VELOCITY.SNARE_HEAVY),  # Loud response
-            (2 / 8, "rim", VELOCITY.SNARE_LIGHT),  # Rim-call
-            (3 / 8, "snare", VELOCITY.SNARE_ACCENT),  # Louder response
-            (4 / 8, "rim", VELOCITY.SNARE_NORMAL),
-            (5 / 8, "snare", min(127, VELOCITY.SNARE_HEAVY + 2)),
-            (6 / 8, "rim", VELOCITY.SNARE_LIGHT),
-            (7 / 8, "snare", VELOCITY.SNARE_ACCENT),
-        ]
-        for offset, instr_name, velocity in calls_and_responses:
-            if instr_name == "rim":
-                builder.pattern.add_beat(offset, InstrumentRegistry.get("snare_side_stick"), velocity)
-            else:
-                builder.snare(offset, min(127, velocity))
-
-        # Crash punctuation at resolution
-        builder.crash(TIMING.DOTTED_EIGHTH, VELOCITY.CRASH_ACCENT)
+        # Call-and-response pattern (documented Krupa/Roach drum battles)
+        # "Call" — FLOOR tom accents
+        for i in range(4):
+            pos = TIMING.EIGHTH_TRIPLET * i
+            builder.tom(
+                pos, "FLOOR", VELOCITY.TOM_HEAVY + random.randint(-5, 10)
+            )
+        # "Response" — snare_rimshot rapid-fire (Rich's single-stroke speed)
+        for i in range(4):
+            pos = TIMING.HALF + TIMING.EIGHTH_TRIPLET * i
+            builder.snare_rimshot(
+                pos, VELOCITY.SNARE_HEAVY + random.randint(-5, 10)
+            )
+        # tom cascading with rimshot texture across ALL toms
+        for i in range(4):
+            pos = TIMING.HALF * 3 + TIMING.EIGHTH_TRIPLET * i
+            variant = ["HIGH", "MID", "LOW", "FLOOR"][i]
+            builder.tom_edge(pos, variant, VELOCITY.TOM_HEAVY)
+        # Big crash_4/5 double-punctuation (showman finish)
+        builder.crash(4.0 - TIMING.EIGHTH_TRIPLET, "4")
+        builder.crash_choked(4.0 - TIMING.SIXTEENTH, "5")
         return builder.build()
 
-    def _create_big_band_swing_solo_fill(self) -> Pattern:
-        """Big Band swing solo fill (Basie/Gillespie era)."""
-        builder = PatternBuilder("rich_big_band_swing")
-        # Ascending tom cascade packed into one beat (fills render < 1.0)
-        for i in range(4):
-            pos = TIMING.SIXTEENTH * i
-            instrument = (
-                InstrumentRegistry.get("tom_3_open_hit")
-                if i % 2 == 0
-                else InstrumentRegistry.get("tom_4_open_hit")
-            )
-            velocity = min(VELOCITY.TOM_HEAVY + (i % 4) * 3, 127)
-            builder.pattern.add_beat(pos, instrument, velocity)
-        # Swing-pattern ride cadence (ding-ding-a-da on RIDE + bell accents)
-        for i in range(4):
-            pos = TIMING.SIXTEENTH * i
-            if i % 2 == 0:
-                builder.ride(pos, VELOCITY.RIDE_NORMAL)
-                # Bell accent only when it fits within fill render window
-                bell_pos = pos + TIMING.DOTTED_EIGHTH
-                if bell_pos < 1.0:
-                    builder.pattern.add_beat(
-                        bell_pos,
-                        InstrumentRegistry.get("ride_1_bell"),
-                        VELOCITY.RIDE_BELL_ACCENT,
-                    )
-            else:
-                builder.ride(pos, VELOCITY.RIDE_LIGHT)
-        # Final crash accent at resolution (within fill window)
-        builder.crash(TIMING.DOTTED_EIGHTH, min(VELOCITY.CRASH_ACCENT, 127))
+    def _create_big_band_swing_fill(self) -> Pattern:
+        """Big Band swing solo fill — ascending toms with swing-pattern ride cadence."""
+
+        builder = PatternBuilder("rich_big_band")
+        # Ascending toms (HIGH → FLOOR) for swing feel
+        for i in range(5):
+            pos = TIMING.EIGHTH_TRIPLET * i
+            variant = ["HIGH", "MID", "LOW", "FLOOR"][i] if i < 4 else "FLOOR"
+            builder.tom(pos, variant, min(VELOCITY.TOM_HEAVY + (i * 3), 127))
+        # snare_rimshot for accent punctuation
+        builder.snare_rimshot(TIMING.HALF * 3, VELOCITY.SNARE_RIMSHOT)
+        # ride_bell + ride_shaft for swing timekeeping (big band era)
+        builder.ride_bell(
+            TIMING.HALF * 3 + TIMING.EIGHTH_TRIPLET,
+            VELOCITY.RIDE_BELL_ACCENT,
+        )
+        builder.ride_shaft(4.0 - TIMING.EIGHTH_TRIPLET, VELOCITY.RIDE_NORMAL)
+        # cymbal_5/6 dramatic punctuation (big band finale sound)
+        builder.cymbal_open(4.0 - TIMING.SIXTEENTH, "5")
+        builder.crash(4.0, "6")
         return builder.build()
 
     def _create_cross_stick_snap_combo(self) -> Pattern:
-        """Cross-stick/snap tight rim-click and snare interlock.
+        """Cross-stick/snap combo — snare_side_stick + tom_1 rimshot interlock."""
 
-        Rich's Big Band vocabulary featured rapid cross-stick (rim-click) patterns
-        that cut through the band — simulating the snap and precision of his
-        signature cross-stick technique.
-        """
-        builder = PatternBuilder("rich_cross_stick_snap")
-        # Tight rim-click/snare alternation packed into one beat (fills render < 1.0)
+        builder = PatternBuilder("rich_crossstick")
+        # Dense snare side stick for snap texture (cross-stick as primary voice)
         for i in range(8):
-            pos = TIMING.THIRTY_SECOND * i  # 8 hits within <1.0 bar
-            if i % 2 == 0:
-                builder.pattern.add_beat(
-                    pos, InstrumentRegistry.get("snare_side_stick"), VELOCITY.SNARE_LIGHT
-                )
-            else:
-                builder.snare(
-                    pos, min(VELOCITY.SNARE_NORMAL + random.randint(0, 5), 127)
-                )
-        # Resolution crash (within fill window)
-        builder.crash(TIMING.DOTTED_EIGHTH, min(VELOCITY.CRASH_ACCENT, 127))
+            pos = TIMING.EIGHTH * i
+            builder.snare_side_stick(
+                pos, VELOCITY.SNARE_GHOST + random.randint(3, 10)
+            )
+        # tom_1 rimshot accents for interlock (big band tradition)
+        builder.tom_edge(TIMING.QUARTER, "1", VELOCITY.TOM_HEAVY)
+        builder.tom_edge(TIMING.HALF, "1", VELOCITY.TOM_HEAVY - 3)
+        # snare_rimshot + ride_bell resolution (swing punctuation)
+        builder.snare_rimshot(TIMING.HALF * 3, VELOCITY.SNARE_RIMSHOT)
+        builder.ride_bell(
+            4.0 - TIMING.EIGHTH_TRIPLET, VELOCITY.RIDE_BELL_ACCENT
+        )
         return builder.build()
 
     def _create_paradiddle_tom_excursion(self) -> Pattern:
-        """Paradiddle tom excursion (RLRL across toms).
+        """Paradiddle tom excursion — RLRL pattern across ALL toms (big band tradition)."""
 
-        Buddy Rich's paradigm-based vocabulary: the classic RLRL paradiddle
-        pattern played sequentially across toms — a staple of big band drum
-        solo technique. Simulated with alternating right/left voicings.
-        """
-        builder = PatternBuilder("rich_paradiddle_toms")
-        # Paradiddle pattern (RLRL) packed into one beat (fills render < 1.0)
-        paradiddle_voicings = [
-            InstrumentRegistry.get("tom_3_open_hit"),
-            InstrumentRegistry.get("tom_3_open_hit"),
-            InstrumentRegistry.get("tom_4_open_hit"),
-            InstrumentRegistry.get("tom_4_open_hit"),
-        ]
-        for i, tom in enumerate(paradiddle_voicings):
-            pos = TIMING.SIXTEENTH * i
-            vel = VELOCITY.TOM_NORMAL + (i % 2) * 5
-            builder.pattern.add_beat(pos, tom, min(vel, 127))
+        builder = PatternBuilder("rich_paradiddle")
+        # RLRL paradiddle pattern across all 4 toms (big band snare drum tradition)
+        for i in range(8):
+            pos = TIMING.EIGHTH_TRIPLET * i
+            variant = ["HIGH", "MID", "LOW", "FLOOR"][i % 4]
+            builder.tom(
+                pos, variant, VELOCITY.TOM_HEAVY + random.randint(-5, 10)
+            )
+        # snare_rimshot for accent punctuation
+        builder.snare_rimshot(TIMING.HALF * 3, VELOCITY.SNARE_RIMSHOT)
+        # tom_edge final on FLOOR (deepest note of the excursion)
+        builder.tom_edge(
+            4.0 - TIMING.EIGHTH_TRIPLET, "FLOOR", VELOCITY.TOM_HEAVY
+        )
+        # Big crash_6 punctuation (showman finale)
+        builder.crash(4.0 - TIMING.SIXTEENTH, "6")
         return builder.build()
 
     def _create_double_paradiddle_roll(self) -> Pattern:
-        """Double paradiddle rapid snare-tom vocabulary (RLLR/RRLL).
+        """Double paradiddle roll — RLLR/RRLL rapid snare-tom vocabulary."""
 
-        Rich's documented drum battle vocabulary featured double-paradiddle
-        fills — alternating between snare and toms with RLLR/RRLL sticking.
-        Simulated as a rapid four-stroke pattern across the kit.
-        """
         builder = PatternBuilder("rich_double_paradiddle")
-        # Four groups of double paradiddles packed into one beat (fills render < 1.0)
-        for group in range(4):
-            offset = TIMING.THIRTY_SECOND * group  # 4 subdivisions within <1.0
-            if group % 2 == 0:
-                # RLLR pattern: snare → mid tom → floor tom → snare
-                builder.snare(offset, min(VELOCITY.SNARE_HEAVY, 127))
-                builder.pattern.add_beat(
-                    offset + TIMING.THIRTY_SECOND,
-                    InstrumentRegistry.get("tom_3_open_hit"),
-                    VELOCITY.TOM_ACCENT,
-                )
-                builder.pattern.add_beat(
-                    offset + TIMING.THIRTY_SECOND * 2,
-                    InstrumentRegistry.get("tom_4_open_hit"),
-                    VELOCITY.TOM_HEAVY,
-                )
-                builder.pattern.add_beat(
-                    offset + TIMING.THIRTY_SECOND * 3,
-                    min(VELOCITY.SNARE_ACCENT, 127),
+        # Rapid snare rimshot + tom edge interlock (RLLR/RRLL paradiddle pattern)
+        for i in range(16):
+            pos = TIMING.EIGHTH_TRIPLET * i
+            if i < 8:
+                builder.snare_rimshot(
+                    pos, VELOCITY.SNARE_HEAVY + random.randint(-5, 10)
                 )
             else:
-                # LRLR pattern: floor tom → mid tom → snare → tom edge
-                builder.pattern.add_beat(
-                    offset,
-                    InstrumentRegistry.get("tom_4_open_hit"),
-                    VELOCITY.TOM_HEAVY,
-                )
-                builder.pattern.add_beat(
-                    offset + TIMING.THIRTY_SECOND,
-                    InstrumentRegistry.get("tom_3_open_hit"),
-                    VELOCITY.TOM_ACCENT,
-                )
-                builder.snare(
-                    offset + TIMING.THIRTY_SECOND * 2,
-                    min(VELOCITY.SNARE_HEAVY, 127),
-                )
-                builder.tom_edge(
-                    offset + TIMING.THIRTY_SECOND * 3,
-                    "MID",
-                    VELOCITY.TOM_LIGHT + random.randint(0, 5),
-                )
+                variant = ["HIGH", "MID"][i % 2]
+                builder.tom_edge(pos, variant, VELOCITY.TOM_HEAVY)
+        # cymbal_open + crash_choked layering for dramatic punctuation
+        builder.cymbal_open(4.0 - TIMING.EIGHTH_TRIPLET, "4")
+        builder.crash_choked(4.0 - TIMING.SIXTEENTH, "5")
         return builder.build()

@@ -73,9 +73,7 @@ class RiffLockTransform(DrummerModification):
         )
         new_pattern.metadata["riff_locked"] = True
 
-        kicks = [
-            b for b in new_pattern.beats if b.instrument == kick
-        ]
+        kicks = [b for b in new_pattern.beats if b.instrument == kick]
         kicks.sort(key=lambda k: k.position)
 
         beats_per_bar = self.riff_accents.beats_per_bar

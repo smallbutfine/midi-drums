@@ -13,9 +13,9 @@ import logging
 import random
 from typing import TYPE_CHECKING
 
+from midi_drums.core.models.kit import DrumInstrument, InstrumentRegistry
 from midi_drums.core.models.pattern import Beat, Pattern
 from midi_drums.core.models.song import Fill, Section, Song
-from midi_drums.core.models.kit import DrumInstrument, InstrumentRegistry
 from midi_drums.core.value_objects.generation_parameters import (
     GenerationParameters,
 )
@@ -418,16 +418,12 @@ class ComposerV2:
         ride = InstrumentRegistry.get("ride_1_tip_hit_softer")
         crash = InstrumentRegistry.get("cymbal_1_hit")
         has_timekeeping_cymbal = any(
-            b[1]
-            in (closed_hh, open_hh, ride, crash)
-            for b in extracted_beats
+            b[1] in (closed_hh, open_hh, ride, crash) for b in extracted_beats
         )
 
         # Always ensure kick on the downbeat if not present
         if not has_kick:
-            extracted_beats.append(
-                (0.0, kick, int(VELOCITY.KICK_HEAVY))
-            )
+            extracted_beats.append((0.0, kick, int(VELOCITY.KICK_HEAVY)))
 
         # Force snare on backbeat only for genres that expect it (rock, metal, etc.)
         # Jazz/funk/ballad may intentionally have sparse or no snares.
@@ -517,7 +513,9 @@ class ComposerV2:
                 from midi_drums.config import VELOCITY
 
                 kick = InstrumentRegistry.get("kick")
-                closed_hh = InstrumentRegistry.get("hihat_closed_1_tip_closed_1_hit")
+                closed_hh = InstrumentRegistry.get(
+                    "hihat_closed_1_tip_closed_1_hit"
+                )
                 snare_sticks = InstrumentRegistry.get("snare_sticks")
                 # Quarter 0 (downbeat): kick + hi-hat
                 combined.beats.append(

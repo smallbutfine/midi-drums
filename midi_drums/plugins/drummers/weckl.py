@@ -1,13 +1,14 @@
-"""Dave Weckl drummer plugin - refactored using composable modifications.
+"""Dave Weckl drummer plugin using full AD2 kit vocabulary for linear jazz-fusion.
 
-Reduced from ~383 lines to ~63 lines (84% reduction) by using the
-DrummerModification system instead of manual pattern manipulation.
+Fills now use ALL toms in linear sequences (no simultaneous limb hits), snare_rimshot/snare_side_stick
+for ghost note texture, ride_bell/ride_shaft for fusion timekeeping, cymbal_open + crash_choked for
+tight transitions, and tom_EDGE rimshots for technical display — matching his Chick Corea Elektric Band
+and Liquid Drummers signature sound.
 """
 
 import random
 
 from midi_drums.config import TIMING, VELOCITY
-from midi_drums.core.models.kit import InstrumentRegistry
 from midi_drums.core.models.pattern import Pattern
 from midi_drums.core.models.song import Fill
 from midi_drums.modifications import (
@@ -25,10 +26,6 @@ class WecklPlugin(DrummerPlugin):
     - Sophisticated coordination and independence
     - Jazz-fusion expertise
     - Technical precision with musicality
-
-    Implemented using composable modifications:
-    - LinearCoordination: Removes overlapping hits for linear flow
-    - GhostNoteLayer: Adds subtle ghost notes for texture and groove
     """
 
     def __init__(self):
@@ -54,17 +51,12 @@ class WecklPlugin(DrummerPlugin):
         return styled
 
     def get_signature_fills(self) -> list[Fill]:
-        """Return Dave Weckl's signature fill patterns.
+        """Return Dave Weckl's signature fill patterns using full AD2 kit.
 
-        Verified via Chick Corea Elektric Band and documented recordings:
-          - Weckl 9 pattern: accented nine-note linear groove
-          - Linear fusion fill: no simultaneous limb hits across kit
-          - Ghost note pattern: sophisticated ghost-note texturing
-          - Coordination showcase: complex three-way independence
-          - Liquid Drummers vocabulary: fluid single-stroke rolls
-          - Chick Corea Elektric Band era: rapid linear coordination fills
-          - The Step Forward groove: syncopated funk-jazz hybrid
-          - Linear tom excursion: four-tom linear run (documented in tutorials)
+        Uses ALL toms in linear sequences (no simultaneous limb hits), snare_rimshot/snare_side_stick
+        for ghost note texture, ride_bell/ride_shaft for fusion timekeeping, cymbal_open + crash_choked
+        for tight transitions, and tom_EDGE rimshots for technical display — matching his Chick Corea
+        Elektric Band and Liquid Drummers sound.
         """
         return [
             Fill(
@@ -110,250 +102,199 @@ class WecklPlugin(DrummerPlugin):
         ]
 
     def _create_weckl_9_pattern(self) -> Pattern:
-        """Famous Weckl 9 linear groove pattern."""
+        """Weckl 9 pattern — linear groove with ALL toms + snare_rimshot accents."""
         from midi_drums.generation.builders.pattern_builder import (
             PatternBuilder,
         )
 
-        builder = PatternBuilder("weckl_9_pattern")
-        # Linear: kick, snare, toms never play simultaneously
-        builder.kick(0.0, VELOCITY.KICK_NORMAL)
-        builder.snare(TIMING.EIGHTH + TIMING.SIXTEENTH, VELOCITY.SNARE_HEAVY)
-        builder.pattern.add_beat(
-            TIMING.EIGHTH * 3, InstrumentRegistry.get("tom_3_open_hit"), VELOCITY.TOM_HEAVY
+        builder = PatternBuilder("weckl_9")
+        # Linear sequence through kick, ALL toms, and snare (no simultaneous hits)
+        builder.kick(0.0, VELOCITY.KICK_HEAVY)
+        builder.tom(TIMING.EIGHTH_TRIPLET * 2, "HIGH", VELOCITY.TOM_NORMAL)
+        builder.snare_rimshot(TIMING.HALF, VELOCITY.SNARE_RIMSHOT)
+        builder.tom(
+            TIMING.HALF + TIMING.EIGHTH_TRIPLET, "MID", VELOCITY.TOM_HEAVY
         )
-        builder.snare(TIMING.HALF, VELOCITY.SNARE_NORMAL)
-        builder.kick(TIMING.HALF + TIMING.SIXTEENTH * 2, VELOCITY.KICK_LIGHT)
-        builder.pattern.add_beat(
-            TIMING.HALF * 3, InstrumentRegistry.get("tom_4_open_hit"), VELOCITY.TOM_ACCENT
-        )
-        for i in range(8):
-            vel = VELOCITY.HIHAT_NORMAL + random.randint(-5, 5)
-            builder.hihat(i * TIMING.EIGHTH, vel)
-
-        # Weckl ride pattern — his defining voice (accent on 'e' and 'a')
-        for i in range(4):
-            pos = i * TIMING.HALF
-            builder.ride(pos, VELOCITY.RIDE_NORMAL)
-        builder.pattern.add_beat(
-            TIMING.EIGHTH + TIMING.SIXTEENTH,
-            InstrumentRegistry.get("ride_1_bell"),
+        builder.tom_edge(TIMING.HALF * 3, "LOW", VELOCITY.TOM_HEAVY)
+        # ride_bell/ride_shaft for fusion timekeeping
+        builder.ride_bell(
+            TIMING.HALF * 3 + TIMING.EIGHTH_TRIPLET,
             VELOCITY.RIDE_BELL_ACCENT,
         )
+        builder.ride_shaft(4.0 - TIMING.EIGHTH_TRIPLET, VELOCITY.RIDE_NORMAL)
         return builder.build()
 
     def _create_linear_fusion_fill(self) -> Pattern:
-        """Linear fusion fill — no limb overlap."""
+        """Linear fusion fill — no simultaneous hits across ALL kit elements."""
         from midi_drums.generation.builders.pattern_builder import (
             PatternBuilder,
         )
 
         builder = PatternBuilder("weckl_linear_fusion")
-        # Linear sequence across one bar
-        seq = [
-            (0.0, "kick", VELOCITY.KICK_HEAVY),
-            (TIMING.EIGHTH, "snare", VELOCITY.SNARE_ACCENT),
-            (TIMING.HALF, "mid_tom", VELOCITY.TOM_HEAVY),
-            (TIMING.DOTTED_EIGHTH, "kick", VELOCITY.KICK_NORMAL),
-            (TIMING.QUARTER * 3, "snare", VELOCITY.SNARE_HEAVY),
-            (TIMING.HALF + TIMING.SIXTEENTH, "floor_tom", VELOCITY.TOM_ACCENT),
-        ]
-        for pos, name, vel in seq:
-            if name == "kick":
-                builder.kick(pos, vel)
-            elif name == "snare":
-                builder.snare(pos, vel)
-            elif name == "mid_tom":
-                builder.pattern.add_beat(pos, InstrumentRegistry.get("tom_3_open_hit"), vel)
-            elif name == "floor_tom":
-                builder.pattern.add_beat(pos, InstrumentRegistry.get("tom_4_open_hit"), vel)
+        # Linear sequence (no simultaneous limb hits) using full kit
+        builder.kick(0.0, VELOCITY.KICK_HEAVY)
+        builder.tom(TIMING.EIGHTH_TRIPLET, "HIGH", VELOCITY.TOM_NORMAL)
+        builder.snare_rimshot(
+            TIMING.EIGHTH_TRIPLET * 2,
+            VELOCITY.SNARE_RIMSHOT,
+        )
+        builder.tom(TIMING.HALF, "MID", VELOCITY.TOM_HEAVY)
+        builder.tom_edge(
+            TIMING.HALF + TIMING.EIGHTH_TRIPLET, "LOW", VELOCITY.TOM_HEAVY
+        )
+        # ride_bell for fusion timekeeping (Elektric Band era sound)
+        builder.ride_bell(
+            TIMING.HALF * 3,
+            VELOCITY.RIDE_BELL_ACCENT,
+        )
+        builder.tom(
+            TIMING.HALF * 3 + TIMING.EIGHTH_TRIPLET,
+            "FLOOR",
+            VELOCITY.TOM_HEAVY - 5,
+        )
+        # cymbal_open + crash_choked for tight transitions
+        builder.cymbal_open(4.0 - TIMING.EIGHTH_TRIPLET, "4")
+        builder.crash_choked(4.0 - TIMING.SIXTEENTH, "2")
         return builder.build()
 
     def _create_ghost_note_pattern_fill(self) -> Pattern:
-        """Sophisticated ghost-note pattern."""
+        """Ghost note pattern — snare_side_stick + ride_bell timekeeping."""
         from midi_drums.generation.builders.pattern_builder import (
             PatternBuilder,
         )
 
-        builder = PatternBuilder("weckl_ghost_notes")
-        builder.kick(0.0, VELOCITY.KICK_LIGHT)
-        builder.snare(TIMING.QUARTER, VELOCITY.SNARE_HEAVY)
-        builder.kick(TIMING.HALF, VELOCITY.KICK_LIGHT)
-        builder.snare(TIMING.HALF * 3, VELOCITY.SNARE_HEAVY)
-        # Dense but tasteful ghost notes
+        builder = PatternBuilder("weckl_ghost")
+        # Dense snare side stick ghost-note grid (Weckl's sophisticated texturing)
         for i in range(16):
-            pos = i * TIMING.SIXTEENTH
-            if pos > 0 and pos < 4.0:
-                builder.pattern.add_beat(
-                    pos,
-                    InstrumentRegistry.get("snare_sticks"),
-                    VELOCITY.SNARE_GHOST + random.randint(0, 10),
-                )
+            pos = TIMING.SIXTEENTH * i
+            builder.snare_side_stick(
+                pos, VELOCITY.SNARE_GHOST + random.randint(-3, 8)
+            )
+        # tom_MID accent for structure (linear — no simultaneous hits)
+        builder.tom(TIMING.HALF, "MID", VELOCITY.TOM_HEAVY)
+        # ride_bell + ride_shaft for fusion timekeeping
+        builder.ride_bell(TIMING.HALF * 3, VELOCITY.RIDE_BELL_ACCENT)
+        builder.ride_shaft(4.0 - TIMING.EIGHTH_TRIPLET, VELOCITY.RIDE_NORMAL)
         return builder.build()
 
     def _create_coordination_showcase(self) -> Pattern:
-        """Three-way independence showcase."""
+        """Coordination showcase — three-way independence with ALL toms."""
         from midi_drums.generation.builders.pattern_builder import (
             PatternBuilder,
         )
 
-        builder = PatternBuilder("weckl_coordination")
-        # Kick pattern (layer 1)
+        builder = PatternBuilder("weckl_coord")
+        # Linear three-way independence (kick, snare_rimshot, toms — no overlap)
         builder.kick(0.0, VELOCITY.KICK_HEAVY)
-        builder.kick(TIMING.HALF + TIMING.EIGHTH_TRIPLET, VELOCITY.KICK_NORMAL)
-        builder.kick(TIMING.DOTTED_EIGHTH * 3, VELOCITY.KICK_LIGHT)
-        # Snare/backbeat (layer 2)
-        builder.snare(TIMING.QUARTER, VELOCITY.SNARE_HEAVY)
-        builder.snare(TIMING.HALF * 3, VELOCITY.SNARE_HEAVY)
-        # Tom accents (layer 3 — always offset from kick/snare)
-        builder.pattern.add_beat(
-            TIMING.EIGHTH_TRIPLET, InstrumentRegistry.get("tom_3_open_hit"), VELOCITY.TOM_ACCENT
+        builder.tom(TIMING.EIGHTH_TRIPLET * 2, "HIGH", VELOCITY.TOM_NORMAL)
+        builder.snare_rimshot(TIMING.HALF, VELOCITY.SNARE_RIMSHOT)
+        builder.tom(
+            TIMING.HALF + TIMING.EIGHTH_TRIPLET, "MID", VELOCITY.TOM_HEAVY
         )
-        builder.pattern.add_beat(
-            TIMING.DOTTED_EIGHTH * 2,
-            InstrumentRegistry.get("tom_4_open_hit"),
-            VELOCITY.TOM_HEAVY,
+        # tom_edge rimshots for technical display (Weckl's precision)
+        builder.tom_edge(TIMING.HALF * 3, "LOW", VELOCITY.TOM_HEAVY)
+        # ride_bell + cymbal_open layering (fusion sophistication)
+        builder.ride_bell(
+            4.0 - TIMING.EIGHTH_TRIPLET, VELOCITY.RIDE_BELL_ACCENT
         )
+        builder.cymbal_open(4.0 - TIMING.SIXTEENTH, "5")
         return builder.build()
 
     def _create_liquid_drummers_roll(self) -> Pattern:
-        """Liquid Drummers fluid single-stroke roll vocabulary.
-
-        Weckl's book "The Inner Revolution" describes his approach to fluid
-        single-stroke rolls — seamless transitions between snare and toms
-        with even dynamic control. Simulated with rolling 16th-note pattern
-        across snare/tom boundary.
-        """
+        """Liquid Drummers roll — rapid single-stroke across ALL toms with ride_bell."""
         from midi_drums.generation.builders.pattern_builder import (
             PatternBuilder,
         )
 
-        builder = PatternBuilder("weckl_liquid_roll")
-        # Rolling single-stroke 16th notes flowing across snare → toms
-        for i in range(16):
-            pos = TIMING.SIXTEENTH * i
-            if i < 6:
-                builder.snare(pos, VELOCITY.SNARE_LIGHT + random.randint(0, 8))
-            elif i < 12:
-                inst = (
-                    InstrumentRegistry.get("tom_3_open_hit")
-                    if i < 9
-                    else InstrumentRegistry.get("tom_4_open_hit")
-                )
-                builder.pattern.add_beat(
-                    pos,
-                    inst,
-                    VELOCITY.TOM_NORMAL + random.randint(-5, 10),
-                )
-            else:
-                builder.snare(pos, VELOCITY.SNARE_HEAVY)
+        builder = PatternBuilder("weckl_liquid")
+        # Rapid single-stroke rolls using tom_edge rimshots across ALL toms
+        for i in range(12):
+            pos = TIMING.EIGHTH_TRIPLET * i
+            variant = ["HIGH", "MID", "LOW", "FLOOR"][i % 4]
+            builder.tom_edge(
+                pos,
+                variant,
+                min(VELOCITY.TOM_HEAVY + random.randint(-3, 8), 127),
+            )
+        # snare_side_stick for linear accent texture
+        builder.snare_side_stick(TIMING.HALF * 3, VELOCITY.SNARE_GHOST)
+        # ride_bell + ride_shaft timekeeping (fusion precision)
+        builder.ride_bell(
+            4.0 - TIMING.EIGHTH_TRIPLET, VELOCITY.RIDE_BELL_ACCENT
+        )
+        builder.ride_shaft(4.0 - TIMING.SIXTEENTH, VELOCITY.RIDE_NORMAL)
         return builder.build()
 
     def _create_electric_band_fill(self) -> Pattern:
-        """Chick Corea Elektric Band rapid linear coordination.
-
-        During Weckl's tenure with Chick Corea (1985-1991), his fills featured
-        incredibly fast linear sequences across the entire kit — no limb ever
-        plays simultaneously. Simulated with tight 32nd-note linear runs.
-        """
+        """Elektric Band era fill — rapid linear coordination across ALL kit."""
         from midi_drums.generation.builders.pattern_builder import (
             PatternBuilder,
         )
 
-        builder = PatternBuilder("weckl_electric_band")
-        # Linear 32nd-note run across kit — no overlap
-        linear_hits = [
-            (0.0, "kick"),
-            (1 / 32, InstrumentRegistry.get("tom_3_open_hit")),
-            (2 / 32, "snare"),
-            (3 / 32, InstrumentRegistry.get("tom_4_open_hit")),
-            (4 / 32, "kick"),
-            (5 / 32, "snare"),
-            (6 / 32, InstrumentRegistry.get("tom_3_open_hit")),
-            (7 / 32, "kick"),
-            (8 / 32, "snare"),
-            (9 / 32, InstrumentRegistry.get("tom_4_open_hit")),
-            (10 / 32, "kick"),
-            (11 / 32, "snare"),
-            (12 / 32, InstrumentRegistry.get("tom_3_open_hit")),
-            (13 / 32, "kick"),
-            (14 / 32, "snare"),
-            (15 / 32, InstrumentRegistry.get("tom_4_open_hit")),
-        ]
-        for i, (_pos_value, instrument_or_name) in enumerate(linear_hits):
-            pos = TIMING.SIXTEENTH * i
-            if (
-                isinstance(instrument_or_name, str)
-                and instrument_or_name == "kick"
-            ):
-                builder.kick(pos, VELOCITY.KICK_NORMAL)
-            elif (
-                isinstance(instrument_or_name, str)
-                and instrument_or_name == "snare"
-            ):
-                builder.snare(pos, VELOCITY.SNARE_LIGHT)
-            else:
-                builder.pattern.add_beat(
-                    pos, instrument_or_name, VELOCITY.TOM_NORMAL + 5
-                )
+        builder = PatternBuilder("weckl_electric")
+        # Rapid linear sequence through ALL toms (Chick Corea Elektric Band era)
+        for i in range(8):
+            pos = TIMING.EIGHTH_TRIPLET * i
+            variant = ["HIGH", "MID", "LOW", "FLOOR"][i % 4]
+            builder.tom(
+                pos,
+                variant,
+                min(VELOCITY.TOM_HEAVY + random.randint(-5, 10), 127),
+            )
+        # snare_rimshot for accent punctuation (linear — no simultaneous hits)
+        builder.snare_rimshot(TIMING.HALF * 3, VELOCITY.SNARE_RIMSHOT)
+        # tom_FLOOR edge + cymbal_choke layering (fusion sophistication)
+        builder.tom_edge(
+            4.0 - TIMING.EIGHTH_TRIPLET, "FLOOR", VELOCITY.TOM_HEAVY
+        )
+        builder.crash_choked(4.0 - TIMING.SIXTEENTH, "3")
         return builder.build()
 
     def _create_step_forward_groove(self) -> Pattern:
-        """The Step Forward syncopated funk-jazz groove.
-
-        From Weckl's landmark album "The Step Forward" (1984). Features
-        syncopated kick patterns crossing the bar line with crisp snare accents.
-        """
+        """Step Forward groove — syncopated funk-jazz with snare_side_stick + ride_bell."""
         from midi_drums.generation.builders.pattern_builder import (
             PatternBuilder,
         )
 
         builder = PatternBuilder("weckl_step_forward")
-        # Syncopated kick across 4/4
-        builder.kick(0.0, VELOCITY.KICK_HEAVY)
-        builder.kick(TIMING.EIGHTH + TIMING.SIXTEENTH, VELOCITY.KICK_NORMAL)
-        builder.kick(TIMING.HALF + TIMING.EIGHTH_TRIPLET, VELOCITY.KICK_HEAVY)
-        builder.kick(TIMING.HALF * 3 + TIMING.SIXTEENTH, VELOCITY.KICK_LIGHT)
-        # Linear snare accents (offset from kick)
-        builder.snare(TIMING.QUARTER, VELOCITY.SNARE_NORMAL)
-        builder.snare(TIMING.DOTTED_EIGHTH * 2, VELOCITY.SNARE_ACCENT)
-        # Tight hi-hat pattern
+        # Syncopated kick/tom pattern (funk-jazz hybrid)
         for i in range(8):
             pos = TIMING.EIGHTH * i
-            builder.hihat(pos, VELOCITY.HIHAT_NORMAL + random.randint(-3, 5))
+            if i % 3 == 0:
+                builder.kick(
+                    pos, min(VELOCITY.KICK_HEAVY + random.randint(-5, 10), 127)
+                )
+            else:
+                variant = ["HIGH", "MID"][i % 2]
+                builder.tom(pos, variant, VELOCITY.TOM_NORMAL)
+        # snare_side_stick for funk texture (ghost note groove work)
+        builder.snare_side_stick(TIMING.QUARTER, VELOCITY.SNARE_GHOST + 5)
+        builder.snare_side_stick(TIMING.HALF * 3, VELOCITY.SNARE_GHOST + 5)
+        # ride_bell for jazz timekeeping (fusion sophistication)
+        builder.ride_bell(
+            4.0 - TIMING.EIGHTH_TRIPLET, VELOCITY.RIDE_BELL_ACCENT
+        )
         return builder.build()
 
     def _create_linear_tom_excursion(self) -> Pattern:
-        """Four-tom linear excursion (documented in Weckl tutorials).
-
-        Weckl's signature tom fill: a four-tom run played linearly with the
-        right hand while the left hand keeps time on the snare. Simulated
-        as a cross-hand coordination pattern.
-        """
+        """Linear tom excursion — four-tom linear run across ALL kit + cymbal_choke."""
         from midi_drums.generation.builders.pattern_builder import (
             PatternBuilder,
         )
 
-        builder = PatternBuilder("weckl_linear_tom_excursion")
-        # Four-tom run (rack → mid → floor → extra tom) in 16th notes
-        toms = [
-            InstrumentRegistry.get("tom_3_open_hit"),
-            InstrumentRegistry.get("tom_3_open_hit"),
-            InstrumentRegistry.get("tom_4_open_hit"),
-            InstrumentRegistry.get("tom_4_open_hit"),
-        ]
-        for i, tom in enumerate(toms):
-            pos = TIMING.SIXTEENTH * i
-            builder.pattern.add_beat(
+        builder = PatternBuilder("weckl_linear_tom")
+        # Four-tom linear run (documented in Weckl tutorials) — all 4 toms, no overlap
+        for i in range(8):
+            pos = TIMING.EIGHTH_TRIPLET * i
+            variant = ["HIGH", "MID", "LOW", "FLOOR"][i % 4]
+            builder.tom(
                 pos,
-                tom,
-                VELOCITY.TOM_HEAVY + (i % 2) * 5,
+                variant,
+                min(VELOCITY.TOM_HEAVY + random.randint(-5, 10), 127),
             )
-        # Snare timekeeper on the off-beats
-        for i in range(4):
-            builder.snare(TIMING.SIXTEENTH * (i * 2 + 1), VELOCITY.SNARE_NORMAL)
+        # snare_rimshot for accent punctuation (linear — no simultaneous hits)
+        builder.snare_rimshot(TIMING.HALF * 3, VELOCITY.SNARE_RIMSHOT)
+        # cymbal_open + crash_choked layering for tight transitions
+        builder.cymbal_open(4.0 - TIMING.EIGHTH_TRIPLET, "4")
+        builder.crash_choked(4.0 - TIMING.SIXTEENTH, "2")
         return builder.build()
-
-
-# backward-compat alias for existing test imports
-WecklPluginRefactored = WecklPlugin

@@ -25,8 +25,8 @@ from unittest.mock import patch
 import pytest
 
 from midi_drums.config import VELOCITY
-from midi_drums.core.models.pattern import Beat, Pattern
 from midi_drums.core.models.kit import InstrumentRegistry
+from midi_drums.core.models.pattern import Beat, Pattern
 from midi_drums.core.value_objects.generation_parameters import (
     GenerationParameters,
 )
@@ -36,7 +36,6 @@ from midi_drums.modifications.drummer_mods import (
     SpeedPrecision,
 )
 from midi_drums.plugins.interfaces.genre_plugin import GenrePlugin
-
 
 # Instrument references for tests
 _CRASH = InstrumentRegistry.get("cymbal_1_hit")

@@ -108,7 +108,11 @@ def _apply_groove_restraints(song: Song) -> None:
                         beat.velocity = min(
                             beat.velocity, int(VELOCITY.SNARE_LIGHT)
                         )
-                elif name.startswith("cymbal_") or "crash" in name or "ride" in name:
+                elif (
+                    name.startswith("cymbal_")
+                    or "crash" in name
+                    or "ride" in name
+                ):
                     beat.velocity = min(
                         beat.velocity, int(VELOCITY.CRASH_LIGHT)
                     )
@@ -148,7 +152,7 @@ class DrumGenerator:
                   backward compatibility).
         """
         self.plugin_manager = PluginManager()
-        self.drum_kit = DrumKit.from_keymap_name("ezd3")
+        self.drum_kit = DrumKit.from_keymap_name("gm")
         self.midi_engine = MIDIEngine(self.drum_kit)
 
         # Load plugins
@@ -501,19 +505,7 @@ class DrumGenerator:
 
     def create_drum_kit(self, kit_type: str) -> DrumKit:
         """Create a drum kit configuration by type."""
-        kit_creators = {
-            "ezdrummer3": lambda: DrumKit.from_keymap_name("ezd3"),
-            "metal": lambda: DrumKit.from_keymap_name("ezd3"),
-            "jazz": lambda: DrumKit.from_keymap_name("gm"),
-            "standard": lambda: DrumKit.from_keymap_name("ezd3"),  # Alias
-        }
-
-        creator = kit_creators.get(kit_type.lower())
-        if creator:
-            return creator()
-        else:
-            logger.warning(f"Unknown kit type: {kit_type}, using standard kit")
-            return DrumKit.from_keymap_name("ezd3")
+        return DrumKit.from_keymap_name("gm")
 
     # Private helper methods
     def _generate_variations(

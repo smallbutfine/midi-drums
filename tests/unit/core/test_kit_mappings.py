@@ -17,6 +17,7 @@ import pytest
 class TestPresetsDivergeOnNoteMapping:
     """`get_midi_note()` must differ across presets for EZDrummer-specific
     articulations."""
+
     pass
 
 
@@ -26,6 +27,7 @@ class TestPresetsDivergeOnNoteMapping:
 )
 class TestAddictiveDrumsHasVendorSpecificNotes:
     """AD2 uses its own keymap (XLN Audio, June 2021) — must differ from GM."""
+
     pass
 
 
@@ -35,6 +37,7 @@ class TestAddictiveDrumsHasVendorSpecificNotes:
 )
 class TestAddictiveDrumsExtendedInstruments:
     """Verify AD2's vendor-specific instruments resolve to correct MIDI notes."""
+
     pass
 
 
@@ -44,6 +47,7 @@ class TestAddictiveDrumsExtendedInstruments:
 )
 class TestGmBaselineCompleteCoverage:
     """GM-baseline presets map every core instrument explicitly."""
+
     pass
 
 
@@ -53,6 +57,7 @@ class TestGmBaselineCompleteCoverage:
 )
 class TestGmBaselinePresetsAreActuallyGmCompliant:
     """Regression: GM-baseline presets must match gm_drums for every instrument."""
+
     pass
 
 
@@ -62,6 +67,7 @@ class TestGmBaselinePresetsAreActuallyGmCompliant:
 )
 class TestDrumKitFromDict:
     """DrumKit.from_dict() lets users supply a fully custom mapping."""
+
     pass
 
 
@@ -71,4 +77,5 @@ class TestDrumKitFromDict:
 )
 class TestDrumKitFromJson:
     """DrumKit.from_json() loads a mapping file from disk."""
+
     pass

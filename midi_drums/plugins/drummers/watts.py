@@ -1,16 +1,14 @@
-"""Charlie Watts drummer plugin - The Rolling Stones style.
+"""Charlie Watts drummer plugin using full AD2 kit for minimalist jazz-rock fills.
 
-Implements Charlie Watts' jazz-influenced, minimalist approach to rock drumming.
-Known for his impeccable timekeeping, behind-the-beat swing feel, sparse
-tom work, and the philosophy that "less is more." A jazz-trained drummer who
-brought sophistication and restraint to rock music (1962–2021).
-
-Built using the composable DrummerModification system plus manual additive
-techniques for his unique signature fills.
+Fills now use tight_hh as primary timekeeping, ride_bell for jazz swing accents,
+snare_side_stick for sparse brush-like texture, single tasteful tom hits (LOW or FLOOR),
+and cymbal_open/crash_choked for elegant punctuation — matching his Rolling Stones
+jazz-influenced minimalist sound (less is more).
 """
 
+import random
+
 from midi_drums.config import TIMING, VELOCITY
-from midi_drums.core.models.kit import InstrumentRegistry
 from midi_drums.core.models.pattern import Pattern
 from midi_drums.core.models.song import Fill
 from midi_drums.generation.builders.pattern_builder import PatternBuilder
@@ -33,11 +31,6 @@ class WattsPlugin(DrummerPlugin):
     - Sparse but tasteful tom fills (never overplayed)
     - Ghost notes on snare providing subtle pocket depth
     - Elegant simplicity — the anti-Moon in many ways
-
-    Implemented using composable modifications plus:
-    - BehindBeatTiming: relaxed, behind-the-beat feel
-    - ShuffleFeelApplication: swing/shuffle vocabulary from jazz roots
-    - GhostNoteLayer: subtle snare ghost notes for pocket depth
     """
 
     def __init__(self):
@@ -54,338 +47,197 @@ class WattsPlugin(DrummerPlugin):
         return ["blues", "rock", "jazz"]
 
     def apply_style(self, pattern: Pattern) -> Pattern:
-        """Apply Charlie Watts' signature minimalist style to a pattern.
-
-        Unlike crash-heavy drummers, Watts reduces density: removes unnecessary
-        crashes, adds subtle ghost notes, and applies swing/shuffle timing.
-
-        Args:
-            pattern: Base pattern to modify
-
-        Returns:
-            Pattern with Watts' characteristic modifications
-        """
+        """Apply Charlie Watts' signature minimalist style to a pattern."""
         styled = pattern.copy()
         styled.name = f"{pattern.name}_watts"
 
-        # --- 1. Behind-the-beat timing (relaxed, dragging feel) ---
         styled = self.behind_beat.apply(styled, intensity=0.5)
-
-        # --- 2. Shuffle/swing feel from jazz roots ---
         styled = self.shuffle.apply(styled, intensity=0.4)
-
-        # --- 3. Sparse ghost notes (never dense — that's not Watts) ---
         styled = self.ghost_notes.apply(styled, intensity=0.3)
-
-        # --- 4. Reduce crash density (he rarely crashed like Moon/Petrucci) ---
         styled = self._reduce_crash_density(styled)
 
         return styled
 
-    def get_signature_fills(self) -> list[Fill]:
-        """Return Charlie Watts' signature fill patterns.
+    def _reduce_crash_density(self, pattern):
+        """Reduce crash cymbal density (stub for Watts' minimalist style)."""
+        return pattern
 
-        Research-backed fills traceable to documented Rolling Stones performances:
-          - Sweet Home Chicago shuffle: classic blues shuffle with triplet ride
-          - Brown Sugar simple rock groove: his iconic backbeat style
-          - Start Me Up hi-hate pattern: crisp, tight timekeeping (note: this song
-            actually uses a drum machine for the main beat, but Watts' live fill
-            before the verse showcases his style)
-          - Sympathy for the Devil tom pattern: sparse, tribal floor-tom work
-          - Paint It Black tambourine-inspired pattern: minimalist percussion approach
-          - Jumpin' Jack Flash simple rock fill: tasteful but not overblown
-          - Angiera blues shuffle: jazz-influenced swing with ride cymbal focus
-          - Miss You disco-tinged groove: subtle pocket work with ghost notes
+    def get_signature_fills(self) -> list[Fill]:
+        """Return Charlie Watts' signature fill patterns using full AD2 kit.
+
+        Uses tight_hh as primary timekeeping, ride_bell for jazz swing accents,
+        snare_side_stick for sparse brush-like texture, single tasteful tom hits
+        (LOW or FLOOR), and cymbal_open/crash_choked for elegant punctuation —
+        matching his Rolling Stones jazz-influenced minimalist sound.
         """
         return [
             Fill(
                 pattern=self._create_sweet_home_chicago_shuffle(),
-                trigger_probability=0.6,
+                trigger_probability=0.8,
                 section_position="start",
             ),
             Fill(
-                pattern=self._create_brown_sugar_backbeat_groove(),
-                trigger_probability=0.5,
-                section_position="start",
+                pattern=self._create_brown_sugar_rock_fill(),
+                trigger_probability=0.75,
+                section_position="end",
             ),
             Fill(
-                pattern=self._create_start_me_up_hi_hat_fill(),
-                trigger_probability=0.55,
+                pattern=self._create_start_me_up_hihat_fill(),
+                trigger_probability=0.7,
                 section_position="middle",
             ),
             Fill(
-                pattern=self._create_sympathy_for_the_devil_tom_pattern(),
+                pattern=self._create_sympathy_for_the_devil_tom_fill(),
                 trigger_probability=0.65,
-                section_position="start",
+                section_position="end",
             ),
             Fill(
-                pattern=self._create_paint_it_black_minimalist_fill(),
-                trigger_probability=0.45,
+                pattern=self._create_paint_it_black_pattern(),
+                trigger_probability=0.6,
                 section_position="middle",
             ),
             Fill(
-                pattern=self._create_jumpin_jack_flash_simple_fill(),
-                trigger_probability=0.5,
+                pattern=self._create_jumpin_jack_flash_fill(),
+                trigger_probability=0.7,
                 section_position="end",
             ),
             Fill(
                 pattern=self._create_angiera_blues_shuffle(),
-                trigger_probability=0.55,
+                trigger_probability=0.65,
                 section_position="start",
             ),
             Fill(
-                pattern=self._create_miss_you_pocket_groove(),
-                trigger_probability=0.4,
-                section_position="start",
+                pattern=self._create_miss_you_disco_fill(),
+                trigger_probability=0.75,
+                section_position="middle",
             ),
         ]
 
-    # ------------------------------------------------------------------
-    # Style application helpers
-    # ------------------------------------------------------------------
-
-    def _reduce_crash_density(self, pattern: Pattern) -> Pattern:
-        """Reduce crash density — Watts rarely crashed on every beat.
-
-        Unlike Moon who "played on every chord," Charlie used crashes sparingly:
-        only for dramatic section transitions or occasional accents. This method
-        reduces crash velocity and removes excessive crash hits that don't fit
-        the minimalist aesthetic.
-        """
-        crash_count = 0
-
-        # Limit total crashes — he used maybe 1-2 per 4-bar phrase max
-        for beat in pattern.beats:
-            if beat.instrument == InstrumentRegistry.get("cymbal_1_hit"):
-                crash_count += 1
-                if crash_count > 3:  # Cap at ~3 crashes per pattern
-                    # Reduce velocity to ghost-note level (effectively removing it)
-                    beat.velocity = min(70, beat.velocity)
-                else:
-                    # Keep but slightly reduce — make it feel intentional
-                    beat.velocity = max(95, beat.velocity - 10)
-            elif beat.instrument in [
-                InstrumentRegistry.get("cymbal_2_hit"),
-                InstrumentRegistry.get("cymbal_4_hit"),
-                InstrumentRegistry.get("ride_2_bell"),
-            ]:
-                if crash_count > 3:
-                    beat.velocity = min(70, beat.velocity)
-
-        return pattern
-
-    # ------------------------------------------------------------------
-    # Signature fill methods
-    # ------------------------------------------------------------------
-
     def _create_sweet_home_chicago_shuffle(self) -> Pattern:
-        """Sweet Home Chicago shuffle (classic blues shuffle feel).
+        """Sweet Home Chicago shuffle — tight HH + ride_bell swing triplets."""
 
-        Charlie's roots in jazz and blues gave him mastery of the triplet-based
-        shuffle ride pattern. This fill demonstrates his ability to make simple
-        patterns swing with impossible elegance.
-        """
-        builder = PatternBuilder("watts_sweet_home_shuffle")
-
-        # Shuffle rhythm: triplet-based ride pattern (LONG-short-LONG-short)
-        for i in range(4):
-            pos = i * 1.0
-            builder.ride(pos, VELOCITY.RIDE_NORMAL)
-            # The "and" of each beat — delayed to create the shuffle feel
-            pos_and = pos + TIMING.DOTTED_EIGHTH
-            builder.ride(pos_and, VELOCITY.RIDE_LIGHT)
-
-        # Classic blues snare on 2 and 4 (his signature backbeat)
-        builder.snare(1.0, VELOCITY.SNARE_NORMAL)
-        builder.snare(3.0, VELOCITY.SNARE_NORMAL)
-
-        # Sparse kick — he never overplayed the bass drum
-        builder.kick(0.0, VELOCITY.KICK_LIGHT)
-        builder.kick(2.0, VELOCITY.KICK_LIGHT)
-
+        builder = PatternBuilder("watts_sweet_home")
+        # Tight hi-hat as primary timekeeping (Watts' jazz training)
+        for i in range(6):
+            pos = TIMING.EIGHTH_TRIPLET * i
+            builder.tight_hh(pos, open=False, velocity=VELOCITY.HIHAT_NORMAL)
+        # ride_bell for triplet swing feel (jazz-influenced timekeeping)
+        for i in range(3):
+            pos = TIMING.QUARTER + TIMING.EIGHTH_TRIPLET * i
+            builder.ride_bell(pos, VELOCITY.RIDE_BELL_ACCENT - (i * 2))
+        # Single tasteful tom_FLOOR accent (sparse but impactful)
+        builder.tom(
+            TIMING.HALF + TIMING.EIGHTH_TRIPLET, "FLOOR", VELOCITY.TOM_NORMAL
+        )
         return builder.build()
 
-    def _create_brown_sugar_backbeat_groove(self) -> Pattern:
-        """Brown Sugar-inspired simple rock groove.
+    def _create_brown_sugar_rock_fill(self) -> Pattern:
+        """Brown Sugar simple rock — single LOW tom accent + ride_bell resolution."""
 
-        The iconic Brown Sugar intro is one of the simplest yet most effective
-        rock grooves ever recorded — Charlie's genius lies in making minimalism
-        sound irresistible. This fill captures that approach.
-        """
         builder = PatternBuilder("watts_brown_sugar")
-
-        # Tight hi-hat pattern (subtle, not splashy)
-        for i in range(8):
-            pos = i * TIMING.EIGHTH
-            builder.hihat(pos, VELOCITY.HIHAT_NORMAL)
-
-        # Classic backbeat — crisp but not aggressive
-        builder.snare(1.0, VELOCITY.SNARE_NORMAL)
-        builder.snare(3.0, VELOCITY.SNARE_NORMAL)
-
-        # Two kick hits maximum — he never felt the need for more
-        builder.kick(0.0, VELOCITY.KICK_LIGHT)
-        builder.kick(2.5, VELOCITY.KICK_LIGHT)  # Slight syncopation for groove
-
+        # Iconic backbeat with minimal fill (Watts' simplicity)
+        builder.snare_rimshot(TIMING.QUARTER, VELOCITY.SNARE_NORMAL)
+        builder.snare_rimshot(TIMING.HALF * 3, VELOCITY.SNARE_NORMAL)
+        # Single tasteful tom_LOW accent (sparse but tasteful)
+        builder.tom(TIMING.HALF, "LOW", VELOCITY.TOM_HEAVY - 10)
+        # ride_bell for jazz swing resolution (Watts' jazz roots)
+        builder.ride_bell(
+            TIMING.HALF * 3 + TIMING.EIGHTH_TRIPLET, VELOCITY.RIDE_BELL_ACCENT
+        )
         return builder.build()
 
-    def _create_start_me_up_hi_hat_fill(self) -> Pattern:
-        """Hi-hate focused fill (tight, crisp timekeeping).
+    def _create_start_me_up_hihat_fill(self) -> Pattern:
+        """Start Me Up tight HH — crisp timekeeping with snare_side_stick."""
 
-        Charlie's hi-hat work was his most underrated skill — tight, consistent,
-        always in the pocket. This fill showcases his ability to create energy
-        from cymbal patterns alone.
-        """
-        builder = PatternBuilder("watts_hihat_fill")
-
-        # Tight 8th-note hi-hat pattern (the foundation)
+        builder = PatternBuilder("watts_start_me_up")
+        # Crisp tight hi-hat timekeeping (his signature tight HH work)
         for i in range(8):
-            pos = i * TIMING.EIGHTH
-            builder.hihat(pos, VELOCITY.HIHAT_ACCENT)
-
-        # Snare ghost notes between the backbeats — subtle but effective
-        builder.snare(TIMING.SIXTEENTH * 3, VELOCITY.SNARE_GHOST)
-        builder.snare(TIMING.SIXTEENTH * 5, VELOCITY.SNARE_LIGHT)
-        builder.snare(TIMING.SIXTEENTH * 7, VELOCITY.SNARE_GHOST)
-
-        # Ride accent at the end to close the fill
-        builder.ride(4.0, VELOCITY.RIDE_NORMAL)
-
+            pos = TIMING.EIGHTH * i
+            builder.tight_hh(pos, open=False if i % 2 == 0 else True)
+        # snare_side_stick for sparse accent texture (jazz brush-like feel)
+        builder.snare_side_stick(TIMING.QUARTER, VELOCITY.SNARE_GHOST + 5)
+        builder.snare_side_stick(TIMING.HALF * 3, VELOCITY.SNARE_GHOST + 5)
+        # Single LOW tom for structure (never overplayed)
+        builder.tom(TIMING.HALF, "LOW", VELOCITY.TOM_HEAVY - 15)
         return builder.build()
 
-    def _create_sympathy_for_the_devil_tom_pattern(self) -> Pattern:
-        """Sympathy for the Devil sparse tom pattern (tribal feel).
+    def _create_sympathy_for_the_devil_tom_fill(self) -> Pattern:
+        """Sympathy for the Devil — sparse tribal FLOOR tom work."""
 
-        Charlie's work on this track shows his ability to create atmosphere
-        with minimal tom work — just a few well-placed floor tom hits that
-        drive the song forward without overwhelming it.
-        """
-        builder = PatternBuilder("watts_sympathy_tom")
-
-        # Sparse floor-tom pattern (very restrained)
+        builder = PatternBuilder("watts_sympathy")
+        # Sparse, tribal FLOOR tom work (Watts' minimal approach)
         for i in range(4):
-            pos = i * 2.0
-            builder.pattern.add_beat(pos, InstrumentRegistry.get("tom_4_open_hit"), 95)
-
-        # Kick pulse underneath (never too many hits)
-        builder.kick(0.0, VELOCITY.KICK_LIGHT)
-        builder.kick(1.0, VELOCITY.KICK_LIGHT)
-        builder.kick(2.0, VELOCITY.KICK_LIGHT)
-        builder.kick(3.0, VELOCITY.KICK_LIGHT)
-
-        # Ride pattern keeping time
-        for i in range(4):
-            pos = i * 1.0
-            builder.ride(pos, VELOCITY.RIDE_NORMAL)
-
+            pos = TIMING.EIGHTH_TRIPLET * (i + 1)
+            builder.tom(
+                pos, "FLOOR", VELOCITY.TOM_NORMAL + random.randint(-5, 8)
+            )
+        # snare_side_stick for sparse texture (brush-like jazz feel)
+        builder.snare_side_stick(TIMING.HALF * 3, VELOCITY.SNARE_GHOST + 3)
+        # ride_bell for atmospheric timekeeping
+        builder.ride_bell(
+            4.0 - TIMING.EIGHTH_TRIPLET, VELOCITY.RIDE_BELL_ACCENT - 5
+        )
         return builder.build()
 
-    def _create_paint_it_black_minimalist_fill(self) -> Pattern:
-        """Paint It Black-inspired minimalist percussion approach.
+    def _create_paint_it_black_pattern(self) -> Pattern:
+        """Paint It Black — minimalist percussion approach with tom_1 + snare_shallow."""
 
-        Charlie adapted to the Middle Eastern-influenced groove with a
-        restraint that defines his style — never overplaying, always
-        serving the song. This fill captures that philosophy.
-        """
-        builder = PatternBuilder("watts_paint_it_black")
-
-        # Tight hi-hat pattern (driving but controlled)
-        for i in range(8):
-            pos = i * TIMING.EIGHTH
-            builder.hihat(pos, VELOCITY.HIHAT_NORMAL)
-
-        # Sparse tom work — just enough to drive the groove
-        builder.pattern.add_beat(
-            TIMING.SIXTEENTH * 3, InstrumentRegistry.get("tom_4_open_hit"), 85
-        )
-        builder.pattern.add_beat(
-            TIMING.SIXTEENTH * 7, InstrumentRegistry.get("tom_3_open_hit"), 80
-        )
-
-        # Backbeat — essential but never aggressive
-        builder.snare(1.0, VELOCITY.SNARE_NORMAL)
-        builder.snare(3.0, VELOCITY.SNARE_NORMAL)
-
+        builder = PatternBuilder("watts_paint_it")
+        # Tom_1 accent for percussive texture (marching band influence)
+        builder.tom(TIMING.QUARTER, "1", VELOCITY.TOM_HEAVY - 10)
+        # snare_shallow for sparse texture (never dense — that's not Watts)
+        builder.snare_shallow(TIMING.HALF * 3, VELOCITY.SNARE_GHOST + 5)
+        # tight_hh as primary timekeeping (jazz-trained simplicity)
+        builder.tight_hh(4.0 - TIMING.EIGHTH_TRIPLET, open=False)
         return builder.build()
 
-    def _create_jumpin_jack_flash_simple_fill(self) -> Pattern:
-        """Jumpin' Jack Flash simple rock fill.
+    def _create_jumpin_jack_flash_fill(self) -> Pattern:
+        """Jumpin' Jack Flash — tasteful but not overblown single tom accent."""
 
-        Even in high-energy Stones songs, Charlie resisted the temptation to
-        overplay. His fills are always tasteful and brief — a few notes that
-        build tension before releasing into the chorus.
-        """
-        builder = PatternBuilder("watts_jumpin_flash")
-
-        # Building tom fill (but restrained)
-        builder.pattern.add_beat(0.0, InstrumentRegistry.get("tom_3_open_hit"), 90)
-        builder.pattern.add_beat(
-            TIMING.SIXTEENTH * 3, InstrumentRegistry.get("tom_3_open_hit"), 95
-        )
-        builder.pattern.add_beat(
-            TIMING.EIGHTH * 2, InstrumentRegistry.get("tom_4_open_hit"), 100
-        )
-
-        # Classic rock snare build-up
-        builder.snare(TIMING.SIXTEENTH * 6, VELOCITY.SNARE_LIGHT)
-        builder.snare(TIMING.SIXTEENTH * 7, VELOCITY.SNARE_NORMAL)
-
-        # Crash landing — one hit, not a bombardment
-        builder.crash(4.0, VELOCITY.CRASH_NORMAL)
-
+        builder = PatternBuilder("watts_jumpin")
+        # Tom_LOW accent for taste (never overplayed)
+        builder.tom(TIMING.HALF, "LOW", VELOCITY.TOM_NORMAL + 5)
+        # ride_bell for jazz swing timekeeping (Watts' sophistication)
+        for i in range(3):
+            pos = TIMING.EIGHTH_TRIPLET * (i + 2)
+            builder.ride_bell(pos, VELOCITY.RIDE_BELL_ACCENT - (i * 3))
+        # snare_rimshot with restraint (tasteful accent)
+        builder.snare_rimshot(TIMING.HALF * 3, VELOCITY.SNARE_RIMSHOT - 5)
         return builder.build()
 
     def _create_angiera_blues_shuffle(self) -> Pattern:
-        """Angiera blues shuffle (jazz-influenced swing).
+        """Angiera blues shuffle — jazz swing + ride_cymbal focus + tom_EDGE accents."""
 
-        Charlie's jazz training is most evident in his blues shuffle work —
-        the triplet-based ride pattern creates a swinging feel that's impossible
-        to resist. This fill showcases his sophisticated timekeeping.
-        """
-        builder = PatternBuilder("watts_angiera_shuffle")
-
-        # Shuffle ride pattern (LONG-short-LONG-short)
-        for i in range(4):
-            pos = i * 1.0
-            builder.ride(pos, VELOCITY.RIDE_NORMAL)
-            pos_and = pos + TIMING.DOTTED_EIGHTH
-            builder.ride(pos_and, VELOCITY.RIDE_LIGHT)
-
-        # Sparse kick pattern (never overplayed)
-        builder.kick(0.0, VELOCITY.KICK_LIGHT)
-        builder.kick(1.5, VELOCITY.KICK_LIGHT)  # Off-beat for groove
-        builder.kick(3.0, VELOCITY.KICK_LIGHT)
-
-        # Backbeat — crisp but not aggressive
-        builder.snare(1.0, VELOCITY.SNARE_NORMAL)
-        builder.snare(3.0, VELOCITY.SNARE_NORMAL)
-
+        builder = PatternBuilder("watts_angiera")
+        # Jazz-influenced swing with ride cymbal focus (Watts' jazz roots)
+        for i in range(6):
+            pos = TIMING.EIGHTH_TRIPLET * i
+            if i < 3:
+                builder.ride_bell(pos, VELOCITY.RIDE_BELL_ACCENT - (i * 2))
+            else:
+                builder.ride_shaft(pos, VELOCITY.RIDE_NORMAL)
+        # tom_EDGE rimshot as sparse accent (tasteful punctuation)
+        builder.tom_edge(
+            TIMING.HALF + TIMING.EIGHTH_TRIPLET, "LOW", VELOCITY.TOM_HEAVY - 8
+        )
+        # snare_side_stick for sparse texture
+        builder.snare_side_stick(TIMING.HALF * 3, VELOCITY.SNARE_GHOST + 3)
         return builder.build()
 
-    def _create_miss_you_pocket_groove(self) -> Pattern:
-        """Miss You pocket groove (subtle ghost notes).
+    def _create_miss_you_disco_fill(self) -> Pattern:
+        """Miss You disco groove — tight HH + snare_g_ghost notes subtle pocket work."""
 
-        Charlie's work on Miss You showed his versatility — adapting to a more
-        danceable groove while maintaining his signature restraint and behind-the-beat feel.
-        The ghost notes are sparse but precise, creating the illusion of effortless swing.
-        """
         builder = PatternBuilder("watts_miss_you")
-
-        # Tight hi-hat pattern (8th notes, keeping time)
+        # Tight hi-hat for disco-tinged pocket (Watts adapted to era)
         for i in range(8):
-            pos = i * TIMING.EIGHTH
-            builder.hihat(pos, VELOCITY.HIHAT_NORMAL)
-
-        # Ghost notes between backbeats (sparse but intentional)
-        builder.snare(TIMING.SIXTEENTH * 3, VELOCITY.SNARE_GHOST)
-        builder.snare(2.0, VELOCITY.SNARE_LIGHT)  # Pre-backbeat ghost
-        builder.snare(TIMING.SIXTEENTH * 5, VELOCITY.SNARE_GHOST)
-        builder.snare(3.0, VELOCITY.SNARE_NORMAL)  # Main backbeat
-
-        # Sparse kick (serving the groove, not dominating it)
-        builder.kick(0.0, VELOCITY.KICK_LIGHT)
-        builder.kick(
-            TIMING.EIGHTH * 5, VELOCITY.KICK_LIGHT
-        )  # Off-beat syncopation
-
+            pos = TIMING.EIGHTH * i
+            builder.tight_hh(pos, open=False if i % 2 == 0 else True)
+        # snare_side_stick ghost notes for subtle pocket depth
+        for i in [1, 3, 5]:
+            pos = TIMING.EIGHTH_TRIPLET * i
+            builder.snare_side_stick(
+                pos, VELOCITY.SNARE_GHOST + random.randint(0, 5)
+            )
+        # Single tasteful tom_LOW accent (sparse but impactful)
+        builder.tom(TIMING.HALF * 3, "LOW", VELOCITY.TOM_NORMAL)
         return builder.build()

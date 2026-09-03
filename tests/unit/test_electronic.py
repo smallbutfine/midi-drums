@@ -27,13 +27,15 @@ def _snare_positions(pattern):
 
 
 def _hihat_count(pattern):
-    hh_instruments = frozenset([
-        InstrumentRegistry.get("hihat_closed_1_tip_closed_1_hit"),
-        InstrumentRegistry.get("hihat_closed_bell"),
-        InstrumentRegistry.get("hihat_closed_2_tip_closed_2_hit"),
-        InstrumentRegistry.get("hihat_open_a"),
-        InstrumentRegistry.get("hihat_pedal_closed"),
-    ])
+    hh_instruments = frozenset(
+        [
+            InstrumentRegistry.get("hihat_closed_1_tip_closed_1_hit"),
+            InstrumentRegistry.get("hihat_closed_bell"),
+            InstrumentRegistry.get("hihat_closed_2_tip_closed_2_hit"),
+            InstrumentRegistry.get("hihat_open_a"),
+            InstrumentRegistry.get("hihat_pedal_closed"),
+        ]
+    )
     return sum(1 for b in pattern.beats if b.instrument in hh_instruments)
 
 

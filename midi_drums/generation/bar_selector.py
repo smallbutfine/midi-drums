@@ -11,8 +11,8 @@ import random
 from typing import TYPE_CHECKING
 
 from midi_drums.config import VELOCITY
-from midi_drums.core.models.pattern import Beat, Pattern
 from midi_drums.core.models.kit import InstrumentRegistry
+from midi_drums.core.models.pattern import Beat, Pattern
 
 if TYPE_CHECKING:
     pass
@@ -115,11 +115,7 @@ class BarSelector:
         for beat in new_beats:
             kick = InstrumentRegistry.get("kick")
             snare_sticks = InstrumentRegistry.get("snare_sticks")
-            if (
-                beat.instrument
-                in (kick, snare_sticks)
-                and beat.velocity < 40
-            ):
+            if beat.instrument in (kick, snare_sticks) and beat.velocity < 40:
                 beat.velocity = max(
                     (
                         int(VELOCITY.KICK_NORMAL)

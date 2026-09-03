@@ -8,7 +8,6 @@ import sys
 from pathlib import Path
 
 from midi_drums.config.bpm_ranges import get_default_bpm
-from midi_drums.config.defaults import DEFAULT_MAPPING
 from midi_drums.core.models.kit import DrumKit
 from midi_drums.export.reaper.exporter import ReaperExporter
 from midi_drums.generation.engines.drum_generator import DrumGenerator
@@ -115,11 +114,10 @@ Examples:
     parser.add_argument(
         "--mapping",
         "--vst",
-        default=DEFAULT_MAPPING,
+        default="gm",
         help=(
-            f"MIDI mapping preset (default: {DEFAULT_MAPPING}, also "
-            "ezdrummer3, studio_drummer3, addictive_drums, bfd3, gm_drums, "
-            "modo_drums, ml_drums)"
+            "MIDI mapping preset (default: 'gm'). "
+            "Must be a JSON file stem in mappings/ (e.g. 'template', 'gm', 'ad2')."
         ),
     )
     parser.add_argument(
@@ -185,11 +183,10 @@ Examples:
     gen_parser.add_argument(
         "--mapping",
         "--vst",
-        default=DEFAULT_MAPPING,
+        default="gm",
         help=(
-            f"MIDI mapping preset (default: {DEFAULT_MAPPING}, also "
-            "ezdrummer3, studio_drummer3, addictive_drums, bfd3, gm_drums, "
-            "modo_drums, ml_drums, metal, jazz)"
+            "MIDI mapping preset (default: 'gm'). "
+            "Must be a JSON file stem in mappings/ (e.g. 'template', 'gm', 'ad2')."
         ),
     )
     gen_parser.add_argument(
@@ -257,11 +254,10 @@ Examples:
     pattern_parser.add_argument(
         "--mapping",
         "--vst",
-        default=DEFAULT_MAPPING,
+        default="gm",
         help=(
-            f"MIDI mapping preset (default: {DEFAULT_MAPPING}, also "
-            "ezdrummer3, studio_drummer3, addictive_drums, bfd3, gm_drums, "
-            "modo_drums, ml_drums, metal, jazz)"
+            "MIDI mapping preset (default: 'gm'). "
+            "Must be a JSON file stem in mappings/ (e.g. 'template', 'gm', 'ad2')."
         ),
     )
     pattern_parser.add_argument(
@@ -343,7 +339,7 @@ Examples:
     ardour_create.add_argument(
         "--mapping",
         default=None,
-        help="MIDI mapping preset (ezdrummer3, addictive_drums, gm_drums, etc.)",
+        help="MIDI mapping preset (must be a JSON file stem in mappings/).",
     )
     ardour_create.add_argument(
         "--midi",
@@ -420,7 +416,7 @@ Examples:
     reaper_export.add_argument(
         "--mapping",
         default=None,
-        help="MIDI mapping preset (ezdrummer3, addictive_drums, gm_drums, etc.)",
+        help="MIDI mapping preset (must be a JSON file stem in mappings/).",
     )
     reaper_export.add_argument(
         "--template", help="Input Reaper template (.rpp) to use as base"
@@ -613,19 +609,10 @@ Examples:
     )
     prompt_parser.add_argument(
         "--mapping",
-        default=DEFAULT_MAPPING,
-        choices=[
-            "ezdrummer3",
-            "gm_drums",
-            "addictive_drums",
-            "bfd3",
-            "modo_drums",
-            "ml_drums",
-            "studio_drummer3",
-        ],
+        default="gm",
         help=(
-            f"MIDI note mapping preset (default: {DEFAULT_MAPPING}). "
-            "Use 'addictive_drums' for Additive Drums 2 native keymap."
+            "MIDI note mapping preset (default: 'gm'). "
+            "Must be a JSON file stem in mappings/."
         ),
     )
 
@@ -840,7 +827,7 @@ def handle_reaper_export_command(args, generator: DrumGenerator) -> None:
             # Preset-only mode: no MIDI generation
             # ----------------------------------------------------------------
             drum_kit = DrumKit.from_preset(
-                args.mapping if args.mapping else DEFAULT_MAPPING
+                args.mapping if args.mapping else "gm"
             )
             from midi_drums.export.reaper.models import get_genre_preset
 
@@ -871,7 +858,7 @@ def handle_reaper_export_command(args, generator: DrumGenerator) -> None:
             # ----------------------------------------------------------------
             # Create drum kit
             drum_kit = DrumKit.from_preset(
-                args.mapping if args.mapping else "ezdrummer3"
+                args.mapping if args.mapping else "gm"
             )
 
             # Resolve tempo — use preset default when not supplied
@@ -952,7 +939,7 @@ def handle_ardour_create_command(args, generator: DrumGenerator) -> None:
             from midi_drums.export.reaper.models import get_genre_preset
 
             drum_kit = DrumKit.from_preset(
-                args.mapping if args.mapping else DEFAULT_MAPPING
+                args.mapping if args.mapping else "gm"
             )
             preset = get_genre_preset(args.genre, args.style)
             resolved_tempo = (
@@ -1005,7 +992,7 @@ def handle_ardour_create_command(args, generator: DrumGenerator) -> None:
             from midi_drums.export.reaper.models import get_genre_preset
 
             drum_kit = DrumKit.from_preset(
-                args.mapping if args.mapping else DEFAULT_MAPPING
+                args.mapping if args.mapping else "gm"
             )
             preset = get_genre_preset(args.genre, args.style)
             resolved_tempo = (
@@ -1050,7 +1037,7 @@ def handle_ardour_create_command(args, generator: DrumGenerator) -> None:
             print(f"Ardour session dir: {output}")
             print(f"  Genre      : {args.genre} ({args.style})")
             print(f"  Tempo      : {resolved_tempo} BPM")
-            print(f"  Mapping    : {args.mapping or DEFAULT_MAPPING}")
+            print(f"  Mapping    : {args.mapping or 'gm'}")
 
             info = generator.get_song_info(song)
             print(f"  Duration   : {info['duration_seconds']:.1f}s")
@@ -1190,7 +1177,7 @@ def handle_reaper_add_markers_command(args, generator: DrumGenerator) -> None:
 
         # Export to Reaper
         drum_kit = DrumKit.from_preset(
-            args.mapping if args.mapping else DEFAULT_MAPPING
+            args.mapping if args.mapping else "gm"
         )
         exporter = ReaperExporter(drum_kit)
         exporter.export_with_markers(
@@ -1335,7 +1322,7 @@ def handle_prompt_command(args) -> None:
     rpp_path = getattr(args, "rpp", None)
     ardour_dir = getattr(args, "ardour", None)
     write_sidecar = getattr(args, "write_sidecar", None)
-    mapping = getattr(args, "mapping", DEFAULT_MAPPING)
+    mapping = getattr(args, "mapping", "gm")
 
     # Derive a filesystem-safe slug from --output stem or the first 4 prompt words
     if args.output:

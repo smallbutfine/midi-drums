@@ -2,13 +2,12 @@
 
 import pytest
 
-from midi_drums.core.models.pattern import Pattern
 from midi_drums.core.models.kit import InstrumentRegistry
+from midi_drums.core.models.pattern import Pattern
 from midi_drums.utils.pattern_fixer import (
     PatternFixer,
     remove_ride_hihat_conflicts,
 )
-
 
 # Instrument references for tests
 _KICK = InstrumentRegistry.get("kick")
@@ -71,7 +70,9 @@ class TestPatternFixer:
         fixed_pattern = fixer.remove_ride_hihat_conflicts(pattern)
 
         # Find foot pedal beat
-        foot_beats = [b for b in fixed_pattern.beats if b.instrument == _PEDAL_HH]
+        foot_beats = [
+            b for b in fixed_pattern.beats if b.instrument == _PEDAL_HH
+        ]
 
         assert len(foot_beats) == 1
         # Should be softer than original hi-hat (80 - 20 = 60)
@@ -180,7 +181,9 @@ class TestPatternFixer:
         fixed_pattern = fixer.remove_ride_hihat_conflicts(pattern)
 
         # Find foot pedal
-        foot_beats = [b for b in fixed_pattern.beats if b.instrument == _PEDAL_HH]
+        foot_beats = [
+            b for b in fixed_pattern.beats if b.instrument == _PEDAL_HH
+        ]
 
         assert len(foot_beats) == 1
         assert foot_beats[0].position == 1.5
@@ -196,7 +199,9 @@ class TestPatternFixer:
         fixed_pattern = fixer.remove_ride_hihat_conflicts(pattern)
 
         # Average: (80 + 90) / 2 = 85, minus 20 = 65
-        foot_beats = [b for b in fixed_pattern.beats if b.instrument == _PEDAL_HH]
+        foot_beats = [
+            b for b in fixed_pattern.beats if b.instrument == _PEDAL_HH
+        ]
 
         assert len(foot_beats) == 1
         assert foot_beats[0].velocity == 65
@@ -211,7 +216,9 @@ class TestPatternFixer:
         fixed_pattern = fixer.remove_ride_hihat_conflicts(pattern)
 
         # 60 - 20 = 40, but should be clamped to min 50
-        foot_beats = [b for b in fixed_pattern.beats if b.instrument == _PEDAL_HH]
+        foot_beats = [
+            b for b in fixed_pattern.beats if b.instrument == _PEDAL_HH
+        ]
 
         assert len(foot_beats) == 1
         assert foot_beats[0].velocity >= 50

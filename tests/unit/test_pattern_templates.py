@@ -58,11 +58,7 @@ def test_basic_groove_template():
     # Should have kicks, snares, and hihats
     kick_count = sum(1 for b in pattern.beats if b.instrument == _KICK)
     snare_count = sum(1 for b in pattern.beats if b.instrument == _SNARE)
-    hihat_count = sum(
-        1
-        for b in pattern.beats
-        if b.instrument in _ALL_HIHAT
-    )
+    hihat_count = sum(1 for b in pattern.beats if b.instrument in _ALL_HIHAT)
 
     assert kick_count == 2, f"Expected 2 kicks, got {kick_count}"
     assert snare_count == 2, f"Expected 2 snares, got {snare_count}"
@@ -94,9 +90,7 @@ def test_double_bass_template():
     # Test gallop pattern
     gallop = DoubleBassPedal(pattern_type="gallop")
     gallop_pattern = TemplateComposer("test_gallop").add(gallop).build(bars=1)
-    gallop_kicks = sum(
-        1 for b in gallop_pattern.beats if b.instrument == _KICK
-    )
+    gallop_kicks = sum(1 for b in gallop_pattern.beats if b.instrument == _KICK)
 
     assert gallop_kicks == 6, f"Expected 6 gallop kicks, got {gallop_kicks}"
 
@@ -169,9 +163,7 @@ def test_funk_ghost_notes_template():
 
     snare_count = sum(1 for b in pattern.beats if b.instrument == _SNARE)
     ghost_count = sum(
-        1
-        for b in pattern.beats
-        if b.instrument == _SNARE and b.ghost_note
+        1 for b in pattern.beats if b.instrument == _SNARE and b.ghost_note
     )
 
     # Should have main snares + ghost notes
@@ -211,7 +203,8 @@ def test_tom_fill_template():
     tom_count = sum(
         1
         for b in pattern.beats
-        if b.instrument in (_TOM3, _TOM4, InstrumentRegistry.get("tom_1_open_hit"))
+        if b.instrument
+        in (_TOM3, _TOM4, InstrumentRegistry.get("tom_1_open_hit"))
     )
 
     assert tom_count > 0, f"Expected tom fills, got {tom_count}"

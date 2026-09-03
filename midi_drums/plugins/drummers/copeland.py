@@ -1,16 +1,13 @@
-"""Stewart Copeland drummer plugin.
+"""Stewart Copeland drummer plugin using full AD2 vocabulary.
 
-Implements Stewart Copeland's (The Police) signature drumming techniques:
-reggae/ska-influenced off-beat hi-hat work, cross-stick snare, and
-unconventional accent placement. Built using the composable
-DrummerModification system, matching the pattern established by the
-other drummer plugins.
+Fills now prominently feature snare_side_stick (cross-stick), tight_hh for
+off-beat hi-hat work, ride_bell accents, and tom variations matching his
+Police / Peter Gabriel era sound. crash_choke used for tight reggae skank fills.
 """
 
 import random
 
 from midi_drums.config import TIMING, VELOCITY
-from midi_drums.core.models.kit import InstrumentRegistry
 from midi_drums.core.models.pattern import Pattern
 from midi_drums.core.models.song import Fill
 from midi_drums.generation.builders.pattern_builder import PatternBuilder
@@ -27,16 +24,8 @@ class CopelandPlugin(DrummerPlugin):
 
     Characteristics:
     - Reggae/ska-influenced off-beat hi-hat emphasis
-    - Cross-stick (rim click) snare texture in signature fills, rather than
-      a full backbeat hit
+    - Cross-stick (rim click) snare texture in signature fills
     - Unconventional, displaced accent placement
-
-    Implemented using composable modifications:
-    - TwistedAccents: displaces accents off the expected beat
-    - PocketStretching: elastic, syncopated groove tension
-    - GhostNoteLayer: subtle ghost-note snare texture underlying the groove
-      (cross-stick rim texture itself is added directly in the signature
-      fills, via DrumInstrument.RIM)
     """
 
     def __init__(self):
@@ -64,18 +53,11 @@ class CopelandPlugin(DrummerPlugin):
         return styled
 
     def get_signature_fills(self) -> list[Fill]:
-        """Return Stewart Copeland's signature fill patterns.
+        """Return Stewart Copeland's signature fill patterns using full AD2 kit.
 
-        Research-backed fills traceable to The Police discography and documented
-        commissioned works (Dallas Symphony Gamelan, Peter Gabriel collaborations):
-          - Skank hi-hat fill: reggae/ska off-beat hi-hat pattern
-          - Displaced accent fill: unexpected subdivision accents
-          - Syncopated tom skip: hesitating tom with cross-stick punctuation
-          - Octoban off-beat fill: The Police reunion kit documented octoban work
-          - Gamelan percussion fill: Dallas Symphony Gamelan D'Drum commission
-          - Reggae skank groove fill: Peter Gabriel collaboration hi-hat mastery
-          - Message in a Box syncopated tom pattern: synchronized left/right hands
-          - Every Breath You Take ghost-note interlock: tight off-beat snare/kick
+        Prominently features snare_side_stick (cross-stick), tight_hh for
+        off-beat hi-hat work, ride_bell accents, and tom variations matching
+        his Police / Peter Gabriel era sound. crash_choke used for tight skank fills.
         """
         return [
             Fill(
@@ -100,224 +82,195 @@ class CopelandPlugin(DrummerPlugin):
             ),
             Fill(
                 pattern=self._create_gamelan_percussion_fill(),
-                trigger_probability=0.65,
-                section_position="end",
+                trigger_probability=0.5,
+                section_position="middle",
             ),
             Fill(
                 pattern=self._create_reggae_skank_groove_fill(),
-                trigger_probability=0.7,
-                section_position="middle",
+                trigger_probability=0.75,
+                section_position="start",
             ),
             Fill(
                 pattern=self._create_message_in_a_box_tom_pattern(),
                 trigger_probability=0.65,
-                section_position="end",
+                section_position="middle",
             ),
             Fill(
-                pattern=self._create_every_breath_ghost_interlock(),
+                pattern=self._create_ghost_note_interlock(),
                 trigger_probability=0.7,
                 section_position="start",
             ),
         ]
 
     def _create_skank_hihat_fill(self) -> Pattern:
-        """Off-beat hi-hat 'skank' pattern with cross-stick punctuation.
+        """Reggae/ska off-beat hi-hat fill — tight HH + snare side stick."""
 
-        Alternates a cross-stick rim click with open hi-hat on the upbeats,
-        the reggae/ska-derived off-beat emphasis Copeland brought into rock.
-        """
-        builder = PatternBuilder("copeland_skank_hihat")
-        builder.pattern.add_beat(0.0, InstrumentRegistry.get("snare_side_stick"), VELOCITY.SNARE_LIGHT)
-        # TIGHT_HH_CLOSED for reggae skank pocket depth (tight dry HH)
-        builder.pattern.add_beat(
-            TIMING.SIXTEENTH,
-            InstrumentRegistry.get("hihat_closed_1_tip_closed_1_hit"),
-            VELOCITY.HIHAT_ACCENT,
-        )
-        builder.pattern.add_beat(
-            TIMING.SIXTEENTH * 2, InstrumentRegistry.get("snare_side_stick"), VELOCITY.SNARE_LIGHT
-        )
-        builder.pattern.add_beat(
-            TIMING.SIXTEENTH * 3,
-            InstrumentRegistry.get("hihat_closed_1_tip_closed_1_hit"),
-            VELOCITY.HIHAT_ACCENT,
+        builder = PatternBuilder("copeland_skank")
+        # Tight hi-hat on off-beats (reggae skank feel)
+        for i in range(8):
+            pos = TIMING.EIGHTH * i
+            is_offbeat = i % 2 == 1
+            if is_offbeat:
+                builder.tight_hh(
+                    pos, open=True, velocity=VELOCITY.HIHAT_NORMAL + 5
+                )
+            else:
+                builder.tight_hh(pos, open=False, velocity=VELOCITY.HIHAT_LIGHT)
+        # Snare side stick on backbeats (his signature cross-stick style)
+        builder.snare_side_stick(TIMING.QUARTER, VELOCITY.SNARE_GHOST)
+        builder.snare_side_stick(TIMING.HALF * 3, VELOCITY.SNARE_GHOST)
+        # Crash_choke for tight skank punctuation
+        builder.crash_choked(
+            4.0 - TIMING.SIXTEENTH, "2", VELOCITY.CRASH_ACCENT - 8
         )
         return builder.build()
 
     def _create_displaced_accent_fill(self) -> Pattern:
-        """Snare/rim/kick pattern with the accent on an unexpected subdivision.
+        """Displaced accent fill — ride_bell + tom_edge with unexpected accents."""
 
-        Fills render only the portion of their pattern before beat 1.0
-        (see midi_drums/export/midi/engine.py's fill-rendering gate), so
-        the displacement is packed into a single beat via 16th-note
-        subdivision.
-        """
-        builder = PatternBuilder("copeland_displaced_accent")
-        builder.pattern.add_beat(0.0, InstrumentRegistry.get("snare_side_stick"), VELOCITY.SNARE_LIGHT)
-        builder.pattern.add_beat(
-            TIMING.SIXTEENTH, InstrumentRegistry.get("snare_side_stick"), VELOCITY.SNARE_NORMAL
+        builder = PatternBuilder("copeland_displaced")
+        # Ride bell for displaced rhythmic feel
+        builder.ride_bell(0.0, VELOCITY.RIDE_BELL_ACCENT)
+        builder.tom(TIMING.EIGHTH_TRIPLET * 2, "MID", VELOCITY.TOM_NORMAL)
+        builder.ride_bell(
+            TIMING.HALF + TIMING.EIGHTH_TRIPLET, VELOCITY.RIDE_BELL_ACCENT - 5
         )
-        builder.pattern.add_beat(
-            TIMING.SIXTEENTH * 2,
-            InstrumentRegistry.get("snare_sticks"),
-            VELOCITY.SNARE_ACCENT,
-            accent=True,
-        )
-        builder.kick(TIMING.SIXTEENTH * 3, VELOCITY.KICK_NORMAL)
+        # Tom_edge rimshot for unexpected accent texture
+        builder.tom_edge(TIMING.HALF * 3, "LOW", VELOCITY.TOM_HEAVY)
+        builder.snare(TIMING.HALF * 3 + TIMING.SIXTEENTH, VELOCITY.SNARE_ACCENT)
+        # Tight hi-hat resolution
+        builder.tight_hh(4.0 - TIMING.SIXTEENTH, open=True)
         return builder.build()
 
     def _create_syncopated_tom_skip_fill(self) -> Pattern:
-        """Hesitating tom pattern ending in a cross-stick punctuation.
+        """Syncopated tom skip — HIGH/FLOOR with snare side stick punctuation."""
 
-        Kept entirely within beat 1.0 (see midi_drums/export/midi/engine.py's
-        fill-rendering gate) - the closing rim click sits at 0.75, not
-        exactly at 1.0, so it isn't silently dropped by the rendering
-        boundary check.
-        """
-        builder = PatternBuilder("copeland_syncopated_tom_skip")
-        builder.pattern.add_beat(
-            0.0, InstrumentRegistry.get("tom_3_open_hit"), VELOCITY.TOM_ACCENT
-        )
-        builder.pattern.add_beat(
-            TIMING.DOTTED_SIXTEENTH,
-            InstrumentRegistry.get("tom_4_open_hit"),
+        builder = PatternBuilder("copeland_syncopated_tom")
+        # Hesitating tom with alternating HIGH and FLOOR (Copeland's style)
+        builder.tom(0.0, "HIGH", VELOCITY.TOM_NORMAL)
+        builder.tom(
+            TIMING.EIGHTH_TRIPLET * 2 + TIMING.SIXTEENTH,
+            "FLOOR",
             VELOCITY.TOM_HEAVY,
         )
-        builder.pattern.add_beat(
-            TIMING.DOTTED_EIGHTH, InstrumentRegistry.get("snare_side_stick"), VELOCITY.SNARE_ACCENT
+        # Snare side stick (cross-stick) as punctuation between toms
+        builder.snare_side_stick(
+            TIMING.HALF - TIMING.SIXTEENTH, VELOCITY.SNARE_GHOST
+        )
+        builder.tom_edge(TIMING.HALF * 3, "MID", VELOCITY.TOM_HEAVY)
+        # Tight hi-hat open for fill resolution
+        builder.tight_hh(
+            4.0 - TIMING.SIXTEENTH,
+            open=True,
+            velocity=VELOCITY.HIHAT_NORMAL + 8,
         )
         return builder.build()
 
     def _create_octoban_off_beat_fill(self) -> Pattern:
-        """Octoban off-beat fill.
+        """Octoban off-beat fill — HIGH/FLOOR toms as stand-ins for octoban."""
 
-        Copeland's Police reunion kit featured octobans — small-tom electronic pads
-        used for tight, percussive off-beat accents. Documented on Ghost in the Machine
-        and Police reunion performances. Simulated here with RIDE_BELL keymap as
-        AD2 ethnic trigger (closest available instrument for tight tom timbre).
-        """
-        builder = PatternBuilder("copeland_octoban_off_beat")
-        # Tight, percussive 16th-note pattern packed into one beat
-        for i in range(4):
-            pos = i * TIMING.SIXTEENTH
-            builder.pattern.add_beat(
-                pos, InstrumentRegistry.get("ride_1_bell"), VELOCITY.TOM_LIGHT
-            )
+        builder = PatternBuilder("copeland_octoban")
+        # Off-beat tom pattern (using HIGH and FLOOR as octoban equivalents)
+        for i in range(8):
+            pos = TIMING.EIGHTH * i
+            is_offbeat = i % 2 == 1
+            if is_offbeat:
+                variant = "HIGH" if i < 4 else "FLOOR"
+                builder.tom(
+                    pos, variant, VELOCITY.TOM_NORMAL + random.randint(-5, 5)
+                )
+        # Snare side stick for Police-era cross-stick texture
+        builder.snare_side_stick(TIMING.QUARTER, VELOCITY.SNARE_GHOST)
+        builder.snare_side_stick(TIMING.HALF * 3, VELOCITY.SNARE_GHOST)
+        # Tight hi-hat close for off-beat punctuation
+        builder.tight_hh(
+            4.0 - TIMING.SIXTEENTH, open=False, velocity=VELOCITY.HIHAT_NORMAL
+        )
         return builder.build()
 
     def _create_gamelan_percussion_fill(self) -> Pattern:
-        """Gamelan percussion fill.
+        """Gamelan percussion fill — ride_bell + tom_1 rimshot (Dallas Symphony)."""
 
-        Dallas Symphony "Gamelan D'Drum" commission — Copeland composed a full
-        gamelan-inspired drum piece for symphony orchestra. Simulated with metallic
-        tom/cymbal interlock patterns mimicking Indonesian gamelan colotomic structure.
-        """
-        builder = PatternBuilder("copeland_gamelan_percussion")
-        # Metallic timbre sequence simulating gamelan bonang/gender
-        sequence = [
-            (
-                0.0,
-                InstrumentRegistry.get("tom_3_open_hit"),
-                VELOCITY.TOM_ACCENT,
-            ),  # Bonang "leader"
-            (
-                TIMING.EIGHTH,
-                InstrumentRegistry.get("cymbal_5_hit"),
-                VELOCITY.CHINA_ACCENT,
-            ),  # Gong punctuation
-            (
-                TIMING.SIXTEENTH * 2,
-                InstrumentRegistry.get("tom_4_open_hit"),
-                VELOCITY.TOM_HEAVY,
-            ),
-            (
-                TIMING.DOTTED_EIGHTH,
-                InstrumentRegistry.get("tom_3_open_hit"),
-                VELOCITY.TOM_ACCENT - 5,
-            ),
-            (0.875, InstrumentRegistry.get("cymbal_5_hit"), VELOCITY.CHINA_ACCENT + 3),
-        ]
-        for pos, instrument, velocity in sequence:
-            builder.pattern.add_beat(pos, instrument, velocity)
+        builder = PatternBuilder("copeland_gamelan")
+        # Ride bell for percussive texture (gamelan-inspired)
+        builder.ride_bell(0.0, VELOCITY.RIDE_BELL_ACCENT)
+        builder.ride_bell(
+            TIMING.EIGHTH_TRIPLET * 2, VELOCITY.RIDE_BELL_ACCENT - 5
+        )
+        # Tom_1 rimshot as metal resonance (gamelan timbre)
+        builder.tom_edge(TIMING.HALF, "1", VELOCITY.TOM_HEAVY)
+        # Snare side stick for sparse punctuation
+        builder.snare_side_stick(
+            TIMING.HALF + TIMING.EIGHTH_TRIPLET, VELOCITY.SNARE_GHOST
+        )
+        builder.ride_bell(TIMING.HALF * 3, VELOCITY.RIDE_BELL_ACCENT)
+        # Tight hi-hat resolution
+        builder.tight_hh(
+            4.0 - TIMING.SIXTEENTH, open=False, velocity=VELOCITY.HIHAT_NORMAL
+        )
         return builder.build()
 
     def _create_reggae_skank_groove_fill(self) -> Pattern:
-        """Reggae skank groove fill."""
+        """Reggae skank groove — tight HH + snare side stick + crash_choke."""
+
         builder = PatternBuilder("copeland_reggae_skank")
-        # Skank groove packed into one beat (fills render within a single beat)
-        # Downbeat rim + off-beat hi-hats compressed to 16th-note spacing
-        builder.pattern.add_beat(0.0, InstrumentRegistry.get("snare_side_stick"), VELOCITY.SNARE_NORMAL)
-        builder.pattern.add_beat(
-            TIMING.SIXTEENTH * 2,
-            InstrumentRegistry.get("hihat_closed_1_tip_closed_1_hit"),
-            VELOCITY.HIHAT_NORMAL,
-        )
-        builder.pattern.add_beat(
-            TIMING.SIXTEENTH * 3,
-            InstrumentRegistry.get("hihat_open_a"),
-            VELOCITY.HIHAT_ACCENT,
-        )
-        # Closing crash accent at resolution (within render window)
-        builder.crash(TIMING.DOTTED_EIGHTH, VELOCITY.CRASH_ACCENT)
+        # Tight hi-hat on off-beats (classic reggae skank)
+        for i in range(8):
+            pos = TIMING.EIGHTH * i
+            is_offbeat = i % 2 == 1
+            if is_offbeat:
+                builder.tight_hh(
+                    pos, open=True, velocity=VELOCITY.HIHAT_NORMAL + 5
+                )
+            else:
+                builder.tight_hh(pos, open=False, velocity=VELOCITY.HIHAT_LIGHT)
+        # Snare side stick (cross-stick) on backbeats
+        builder.snare_side_stick(TIMING.QUARTER, VELOCITY.SNARE_GHOST + 3)
+        builder.snare_side_stick(TIMING.HALF * 3, VELOCITY.SNARE_GHOST + 3)
+        # Crash_choke for tight skank punctuation
+        builder.crash_choked(4.0 - TIMING.EIGHTH_TRIPLET, "2")
         return builder.build()
 
     def _create_message_in_a_box_tom_pattern(self) -> Pattern:
-        """Message in a Box syncopated tom pattern.
+        """Message in a Box syncopated tom — HIGH/MID/FLOOR with ride_bell accents."""
 
-        From The Police's Message in a Box — Copeland uses synchronized
-        left/right hand patterns on toms with displaced accents. Simulated
-        as an alternating tom pattern with unexpected accent placement.
-        """
-        builder = PatternBuilder("copeland_message_box_tom")
-        # Alternating mid/floor tom packed into one beat
+        builder = PatternBuilder("copeland_message_in_box")
+        # Alternating left/right hand tom pattern (HIGH + MID)
         for i in range(8):
-            pos = TIMING.THIRTY_SECOND * i
-            if i % 3 == 0:
-                builder.pattern.add_beat(
-                    pos,
-                    InstrumentRegistry.get("tom_4_open_hit"),
-                    min(VELOCITY.TOM_HEAVY + random.randint(5, 10), 127),
-                )
-            elif i % 2 == 0:
-                builder.pattern.add_beat(
-                    pos,
-                    InstrumentRegistry.get("tom_3_open_hit"),
-                    VELOCITY.TOM_NORMAL + random.randint(-3, 5),
-                )
-            else:
-                builder.pattern.add_beat(
-                    pos, InstrumentRegistry.get("tom_4_open_hit"), VELOCITY.TOM_LIGHT
-                )
-        # Cross-stick punctuation at resolution (within fill window)
-        builder.pattern.add_beat(
-            TIMING.DOTTED_EIGHTH, InstrumentRegistry.get("snare_side_stick"), VELOCITY.SNARE_NORMAL
+            pos = TIMING.EIGHTH * i
+            variant = "HIGH" if i % 2 == 0 else "MID"
+            builder.tom(
+                pos, variant, VELOCITY.TOM_NORMAL + random.randint(-5, 8)
+            )
+        # Ride bell accents for syncopated punctuation
+        builder.ride_bell(
+            TIMING.HALF + TIMING.EIGHTH_TRIPLET, VELOCITY.RIDE_BELL_ACCENT
         )
+        builder.ride_bell(TIMING.HALF * 3, VELOCITY.RIDE_BELL_ACCENT - 5)
+        # Snare side stick resolution
+        builder.snare_side_stick(4.0 - TIMING.SIXTEENTH, VELOCITY.SNARE_GHOST)
         return builder.build()
 
-    def _create_every_breath_ghost_interlock(self) -> Pattern:
-        """Every Breath You Take ghost-note interlock.
+    def _create_ghost_note_interlock(self) -> Pattern:
+        """Every Breath ghost-note interlock — tight HH + snare side stick."""
 
-        The Police's Every Breath You Take features Copeland's tight, sparse
-        groove with off-beat hi-hat emphasis and ghost-note snare interlocking
-        with the kick. Simulated as a minimalist fill emphasizing space.
-        """
-        builder = PatternBuilder("copeland_every_breath_ghost")
-        # Compressed into one beat (fills render < 1.0)
-        builder.kick(0.0, VELOCITY.KICK_NORMAL)
-        builder.kick(TIMING.THIRTY_SECOND * 5, VELOCITY.KICK_LIGHT)
-        for i in range(1, 8):
-            pos = TIMING.THIRTY_SECOND * i
-            if random.random() < 0.5:
-                builder.pattern.add_beat(
-                    pos,
-                    InstrumentRegistry.get("snare_sticks"),
-                    min(VELOCITY.SNARE_GHOST + random.randint(0, 10), 127),
+        builder = PatternBuilder("copeland_ghost_interlock")
+        # Tight hi-hat base with off-beat accents (his signature tight HH work)
+        for i in range(16):
+            pos = TIMING.SIXTEENTH * i
+            is_offbeat = i % 2 == 1
+            if is_offbeat:
+                builder.tight_hh(
+                    pos, open=True, velocity=VELOCITY.HIHAT_NORMAL + 3
                 )
-        for i in range(8):
-            if i % 2 == 1:  # On the off-beats
-                builder.pattern.add_beat(
-                    TIMING.THIRTY_SECOND * i,
-                    InstrumentRegistry.get("hihat_closed_1_tip_closed_1_hit"),
-                    VELOCITY.HIHAT_ACCENT + random.randint(-3, 5),
-                )
+            else:
+                builder.tight_hh(pos, open=False, velocity=VELOCITY.HIHAT_LIGHT)
+        # Snare side stick ghost notes interlocking with hi-hat
+        for i in [2, 6, 10, 14]:
+            pos = TIMING.SIXTEENTH * i
+            builder.snare_side_stick(
+                pos, VELOCITY.SNARE_GHOST + random.randint(-3, 5)
+            )
+        # Tom_1 accent for structure
+        builder.tom(TIMING.HALF, "1", VELOCITY.TOM_NORMAL)
         return builder.build()

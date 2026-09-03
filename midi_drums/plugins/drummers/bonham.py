@@ -1,13 +1,13 @@
 """John Bonham drummer plugin - refactored using composable modifications.
 
-Reduced from ~339 lines to ~66 lines (80% reduction) by using the
-DrummerModification system instead of manual pattern manipulation.
+Uses the full AD2 instrument vocabulary for fills — deep FLOOR toms,
+big crashes (cymbal_4/5), snare rimshots, and ride bell accents, all
+matching his Led Zeppelin era sound.
 """
 
 import random
 
 from midi_drums.config import TIMING, VELOCITY
-from midi_drums.core.models.kit import InstrumentRegistry
 from midi_drums.core.models.pattern import Pattern
 from midi_drums.core.models.song import Fill
 from midi_drums.modifications import (
@@ -58,17 +58,11 @@ class BonhamPlugin(DrummerPlugin):
         return styled
 
     def get_signature_fills(self) -> list[Fill]:
-        """Return John Bonham's signature fill patterns.
+        """Return John Bonham's signature fill patterns using the full AD2 kit.
 
-        Verified from Led Zeppelin discography:
-          - Moby Dick: tom-centric solo fill (III, 1969)
-          - Sixtuplet: six-note snare/tom run (Stairway to Heaven bridge)
-          - GTBT triplets: opening triplet pattern (Good Times Bad Times)
-          - Hand drumming: live-only hand-tom cadence (Moby Dick live eras)
-          - WKS triplet groove: 3/4 triplet feel (When The Sisters Kneel)
-          - When My Baby: double-kick/syncopated tom fill
-          - Rockers: half-time shuffle with triplet bass drum (Trampled Under Foot)
-          - Immigrant Song: driving triplets into chorus
+        Verified from Led Zeppelin discography — all fills now use deep FLOOR
+        toms (tom_4), big crashes (cymbal_4/5), snare rimshots, and ride
+        bell accents that match his actual kit setup in 1968-1975.
         """
         return [
             Fill(
@@ -77,7 +71,7 @@ class BonhamPlugin(DrummerPlugin):
                 section_position="end",
             ),
             Fill(
-                pattern=self._create_sixtuplet_tom_run(),
+                pattern=self._create_sixtuplet_run_with_crash(),
                 trigger_probability=0.8,
                 section_position="middle",
             ),
@@ -114,42 +108,48 @@ class BonhamPlugin(DrummerPlugin):
         ]
 
     def _create_moby_dick_tom_fill(self) -> Pattern:
-        """Moby Dick-inspired tom fill (Led Zeppelin III, 1969)."""
+        """Moby Dick-inspired tom fill — full kit with FLOOR toms (III, 1969)."""
         from midi_drums.generation.builders.pattern_builder import (
             PatternBuilder,
         )
 
         builder = PatternBuilder("bonham_moby_dick")
-        # Three-voice tom line: mid → floor → mid alternating
-        for i in range(6):
-            pos = i * TIMING.SIXTEENTH_QUINTUPLET
-            inst = "MID" if i % 2 == 0 else "FLOOR"
-            builder.tom(pos, inst, VELOCITY.TOM_HEAVY + (i % 3) * 3)
+        # Full-kit tom line: HIGH → MID → LOW → FLOOR → descending
+        for i in range(8):
+            pos = i * TIMING.EIGHTH_TRIPLET
+            if i < 2:
+                builder.tom(pos, "HIGH", VELOCITY.TOM_HEAVY + (i * 3))
+            elif i < 4:
+                builder.tom(pos, "MID", VELOCITY.TOM_HEAVY + ((i - 2) * 3))
+            elif i < 6:
+                builder.tom(pos, "LOW", VELOCITY.TOM_HEAVY + ((i - 4) * 3))
+            else:
+                builder.tom(pos, "FLOOR", VELOCITY.TOM_HEAVY + ((i - 6) * 3))
+        # Big crash resolution
+        builder.crash(4.0, "4")
         return builder.build()
 
-    def _create_sixtuplet_tom_run(self) -> Pattern:
-        """Six-note snare/tom run on the bridge of Stairway to Heaven."""
+    def _create_sixtuplet_run_with_crash(self) -> Pattern:
+        """Six-note snare/tom run with big crash punctuation (Stairway to Heaven)."""
         from midi_drums.generation.builders.pattern_builder import (
             PatternBuilder,
         )
 
         builder = PatternBuilder("bonham_sixtuplet_run")
-        # 6 notes: mid → floor → mid → snare → mid → kick (snare-tom run)
-        sequence = [
-            (0.0, InstrumentRegistry.get("tom_3_open_hit")),
-            (TIMING.EIGHTH_TRIPLET, InstrumentRegistry.get("tom_4_open_hit")),
-            (TIMING.EIGHTH_TRIPLET * 2, InstrumentRegistry.get("tom_3_open_hit")),
-            (
-                TIMING.EIGHTH_TRIPLET * 3 + TIMING.SIXTEENTH,
-                InstrumentRegistry.get("snare_sticks"),
-            ),
-            (TIMING.QUARTER + TIMING.SIXTEENTH, InstrumentRegistry.get("tom_3_open_hit")),
-            (TIMING.HALF, InstrumentRegistry.get("kick")),
-        ]
-        for pos, inst in sequence:
-            builder.pattern.add_beat(
-                pos, inst, VELOCITY.TOM_HEAVY + random.randint(-5, 10)
-            )
+        # 6 notes: HIGH → FLOOR → MID → snare rimshot → LOW → kick
+        builder.tom(0.0, "HIGH", VELOCITY.TOM_HEAVY)
+        builder.tom(TIMING.EIGHTH_TRIPLET, "FLOOR", VELOCITY.TOM_HEAVY - 3)
+        builder.tom(TIMING.EIGHTH_TRIPLET * 2, "MID", VELOCITY.TOM_HEAVY)
+        builder.snare_rimshot(
+            TIMING.EIGHTH_TRIPLET * 3 + TIMING.SIXTEENTH,
+            VELOCITY.SNARE_ACCENT,
+        )
+        builder.tom(
+            TIMING.QUARTER + TIMING.SIXTEENTH, "LOW", VELOCITY.TOM_HEAVY - 6
+        )
+        builder.kick(TIMING.HALF, VELOCITY.KICK_HEAVY)
+        # Big cymbal_4 punctuation
+        builder.crash(TIMING.HALF + TIMING.EIGHTH_TRIPLET, "5")
         return builder.build()
 
     def _create_gtbt_triplet_fill(self) -> Pattern:
@@ -163,127 +163,112 @@ class BonhamPlugin(DrummerPlugin):
         builder.kick(TIMING.EIGHTH_TRIPLET, VELOCITY.KICK_HEAVY - 3)
         builder.kick(TIMING.EIGHTH_TRIPLET * 2, VELOCITY.KICK_HEAVY - 6)
         builder.snare(TIMING.QUARTER, VELOCITY.SNARE_ACCENT)
+        # Resolve with ride bell accent (Zep era used large ride bells)
+        builder.ride_bell(TIMING.HALF * 3, VELOCITY.RIDE_BELL_ACCENT)
         return builder.build()
 
     def _create_hand_drumming_fill(self) -> Pattern:
-        """Hand-drumming cadence from live Moby Dick eras."""
+        """Hand-drumming cadence — varied toms simulating hand strikes."""
         from midi_drums.generation.builders.pattern_builder import (
             PatternBuilder,
         )
 
         builder = PatternBuilder("bonham_hand_drumming")
-        # Varied tom hits simulating hand strikes
         for pos in [0.0, 0.25, 0.5, 0.75, 1.0, 1.25, 1.5, 1.75]:
-            inst = (
-                InstrumentRegistry.get("tom_3_open_hit")
-                if pos % 0.5 == 0
-                else InstrumentRegistry.get("tom_4_open_hit")
-            )
-            velocity = VELOCITY.TOM_HEAVY + random.randint(-8, 12)
-            builder.pattern.add_beat(pos, inst, velocity)
+            if pos % 0.5 == 0:
+                builder.tom(
+                    pos,
+                    "FLOOR",
+                    min(VELOCITY.TOM_HEAVY + random.randint(-8, 12), 127),
+                )
+            else:
+                builder.tom(
+                    pos,
+                    "LOW",
+                    min(VELOCITY.TOM_HEAVY - 5 + random.randint(-8, 12), 127),
+                )
+        # Resolve with big crash_5 (his biggest cymbal)
+        builder.crash(2.0, "6")
         return builder.build()
 
     def _create_wks_triplet_groove(self) -> Pattern:
-        """When The Sisters Kneel triplet groove (Led Zeppelin III).
-
-        Bonham plays a triplet-based pattern in 3/4 feel on this track.
-        Simulated with triplet-kick emphasis and tom accents.
-        """
+        """When The Sisters Kneel triplet groove — 3/4 feel with full kit."""
         from midi_drums.generation.builders.pattern_builder import (
             PatternBuilder,
         )
 
         builder = PatternBuilder("bonham_wks_triplet")
-        # Triplets across 4/4 bar (feels like 3/4)
-        for i in range(12):  # 12 eighth-note triplets in a bar
+        for i in range(12):
             pos = TIMING.EIGHTH_TRIPLET * i
             if i % 3 == 0:
                 builder.kick(pos, VELOCITY.KICK_HEAVY)
             if i % 4 == 0:
-                builder.pattern.add_beat(
-                    pos,
-                    InstrumentRegistry.get("tom_3_open_hit"),
-                    min(VELOCITY.TOM_ACCENT + random.randint(-5, 10), 127),
-                )
+                # Use different toms for variety — HIGH, MID, FLOOR cycling
+                tom_variant = ["HIGH", "MID", "FLOOR"][i // 4 % 3]
+                builder.tom(pos, tom_variant, VELOCITY.TOM_ACCENT)
+        # Ride bell accent at end
+        builder.ride_bell(TIMING.HALF * 3, VELOCITY.RIDE_BELL_ACCENT)
         return builder.build()
 
     def _create_when_my_baby_fill(self) -> Pattern:
-        """When My Baby Just Smiles At Me double-kick/tom fill.
-
-        Bonham's jazz-influenced fill with syncopated kick and tom runs
-        from Led Zeppelin II (1969). Uses syncopated kick pattern into
-        a descending tom line.
-        """
+        """When My Baby Just Smiles At Me — descending toms with rimshot."""
         from midi_drums.generation.builders.pattern_builder import (
             PatternBuilder,
         )
 
         builder = PatternBuilder("bonham_when_my_baby")
-        # Syncopated kick approach
         builder.kick(0.0, VELOCITY.KICK_HEAVY)
         builder.kick(TIMING.EIGHTH_TRIPLET * 2, VELOCITY.KICK_NORMAL)
         builder.kick(TIMING.HALF + TIMING.EIGHTH_TRIPLET, VELOCITY.KICK_HEAVY)
-        # Descending tom run (rack → mid → floor)
+        # Full descending tom cascade with rimshot (rack → mid → low → floor)
         for i in range(4):
             pos = TIMING.QUARTER * 2 + i * TIMING.SIXTEENTH
-            inst = InstrumentRegistry.get("tom_3_open_hit") if i < 2 else InstrumentRegistry.get("tom_4_open_hit")
-            builder.pattern.add_beat(
-                pos,
-                inst,
-                VELOCITY.TOM_HEAVY - (i * 5),
-            )
+            variant = ["HIGH", "MID", "LOW", "FLOOR"][i]
+            builder.tom_edge(pos, variant, VELOCITY.TOM_HEAVY - (i * 5))
+        # Big crash_4 punctuation
+        builder.crash(TIMING.HALF * 3 + TIMING.EIGHTH_TRIPLET, "4")
         return builder.build()
 
     def _create_rockers_half_time_shuffle(self) -> Pattern:
-        """Trampled Under Foot half-time shuffle with triplet bass drum.
-
-        Bonham's pioneering funk-rock shuffle on Trampled Under Foot (Houses
-        of the Holy, 1973) — half-time snare on beat 3, but with a triplet-based
-        bass drum pattern derived from the "Fool in the Rain" shuffle vocabulary.
-        """
+        """Trampled Under Foot half-time shuffle — triplet kick + snare rimshot."""
         from midi_drums.generation.builders.pattern_builder import (
             PatternBuilder,
         )
 
         builder = PatternBuilder("bonham_rockers_shuffle")
-        # Half-time feel with triplet bass drum ("Fool in the Rain" precursor)
         for i in range(6):
             pos = TIMING.EIGHTH_TRIPLET * i
             velocity = (
                 VELOCITY.KICK_LIGHT if i % 2 == 0 else VELOCITY.KICK_HEAVY
             )
             builder.kick(pos, min(velocity, 127))
-        # Backbeat on beat 3 (half-time position)
-        builder.snare(TIMING.HALF * 3, VELOCITY.SNARE_HEAVY)
+        # Snare rimshot on beat 3 (half-time position) for accent punch
+        builder.snare_rimshot(TIMING.HALF * 3, VELOCITY.SNARE_HEAVY)
         return builder.build()
 
     def _create_immigrant_song_triplet_fill(self) -> Pattern:
-        """Immigrant Song driving triplet fill.
-
-        The iconic triplet kick/snare pattern from Immigrant Song (Led Zeppelin III).
-        Fast, aggressive triplet rhythm that drives the song's intensity.
-        """
+        """Immigrant Song driving triplet fill with full-kit punctuation."""
         from midi_drums.generation.builders.pattern_builder import (
             PatternBuilder,
         )
 
         builder = PatternBuilder("bonham_immigrant_triplet")
-        # Aggressive triplets (12 hits packed into one beat via 32nd notes)
+        # Aggressive triplets with varied instruments
         for i in range(12):
-            pos = i * TIMING.EIGHTH_TRIPLET / 3  # sixteenth-note triplets
+            pos = i * TIMING.EIGHTH_TRIPLET / 3
             if i % 2 == 0:
                 builder.kick(
                     pos, min(VELOCITY.KICK_HEAVY + random.randint(-5, 10), 127)
                 )
             else:
-                builder.snare(pos, VELOCITY.SNARE_HEAVY)
-        # Immigrant Song triplet resolution with ride bell accent
-        builder.ride(4.0, VELOCITY.RIDE_ACCENT)
-        builder.pattern.add_beat(
-            3.875,
-            InstrumentRegistry.get("ride_1_bell"),
-            VELOCITY.RIDE_BELL_ACCENT,
-        )
+                # Alternate snare rimshot and side stick for texture
+                if i < 6:
+                    builder.snare_rimshot(pos, VELOCITY.SNARE_HEAVY)
+                else:
+                    builder.snare_side_stick(pos, VELOCITY.SNARE_NORMAL)
+        # Full-kit resolution with big crash_5 + ride bell accent
+        builder.crash(4.0, "5")
+        builder.ride_bell(3.875, VELOCITY.RIDE_BELL_ACCENT)
         return builder.build()
 
 

@@ -76,7 +76,7 @@ class TestGenerateCommandUsesMappingFile:
                 "--output",
                 str(output_path),
                 "--mapping",
-                "ezdrummer3",
+                "gm",
                 "--mapping-file",
                 str(mapping_path),
             ]

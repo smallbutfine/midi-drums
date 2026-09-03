@@ -65,29 +65,10 @@ def _mid_note(instrument) -> int:
     """
     if isinstance(instrument, int):
         return instrument
-    # Use drum kit resolution via registry where possible
-    from midi_drums.core.models.kit import KeymapLoader
-
-    inst_name = str(instrument)
-    note = KeymapLoader.get_midi_note(inst_name, "ezd3")
-    if note is not None:
-        return note
-    # Last resort: fallback defaults
-    _INSTR_NOTE = {
-        "KICK": 36,
-        "SNARE": 38,
-        "RIM": 40,
-        "MID_TOM": 47,
-        "FLOOR_TOM": 43,
-        "CRASH": 49,
-        "RIDE": 51,
-        "SPLASH": 55,
-        "CHINA": 52,
-        "CLOSED_HH": 42,
-        "PEDAL_HH": 44,
-        "OPEN_HH": 46,
-    }
-    return _INSTR_NOTE.get(inst_name, 60)
+    # No fallback — must use explicit DrumKit
+    raise ValueError(
+        "Cannot resolve notes without a DrumKit. Pass an explicit drum_kit parameter to generation/export."
+    )
 
 
 class MIDIEngine:
@@ -97,44 +78,41 @@ class MIDIEngine:
     """
 
     def __init__(self, drum_kit: DrumKit | None = None):
-        self.drum_kit = drum_kit or DrumKit.from_keymap_name("ezd3")
+        self.drum_kit = drum_kit or DrumKit.from_keymap_name("gm")
+        # Track which keymap this engine is using for MIDI note resolution
+        self._keymap_name: str = "gm"
 
     # ------------------------------------------------------------------
     # Note resolution
     # ------------------------------------------------------------------
 
-    def _resolve_note(self, instrument) -> int:
-        """Resolve a DrumInstrument (or int) to a MIDI note using this engine's drum kit."""
+    def _resolve_note(self, instrument) -> int | None:
+        """Resolve a DrumInstrument (or int) to a MIDI note using this engine's drum kit.
+        
+        Returns None if the instrument has no mapping in the current keymap,
+        which means that beat will be silently skipped during export.
+        """
         if isinstance(instrument, int):
             return instrument
-        
+
         # Get the instrument name string for lookup
-        inst_name = instrument.name if hasattr(instrument, 'name') else str(instrument)
-        
+        inst_name = (
+            instrument.name if hasattr(instrument, "name") else str(instrument)
+        )
+
         # Try custom mappings first (instrument name -> MIDI note)
         if inst_name in self.drum_kit.custom_mappings:
             return self.drum_kit.custom_mappings[inst_name]
-        
-        # Fall back to keymap loader
+
         from midi_drums.core.models.kit import KeymapLoader
-        note = KeymapLoader.get_midi_note(inst_name, "ezd3")
-        if note is not None:
-            return note
+
+        keymap_name = getattr(self, "_keymap_name", None)
+        if keymap_name is None:
+            keymap_name = "gm"
+        note = KeymapLoader.get_midi_note(inst_name, keymap_name)
         
-        # Final fallback: standard drum defaults (including template keys)
-        _INSTR_NOTE = {
-            "KICK": 36, "SNARE_DRUM": 38, "RIM": 40,
-            "MID_TOM": 47, "FLOOR_TOM": 43, "CRASH": 49,
-            "RIDE": 51, "SPLASH": 55, "CHINA": 52,
-            "CLOSED_HH": 42, "PEDAL_HH": 44, "OPEN_HH": 46,
-            # Template key names -> GM equivalents
-            "kick": 36, "snare_sticks": 38, "snare_side_stick": 37,
-            "tom_1_open_hit": 50, "tom_2_open_hit": 48, "tom_3_open_hit": 47,
-            "tom_4_open_hit": 45, "cymbal_1_hit": 49, "cymbal_4_hit": 52,
-            "ride_1_tip_hit_softer": 51, "hihat_closed_1_tip_closed_1_hit": 42,
-            "hihat_open_a": 46, "hihat_pedal_closed": 44,
-        }
-        return _INSTR_NOTE.get(inst_name, 60)
+        # Return None if unmapped — beat will be silently skipped during export
+        return note
 
     # ------------------------------------------------------------------
     # Public write methods
@@ -173,6 +151,11 @@ class MIDIEngine:
         for beat in _dedupe_by_instrument_position(pattern.beats):
             tick = int(round(beat.position * tpq))
             mn = self._resolve_note(beat.instrument)
+            
+            # Skip beats with unmapped instruments (null in keymap JSON)
+            if mn is None:
+                continue
+            
             events.append(
                 (
                     tick,
@@ -340,6 +323,11 @@ class MIDIEngine:
 
                 for beat in sorted(deduped_beats, key=lambda b: b.position):
                     mn = self._resolve_note(beat.instrument)
+                    
+                    # Skip beats with unmapped instruments
+                    if mn is None:
+                        continue
+                    
                     abs_tick = int(
                         round(bar_start_beats * tpq + beat.position * tpq)
                     )
@@ -369,6 +357,11 @@ class MIDIEngine:
                     for fb in fill.pattern.beats:
                         if fb.position < 1.0:
                             mn = self._resolve_note(fb.instrument)
+                            
+                            # Skip beats with unmapped instruments
+                            if mn is None:
+                                continue
+                                
                             abs_tick = int(
                                 round(fill_start * tpq + fb.position * tpq)
                             )

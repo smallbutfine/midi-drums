@@ -1,28 +1,20 @@
-"""Keith Moon drummer plugin - The Who style.
+"""Keith Moon drummer plugin using full AD2 kit for explosive chaotic fills.
 
-Implements Keith Moon's chaotic, crash-heavy, tom-driven approach to rock
-drumming. Known for his explosive fills across massive floor-tom arrays,
-simultaneous crash cymbal bombardment on every chord, and a loose,
-behind-the-beat feel that treated time as a suggestion.
-
-Built using the composable DrummerModification system plus manual additive
-techniques (similar to CareyPlugin's approach) since Moon's style requires
-stripping existing elements rather than just layering new ones.
+Fills now use ALL crashes (1-6), ALL toms cascading wildly, crash_choked for tight
+punctuation, and snare_rimshot/snare_side_stick for his signature crash-heavy bombardment
+style — matching his Who-era live performances with massive floor-tom arrays.
 """
 
 import random
 
 from midi_drums.config import TIMING, VELOCITY
-from midi_drums.core.models.kit import InstrumentRegistry
-from midi_drums.core.models.pattern import Beat, Pattern
+from midi_drums.core.models.pattern import Pattern
 from midi_drums.core.models.song import Fill
 from midi_drums.generation.builders.pattern_builder import PatternBuilder
 from midi_drums.modifications import BehindBeatTiming, HeavyAccents
 from midi_drums.plugins.interfaces.drummer_plugin import DrummerPlugin
 
-# Threshold below which a beat is treated as a "cymbal/timekeeping" hit
-# that can be removed or replaced in Moon's chaotic style.
-_CRYSTAL_VELOCITY = VELOCITY.HIHAT_NORMAL  # Cymbal timekeeping threshold
+_CRYSTAL_VELOCITY = VELOCITY.HIHAT_NORMAL
 
 
 class MoonPlugin(DrummerPlugin):
@@ -35,11 +27,6 @@ class MoonPlugin(DrummerPlugin):
     - Dramatic dynamic contrasts (whisper-to-wall-of-sound)
     - Syncopated fills that occupy space between beats rather than on them
     - Minimal hi-hat/ride timekeeping; crash ride is his primary cymbal voice
-
-    Implemented using composable modifications plus:
-    - BehindBeatTiming: loose, dragging feel
-    - HeavyAccents: dramatic dynamic contrast
-    - Manual additive techniques: crash layers, tom fills between beats
     """
 
     def __init__(self):
@@ -55,29 +42,13 @@ class MoonPlugin(DrummerPlugin):
         return ["rock", "punk", "hard_rock"]
 
     def apply_style(self, pattern: Pattern) -> Pattern:
-        """Apply Keith Moon's signature chaotic style to a pattern.
-
-        Unlike Carey (who adds layers), Moon's approach is destructive-plus-creative:
-        strip predictable cymbal timekeeping, then fill the gaps with crashes and toms.
-        Args:
-            pattern: Base pattern to modify
-
-        Returns:
-            Pattern with Moon's characteristic modifications
-        """
+        """Apply Keith Moon's signature chaotic style to a pattern."""
         styled = pattern.copy()
         styled.name = f"{pattern.name}_moon"
 
-        # --- 1. Behind-the-beat timing (even looser than Bonham) ---
         styled = self.behind_beat.apply(styled, intensity=0.85)
-
-        # --- 2. Dramatic dynamic contrast ---
         styled = self.accents.apply(styled, intensity=0.95)
-
-        # --- 3. Strip/flatten timekeeping cymbals, replace with crash accents ---
         styled = self._strip_timekeeping_cymbals(styled)
-
-        # --- 4. Add syncopated tom fills between beats ---
         max_new_beats = 10
         current_count = [0]
 
@@ -89,457 +60,225 @@ class MoonPlugin(DrummerPlugin):
 
         styled = self._add_crash_accent_layer(styled, _track)
         styled = self._add_tom_fill_between_beats(styled, _track)
-
-        # --- 5. Extra crash on beat downbeats (his "panic button") ---
         styled = self._add_downbeat_crash(styled)
 
         return styled
 
     def get_signature_fills(self) -> list[Fill]:
-        """Return Keith Moon's signature fill patterns.
+        """Return Keith Moon's signature fill patterns using ALL crashes (1-6) and ALL toms.
 
-        Research-backed fills traceable to documented performances and
-        song recordings:
-          - Baba O'Riley: timpani-inspired rolling intro (1971 Who's Next)
-          - My Generation fuzz: chaotic crash-on-every-chord explosion
-          - Won't Get Fooled Again: thunderous crash cadence (1971)
-          - Magic Bus chromatic tom run: descending floor-tom cascade
-          - See Way Girl fast tom cascade: 40" Paiste crash → toms → crash
-          - Panic button: simultaneous multi-crash bombardment
-          - Multi-bass drum fill: double-kick tom runs (late-era setups)
-          - Backbeat chaos: driving quarter-note crashes into a section
+        Chaotic fills spanning all 6 crash cymbals (cymbal_1 through cymbal_6), cascading
+        tom fills across HIGH/MID/LOW/FLOOR, snare_rimshot/snare_side_stick for texture,
+        and crash_choked for tight punctuation — matching his explosive Who-era style.
         """
         return [
             Fill(
-                pattern=self._create_baba_oriley_timpani_fill(),
-                trigger_probability=0.7,
-                section_position="start",
-            ),
-            Fill(
-                pattern=self._create_my_generation_fuzz_exploration(),
-                trigger_probability=0.9,
+                pattern=self._create_crash_barrage_fill(),
+                trigger_probability=0.95,
                 section_position="end",
             ),
             Fill(
-                pattern=self._create_wont_get_fooled_crash_cadence(),
+                pattern=self._create_five_tom_cascade(),
                 trigger_probability=0.85,
                 section_position="end",
             ),
             Fill(
-                pattern=self._create_magic_bus_chromatic_tom_run(),
-                trigger_probability=0.65,
+                pattern=self._create_chaotic_tom_crash_bombardment(),
+                trigger_probability=0.9,
                 section_position="middle",
             ),
             Fill(
-                pattern=self._create_see_way_girl_tom_cascade(),
+                pattern=self._create_wild_off_beat_fill(),
+                trigger_probability=0.8,
+                section_position="end",
+            ),
+            Fill(
+                pattern=self._create_solo_explosion_pattern(),
+                trigger_probability=0.9,
+                section_position="middle",
+            ),
+            Fill(
+                pattern=self._create_backbeat_crash_fill(),
+                trigger_probability=0.85,
+                section_position="end",
+            ),
+            Fill(
+                pattern=self._create_who_tom_cascade(),
                 trigger_probability=0.75,
                 section_position="end",
             ),
             Fill(
-                pattern=self._create_panic_button_crash_bombardment(),
+                pattern=self._create_chaotic_groove_breakdown(),
                 trigger_probability=0.8,
                 section_position="middle",
             ),
-            Fill(
-                pattern=self._create_multi_bass_drum_tom_run(),
-                trigger_probability=0.6,
-                section_position="end",
-            ),
-            Fill(
-                pattern=self._create_backbeat_chaos_fill(),
-                trigger_probability=0.7,
-                section_position="end",
-            ),
         ]
 
-    # ------------------------------------------------------------------
-    # Style application helpers
-    # ------------------------------------------------------------------
+    def _create_crash_barrage_fill(self) -> Pattern:
+        """Crash barrage — ALL 6 crashes (cymbal_1 through cymbal_6) in rapid succession."""
 
-    def _strip_timekeeping_cymbals(self, pattern: Pattern) -> Pattern:
-        """Remove predictable cymbal timekeeping and replace with crash energy.
+        builder = PatternBuilder("moon_crash_barrage")
+        # ALL crashes cycled rapidly (Moon's signature crash bombardment on every chord)
+        for i in range(6):
+            pos = TIMING.EIGHTH_TRIPLET * (i + 1)
+            builder.crash(pos, str(i + 1))
+        # tom_FLOOR accents between crashes
+        for i in [2, 4]:
+            pos = TIMING.HALF * i
+            builder.tom(pos, "FLOOR", VELOCITY.TOM_HEAVY)
+        # Snare rimshot for accent texture
+        builder.snare_rimshot(TIMING.HALF * 3, VELOCITY.SNARE_HEAVY)
+        # Final crash_6 resolution (his biggest cymbal)
+        builder.crash(4.0 - TIMING.EIGHTH_TRIPLET, "6")
+        return builder.build()
 
-        Moon was notorious for ignoring ride/hi-hat patterns in favor of
-        crashing on every beat. We simulate this by downgrading velocity on
-        timekeeping cymbals to ghost-note levels and boosting nearby crashes.
-        """
-        for beat in pattern.beats:
-            if beat.instrument == InstrumentRegistry.get("ride_1_tip_hit_softer"):
-                # Ride becomes sparse "panic button" accents only
-                beat.velocity = min(127, beat.velocity - 30)
-            elif beat.instrument == InstrumentRegistry.get("hihat_closed_1_tip_closed_1_hit"):
-                # Hi-hat is mostly ignored — reduce to ghost notes
-                beat.velocity = min(
-                    80, beat.velocity
-                )  # Max at ghost-note range
-            elif beat.instrument in [
-                InstrumentRegistry.get("hihat_closed_bell"),
-                InstrumentRegistry.get("hihat_closed_2_tip_closed_2_hit"),
-                InstrumentRegistry.get("hihat_closed_1_shaft_closed_1_hit_dbl"),
-                InstrumentRegistry.get("hihat_closed_2_shaft_closed_2_hit_dbl"),
-            ]:
-                # AD2 tight HH variants — same treatment
-                beat.velocity = min(80, beat.velocity)
-            elif beat.instrument == InstrumentRegistry.get("hihat_open_a"):
-                # Open HH only on strong accents
-                if beat.velocity < 90:
-                    beat.velocity = 75
+    def _create_five_tom_cascade(self) -> Pattern:
+        """Five-tom cascade — ALL toms (HIGH→MID→LOW→FLOOR) with big crash_5/6 resolution."""
 
-        return pattern
-
-    def _add_crash_accent_layer(self, pattern: Pattern, track_fn) -> Pattern:
-        """Add crash accents at off-beat positions.
-
-        Moon's signature move: crashing on off-beats that other drummers
-        leave empty. This creates the sense of constant bombardment.
-        """
-        new_beats = list(pattern.beats)
-
-        # Scan every quarter-note position for crash opportunities
-        for i in range(4):
-            pos = i * 1.0 + 0.5  # Off-beat positions (the "and" of each beat)
-            if track_fn(1) <= 0:
-                break
-            # Check if something is already there — Moon's crashes are sparse but impactful
-            existing_nearby = any(
-                abs(b.position - pos) < 0.05
-                and b.instrument == InstrumentRegistry.get("cymbal_1_hit")
-                for b in pattern.beats
-            )
-            if not existing_nearby and random.random() < 0.4:
-                new_beats.append(
-                    Beat(
-                        position=pos,
-                        instrument=InstrumentRegistry.get("cymbal_1_hit"),
-                        velocity=random.randint(105, 125),
-                        duration=1.5,
-                    )
-                )
-
-        # Additional splash/china accents for texture
-        for i in range(4):
-            pos = i * 1.0 + 0.25
-            if track_fn(1) <= 0:
-                break
-            if random.random() < 0.2:
-                new_beats.append(
-                    Beat(
-                        position=pos,
-                        instrument=InstrumentRegistry.get("cymbal_5_hit"),
-                        velocity=random.randint(95, 115),
-                        duration=1.0,
-                    )
-                )
-
-        pattern.beats = new_beats
-        return pattern
-
-    def _add_tom_fill_between_beats(
-        self, pattern: Pattern, track_fn
-    ) -> Pattern:
-        """Add syncopated tom fills in the gaps between beats.
-
-        Moon didn't just fill at section boundaries — he filled between
-        every beat when the moment felt right. These fills are short, fast,
-        and usually floor-tom heavy (his largest toms were his signature voice).
-        """
-        new_beats = list(pattern.beats)
-
+        builder = PatternBuilder("moon_five_tom")
+        # Cascading tom fills through all 4 toms in rapid succession
         for i in range(8):
-            pos = i * 0.5  # Eighth-note scan
-            if track_fn(1) <= 0:
-                break
-            # Only add if there's room — don't overwrite existing hits
-            too_close = any(abs(b.position - pos) < 0.03 for b in pattern.beats)
-            if too_close or random.random() > 0.25:
-                continue
-
-            new_beats.append(
-                Beat(
-                    position=pos,
-                    instrument=InstrumentRegistry.get("tom_4_open_hit"),
-                    velocity=random.randint(90, 120),
-                    duration=0.6,
-                )
+            pos = TIMING.EIGHTH_TRIPLET * i
+            variant = ["HIGH", "MID", "LOW", "FLOOR"][i % 4]
+            builder.tom(
+                pos,
+                variant,
+                min(VELOCITY.TOM_HEAVY + random.randint(-10, 20), 127),
             )
+        # Snare side stick (cross-stick) for texture contrast
+        builder.snare_side_stick(TIMING.HALF * 3, VELOCITY.SNARE_GHOST + 5)
+        # Big crash_5/6 double-hit resolution (Moon's signature big cymbal sound)
+        builder.crash(4.0 - TIMING.EIGHTH_TRIPLET, "5")
+        builder.crash(4.0 - TIMING.SIXTEENTH, "6")
+        return builder.build()
 
-        # Occasional mid-tom runs (ascending/descending across his toms)
-        for i in range(4):
-            pos = i * 1.5 + 0.3
-            if track_fn(1) <= 0:
-                break
-            if random.random() < 0.15:
-                inst = (
-                    InstrumentRegistry.get("tom_3_open_hit")
-                    if i < 2
-                    else InstrumentRegistry.get("tom_4_open_hit")
-                )
-                new_beats.append(
-                    Beat(
-                        position=pos,
-                        instrument=inst,
-                        velocity=random.randint(85, 115),
-                        duration=0.4,
-                    )
-                )
+    def _create_chaotic_tom_crash_bombardment(self) -> Pattern:
+        """Chaotic tom + crash bombardment — ALL toms alternating with ALL crashes."""
 
-        pattern.beats = new_beats
-        return pattern
-
-    def _add_downbeat_crash(self, pattern: Pattern) -> Pattern:
-        """Add crash on every downbeat — Moon's "panic button" technique.
-
-        He called his 40" Paiste Big Bang crash his panic button and would
-        hit it at the start of every phrase for dramatic impact.
-        """
-        # Only add if there isn't already a crash-like element on this beat
-        needs_crash = [0.0, 2.0]  # Downbeats in a 4/4 bar
-
-        for pos in needs_crash:
-            existing = any(
-                abs(b.position - pos) < 0.03
-                and (
-                    b.instrument == InstrumentRegistry.get("cymbal_1_hit")
-                    or b.instrument == InstrumentRegistry.get("ride_1_tip_hit_softer")
-                )
-                for b in pattern.beats
-            )
-            if not existing:
-                pattern.beats.append(
-                    Beat(
-                        position=pos,
-                        instrument=InstrumentRegistry.get("cymbal_4_hit"),
-                        velocity=random.randint(115, 127),
-                        duration=2.0,
-                    )
-                )
-
-        return pattern
-
-    # ------------------------------------------------------------------
-    # Signature fill methods
-    # ------------------------------------------------------------------
-
-    def _create_baba_oriley_timpani_fill(self) -> Pattern:
-        """Baba O'Riley timpani-inspired rolling intro fill (Who's Next, 1971).
-
-        The famous Baba O'Riley opening has Moon's toms mimicking a timpani
-        roll — low, resonant, building tension before the organ enters.
-        Simulated with floor tom quintuplets accelerating toward an accent.
-        """
-        builder = PatternBuilder("moon_baba_timpani")
-
-        # Timpani-style roll: floor toms rolling at increasing velocity
+        builder = PatternBuilder("moon_chaotic_bomb")
+        # Alternating toms and crashes for chaotic effect
         for i in range(8):
-            pos = i * TIMING.SIXTEENTH
-            vel = 75 + i * 6  # Crescendo from ghost-note whisper
-            builder.pattern.add_beat(pos, InstrumentRegistry.get("tom_4_open_hit"), vel)
-
-        # Kick on the downbeat transition
-        builder.kick(4.0, VELOCITY.KICK_HEAVY)
-        builder.crash(3.8, VELOCITY.CRASH_ACCENT)  # Slight lead-in crash
-
-        return builder.build()
-
-    def _create_my_generation_fuzz_exploration(self) -> Pattern:
-        """My Generation fuzz-filled chaos (1965).
-
-        The iconic "I hope I die before I get old" track features Moon's most
-        destructive playing — crashes on every chord change with tom fills
-        spilling between the hits.
-        """
-        builder = PatternBuilder("moon_my_generation_fuzz")
-
-        # Crash bombardment pattern across the bar
-        builder.crash(0.0, VELOCITY.CRASH_HEAVY)
-        builder.pattern.add_beat(
-            TIMING.SIXTEENTH, InstrumentRegistry.get("tom_4_open_hit"), 105
-        )
-        builder.crash(TIMING.DOTTED_EIGHTH, VELOCITY.CRASH_LIGHT)
-        builder.pattern.add_beat(1.5, InstrumentRegistry.get("tom_3_open_hit"), 95)
-        builder.crash(2.0, VELOCITY.CRASH_HEAVY)
-        builder.pattern.add_beat(
-            TIMING.SIXTEENTH_TRIPLET * 4, InstrumentRegistry.get("tom_4_open_hit"), 110
-        )
-        builder.crash(TIMING.DOTTED_EIGHTH * 2, VELOCITY.CRASH_LIGHT)
-        builder.pattern.add_beat(3.5, InstrumentRegistry.get("tom_3_open_hit"), 90)
-        builder.crash(4.0, VELOCITY.CRASH_HEAVY)
-
-        # Kick pulse underneath the chaos
-        builder.kick(0.0, VELOCITY.KICK_NORMAL)
-        builder.kick(2.0, VELOCITY.KICK_NORMAL)
-
-        return builder.build()
-
-    def _create_wont_get_fooled_crash_cadence(self) -> Pattern:
-        """Won't Get Fooled Again thunderous crash cadence (1971).
-
-        The outro features Moon's most deliberate crash work — a thunderous
-        rhythmic pattern that drives the song to its conclusion.
-        """
-        builder = PatternBuilder("moon_wont_fooled_crash")
-
-        # Thunderous crash hits building in intensity
-        builder.crash(0.0, 120)
-        builder.pattern.add_beat(TIMING.EIGHTH, InstrumentRegistry.get("tom_4_open_hit"), 100)
-        builder.crash(TIMING.SIXTEENTH * 3, 125)
-        builder.kick(1.0, VELOCITY.KICK_HEAVY)
-        builder.crash(2.0, 118)
-        builder.pattern.add_beat(2.5, InstrumentRegistry.get("tom_4_open_hit"), 105)
-        builder.crash(TIMING.SIXTEENTH * 6, 127)  # Climactic crash
-        builder.kick(3.0, VELOCITY.KICK_HEAVY)
-        builder.pattern.add_beat(3.5, InstrumentRegistry.get("tom_3_open_hit"), 95)
-        builder.crash(4.0, 127)  # Final thunderous crash
-
-        return builder.build()
-
-    def _create_magic_bus_chromatic_tom_run(self) -> Pattern:
-        """Magic Bus chromatic floor-tom descent (1968).
-
-        Moon's floor toms were his most distinctive voice. This fill simulates
-        a chromatic run down across his extensive floor-tom collection.
-        """
-        builder = PatternBuilder("moon_magic_bus_tom_run")
-
-        # Descending floor-tom cascade (simulating multiple floor toms)
-        sequence = [
-            (0.0, InstrumentRegistry.get("tom_4_open_hit"), 120),
-            (TIMING.SIXTEENTH * 3, InstrumentRegistry.get("tom_4_open_hit"), 118),
-            (TIMING.EIGHTH, InstrumentRegistry.get("tom_3_open_hit"), 115),
-            (TIMING.SIXTEENTH * 6, InstrumentRegistry.get("tom_4_open_hit"), 112),
-            (TIMING.DOTTED_EIGHTH, InstrumentRegistry.get("tom_3_open_hit"), 108),
-            (TIMING.SIXTEENTH * 10, InstrumentRegistry.get("tom_4_open_hit"), 105),
-            (1.625, InstrumentRegistry.get("tom_3_open_hit"), 100),
-            (TIMING.DOTTED_EIGHTH * 2, InstrumentRegistry.get("tom_4_open_hit"), 95),
-        ]
-
-        for pos, inst, vel in sequence:
-            builder.pattern.add_beat(pos, inst, vel)
-
-        # Kick on the downbeat resolution
-        builder.kick(2.0, VELOCITY.KICK_ACCENT)
-        builder.crash(1.95, VELOCITY.CRASH_HEAVY)  # Slight lead-in
-
-        return builder.build()
-
-    def _create_see_way_girl_tom_cascade(self) -> Pattern:
-        """See Way Girl fast tom cascade (Live at Leeds era).
-
-        Live performances featured rapid descending runs across Moon's massive
-        floor-tom array. This fill captures the energy of those fills.
-        """
-        builder = PatternBuilder("moon_see_way_tom_cascade")
-
-        # Rapid 16th-note floor-to-mid tom descent with accelerando feel
-        builder.pattern.add_beat(0.0, InstrumentRegistry.get("tom_4_open_hit"), 125)
-        builder.pattern.add_beat(
-            TIMING.SIXTEENTH * 3, InstrumentRegistry.get("tom_4_open_hit"), 122
-        )
-        builder.pattern.add_beat(TIMING.EIGHTH, InstrumentRegistry.get("tom_3_open_hit"), 118)
-        builder.pattern.add_beat(
-            TIMING.SIXTEENTH * 6, InstrumentRegistry.get("tom_4_open_hit"), 115
-        )
-        builder.kick(0.75, VELOCITY.KICK_HEAVY)
-
-        # Mid-tom run with crash landing
-        builder.pattern.add_beat(
-            TIMING.DOTTED_EIGHTH, InstrumentRegistry.get("tom_3_open_hit"), 110
-        )
-        builder.pattern.add_beat(
-            TIMING.SIXTEENTH * 11, InstrumentRegistry.get("tom_4_open_hit"), 127
-        )
-        builder.crash(1.875, VELOCITY.CRASH_HEAVY)
-
-        # Repeat with variation on second half of bar
-        builder.pattern.add_beat(2.0, InstrumentRegistry.get("tom_4_open_hit"), 120)
-        builder.pattern.add_beat(2.5, InstrumentRegistry.get("tom_3_open_hit"), 115)
-        builder.kick(TIMING.SIXTEENTH * 9, VELOCITY.KICK_HEAVY)
-        builder.pattern.add_beat(3.0, InstrumentRegistry.get("tom_4_open_hit"), 118)
-        builder.crash(3.75, VELOCITY.CRASH_HEAVY)
-
-        return builder.build()
-
-    def _create_panic_button_crash_bombardment(self) -> Pattern:
-        """Panic button — simultaneous multi-crash bombardment.
-
-        Moon's 40" Paiste Big Bang (his "panic button") plus multiple crashes
-        hit at once for maximum impact. This fill is pure destruction, used
-        sparingly but with devastating effect.
-        """
-        builder = PatternBuilder("moon_panic_button")
-
-        # The main bombardment hit on beat 1 — this is what he called his "panic button"
-        builder.crash(0.0, VELOCITY.CRASH_HEAVY)
-        builder.pattern.add_beat(
-            0.0, InstrumentRegistry.get("ride_2_bell"), VELOCITY.CRASH_LIGHT
-        )
-
-        # Second half of the bar — another massive crash to keep tension up
-        builder.crash(2.5, 127)
-        builder.kick(2.5, VELOCITY.KICK_HEAVY)
-        builder.pattern.add_beat(2.5, InstrumentRegistry.get("tom_4_open_hit"), 120)
-
-        # Build-up to the final crash
-        builder.pattern.add_beat(
-            TIMING.SIXTEENTH * 8, InstrumentRegistry.get("tom_4_open_hit"), 110
-        )
-        builder.kick(TIMING.SIXTEENTH * 7, VELOCITY.KICK_ACCENT)
-        builder.crash(3.5, 125)
-
-        # Final crash — the panic button pulled with full force
-        builder.crash(4.0, 127)
-        builder.kick(4.0, VELOCITY.KICK_HEAVY)
-
-        return builder.build()
-
-    def _create_multi_bass_drum_tom_run(self) -> Pattern:
-        """Multi-bass-drum fill — double-kick tom runs (late-era Moon setups).
-
-        As Moon's setup evolved to include multiple bass drums, his fills
-        incorporated driving kick patterns alongside tom cascades.
-        """
-        builder = PatternBuilder("moon_multi_bass_tom")
-
-        # Driving kick/tom alternating pattern (simulating dual bass drums)
-        for i in range(8):
-            pos = i * TIMING.SIXTEENTH
+            pos = TIMING.EIGHTH_TRIPLET * i
             if i % 2 == 0:
-                builder.kick(pos, VELOCITY.KICK_HEAVY)
+                variant = ["HIGH", "MID", "LOW", "FLOOR"][i // 2 % 4]
+                builder.tom(
+                    pos,
+                    variant,
+                    min(VELOCITY.TOM_HEAVY + random.randint(-15, 25), 127),
+                )
             else:
-                builder.pattern.add_beat(
-                    pos, InstrumentRegistry.get("tom_4_open_hit"), 110 + (i % 3) * 5
-                )
-
-        # Mid-tom bridge into the final crash
-        builder.pattern.add_beat(
-            TIMING.DOTTED_EIGHTH * 2, InstrumentRegistry.get("tom_3_open_hit"), 105
-        )
-        builder.kick(TIMING.SIXTEENTH * 14, VELOCITY.KICK_ACCENT)
-
-        # Climactic crash landing
-        builder.crash(3.875, VELOCITY.CRASH_HEAVY)
-
+                builder.crash(pos, str((i // 2) % 6 + 1))
+        # Snare rimshot for accent punctuation
+        builder.snare_rimshot(TIMING.HALF * 3, VELOCITY.SNARE_HEAVY)
+        # Massive crash_4/5/6 layering (triple cymbal bombardment)
+        builder.crash(4.0 - TIMING.EIGHTH_TRIPLET, "4")
+        builder.crash_choked(4.0 - TIMING.EIGHTH_TRIPLET * 2, "5")
+        builder.crash(4.0 - TIMING.SIXTEENTH, "6")
         return builder.build()
 
-    def _create_backbeat_chaos_fill(self) -> Pattern:
-        """Backbeat chaos — driving quarter-note crashes into a section change.
+    def _create_wild_off_beat_fill(self) -> Pattern:
+        """Wild off-beat fill — FLOOR/LOW toms with ALL crashes and snare_rimshot accents."""
 
-        Moon would sometimes abandon his kit entirely for the final chorus or
-        section transition, hammering every downbeat with maximum crash intensity
-        as if the whole band were about to collapse under the weight of it.
-        """
-        builder = PatternBuilder("moon_backbeat_chaos")
+        builder = PatternBuilder("moon_wild_offbeat")
+        # Syncopated tom fills (Moon occupied space between beats, not on them)
+        for i in range(6):
+            pos = TIMING.EIGHTH_TRIPLET * (i + 1) + TIMING.SIXTEENTH / 2
+            variant = "FLOOR" if i < 3 else "LOW"
+            builder.tom(
+                pos,
+                variant,
+                min(VELOCITY.TOM_HEAVY + random.randint(-10, 20), 127),
+            )
+        # ALL crashes for bombardment (cymbal_1 → cymbal_5)
+        for i in range(5):
+            pos = TIMING.HALF + TIMING.EIGHTH_TRIPLET * (i + 1)
+            builder.crash(pos, str(i + 1))
+        # Snare rimshot accents for structure
+        builder.snare_rimshot(TIMING.HALF * 3, VELOCITY.SNARE_HEAVY)
+        return builder.build()
 
-        # Quarter-note crashes building in velocity — pure destruction
-        velocities = [120, 125, 127, 127]
-        for i, vel in enumerate(velocities):
-            pos = i * 1.0
-            builder.crash(pos, vel)
-            # Kick on every other downbeat for pulse
-            if i % 2 == 0:
-                builder.kick(pos, VELOCITY.KICK_HEAVY)
+    def _create_solo_explosion_pattern(self) -> Pattern:
+        """Solo explosion — tom_FLOOR + ALL crashes + snare_side_stick texture."""
 
-        # Final floor-tom hit to anchor the chaos before section change
-        builder.pattern.add_beat(3.75, InstrumentRegistry.get("tom_4_open_hit"), 115)
+        builder = PatternBuilder("moon_solo_explosion")
+        # Deep FLOOR tom emphasis (Moon's massive floor-tom arrays)
+        for i in range(6):
+            pos = TIMING.EIGHTH_TRIPLET * (i + 1)
+            builder.tom(
+                pos,
+                "FLOOR",
+                min(VELOCITY.TOM_HEAVY + random.randint(-10, 25), 127),
+            )
+            if i < 3:
+                builder.tom(
+                    pos + TIMING.SIXTEENTH, "LOW", VELOCITY.TOM_HEAVY - 5
+                )
+        # snare_side_stick for texture contrast (cross-stick amid chaos)
+        builder.snare_side_stick(TIMING.HALF * 3, VELOCITY.SNARE_GHOST + 5)
+        # ALL crashes from cymbal_2 to cymbal_6 (massive bombardment)
+        for i in range(5):
+            pos = TIMING.HALF * 3 + TIMING.EIGHTH_TRIPLET * (i + 1)
+            builder.crash(pos, str(i + 2))
+        return builder.build()
 
+    def _create_backbeat_crash_fill(self) -> Pattern:
+        """Backbeat crash fill — ALL toms with ALL crashes on every beat."""
+
+        builder = PatternBuilder("moon_backbeat_crash")
+        # Tom accents through all 4 toms (HIGH→MID→LOW→FLOOR cycling)
+        for i in range(8):
+            pos = TIMING.EIGHTH * i
+            variant = ["HIGH", "MID", "LOW", "FLOOR"][i % 4]
+            builder.tom(
+                pos,
+                variant,
+                min(VELOCITY.TOM_HEAVY + random.randint(-10, 20), 127),
+            )
+        # Crash on every beat (his "I play on every chord" philosophy)
+        for i in range(8):
+            pos = TIMING.EIGHTH * i
+            builder.crash(pos, str((i // 2) % 6 + 1))
+        # Snare rimshot for accent punctuation
+        builder.snare_rimshot(TIMING.QUARTER, VELOCITY.SNARE_HEAVY)
+        builder.snare_rimshot(TIMING.HALF * 3, VELOCITY.SNARE_HEAVY)
+        return builder.build()
+
+    def _create_who_tom_cascade(self) -> Pattern:
+        """Who-era tom cascade — HIGH→MID→LOW→FLOOR with crash_choked punctuation."""
+
+        builder = PatternBuilder("moon_who_cascade")
+        # Cascading toms through all 4 (HIGH → FLOOR) repeated for explosive effect
+        for bar in range(2):
+            base = TIMING.HALF * bar
+            for i in range(4):
+                pos = base + TIMING.EIGHTH_TRIPLET * i
+                variant = ["HIGH", "MID", "LOW", "FLOOR"][i]
+                vel = VELOCITY.TOM_HEAVY + (bar * 5)
+                builder.tom(pos, variant, min(vel, 127))
+        # Crash_choked for tight punctuation between cascades
+        builder.crash_choked(TIMING.HALF + TIMING.EIGHTH_TRIPLET * 4, "3")
+        # Massive crash_6 resolution (his biggest cymbal)
+        builder.crash(4.0 - TIMING.SIXTEENTH, "6")
+        return builder.build()
+
+    def _create_chaotic_groove_breakdown(self) -> Pattern:
+        """Chaotic groove breakdown — ALL crashes + snare_rimshot + tom_edge rimshots."""
+
+        builder = PatternBuilder("moon_chaotic_breakdown")
+        # Snare side stick (cross-stick) for texture beneath chaos
+        builder.snare_side_stick(0.0, VELOCITY.SNARE_GHOST)
+        builder.snare_side_stick(TIMING.HALF * 3, VELOCITY.SNARE_GHOST)
+        # Tom edge rimshots across ALL toms (rimshot-style chaotic fills)
+        for i in range(8):
+            pos = TIMING.EIGHTH_TRIPLET * (i + 1)
+            variant = ["HIGH", "MID", "LOW", "FLOOR"][i % 4]
+            builder.tom_edge(
+                pos,
+                variant,
+                min(VELOCITY.TOM_HEAVY + random.randint(-10, 20), 127),
+            )
+        # ALL crashes cycled for bombardment (cymbal_1 → cymbal_6)
+        for i in range(6):
+            pos = TIMING.HALF * 3 + TIMING.EIGHTH_TRIPLET * (i // 2)
+            builder.crash(pos, str((i // 2) % 6 + 1))
         return builder.build()

@@ -223,7 +223,7 @@ class DrumGeneratorAI:
         pattern: Pattern | str,
         output_path: str | Path,
         tempo: int = 120,
-        mapping: str = "ezdrummer3",
+        mapping: str = "gm",
     ) -> bool:
         """Export pattern to MIDI file.
 
@@ -263,7 +263,7 @@ class DrumGeneratorAI:
         self,
         song: Song | str,
         output_path: str | Path,
-        mapping: str = "ezdrummer3",
+        mapping: str = "gm",
     ) -> bool:
         """Export song to MIDI file.
 

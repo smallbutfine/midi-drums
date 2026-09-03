@@ -4,7 +4,6 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from midi_drums.config.defaults import DEFAULT_MAPPING
 from midi_drums.core.models.kit import DrumKit
 from midi_drums.core.models.pattern import Pattern
 from midi_drums.core.models.song import Song
@@ -24,7 +23,7 @@ class DrumGeneratorAPI:
         style: str = "default",
         tempo: int | None = None,
         name: str | None = None,
-        mapping: str = DEFAULT_MAPPING,
+        mapping: str = "gm",
         mapping_file: str | Path | None = None,
         **kwargs,
     ) -> Song:
@@ -71,7 +70,7 @@ class DrumGeneratorAPI:
         genre: str,
         section: str = "verse",
         style: str = "default",
-        mapping: str = DEFAULT_MAPPING,
+        mapping: str = "gm",
         **kwargs,
     ) -> Pattern | None:
         """Generate a single drum pattern.
@@ -105,7 +104,7 @@ class DrumGeneratorAPI:
         pattern: Pattern,
         filename: str | Path,
         tempo: int = 120,
-        mapping: str = DEFAULT_MAPPING,
+        mapping: str = "gm",
     ) -> None:
         """Save pattern as MIDI file.
 
@@ -165,7 +164,7 @@ class DrumGeneratorAPI:
         style: str = "heavy",
         tempo: int = 155,
         complexity: float = 0.7,
-        mapping: str = DEFAULT_MAPPING,
+        mapping: str = "gm",
     ) -> Song:
         """Create a metal song with common parameters."""
         return self.create_song(
@@ -184,7 +183,7 @@ class DrumGeneratorAPI:
         filename: str,
         style: str = "default",
         tempo: int | None = None,
-        mapping: str = DEFAULT_MAPPING,
+        mapping: str = "gm",
     ) -> Song:
         """Quickly generate and export a song.
 
@@ -255,7 +254,7 @@ class DrumGeneratorAPI:
         complexity: float = 0.5,
         humanization: float = 0.3,
         drummer: str | None = None,
-        mapping: str = DEFAULT_MAPPING,
+        mapping: str = "gm",
         drum_kit: DrumKit | None = None,
     ) -> dict:
         """Generate drums and create a Reaper project with genre-smart markers.
@@ -347,7 +346,7 @@ class DrumGeneratorAPI:
         tempo: int | None = None,
         output_rpp: str = "project.rpp",
         input_rpp: str | None = None,
-        mapping: str = DEFAULT_MAPPING,
+        mapping: str = "gm",
     ) -> str:
         """Create a Reaper project with genre-smart structure markers only.
 

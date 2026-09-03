@@ -69,10 +69,7 @@ class SnareAccentReaction(DrummerModification):
 
                 # Find nearest non-ghost snare beat
                 for beat in new_pattern.beats:
-                    if (
-                        beat.instrument != snare_sticks
-                        or beat.ghost_note
-                    ):
+                    if beat.instrument != snare_sticks or beat.ghost_note:
                         continue
 
                     dist = abs(beat.position - accent.position)
@@ -83,8 +80,7 @@ class SnareAccentReaction(DrummerModification):
                         snare_velocities = [
                             b.velocity
                             for b in new_pattern.beats
-                            if b.instrument == snare_sticks
-                            and not b.ghost_note
+                            if b.instrument == snare_sticks and not b.ghost_note
                         ]
                         velocity_ceiling = (
                             max(snare_velocities)

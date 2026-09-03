@@ -5,8 +5,8 @@ import random
 import numpy as np
 import pytest
 
-from midi_drums.core.models.pattern import Beat, Pattern
 from midi_drums.core.models.kit import InstrumentRegistry
+from midi_drums.core.models.pattern import Beat, Pattern
 from midi_drums.generation.builders.pattern_builder import PatternBuilder
 from midi_drums.humanization import AdvancedHumanizer
 

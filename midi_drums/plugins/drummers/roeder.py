@@ -1,13 +1,14 @@
-"""Jason Roeder drummer plugin - refactored using composable modifications.
+"""Jason Roeder drummer plugin using full AD2 kit for atmospheric sludge fills.
 
-Reduced from ~371 lines to ~63 lines (83% reduction) by using the
-DrummerModification system instead of manual pattern manipulation.
+Fills now use tom_FLOOR emphasis (deep cavernous sound), cymbal_choke(5-6) for sustained
+crashes, tom_EDGE rimshots with heavy accents for crushing weight, snare_shallow for sparse
+atmospheric textures, and ride_bell/ride_shaft with long sustain — matching his Neurosis
+(Souls at Zero era) sound.
 """
 
 import random
 
 from midi_drums.config import TIMING, VELOCITY
-from midi_drums.core.models.kit import InstrumentRegistry
 from midi_drums.core.models.pattern import Pattern
 from midi_drums.core.models.song import Fill
 from midi_drums.modifications import (
@@ -25,10 +26,6 @@ class RoederPlugin(DrummerPlugin):
     - Minimal, sparse cymbal work for heavy atmosphere
     - Crushing, powerful accents on kick and snare
     - Patience and restraint in pattern density
-
-    Implemented using composable modifications:
-    - MinimalCreativity: Thins out non-essential cymbal hits
-    - HeavyAccents: Adds crushing power to remaining hits
     """
 
     def __init__(self):
@@ -54,17 +51,12 @@ class RoederPlugin(DrummerPlugin):
         return styled
 
     def get_signature_fills(self) -> list[Fill]:
-        """Return Jason Roeder's signature fill patterns.
+        """Return Jason Roeder's signature fill patterns using full AD2 kit.
 
-        Verified via Neurosis (Souls at Zero era) and interview sources:
-          - Atmospheric tom roll: sparse, resonant tom cascades
-          - Labyrinthine complexity: winding rhythmic motifs
-          - Crushing weight: heavy single-hit accents with long sustain
-          - Minimal kit showcase: limited toms for maximum impact
-          - Souls at Zero buildup: slow-building tension fill (Neurosis era)
-          - Wounds sludge pattern: heavy, resonant tom-to-kick interlock
-          - Pain of Always ambient pad: sustained cymbal with sparse hits
-          - Times of Grace tremolo fill: double-kick tremolo into cavernous toms
+        Uses tom_FLOOR emphasis (deep cavernous sound), cymbal_choke(5-6) for sustained
+        crashes, tom_EDGE rimshots with heavy accents for crushing weight, snare_shallow for
+        sparse atmospheric textures, and ride_bell/ride_shaft with long sustain — matching
+        his Neurosis (Souls at Zero era) sound.
         """
         return [
             Fill(
@@ -100,205 +92,181 @@ class RoederPlugin(DrummerPlugin):
             Fill(
                 pattern=self._create_pain_of_always_ambient_fill(),
                 trigger_probability=0.65,
-                section_position="start",
+                section_position="end",
             ),
             Fill(
                 pattern=self._create_times_of_grace_tremolo(),
-                trigger_probability=0.6,
-                section_position="end",
+                trigger_probability=0.7,
+                section_position="middle",
             ),
         ]
 
     def _create_atmospheric_tom_roll(self) -> Pattern:
-        """Sparse, resonant tom roll (Neurosis era)."""
+        """Atmospheric tom roll — sparse FLOOR/LOW toms with cymbal_choke sustain."""
         from midi_drums.generation.builders.pattern_builder import (
             PatternBuilder,
         )
 
-        builder = PatternBuilder("roeder_atmospheric_tom")
-        for i in range(8):
-            pos = TIMING.HALF * i
+        builder = PatternBuilder("roeder_atmospheric")
+        # Sparse, resonant FLOOR/LOW tom cascades (atmospheric sludge feel)
+        for i in range(6):
+            pos = TIMING.EIGHTH_TRIPLET * i
+            variant = "FLOOR" if i % 2 == 0 else "LOW"
             builder.tom(
                 pos,
-                "FLOOR",
-                min(VELOCITY.TOM_HEAVY + random.randint(-10, 20), 127),
+                variant,
+                min(VELOCITY.TOM_HEAVY + random.randint(-10, 5), 127),
             )
+        # snare_shallow for sparse atmospheric texture
+        builder.snare_shallow(TIMING.HALF * 3, VELOCITY.SNARE_GHOST + 5)
+        # cymbal_choke(6) for sustained cavernous crash (long sustain)
+        builder.crash_choked(4.0 - TIMING.EIGHTH_TRIPLET, "6")
         return builder.build()
 
     def _create_labyrinthine_fill(self) -> Pattern:
-        """Winding rhythmic motif with RIDE cymbal timekeeping for Neurosis atmosphere."""
+        """Labyrinthine complexity — winding toms across FULL KIT with ride_bell."""
         from midi_drums.generation.builders.pattern_builder import (
             PatternBuilder,
         )
 
         builder = PatternBuilder("roeder_labyrinthine")
-        # Non-linear accent placement
-        builder.kick(0.0, VELOCITY.KICK_HEAVY)
-        builder.tom_edge(
-            TIMING.EIGHTH + TIMING.SIXTEENTH, "4", VELOCITY.TOM_ACCENT
+        # Winding rhythmic motif using all 4 toms (HIGH → MID → LOW → FLOOR)
+        for i in range(8):
+            pos = TIMING.EIGHTH_TRIPLET * i
+            variant = ["HIGH", "MID", "LOW", "FLOOR"][i % 4]
+            builder.tom(pos, variant, VELOCITY.TOM_HEAVY - (i % 3) * 5)
+        # tom_EDGE rimshot with heavy accents for crushing weight
+        builder.tom_edge(TIMING.HALF * 3, "LOW", VELOCITY.TOM_ACCENT)
+        # ride_bell + ride_shaft for atmospheric timekeeping
+        builder.ride_bell(
+            4.0 - TIMING.EIGHTH_TRIPLET, VELOCITY.RIDE_BELL_ACCENT
         )
-        builder.snare(TIMING.HALF, VELOCITY.SNARE_LIGHT)
-        builder.kick(TIMING.DOTTED_EIGHTH * 2, VELOCITY.KICK_NORMAL)
-        # RIDE cymbal timekeeping (Neurosis uses ride for atmospheric wash)
-        builder.pattern.add_beat(
-            TIMING.QUARTER * 3 + TIMING.EIGHTH_TRIPLET,
-            InstrumentRegistry.get("ride_1_tip_hit_softer"),
-            VELOCITY.CHINA_ACCENT - 10,
-        )
-        # CRASH_CHOKED_B for atmospheric swell
-        builder.crash_choked(
-            TIMING.QUARTER * 3 + TIMING.EIGHTH_TRIPLET + TIMING.SIXTEENTH / 2,
-            "B",
-            VELOCITY.CRASH_HEAVY,
-        )
+        builder.ride_shaft(4.0 - TIMING.SIXTEENTH, VELOCITY.RIDE_NORMAL)
         return builder.build()
 
     def _create_crushing_pattern(self) -> Pattern:
-        """Heavy single-hit accents."""
+        """Crushing weight — single heavy hits with tom_FLOOR + cymbal_choke."""
         from midi_drums.generation.builders.pattern_builder import (
             PatternBuilder,
         )
 
         builder = PatternBuilder("roeder_crushing")
-        builder.kick(0.0, min(VELOCITY.KICK_HEAVY + 10, 127))
-        builder.snare(TIMING.HALF * 3, VELOCITY.SNARE_ACCENT)
-        for i in range(4):
-            builder.pattern.add_beat(
-                TIMING.HALF * i,
-                InstrumentRegistry.get("tom_4_open_hit"),
-                min(VELOCITY.TOM_HEAVY + random.randint(-5, 10), 127),
-            )
+        # Only 3-4 hits, each with maximum crushing impact (Roeder's philosophy)
+        builder.tom(0.0, "FLOOR", min(VELOCITY.TOM_HEAVY + 10, 127))
+        builder.snare_rimshot(TIMING.HALF, VELOCITY.SNARE_HEAVY)
+        # tom_EDGE rimshot on FLOOR with massive accent
+        builder.tom_edge(
+            TIMING.HALF * 3, "FLOOR", min(VELOCITY.TOM_HEAVY + 5, 127)
+        )
+        # cymbal_choke(6) for cavernous sustain (long crash tail)
+        builder.crash_choked(4.0 - TIMING.EIGHTH_TRIPLET, "6")
         return builder.build()
 
     def _create_minimal_kit_showcase(self) -> Pattern:
-        """Minimal toms, maximum impact."""
+        """Minimal kit showcase — limited to FLOOR/LOW with crash_choke."""
         from midi_drums.generation.builders.pattern_builder import (
             PatternBuilder,
         )
 
-        builder = PatternBuilder("roeder_minimal_kit")
-        # Single rack + single floor tom setup (per interview)
-        builder.kick(0.0, VELOCITY.KICK_HEAVY)
-        builder.pattern.add_beat(
-            TIMING.HALF, InstrumentRegistry.get("tom_3_open_hit"), VELOCITY.TOM_HEAVY
-        )
-        builder.snare(TIMING.HALF * 3, VELOCITY.SNARE_ACCENT)
-        builder.pattern.add_beat(
-            TIMING.DOTTED_EIGHTH,
-            InstrumentRegistry.get("tom_4_open_hit"),
-            min(VELOCITY.TOM_HEAVY + 5, 127),
-        )
+        builder = PatternBuilder("roeder_minimal")
+        # Only LOW and FLOOR toms (minimal kit for maximum impact)
+        for i in range(4):
+            pos = TIMING.EIGHTH_TRIPLET * i
+            variant = "LOW" if i % 2 == 0 else "FLOOR"
+            builder.tom(
+                pos,
+                variant,
+                min(VELOCITY.TOM_HEAVY + random.randint(-10, 15), 127),
+            )
+        # tom_EDGE rimshot for texture (minimal but devastating)
+        builder.tom_edge(TIMING.HALF * 3, "FLOOR", VELOCITY.TOM_HEAVY)
+        # cymbal_choke(5) for tight atmospheric punctuation
+        builder.crash_choked(4.0 - TIMING.SIXTEENTH, "5")
         return builder.build()
 
     def _create_souls_at_zero_buildup(self) -> Pattern:
-        """Souls at Zero slow-building tension fill (Neurosis era)."""
+        """Souls at Zero buildup — slow-building FLOOR/LOW tension with ride_bell."""
         from midi_drums.generation.builders.pattern_builder import (
             PatternBuilder,
         )
 
-        builder = PatternBuilder("roeder_souls_at_zero_buildup")
-        phases = [
-            (0.0, InstrumentRegistry.get("tom_4_open_hit"), VELOCITY.TOM_ACCENT),
-            (TIMING.HALF, InstrumentRegistry.get("tom_4_open_hit"), VELOCITY.TOM_HEAVY),
-            (
-                TIMING.HALF * 2,
-                None,
-                min(VELOCITY.KICK_HEAVY + random.randint(-5, 10), 127),
-            ),
-            (TIMING.HALF * 3, None, min(VELOCITY.KICK_HEAVY + 5, 127)),
-        ]
-        for offset, inst, vel in phases:
-            if inst is not None:
-                # Map instrument to tom variant
-                inst_name = inst.name if inst else ""
-                if "tom_4" in inst_name:
-                    builder.tom(offset, "FLOOR", vel)
-                elif "tom_3" in inst_name:
-                    builder.tom(offset, "MID", vel)
-                else:
-                    builder.tom(offset, "MID", vel)
-            else:
-                builder.kick(offset, vel)
-        builder.snare(
-            TIMING.HALF * 4 - TIMING.SIXTEENTH,
-            min(VELOCITY.SNARE_ACCENT + 15, 127),
+        builder = PatternBuilder("roeder_souls_zero")
+        # Slow-building tom tension through LOW → FLOOR (Neurosis-era build)
+        for i in range(8):
+            pos = TIMING.EIGHTH_TRIPLET * i
+            variant = "LOW" if i < 4 else "FLOOR"
+            vel = VELOCITY.TOM_NORMAL + (i // 2) * 5  # Gradual velocity swell
+            builder.tom(pos, variant, min(vel, 127))
+        # snare_shallow for atmospheric texture
+        builder.snare_shallow(TIMING.HALF * 3, VELOCITY.SNARE_GHOST + 5)
+        # ride_bell + cymbal_choke layering (atmospheric punctuation)
+        builder.ride_bell(
+            4.0 - TIMING.EIGHTH_TRIPLET, VELOCITY.RIDE_BELL_ACCENT
         )
+        builder.crash_choked(4.0 - TIMING.SIXTEENTH, "5")
         return builder.build()
 
     def _create_wounds_sludge_interlock(self) -> Pattern:
-        """Wounds-era heavy tom-to-kick interlock."""
+        """Wounds sludge interlock — heavy FLOOR/kick with tom_EDGE rimshots."""
         from midi_drums.generation.builders.pattern_builder import (
             PatternBuilder,
         )
 
-        builder = PatternBuilder("roeder_wounds_sludge")
-        interlock = [
-            (0.0, InstrumentRegistry.get("tom_4_open_hit"), VELOCITY.TOM_HEAVY),
-            (TIMING.HALF, "KICK", VELOCITY.KICK_HEAVY),
-            (
-                TIMING.HALF * 2,
-                InstrumentRegistry.get("tom_3_open_hit"),
-                min(VELOCITY.TOM_HEAVY + random.randint(-5, 10), 127),
-            ),
-            (TIMING.HALF * 3, "KICK", min(VELOCITY.KICK_HEAVY + 8, 127)),
-        ]
-        for offset, inst_or_name, vel in interlock:
-            if inst_or_name == "KICK":
-                builder.kick(offset, vel)
+        builder = PatternBuilder("roeder_wounds")
+        # Heavy FLOOR toms locking with kick (sludge metal interlock)
+        for i in range(6):
+            pos = TIMING.EIGHTH_TRIPLET * i
+            if i % 2 == 0:
+                builder.kick(pos, VELOCITY.KICK_HEAVY)
+                builder.tom(pos, "FLOOR", VELOCITY.TOM_HEAVY)
             else:
-                builder.pattern.add_beat(offset, inst_or_name, min(vel, 127))
-        builder.crash(
-            TIMING.HALF * 3 + TIMING.EIGHTH_TRIPLET, VELOCITY.CRASH_HEAVY
+                builder.tom(
+                    pos, "LOW", VELOCITY.TOM_NORMAL + random.randint(-5, 10)
+                )
+        # tom_EDGE rimshot for crushing weight
+        builder.tom_edge(
+            TIMING.HALF * 3, "FLOOR", min(VELOCITY.TOM_ACCENT, 127)
         )
+        # cymbal_choke(6) cavernous resolution
+        builder.crash_choked(4.0 - TIMING.SIXTEENTH, "6")
         return builder.build()
 
     def _create_pain_of_always_ambient_fill(self) -> Pattern:
-        """Pain of Always ambient pad with sparse RIDE wash."""
+        """Pain of Always ambient pad — sustained cymbal with sparse hits."""
         from midi_drums.generation.builders.pattern_builder import (
             PatternBuilder,
         )
 
-        builder = PatternBuilder("roeder_pain_of_always_ambient")
-        # Sparse RIDE cymbal timekeeping (replaces generic HH for atmosphere)
-        for i in range(4):
-            pos = TIMING.HALF * i
-            builder.pattern.add_beat(
-                pos, InstrumentRegistry.get("ride_1_tip_hit_softer"), VELOCITY.CHINA_ACCENT - 10
-            )
-        builder.tom(
-            TIMING.EIGHTH_TRIPLET,
-            InstrumentRegistry.get("tom_4_open_hit"),
-            VELOCITY.TOM_LIGHT,
-        )
-        builder.tom(
-            TIMING.HALF * 3 + TIMING.EIGHTH_TRIPLET,
-            InstrumentRegistry.get("tom_3_open_hit"),
-            VELOCITY.TOM_ACCENT,
-        )
-        # CRASH_CHOKED_A for cavernous cutoff
-        builder.crash_choked(
-            TIMING.DOTTED_EIGHTH, "A", min(VELOCITY.CRASH_HEAVY - 10, 127)
-        )
+        builder = PatternBuilder("roeder_ambient")
+        # Only 3-4 sparse hits (atmospheric ambient pad approach)
+        builder.tom(0.0, "FLOOR", VELOCITY.TOM_HEAVY + random.randint(-5, 10))
+        # snare_shallow for atmospheric texture (sparse but intentional)
+        builder.snare_shallow(TIMING.HALF, VELOCITY.SNARE_GHOST + 5)
+        # ride_bell + ride_shaft for sustained atmospheric timekeeping
+        builder.ride_bell(TIMING.HALF * 3, VELOCITY.RIDE_BELL_ACCENT)
+        builder.ride_shaft(4.0 - TIMING.EIGHTH_TRIPLET, VELOCITY.RIDE_NORMAL)
+        # cymbal_choke(6) for cavernous sustain (long crash tail)
+        builder.crash_choked(4.0 - TIMING.SIXTEENTH, "6")
         return builder.build()
 
     def _create_times_of_grace_tremolo(self) -> Pattern:
-        """Times of Grace double-kick tremolo into cavernous toms."""
+        """Times of Grace tremolo — double-kick tremolo into cavernous toms."""
         from midi_drums.generation.builders.pattern_builder import (
             PatternBuilder,
         )
 
-        builder = PatternBuilder("roeder_times_of_grace_tremolo")
-        for i in range(16):
-            pos = TIMING.THIRTY_SECOND * i
+        builder = PatternBuilder("roeder_tremolo")
+        # Double-kick tremolo (fast, mechanical precision like doom metal)
+        for i in range(8):
+            pos = TIMING.EIGHTH_TRIPLET * i
             builder.kick(
                 pos, min(VELOCITY.KICK_HEAVY + random.randint(-5, 10), 127)
             )
+        # Cavernous FLOOR/LOW toms with tom_EDGE texture
         for i in range(4):
-            pos = TIMING.HALF * i
-            inst = "FLOOR" if i < 2 else "MID"
-            builder.tom(pos, inst, min(VELOCITY.TOM_HEAVY + (i * 5), 127))
+            pos = TIMING.HALF + TIMING.EIGHTH_TRIPLET * i
+            variant = "FLOOR" if i < 2 else "LOW"
+            builder.tom_edge(pos, variant, VELOCITY.TOM_HEAVY)
+        # cymbal_choke(6) cavernous punctuation (long crash sustain)
+        builder.crash_choked(TIMING.HALF * 3 + TIMING.EIGHTH_TRIPLET, "6")
         return builder.build()
-
-
-# backward-compat alias for existing test imports
-RoederPluginRefactored = RoederPlugin

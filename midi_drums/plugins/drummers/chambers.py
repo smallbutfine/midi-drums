@@ -1,13 +1,13 @@
-"""Dennis Chambers drummer plugin - refactored using composable modifications.
+"""Dennis Chambers drummer plugin - funk mastery using full AD2 vocabulary.
 
-Reduced from ~381 lines to ~70 lines (82% reduction) by using the
-DrummerModification system instead of manual pattern manipulation.
+Fills now use snare_side_stick for ghost-note punctuation, tight_hh for
+tight hi-hat textures, ride_bell for syncopated accents, and tom variations
+across the full kit to match his Sugar Hill / P-Funk sound.
 """
 
 import random
 
 from midi_drums.config import TIMING, VELOCITY
-from midi_drums.core.models.kit import InstrumentRegistry
 from midi_drums.core.models.pattern import Pattern
 from midi_drums.core.models.song import Fill
 from midi_drums.modifications import (
@@ -28,12 +28,6 @@ class ChambersPlugin(DrummerPlugin):
     - Ghost note layers for deep funk texture
     - Fast triplet chops for technical display
     - Slightly behind the beat for laid-back feel
-
-    Implemented using composable modifications:
-    - BehindBeatTiming: Subtle laid-back feel
-    - FastChopsTriplets: Technical triplet fills
-    - GhostNoteLayer: Deep ghost note texture
-    - PocketStretching: Subtle timing variations for groove
     """
 
     def __init__(self):
@@ -63,17 +57,11 @@ class ChambersPlugin(DrummerPlugin):
         return styled
 
     def get_signature_fills(self) -> list[Fill]:
-        """Return Dennis Chambers' signature fill patterns.
+        """Return Dennis Chambers' signature fill patterns using full AD2 kit.
 
-        Verified via Sugar Hill, P-Funk, Santana career and documented recordings:
-          - P-Funk groove: heavy downbeat + syncopated kick (Parliament)
-          - Fast chops: bass-drum triplets + snare hand-chops
-          - Pocket stretch: timing ahead/behind for pocket tension
-          - Fusion showcase: complex but musical cross-stick pattern
-          - Santana Latin pocket: clave-influenced groove fill
-          - Funky Drummer double-kick syncopation (P-Funk era)
-          - Ghost-note tom fills: funk-tom vocabulary with ghost notes
-          - Pocket funk one-drop: reggae-funk hybrid with deep pocket
+        Uses snare_side_stick for ghost-note punctuation, tight_hh for tight
+        hi-hat textures, ride_bell for syncopated accents, and tom variations
+        across the full kit — matching his Sugar Hill / P-Funk / Santana sound.
         """
         return [
             Fill(
@@ -102,8 +90,8 @@ class ChambersPlugin(DrummerPlugin):
                 section_position="start",
             ),
             Fill(
-                pattern=self._create_funky_drummer_double_kick(),
-                trigger_probability=0.8,
+                pattern=self._create_funky_drummer_fill(),
+                trigger_probability=0.85,
                 section_position="middle",
             ),
             Fill(
@@ -119,221 +107,166 @@ class ChambersPlugin(DrummerPlugin):
         ]
 
     def _create_pfunk_groove(self) -> Pattern:
-        """Parliament-Funkadelic groove showcase."""
+        """P-Funk groove — heavy downbeat with syncopated kicks + snare side stick."""
         from midi_drums.generation.builders.pattern_builder import (
             PatternBuilder,
         )
 
-        builder = PatternBuilder("chambers_pfunk_groove")
-        builder.kick(0.0, 125)
-        builder.snare(TIMING.QUARTER, VELOCITY.SNARE_HEAVY)
-        builder.kick(TIMING.DOTTED_EIGHTH, VELOCITY.KICK_HEAVY)
-        builder.kick(TIMING.HALF + TIMING.EIGHTH_TRIPLET, VELOCITY.KICK_NORMAL)
-        builder.kick(TIMING.QUARTER * 2 + TIMING.EIGHTH, VELOCITY.KICK_HEAVY)
-        # Tight HH for funk pocket depth (vs generic CLOSED_HH)
-        for i in range(8):
-            pos = i * TIMING.EIGHTH
-            open_flag = i % 4 in [1, 3]
-            velocity = 75 + random.randint(-5, 8)
-            builder.pattern.add_beat(
-                pos,
-                (
-                    InstrumentRegistry.get("hihat_open_a")
-                    if open_flag
-                    else InstrumentRegistry.get("hihat_closed_1_tip_closed_1_hit")
-                ),
-                velocity,
-            )
-        # SNARE_RIMSHOT on backbeat for funk cut-through in dense mixes
-        builder.snare(TIMING.QUARTER, VELOCITY.SNARE_RIMSHOT)
+        builder = PatternBuilder("chambers_pfunk")
+        # Heavy kick on 1 with syncopated ghost notes
+        builder.kick(0.0, VELOCITY.KICK_HEAVY)
+        builder.kick(TIMING.QUARTER * 1.5, VELOCITY.KICK_NORMAL)
+        builder.kick(TIMING.HALF * 3 - TIMING.SIXTEENTH, VELOCITY.KICK_HEAVY)
+        # Snare side stick ghost-note accents
+        builder.snare(TIMING.QUARTER, VELOCITY.SNARE_ACCENT)
+        builder.snare_side_stick(
+            TIMING.HALF + TIMING.EIGHTH_TRIPLET, VELOCITY.SNARE_GHOST
+        )
+        # Tight hi-hat for tight pocket feel
+        builder.tight_hh(TIMING.EIGHTH * 3, VELOCITY.HIHAT_NORMAL)
         return builder.build()
 
     def _create_fast_chops_showcase(self) -> Pattern:
-        """Fast chops and triplets showcase."""
+        """Fast chops showcase — triplet snare side sticks + tom variations."""
         from midi_drums.generation.builders.pattern_builder import (
             PatternBuilder,
         )
 
         builder = PatternBuilder("chambers_fast_chops")
-        builder.kick(0.0, VELOCITY.KICK_HEAVY)
-        builder.snare(TIMING.QUARTER, VELOCITY.SNARE_HEAVY)
-        # Bass-drum triplets on beat 2
-        for i in range(3):
-            pos = TIMING.EIGHTH_TRIPLET + i * (TIMING.EIGHTH_TRIPLET / 3)
-            builder.kick(pos, VELOCITY.KICK_NORMAL + i * 3)
-        # Snare hand-chops before beat 3
-        for i in range(4):
-            builder.snare(
-                TIMING.QUARTER * 2 + i * TIMING.SIXTEENTH,
-                VELOCITY.SNARE_LIGHT + random.randint(0, 10),
+        # Rapid snare side stick ghost notes (Chambers' technical chops)
+        for i in range(12):
+            pos = TIMING.EIGHTH_TRIPLET * i
+            builder.snare_side_stick(
+                pos, VELOCITY.SNARE_GHOST + random.randint(-5, 8)
             )
+        # Tom accents across MID and FLOOR
+        builder.tom(TIMING.HALF * 3, "MID", VELOCITY.TOM_ACCENT)
+        builder.tom(
+            TIMING.HALF * 3 + TIMING.EIGHTH_TRIPLET, "FLOOR", VELOCITY.TOM_HEAVY
+        )
+        # Tight hi-hat resolution
+        builder.tight_hh(4.0, open=True, velocity=VELOCITY.HIHAT_NORMAL + 5)
         return builder.build()
 
     def _create_pocket_stretch_demo(self) -> Pattern:
-        """In/out of pocket demonstration."""
+        """Pocket stretch demo — snare rimshot accents + tom edge fills."""
         from midi_drums.generation.builders.pattern_builder import (
             PatternBuilder,
         )
 
         builder = PatternBuilder("chambers_pocket_stretch")
-        builder.kick(0.0, VELOCITY.KICK_NORMAL)
-        # Snare on beat 1 (normal timing for this builder)
-        builder.snare(TIMING.QUARTER, VELOCITY.SNARE_HEAVY)
-        builder.kick(TIMING.HALF + TIMING.EIGHTH, VELOCITY.KICK_NORMAL)
-        # Snare on beat 3 (normal timing)
-        builder.snare(TIMING.HALF * 3, VELOCITY.SNARE_HEAVY - 5)
-        for i in range(8):
-            builder.hihat(i * TIMING.EIGHTH, VELOCITY.HIHAT_LIGHT)
+        # Pocket-focused with snare rimshot accents
+        builder.kick(0.0, VELOCITY.KICK_HEAVY)
+        builder.snare_rimshot(TIMING.QUARTER, VELOCITY.SNARE_RIMSHOT)
+        builder.tom(TIMING.HALF, "MID", VELOCITY.TOM_NORMAL)
+        builder.snare_rimshot(TIMING.HALF * 3, VELOCITY.SNARE_RIMSHOT)
+        # FLOOR tom edge hit for low-end punch
+        builder.tom_edge(4.0 - TIMING.SIXTEENTH, "FLOOR", VELOCITY.TOM_HEAVY)
         return builder.build()
 
     def _create_fusion_technical_showcase(self) -> Pattern:
-        """Fusion technical showcase."""
+        """Fusion technical showcase — cross-stick snare + ride_bell accents."""
         from midi_drums.generation.builders.pattern_builder import (
             PatternBuilder,
         )
 
         builder = PatternBuilder("chambers_fusion_technical")
-        builder.kick(0.0, VELOCITY.KICK_NORMAL)
-        builder.snare(TIMING.EIGHTH_TRIPLET, VELOCITY.SNARE_LIGHT)
-        builder.kick(TIMING.EIGHTH_TRIPLET * 2, VELOCITY.KICK_HEAVY)
-        builder.snare(TIMING.HALF, VELOCITY.SNARE_HEAVY)
-        builder.pattern.add_beat(
-            TIMING.HALF + TIMING.SIXTEENTH,
-            InstrumentRegistry.get("tom_3_open_hit"),
-            VELOCITY.TOM_NORMAL,
+        # Cross-stick / side stick for fusion texture
+        builder.snare_side_stick(0.0, VELOCITY.SNARE_GHOST)
+        builder.snare(TIMING.EIGHTH_TRIPLET * 2, VELOCITY.SNARE_NORMAL)
+        builder.tom(TIMING.HALF, "MID", VELOCITY.TOM_NORMAL)
+        # Ride bell accent for fusion punctuation
+        builder.ride_bell(
+            TIMING.HALF + TIMING.EIGHTH_TRIPLET, VELOCITY.RIDE_BELL_ACCENT
         )
-        builder.kick(TIMING.DOTTED_EIGHTH, VELOCITY.KICK_NORMAL)
-        builder.pattern.add_beat(
-            TIMING.HALF + TIMING.EIGHTH * 2,
-            InstrumentRegistry.get("tom_4_open_hit"),
-            VELOCITY.TOM_HEAVY,
-        )
-        builder.snare(TIMING.QUARTER * 4, VELOCITY.SNARE_ACCENT)
+        builder.snare(TIMING.HALF * 3, VELOCITY.SNARE_ACCENT)
+        builder.ride_bell(4.0, VELOCITY.RIDE_ACCENT)
         return builder.build()
 
     def _create_santana_latin_pocket(self) -> Pattern:
-        """Santana touring Latin pocket groove.
-
-        Chambers' tenure with Santana showcased his ability to play deep Latin
-        pocket grooves with clave-influenced syncopation. Simulated with
-        off-beat kick patterns and tight ghost-note snare work.
-        """
+        """Santana Latin pocket — tom_1 open + tight HH with crash accents."""
         from midi_drums.generation.builders.pattern_builder import (
             PatternBuilder,
         )
 
         builder = PatternBuilder("chambers_santana_latin")
-        # Clave-influenced syncopated kick pattern
-        builder.kick(0.0, VELOCITY.KICK_HEAVY)
-        builder.kick(TIMING.EIGHTH + TIMING.SIXTEENTH, VELOCITY.KICK_NORMAL)
-        builder.kick(TIMING.HALF + TIMING.EIGHTH_TRIPLET, VELOCITY.KICK_HEAVY)
-        builder.kick(TIMING.HALF * 3 + TIMING.SIXTEENTH, VELOCITY.KICK_LIGHT)
-        # Tight snare ghost notes
-        builder.snare(TIMING.QUARTER, VELOCITY.SNARE_HEAVY)
+        # Latin-influenced tom pattern
+        builder.tom(0.0, "1", VELOCITY.TOM_NORMAL)
+        builder.snare(TIMING.QUARTER, VELOCITY.SNARE_ACCENT)
+        builder.tom(TIMING.HALF, "MID", VELOCITY.TOM_HEAVY)
+        # Tight hi-hat with open variation for Latin feel
+        builder.tight_hh(TIMING.HALF + TIMING.EIGHTH_TRIPLET, open=True)
         builder.snare(TIMING.HALF * 3, VELOCITY.SNARE_NORMAL)
-        for i in range(1, 8):
-            pos = TIMING.EIGHTH * i
-            if random.random() < 0.65:
-                builder.pattern.add_beat(
-                    pos,
-                    InstrumentRegistry.get("snare_sticks"),
-                    VELOCITY.SNARE_GHOST + random.randint(0, 12),
-                )
+        # Crash_4 accent for Latin punctuation
+        builder.crash(4.0 - TIMING.SIXTEENTH, "4")
         return builder.build()
 
-    def _create_funky_drummer_double_kick(self) -> Pattern:
-        """Funky Drummer double-kick syncopation (P-Funk era).
-
-        Chambers' P-Funk work features double-kick patterns that lock with the
-        bass guitar — tight, syncopated, and deeply in the pocket.
-        """
+    def _create_funky_drummer_fill(self) -> Pattern:
+        """Funky Drummer double-kick syncopation with full-tom fills."""
         from midi_drums.generation.builders.pattern_builder import (
             PatternBuilder,
         )
 
-        builder = PatternBuilder("chambers_funky_drummer_kick")
-        # Double-kick pattern synced with bass-guitar feel
-        kick_pattern = [
-            (0.0, VELOCITY.KICK_HEAVY),  # The one
-            (TIMING.EIGHTH + TIMING.SIXTEENTH, VELOCITY.KICK_NORMAL),
-            (TIMING.HALF, VELOCITY.KICK_HEAVY),  # Half-note syncopation
-            (TIMING.HALF + TIMING.EIGHTH_TRIPLET, VELOCITY.KICK_LIGHT),
-            (TIMING.HALF * 3, VELOCITY.KICK_NORMAL),
-        ]
-        for offset, vel in kick_pattern:
-            builder.kick(offset, min(vel, 127))
-        # Backbeat
-        builder.snare(TIMING.QUARTER, VELOCITY.SNARE_HEAVY)
-        builder.snare(TIMING.HALF * 3, VELOCITY.SNARE_HEAVY)
+        builder = PatternBuilder("chambers_funky_drummer")
+        # Double bass approach (Chambers' P-Funk era technique)
+        builder.kick(0.0, VELOCITY.KICK_HEAVY)
+        builder.kick(TIMING.EIGHTH_TRIPLET * 2, VELOCITY.KICK_NORMAL)
+        builder.kick(TIMING.HALF + TIMING.EIGHTH_TRIPLET, VELOCITY.KICK_HEAVY)
+        # Tom fills across MID and FLOOR
+        for i in range(4):
+            pos = TIMING.QUARTER * 2 + i * TIMING.SIXTEENTH
+            variant = "MID" if i % 2 == 0 else "FLOOR"
+            builder.tom(pos, variant, VELOCITY.TOM_HEAVY - (i * 3))
+        # Snare side stick resolution
+        builder.snare_side_stick(4.0, VELOCITY.SNARE_GHOST)
         return builder.build()
 
     def _create_ghost_note_tom_fills(self) -> Pattern:
-        """Ghost-note tom fills with funk-tom vocabulary.
-
-        Chambers' signature approach to tom fills: dense ghost notes on the
-        rim/edge of toms creating a rolling texture, with accent hits punctuating
-        the pattern. Derived from his P-Funk and Funkadelic work.
-        """
+        """Ghost-note tom fills — tight HH + snare side stick ghost notes."""
         from midi_drums.generation.builders.pattern_builder import (
             PatternBuilder,
         )
 
-        builder = PatternBuilder("chambers_ghost_tom_fills")
-        # Rolling tom ghosts with accent punctuation
-        for i in range(16):
-            pos = TIMING.SIXTEENTH * i
-            if i % 4 == 0:
-                # Accent hit on floor tom
-                builder.tom(
-                    pos,
-                    InstrumentRegistry.get("tom_4_open_hit"),
-                    VELOCITY.TOM_HEAVY + random.randint(-5, 10),
-                )
-            elif i % 2 == 0:
-                # Ghost note on mid tom
-                builder.pattern.add_beat(
-                    pos,
-                    InstrumentRegistry.get("tom_3_open_hit"),
-                    VELOCITY.SNARE_GHOST + random.randint(0, 8),
+        builder = PatternBuilder("chambers_ghost_tom")
+        # Tight hi-hat base (Chambers' tight pocket feel)
+        for i in range(8):
+            pos = TIMING.EIGHTH * i
+            if i % 2 == 0:
+                builder.tight_hh(
+                    pos, open=False, velocity=VELOCITY.HIHAT_NORMAL - 5
                 )
             else:
-                # Rim/edge ghost on mid tom
-                builder.tom_edge(
-                    pos,
-                    "MID",
-                    VELOCITY.SNARE_GHOST + random.randint(-3, 5),
+                builder.tight_hh(
+                    pos, open=True, velocity=VELOCITY.HIHAT_NORMAL + 3
                 )
+        # Snare side stick ghost notes between toms
+        builder.snare_side_stick(TIMING.QUARTER, VELOCITY.SNARE_GHOST)
+        builder.snare(TIMING.HALF, VELOCITY.SNARE_ACCENT)
+        # Tom accents across MID and FLOOR
+        builder.tom(
+            TIMING.HALF + TIMING.EIGHTH_TRIPLET, "MID", VELOCITY.TOM_HEAVY
+        )
+        builder.tom(TIMING.HALF * 3, "FLOOR", VELOCITY.TOM_HEAVY - 3)
         return builder.build()
 
     def _create_pocket_funk_one_drop(self) -> Pattern:
-        """Pocket funk one-drop (reggae-funk hybrid).
-
-        Chambers' reggae/funk crossover work features the classic "one-drop"
-        where the kick hits on beat 1 and the snare lands subtly — deep pocket,
-        minimal but powerful. Derived from his reggae-influenced P-Funk grooves.
-        """
+        """Pocket funk one-drop — snare_shallow texture + ride_bell work."""
         from midi_drums.generation.builders.pattern_builder import (
             PatternBuilder,
         )
 
-        builder = PatternBuilder("chambers_pocket_one_drop")
-        # One-drop feel: kick on 1, snare ghosted
+        builder = PatternBuilder("chambers_one_drop")
+        # Reggae-funk hybrid (one-drop feel with pocket groove)
         builder.kick(0.0, VELOCITY.KICK_HEAVY)
-        # Minimal snare (mostly ghost notes)
-        builder.snare(TIMING.HALF * 3, VELOCITY.SNARE_LIGHT)
-        for i in range(1, 8):
-            pos = TIMING.EIGHTH * i
-            if random.random() < 0.5:
-                builder.pattern.add_beat(
-                    pos,
-                    InstrumentRegistry.get("snare_sticks"),
-                    VELOCITY.SNARE_GHOST + random.randint(0, 10),
-                )
-        # Tight closed hi-hat
-        for i in range(8):
-            builder.hihat(TIMING.EIGHTH * i, VELOCITY.HIHAT_LIGHT)
+        # Snare shallow for textural variation
+        builder.snare_shallow(TIMING.HALF * 3, VELOCITY.SNARE_GHOST + 5)
+        # Ride bell accents for funk texture
+        builder.ride_bell(TIMING.QUARTER, VELOCITY.RIDE_BELL_ACCENT)
+        builder.ride_bell(
+            TIMING.HALF + TIMING.EIGHTH_TRIPLET, VELOCITY.RIDE_BELL_ACCENT - 5
+        )
+        # Tom accents on MID and FLOOR
+        builder.tom(
+            TIMING.HALF * 3 + TIMING.SIXTEENTH, "MID", VELOCITY.TOM_NORMAL
+        )
         return builder.build()
-
-
-# backward-compat alias for existing test imports
-ChambersPluginRefactored = ChambersPlugin

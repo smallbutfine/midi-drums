@@ -9,10 +9,10 @@ genre plugins named in issue #1: metal, rock, jazz, funk.
 
 import pytest
 
-from midi_drums.core.models.pattern import Pattern
 from midi_drums.core.models.kit import (
     InstrumentRegistry,
 )
+from midi_drums.core.models.pattern import Pattern
 from midi_drums.core.value_objects.generation_parameters import (
     GenerationParameters,
 )
@@ -27,14 +27,16 @@ from midi_drums.plugins.interfaces.genre_plugin import GenrePlugin
 # Includes standard hi-hat + AD2 tight HH variants (funk styles replace CLOSED_HH
 # with TIGHT_HH_A/B/C during pattern generation for timbral variety).
 # Mirrors _HIHAT_INSTRUMENTS in genre_plugin.py
-HIHAT_INSTRUMENTS = frozenset([
-    InstrumentRegistry.get("hihat_closed_1_tip_closed_1_hit"),
-    InstrumentRegistry.get("hihat_closed_bell"),
-    InstrumentRegistry.get("hihat_closed_2_tip_closed_2_hit"),
-    InstrumentRegistry.get("hihat_open_a"),
-    InstrumentRegistry.get("hihat_closed_1_shaft_closed_1_hit_dbl"),
-    InstrumentRegistry.get("hihat_closed_2_shaft_closed_2_hit_dbl"),
-])
+HIHAT_INSTRUMENTS = frozenset(
+    [
+        InstrumentRegistry.get("hihat_closed_1_tip_closed_1_hit"),
+        InstrumentRegistry.get("hihat_closed_bell"),
+        InstrumentRegistry.get("hihat_closed_2_tip_closed_2_hit"),
+        InstrumentRegistry.get("hihat_open_a"),
+        InstrumentRegistry.get("hihat_closed_1_shaft_closed_1_hit_dbl"),
+        InstrumentRegistry.get("hihat_closed_2_shaft_closed_2_hit_dbl"),
+    ]
+)
 
 # Genres/styles whose verse and chorus patterns use hi-hat exclusively for
 # timekeeping at baseline (no genre-authentic ride usage to preserve).
@@ -110,7 +112,9 @@ class TestHihatToRideSwitching:
         )
         pattern = plugin.generate_pattern("chorus", params)
         pedal_inst = InstrumentRegistry.get("hihat_pedal_closed")
-        pedal_beats = [beat for beat in pattern.beats if beat.instrument == pedal_inst]
+        pedal_beats = [
+            beat for beat in pattern.beats if beat.instrument == pedal_inst
+        ]
 
         assert pedal_beats
         # Pedal chick lands on beats 2 and 4 of each bar.
@@ -137,9 +141,9 @@ class TestHihatToRideSwitching:
             ride_threshold=0.95,
         )
         stays_hihat = plugin.generate_pattern("verse", high_threshold)
-        assert InstrumentRegistry.get("ride_1_tip_hit_softer") not in _instruments(
-            stays_hihat
-        )
+        assert InstrumentRegistry.get(
+            "ride_1_tip_hit_softer"
+        ) not in _instruments(stays_hihat)
 
 
 @pytest.mark.unit
@@ -152,7 +156,9 @@ def test_jazz_verse_already_riding_is_left_untouched():
     params = GenerationParameters(genre="jazz", style="swing", complexity=0.5)
     pattern = plugin.generate_pattern("verse", params)
 
-    assert InstrumentRegistry.get("ride_1_tip_hit_softer") in _instruments(pattern)
+    assert InstrumentRegistry.get("ride_1_tip_hit_softer") in _instruments(
+        pattern
+    )
 
 
 @pytest.mark.unit
@@ -165,7 +171,9 @@ def test_all_genres_chorus_uses_ride(plugin_cls, style):
     )
     pattern = plugin.generate_pattern("chorus", params)
 
-    assert InstrumentRegistry.get("ride_1_tip_hit_softer") in _instruments(pattern)
+    assert InstrumentRegistry.get("ride_1_tip_hit_softer") in _instruments(
+        pattern
+    )
 
 
 class _StubGenrePlugin(GenrePlugin):
@@ -204,9 +212,15 @@ class TestApplyRideHihatLogicEdgeCases:
 
     def test_pedal_positions_respect_non_4_4_time_signature(self):
         pattern = Pattern(name="waltz", time_signature=TimeSignature(3, 4))
-        pattern.add_beat(0.0, InstrumentRegistry.get("hihat_closed_1_tip_closed_1_hit"))
-        pattern.add_beat(1.0, InstrumentRegistry.get("hihat_closed_1_tip_closed_1_hit"))
-        pattern.add_beat(2.0, InstrumentRegistry.get("hihat_closed_1_tip_closed_1_hit"))
+        pattern.add_beat(
+            0.0, InstrumentRegistry.get("hihat_closed_1_tip_closed_1_hit")
+        )
+        pattern.add_beat(
+            1.0, InstrumentRegistry.get("hihat_closed_1_tip_closed_1_hit")
+        )
+        pattern.add_beat(
+            2.0, InstrumentRegistry.get("hihat_closed_1_tip_closed_1_hit")
+        )
 
         plugin = _StubGenrePlugin()
         params = GenerationParameters(genre="stub")
@@ -256,15 +270,16 @@ class TestApplyRideHihatLogicEdgeCases:
 
         instruments = _instruments(result)
         assert InstrumentRegistry.get("cymbal_1_hit") in instruments
-        assert InstrumentRegistry.get("ride_1_tip_hit_softer") not in instruments
+        assert (
+            InstrumentRegistry.get("ride_1_tip_hit_softer") not in instruments
+        )
 
     def test_default_high_energy_timekeeper_is_ride(self):
         plugin = _StubGenrePlugin()
         params = GenerationParameters(genre="stub")
-        assert (
-            plugin._high_energy_timekeeper("chorus", params)
-            == InstrumentRegistry.get("ride_1_tip_hit_softer")
-        )
+        assert plugin._high_energy_timekeeper(
+            "chorus", params
+        ) == InstrumentRegistry.get("ride_1_tip_hit_softer")
 
 
 @pytest.mark.unit
@@ -279,10 +294,9 @@ class TestGenreSpecificHighEnergyTimekeeper:
     def test_rock_high_energy_styles_use_crash(self, style):
         plugin = RockGenrePlugin()
         params = GenerationParameters(genre="rock", style=style, complexity=0.5)
-        assert (
-            plugin._high_energy_timekeeper("chorus", params)
-            == InstrumentRegistry.get("cymbal_1_hit")
-        )
+        assert plugin._high_energy_timekeeper(
+            "chorus", params
+        ) == InstrumentRegistry.get("cymbal_1_hit")
 
     @pytest.mark.parametrize(
         "style", ["classic", "blues", "alternative", "progressive", "pop"]
@@ -290,10 +304,9 @@ class TestGenreSpecificHighEnergyTimekeeper:
     def test_rock_other_styles_default_to_ride(self, style):
         plugin = RockGenrePlugin()
         params = GenerationParameters(genre="rock", style=style, complexity=0.5)
-        assert (
-            plugin._high_energy_timekeeper("chorus", params)
-            == InstrumentRegistry.get("ride_1_tip_hit_softer")
-        )
+        assert plugin._high_energy_timekeeper(
+            "chorus", params
+        ) == InstrumentRegistry.get("ride_1_tip_hit_softer")
 
     @pytest.mark.parametrize("style", ["thrash", "death"])
     def test_metal_high_energy_styles_use_china(self, style):
@@ -301,10 +314,9 @@ class TestGenreSpecificHighEnergyTimekeeper:
         params = GenerationParameters(
             genre="metal", style=style, complexity=0.5
         )
-        assert (
-            plugin._high_energy_timekeeper("chorus", params)
-            == InstrumentRegistry.get("cymbal_5_hit")
-        )
+        assert plugin._high_energy_timekeeper(
+            "chorus", params
+        ) == InstrumentRegistry.get("cymbal_5_hit")
 
     @pytest.mark.parametrize(
         "style", ["heavy", "power", "progressive", "doom", "breakdown"]
@@ -314,10 +326,9 @@ class TestGenreSpecificHighEnergyTimekeeper:
         params = GenerationParameters(
             genre="metal", style=style, complexity=0.5
         )
-        assert (
-            plugin._high_energy_timekeeper("chorus", params)
-            == InstrumentRegistry.get("ride_1_tip_hit_softer")
-        )
+        assert plugin._high_energy_timekeeper(
+            "chorus", params
+        ) == InstrumentRegistry.get("ride_1_tip_hit_softer")
 
     def test_rock_hard_style_promotes_hihat_to_crash_via_full_pipeline(self):
         plugin = RockGenrePlugin()
@@ -333,7 +344,9 @@ class TestGenreSpecificHighEnergyTimekeeper:
 
         instruments = _instruments(result)
         assert InstrumentRegistry.get("cymbal_1_hit") in instruments
-        assert InstrumentRegistry.get("ride_1_tip_hit_softer") not in instruments
+        assert (
+            InstrumentRegistry.get("ride_1_tip_hit_softer") not in instruments
+        )
 
     def test_metal_death_style_promotes_hihat_to_china_via_full_pipeline(self):
         plugin = MetalGenrePlugin()
@@ -349,4 +362,6 @@ class TestGenreSpecificHighEnergyTimekeeper:
 
         instruments = _instruments(result)
         assert InstrumentRegistry.get("cymbal_5_hit") in instruments
-        assert InstrumentRegistry.get("ride_1_tip_hit_softer") not in instruments
+        assert (
+            InstrumentRegistry.get("ride_1_tip_hit_softer") not in instruments
+        )

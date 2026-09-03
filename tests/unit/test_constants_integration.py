@@ -5,8 +5,8 @@ and can be used to replace magic numbers throughout the codebase.
 """
 
 from midi_drums.config import DEFAULTS, TIMING, VELOCITY
-from midi_drums.core.models.pattern import Beat
 from midi_drums.core.models.kit import InstrumentRegistry
+from midi_drums.core.models.pattern import Beat
 
 
 def test_velocity_constants():
@@ -66,7 +66,10 @@ def test_default_constants():
 
     assert DEFAULTS.TEMPO_DEFAULT >= 60 and DEFAULTS.TEMPO_DEFAULT <= 300
     assert DEFAULTS.COMPLEXITY_DEFAULT >= 0 and DEFAULTS.COMPLEXITY_DEFAULT <= 1
-    assert DEFAULTS.HUMANIZATION_DEFAULT >= 0 and DEFAULTS.HUMANIZATION_DEFAULT <= 1
+    assert (
+        DEFAULTS.HUMANIZATION_DEFAULT >= 0
+        and DEFAULTS.HUMANIZATION_DEFAULT <= 1
+    )
 
     print("  [OK] Default constants are in valid range")
 

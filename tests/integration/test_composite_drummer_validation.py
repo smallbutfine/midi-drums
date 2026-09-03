@@ -1,9 +1,7 @@
 """Tests for composite drummer plugins."""
 
-
 from midi_drums.core.models.kit import InstrumentRegistry
 from midi_drums.generation.builders.pattern_builder import PatternBuilder
-
 
 # Instrument references
 _KICK = InstrumentRegistry.get("kick")
@@ -37,11 +35,13 @@ def _basic_pattern_with_ride():
 
 def test_composite_drummer_applies_style():
     """Test that composite drummer plugin applies style correctly."""
-    from midi_drums.plugins.drummers.composite.doom_blues import CompositeDoomBluesPlugin
-    
+    from midi_drums.plugins.drummers.composite.doom_blues import (
+        CompositeDoomBluesPlugin,
+    )
+
     plugin = CompositeDoomBluesPlugin()
     pattern = _basic_pattern()
-    
+
     styled = plugin.apply_style(pattern)
     assert styled is not None
     assert len(styled.beats) > 0
@@ -49,22 +49,24 @@ def test_composite_drummer_applies_style():
 
 def test_composite_drummer_signature_fills():
     """Test that composite drummer has signature fills."""
-    from midi_drums.plugins.drummers.composite.doom_blues import CompositeDoomBluesPlugin
-    
+    from midi_drums.plugins.drummers.composite.doom_blues import (
+        CompositeDoomBluesPlugin,
+    )
+
     plugin = CompositeDoomBluesPlugin()
     fills = plugin.get_signature_fills()
-    
+
     assert isinstance(fills, list)
 
 
 def test_basic_pattern_has_expected_instruments():
     """Test that basic pattern contains expected instruments."""
     pattern = _basic_pattern()
-    
+
     has_kick = any(b.instrument == _KICK for b in pattern.beats)
     has_snare = any(b.instrument == _SNARE for b in pattern.beats)
     has_hihat = any(b.instrument == _CLOSED_HH for b in pattern.beats)
-    
+
     assert has_kick, "Pattern should have kick"
     assert has_snare, "Pattern should have snare"
     assert has_hihat, "Pattern should have hi-hat"
@@ -73,7 +75,7 @@ def test_basic_pattern_has_expected_instruments():
 def test_pattern_with_ride():
     """Test pattern with ride cymbal."""
     pattern = _basic_pattern_with_ride()
-    
+
     has_ride = any(b.instrument == _RIDE for b in pattern.beats)
     assert has_ride, "Pattern should have ride"
 
@@ -84,8 +86,8 @@ def test_crash_accent():
     builder.kick(0.0, 100).kick(2.0, 100)
     builder.snare(1.0, 100).snare(3.0, 100)
     builder.crash(0.0, 115)
-    
+
     pattern = builder.build()
-    
+
     has_crash = any(b.instrument == _CRASH for b in pattern.beats)
     assert has_crash, "Pattern should have crash"

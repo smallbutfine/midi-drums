@@ -2352,8 +2352,12 @@ class FunkGenrePlugin(GenrePlugin):
             return result
 
         tight_map = {
-            "tight_a": InstrumentRegistry.get("hihat_closed_1_tip_closed_1_hit"),
-            "tight_b": InstrumentRegistry.get("hihat_closed_1_shaft_closed_1_hit_dbl"),
+            "tight_a": InstrumentRegistry.get(
+                "hihat_closed_1_tip_closed_1_hit"
+            ),
+            "tight_b": InstrumentRegistry.get(
+                "hihat_closed_1_shaft_closed_1_hit_dbl"
+            ),
             "tight_c": InstrumentRegistry.get("hihat_closed_bell"),
         }
         tight_instr = tight_map.get(tight_key)

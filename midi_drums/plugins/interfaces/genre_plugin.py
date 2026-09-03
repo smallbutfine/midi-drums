@@ -18,14 +18,16 @@ from midi_drums.core.value_objects.timekeeping import (
 # regardless of complexity.
 _RIDE_SECTIONS = frozenset({"chorus", "bridge", "pre_chorus"})
 
-_HIHAT_INSTRUMENTS = frozenset([
-    InstrumentRegistry.get("hihat_closed_1_tip_closed_1_hit"),
-    InstrumentRegistry.get("hihat_closed_bell"),
-    InstrumentRegistry.get("hihat_closed_2_tip_closed_2_hit"),
-    InstrumentRegistry.get("hihat_open_a"),
-    InstrumentRegistry.get("hihat_closed_1_shaft_closed_1_hit_dbl"),
-    InstrumentRegistry.get("hihat_closed_2_shaft_closed_2_hit_dbl"),
-])
+_HIHAT_INSTRUMENTS = frozenset(
+    [
+        InstrumentRegistry.get("hihat_closed_1_tip_closed_1_hit"),
+        InstrumentRegistry.get("hihat_closed_bell"),
+        InstrumentRegistry.get("hihat_closed_2_tip_closed_2_hit"),
+        InstrumentRegistry.get("hihat_open_a"),
+        InstrumentRegistry.get("hihat_closed_1_shaft_closed_1_hit_dbl"),
+        InstrumentRegistry.get("hihat_closed_2_shaft_closed_2_hit_dbl"),
+    ]
+)
 
 
 class GenrePlugin(ABC):
@@ -143,7 +145,10 @@ class GenrePlugin(ABC):
         # Apply power adjustment to kick and snare
         power_boost = int((blended_power - own_profile["power"]) * 20)
         for beat in adapted.beats:
-            if beat.instrument in [InstrumentRegistry.get("kick"), InstrumentRegistry.get("snare_sticks")]:
+            if beat.instrument in [
+                InstrumentRegistry.get("kick"),
+                InstrumentRegistry.get("snare_sticks"),
+            ]:
                 beat.velocity = max(1, min(127, beat.velocity + power_boost))
 
         # Apply aggression (tighter timing for high aggression)
@@ -276,7 +281,9 @@ class GenrePlugin(ABC):
                 position = bar_offset + beat_num
                 if position not in existing_pedal_positions:
                     switched.add_beat(
-                        position, InstrumentRegistry.get("hihat_pedal_closed"), VELOCITY.HIHAT_PEDAL
+                        position,
+                        InstrumentRegistry.get("hihat_pedal_closed"),
+                        VELOCITY.HIHAT_PEDAL,
                     )
                 beat_num += 2.0
 

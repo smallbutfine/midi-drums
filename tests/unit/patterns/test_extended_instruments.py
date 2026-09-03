@@ -1,9 +1,8 @@
 """Tests for AD2 extended instrument support (brush sweeps, rimshots, tight HH)."""
 
 from midi_drums.config import VELOCITY
-from midi_drums.core.models.pattern import Pattern
 from midi_drums.core.models.kit import InstrumentRegistry
-
+from midi_drums.core.models.pattern import Pattern
 
 # Extended instrument references from template
 _BRUSH_SWEEPS = {
@@ -67,7 +66,7 @@ class TestPatternBuilderExtendedMethods:
         builder = PatternBuilder("tom_test")
         builder.tom_edge(0.0, "MID")
         pattern = builder.build()
-        mid_edge_inst = InstrumentRegistry.get("tom_3_rimshot_open_hit_dbl")
+        mid_edge_inst = InstrumentRegistry.get("tom_2_rimshot_open_hit_dbl")
         assert pattern.beats[0].instrument == mid_edge_inst
 
     def test_crash_choked_emits_correct_variant(self):
@@ -90,7 +89,9 @@ class TestPatternBuilderExtendedMethods:
         builder = PatternBuilder("tight_test")
         builder.tight_hh(0.0)  # closed
         pattern = builder.build()
-        tight_hh_inst = InstrumentRegistry.get("hihat_closed_1_tip_closed_1_hit")
+        tight_hh_inst = InstrumentRegistry.get(
+            "hihat_closed_1_tip_closed_1_hit"
+        )
         assert pattern.beats[0].instrument == tight_hh_inst
         assert pattern.beats[0].velocity == VELOCITY.HIHAT_NORMAL
 
@@ -102,7 +103,9 @@ class TestPatternBuilderExtendedMethods:
         builder = PatternBuilder("tight_test")
         builder.tight_hh(0.0, open=True)
         pattern = builder.build()
-        tight_hh_open_inst = InstrumentRegistry.get("hihat_closed_2_tip_closed_2_hit")
+        tight_hh_open_inst = InstrumentRegistry.get(
+            "hihat_closed_2_tip_closed_2_hit"
+        )
         assert pattern.beats[0].instrument == tight_hh_open_inst
 
 
@@ -122,7 +125,10 @@ class TestBrushGrooveTemplate:
         # All beats should be brush sweep instruments (no ride)
         assert len(pattern.beats) > 0
         for beat in pattern.beats:
-            assert "brush" in beat.instrument.name.lower() or "sweep" in beat.instrument.name.lower()
+            assert (
+                "brush" in beat.instrument.name.lower()
+                or "sweep" in beat.instrument.name.lower()
+            )
 
     def test_density_filters_brush_hits(self):
         from midi_drums.generation.builders.pattern_builder import (
@@ -136,7 +142,10 @@ class TestBrushGrooveTemplate:
 
         # With density 0, no brush hits should be added (only ride if use_ride=True)
         brush_count = sum(
-            1 for b in pattern.beats if "brush" in b.instrument.name.lower() or "sweep" in b.instrument.name.lower()
+            1
+            for b in pattern.beats
+            if "brush" in b.instrument.name.lower()
+            or "sweep" in b.instrument.name.lower()
         )
         assert brush_count == 0
 
@@ -173,7 +182,8 @@ class TestConvenienceFunctions:
         )
         # Should have brush sweep beats
         has_brushes = any(
-            "brush" in b.instrument.name.lower() or "sweep" in b.instrument.name.lower()
+            "brush" in b.instrument.name.lower()
+            or "sweep" in b.instrument.name.lower()
             for b in pattern.beats
         )
         assert has_brushes
