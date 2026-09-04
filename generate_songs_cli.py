@@ -38,7 +38,7 @@ for genre, style in GENRE_STYLES:
             f"--genre={genre}",
             f"--style={style}",
             f"-o={OUTPUT_DIR}/{genre}_{style}_song_gm.mid",
-            "--mapping=gm_drums",
+            "--mapping=gm",
         ],
         check=True,
     )
@@ -55,7 +55,7 @@ for genre, style in GENRE_STYLES:
             f"--genre={genre}",
             f"--style={style}",
             f"-o={OUTPUT_DIR}/{genre}_{style}_song_ad2.mid",
-            "--mapping=addictive_drums",
+            "--mapping=ad2",
         ],
         check=True,
     )

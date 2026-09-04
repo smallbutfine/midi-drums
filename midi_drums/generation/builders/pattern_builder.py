@@ -265,11 +265,77 @@ class PatternBuilder:
 
     # ── Hi-hat variants ─────────────────────────────────────────────────────
 
-    def tight_hh(
-        self, position: float, open: bool = False, velocity: int | None = None
+    def hihat_closed_shaft(
+        self, position: float, variant: str = "1", velocity: int | None = None
     ) -> "PatternBuilder":
-        """Add tightly tuned hi-hat at position."""
+        """Add hi-hat shaft hit (closed). Variant 1 or 2.
+
+        AD2: notes 50 (variant=\"1\") and 52 (variant=\"2\").
+        """
+        _SHAFT_MAP = {"1": "hihat_closed_1_shaft_closed_1_hit_dbl", "2": "hihat_closed_2_shaft_closed_2_hit_dbl"}
+        key = _SHAFT_MAP.get(variant, _SHAFT_MAP["1"])
+        inst = InstrumentRegistry.get(key)
+        vel = velocity if velocity is not None else VELOCITY.HIHAT_NORMAL
+        self.pattern.add_beat(position, inst, vel)
+        return self
+
+    def hihat_closed_bell(
+        self, position: float, velocity: int | None = None
+    ) -> "PatternBuilder":
+        """Add hi-hat bell hit (closed). AD2: note 53."""
+        inst = InstrumentRegistry.get("hihat_closed_bell")
+        vel = velocity if velocity is not None else VELOCITY.HIHAT_ACCENT
+        self.pattern.add_beat(position, inst, vel)
+        return self
+
+    def open_hihat(
+        self, position: float, variant: str = "A", velocity: int | None = None
+    ) -> "PatternBuilder":
+        """Add an open hi-hat at position. Variant selects which open hi-hat.
+
+        Variants (AD2 mapping):
+            A → hihat_open_a     (note 54)
+            B → hihat_open_b     (note 55)
+            C → hihat_open_c     (note 56)
+            D → hihat_open_d     (note 57)
+            bell → hihat_open_bell (note 58)
+        """
+        _OPEN_MAP = {
+            "A": "hihat_open_a",
+            "B": "hihat_open_b",
+            "C": "hihat_open_c",
+            "D": "hihat_open_d",
+            "BELL": "hihat_open_bell",
+            "bell": "hihat_open_bell",
+        }
+        key = _OPEN_MAP.get(variant.upper(), _OPEN_MAP["A"])
+        inst = InstrumentRegistry.get(key)
+        vel = velocity if velocity is not None else VELOCITY.HIHAT_OPEN
+        self.pattern.add_beat(position, inst, vel)
+        return self
+
+    def hihat_pedal_open(
+        self, position: float, velocity: int | None = None
+    ) -> "PatternBuilder":
+        """Add hi-hat pedal open (swell). AD2: note 59."""
+        inst = InstrumentRegistry.get("hihat_pedal_open")
+        vel = velocity if velocity is not None else VELOCITY.HIHAT_OPEN
+        self.pattern.add_beat(position, inst, vel)
+        return self
+
+    def tight_hh(
+        self, position: float, open: bool = False, variant: str = "1", velocity: int | None = None
+    ) -> "PatternBuilder":
+        """Add tightly tuned hi-hat at position.
+
+        ``variant`` selects the closed 2 family:
+            1 → hihat_closed_1_tip   (default fallback when tight not avail)
+            2 → hihat_closed_2_tip   (tight variant)
+        If ``open=True``, uses closed_2_tip (AD2 note 51).
+        """
         if open:
+            inst = InstrumentRegistry.get("hihat_closed_2_tip_closed_2_hit")
+        elif variant == "2":
             inst = InstrumentRegistry.get("hihat_closed_2_tip_closed_2_hit")
         else:
             inst = InstrumentRegistry.get("hihat_closed_1_tip_closed_1_hit")

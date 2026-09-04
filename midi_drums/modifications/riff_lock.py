@@ -139,7 +139,7 @@ class RiffLockTransform(DrummerModification):
                 closest_kick.velocity = int(
                     max(
                         closest_kick.velocity,
-                        VELOCITY.KICK_MEDIUM * (0.5 + 0.5 * accent.strength),
+                        VELOCITY.KICK_NORMAL * (0.5 + 0.5 * accent.strength),
                     )
                 )
                 closest_kick.accent = True

@@ -1709,6 +1709,9 @@ def main():
         )
         print(f"Output: {output_path}")
 
+        # Create drum kit from mapping (must happen before create_song)
+        drum_kit = DrumKit.from_preset(args.mapping if args.mapping else "gm")
+
         song = generator.create_song(
             genre=args.genre,
             style=args.style or "default",
@@ -1716,6 +1719,7 @@ def main():
             complexity=args.complexity,
             humanization=args.humanization,
             drummer=args.drummer if args.drummer else None,
+            drum_kit=drum_kit,
         )
 
         generator.export_midi(song, Path(output_path))

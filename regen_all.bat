@@ -18,7 +18,7 @@ echo Metal
 for %%G in (doom death heavy power progressive thrash breakdown) do (
     for %%D in (%DRUMMERS%) do (
         %MIDDRUMS% --song --genre metal --style %%G --drummer %%D --output "reaper_test\metal_%%G_%%D_gm.mid"
-        %MIDDRUMS% --song --genre metal --style %%G --drummer %%D --output "reaper_test\metal_%%G_%%D_ad2.mid" --mapping addictive_drums
+        %MIDDRUMS% --song --genre metal --style %%G --drummer %%D --output "reaper_test\metal_%%G_%%D_ad2.mid" --mapping ad2
         %MIDDRUMS% reaper export --genre metal --style %%G --drummer %%D --output "reaper_test\metal_%%G_%%D.rpp" --preset-only
 
     )
@@ -29,7 +29,7 @@ echo Rock
 for %%G in (classic blues alternative progressive punk hard pop) do (
     for %%D in (%DRUMMERS%) do (
         %MIDDRUMS% --song --genre rock --style %%G --drummer %%D --output "reaper_test\rock_%%G_%%D_gm.mid"
-        %MIDDRUMS% --song --genre rock --style %%G --drummer %%D --output "reaper_test\rock_%%G_%%D_ad2.mid" --mapping addictive_drums
+        %MIDDRUMS% --song --genre rock --style %%G --drummer %%D --output "reaper_test\rock_%%G_%%D_ad2.mid" --mapping ad2
         %MIDDRUMS% reaper export --genre rock --style %%G --drummer %%D --output "reaper_test\rock_%%G_%%D.rpp" --preset-only
 
     )
@@ -40,7 +40,7 @@ echo Jazz
 for %%G in (swing bebop fusion latin ballad hard_bop contemporary) do (
     for %%D in (%DRUMMERS%) do (
         %MIDDRUMS% --song --genre jazz --style %%G --drummer %%D --output "reaper_test\jazz_%%G_%%D_gm.mid"
-        %MIDDRUMS% --song --genre jazz --style %%G --drummer %%D --output "reaper_test\jazz_%%G_%%D_ad2.mid" --mapping addictive_drums
+        %MIDDRUMS% --song --genre jazz --style %%G --drummer %%D --output "reaper_test\jazz_%%G_%%D_ad2.mid" --mapping ad2
         %MIDDRUMS% reaper export --genre jazz --style %%G --drummer %%D --output "reaper_test\jazz_%%G_%%D.rpp" --preset-only
 
     )
@@ -51,7 +51,7 @@ echo Funk
 for %%G in (classic pfunk shuffle new_orleans fusion minimal heavy) do (
     for %%D in (%DRUMMERS%) do (
         %MIDDRUMS% --song --genre funk --style %%G --drummer %%D --output "reaper_test\funk_%%G_%%D_gm.mid"
-        %MIDDRUMS% --song --genre funk --style %%G --drummer %%D --output "reaper_test\funk_%%G_%%D_ad2.mid" --mapping addictive_drums
+        %MIDDRUMS% --song --genre funk --style %%G --drummer %%D --output "reaper_test\funk_%%G_%%D_ad2.mid" --mapping ad2
         %MIDDRUMS% reaper export --genre funk --style %%G --drummer %%D --output "reaper_test\funk_%%G_%%D.rpp" --preset-only
 
     )
@@ -62,7 +62,7 @@ echo Electronic
 for %%G in (house techno drum_and_bass dubstep) do (
     for %%D in (%DRUMMERS%) do (
         %MIDDRUMS% --song --genre electronic --style %%G --drummer %%D --output "reaper_test\elec_%%G_%%D_gm.mid"
-        %MIDDRUMS% --song --genre electronic --style %%G --drummer %%D --output "reaper_test\elec_%%G_%%D_ad2.mid" --mapping addictive_drums
+        %MIDDRUMS% --song --genre electronic --style %%G --drummer %%D --output "reaper_test\elec_%%G_%%D_ad2.mid" --mapping ad2
         %MIDDRUMS% reaper export --genre electronic --style %%G --drummer %%D --output "reaper_test\elec_%%G_%%D.rpp" --preset-only
     )
 )
