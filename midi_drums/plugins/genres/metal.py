@@ -68,7 +68,7 @@ class MetalGenrePlugin(GenrePlugin):
         "thrash": 200,
         "doom": 70,
         "breakdown": 100,
-    "darkness": 0.9,
+        "darkness": 0.9,
     }
 
     @property

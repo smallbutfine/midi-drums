@@ -272,7 +272,10 @@ class PatternBuilder:
 
         AD2: notes 50 (variant=\"1\") and 52 (variant=\"2\").
         """
-        _SHAFT_MAP = {"1": "hihat_closed_1_shaft_closed_1_hit_dbl", "2": "hihat_closed_2_shaft_closed_2_hit_dbl"}
+        _SHAFT_MAP = {
+            "1": "hihat_closed_1_shaft_closed_1_hit_dbl",
+            "2": "hihat_closed_2_shaft_closed_2_hit_dbl",
+        }
         key = _SHAFT_MAP.get(variant, _SHAFT_MAP["1"])
         inst = InstrumentRegistry.get(key)
         vel = velocity if velocity is not None else VELOCITY.HIHAT_NORMAL
@@ -324,7 +327,11 @@ class PatternBuilder:
         return self
 
     def tight_hh(
-        self, position: float, open: bool = False, variant: str = "1", velocity: int | None = None
+        self,
+        position: float,
+        open: bool = False,
+        variant: str = "1",
+        velocity: int | None = None,
     ) -> "PatternBuilder":
         """Add tightly tuned hi-hat at position.
 

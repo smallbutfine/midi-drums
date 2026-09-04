@@ -1176,9 +1176,7 @@ def handle_reaper_add_markers_command(args, generator: DrumGenerator) -> None:
         )
 
         # Export to Reaper
-        drum_kit = DrumKit.from_preset(
-            args.mapping if args.mapping else "gm"
-        )
+        drum_kit = DrumKit.from_preset(args.mapping if args.mapping else "gm")
         exporter = ReaperExporter(drum_kit)
         exporter.export_with_markers(
             song=song,

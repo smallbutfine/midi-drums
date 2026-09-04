@@ -516,9 +516,7 @@ class ComposerV2:
                 closed_hh = InstrumentRegistry.get(
                     "hihat_closed_1_tip_closed_1_hit"
                 )
-                snare_inst = InstrumentRegistry.get(
-                    "snare_rimshot_open_hit"
-                )
+                snare_inst = InstrumentRegistry.get("snare_rimshot_open_hit")
 
                 # Quarter 0 (downbeat): kick + hi-hat
                 combined.beats.append(

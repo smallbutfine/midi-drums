@@ -228,7 +228,9 @@ class CareyPlugin(DrummerPlugin):
             pos = i * TIMING.EIGHTH_TRIPLET
             variant = ["HIGH", "MID", "LOW", "FLOOR"][i % 4]
             builder.tom_edge(
-                pos, variant, min(VELOCITY.TOM_HEAVY + random.randint(-8, 10), 127)
+                pos,
+                variant,
+                min(VELOCITY.TOM_HEAVY + random.randint(-8, 10), 127),
             )
         # Tight cymbal_choke for percussive punctuation
         builder.crash_choked(3.5, "2", VELOCITY.CRASH_ACCENT - 10)
