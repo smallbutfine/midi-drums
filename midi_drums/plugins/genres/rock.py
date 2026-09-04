@@ -98,7 +98,8 @@ class RockGenrePlugin(GenrePlugin):
         else:
             pattern = self._generate_verse(style, complexity)
 
-        return self._apply_ride_hihat_logic(pattern, section, parameters)
+        # No hi-hat promotion — preserves full AD2 hihat vocabulary
+        return pattern
 
     def get_common_fills(self) -> list[Fill]:
         """Get common rock fill patterns using TomFill template."""

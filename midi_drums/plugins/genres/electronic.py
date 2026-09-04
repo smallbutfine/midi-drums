@@ -95,7 +95,7 @@ class ElectronicGenrePlugin(GenrePlugin):
             case _:
                 pattern = self._generate_verse(style, complexity)
 
-        return self._apply_ride_hihat_logic(pattern, section, parameters)
+        return pattern
 
     def get_common_fills(self) -> list[Fill]:
         """Get common electronic fill patterns using templates."""
