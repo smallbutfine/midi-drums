@@ -22,7 +22,7 @@ def _kick_positions(pattern):
 
 
 def _snare_positions(pattern):
-    snare = InstrumentRegistry.get("snare_sticks")
+    snare = InstrumentRegistry.get("snare_rimshot_open_hit")
     return {b.position for b in pattern.beats if b.instrument == snare}
 
 

@@ -114,8 +114,8 @@ class BarSelector:
 
         for beat in new_beats:
             kick = InstrumentRegistry.get("kick")
-            snare_sticks = InstrumentRegistry.get("snare_sticks")
-            if beat.instrument in (kick, snare_sticks) and beat.velocity < 40:
+            snare_inst = InstrumentRegistry.get("snare_rimshot_open_hit")
+            if beat.instrument in (kick, snare_inst) and beat.velocity < 40:
                 beat.velocity = max(
                     (
                         int(VELOCITY.KICK_NORMAL)
@@ -167,13 +167,13 @@ class BarSelector:
         # Porcaro: shuffle-feel ghost notes on snare (every 4th bar)
         if drummer_name and "porcaro" in drummer_name.lower():
             if section_pos > 0.3 and bar_index % 4 == 0:
-                snare_sticks = InstrumentRegistry.get("snare_sticks")
+                snare_inst = InstrumentRegistry.get("snare_rimshot_open_hit")
                 for _i in range(2):
                     pos = rng.uniform(0, beats_per_bar)
                     beats.append(
                         Beat(
                             position=pos,
-                            instrument=snare_sticks,
+                            instrument=snare_inst,
                             velocity=max(
                                 1,
                                 min(

@@ -15,7 +15,7 @@ def test_velocity_constants():
 
     # Create beats using constants
     kick_inst = InstrumentRegistry.get("kick")
-    snare_inst = InstrumentRegistry.get("snare_sticks")
+    snare_inst = InstrumentRegistry.get("snare_rimshot_open_hit")
     hh_inst = InstrumentRegistry.get("hihat_closed_1_tip_closed_1_hit")
 
     kick = Beat(

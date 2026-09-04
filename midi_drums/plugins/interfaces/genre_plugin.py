@@ -147,7 +147,7 @@ class GenrePlugin(ABC):
         for beat in adapted.beats:
             if beat.instrument in [
                 InstrumentRegistry.get("kick"),
-                InstrumentRegistry.get("snare_sticks"),
+                InstrumentRegistry.get("snare_rimshot_open_hit"),
             ]:
                 beat.velocity = max(1, min(127, beat.velocity + power_boost))
 
@@ -176,7 +176,7 @@ class GenrePlugin(ABC):
                 snare_positions = [
                     b.position
                     for b in adapted.beats
-                    if b.instrument == InstrumentRegistry.get("snare_sticks")
+                    if b.instrument == InstrumentRegistry.get("snare_rimshot_open_hit")
                 ]
                 for pos in snare_positions:
                     if random.random() < density_increase:
@@ -185,7 +185,7 @@ class GenrePlugin(ABC):
 
                         ghost = Beat(
                             position=max(0, pos - 0.125),
-                            instrument=InstrumentRegistry.get("snare_sticks"),
+                            instrument=InstrumentRegistry.get("snare_rimshot_open_hit"),
                             velocity=max(40, int(50 * (1 - blend_amount))),
                             duration=0.05,
                             ghost_note=True,

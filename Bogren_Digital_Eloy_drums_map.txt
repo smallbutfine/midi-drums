@@ -1,0 +1,62 @@
+# MIDI note/CC name map
+16	Hat Pedal CC tip
+17	Hat Pedal CC edge
+23	Kick 2
+24	Kick Main
+25	Snare Off - center
+26	Snare Hit
+27	Snare Flam
+29	Snare no wires
+30	Snare SideStick
+33	Tom 1
+34	Tom 2
+35	Tom 3
+36	Tom 4
+37	Tom 5
+38	Hat Tip Open 5
+39	Hat Open 4
+40	Hat Tip Open 3
+41	Hat Tip Closed
+42	Hat Edge Closed
+43	Hat Edge Open 1
+44	Hat Edge Open 2
+45	Hat Edge Open 3
+46	Hat Edge Open 4
+47	Hat Edge Open 5
+48	Hat Pedal
+49	Hat Pedal Open
+50	Hat Tip Open 1
+51	Hat Tip Open 2
+52	Crash L Hit
+53	Crash L Choke
+54	Crash 2L Hit
+55	Crash 2L Choke
+56	Crash R Hit
+57	Crash R Choke
+58	Crash 2R Hit
+59	Crash 2R Choke
+60	Ride Choke
+61	Ride Bell
+62	Ride Main
+63	Ride Crash
+64	China Choke Hit
+65	China Hit
+66	China Choke
+73	Splash
+74	Splash Choke
+75	Stack
+76	Stack Choke
+83	Hat X Edge Open 1
+84	Hat X Edge Open 2
+85	Hat X Edge Open 3
+82	Hat X Edge Closed
+89	Crash R Choke Hit
+90	Crash 2L Choke Hit
+91	Crash 2R Choke Hit
+88	Crash L Choke Hit
+101	Gong
+102	Gong Choke
+103	Bell Main
+104	Bell Tip
+105	Bell Choke
+22	Kick main

@@ -17,7 +17,6 @@ INSTRUMENT_TO_LIMB: Dict[str, Limb] = {
     # Kick
     "kick": Limb.RF,
     # Snare
-    "snare_sticks": Limb.LH,
     "snare_rimshot_open_hit": Limb.LH,
     "snare_side_stick": Limb.LH,
     # Hi-Hats (Assuming standard crossed-handed playing)

@@ -12,7 +12,7 @@ from midi_drums.utils.pattern_fixer import (
 # Instrument references for tests
 _KICK = InstrumentRegistry.get("kick")
 _CLOSED_HH = InstrumentRegistry.get("hihat_closed_1_tip_closed_1_hit")
-_SNARE = InstrumentRegistry.get("snare_sticks")
+_SNARE = InstrumentRegistry.get("snare_rimshot_open_hit")
 _RIDE = InstrumentRegistry.get("ride_1_tip_hit_softer")
 _OPEN_HH = InstrumentRegistry.get("hihat_open_a")
 _CLOSED_HH_TIP = InstrumentRegistry.get("hihat_closed_bell")

@@ -45,7 +45,7 @@ def pattern_with_accents():
     builder.kick(2.0, 100)
 
     # Snare with accent
-    snare_inst = InstrumentRegistry.get("snare_sticks")
+    snare_inst = InstrumentRegistry.get("snare_rimshot_open_hit")
     builder.pattern.add_beat(1.0, snare_inst, 110, accent=True)
 
     # Snare with ghost note

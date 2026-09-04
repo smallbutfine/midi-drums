@@ -26,7 +26,7 @@ from midi_drums.patterns import (
 
 # Instrument lookups used throughout these tests
 _KICK = InstrumentRegistry.get("kick")
-_SNARE = InstrumentRegistry.get("snare_sticks")
+_SNARE = InstrumentRegistry.get("snare_rimshot_open_hit")
 _HIHAT_CLOSED_1 = InstrumentRegistry.get("hihat_closed_1_tip_closed_1_hit")
 _HIHAT_CLOSED_BELL = InstrumentRegistry.get("hihat_closed_bell")
 _HIHAT_CLOSED_2 = InstrumentRegistry.get("hihat_closed_2_tip_closed_2_hit")

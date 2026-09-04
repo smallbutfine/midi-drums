@@ -25,7 +25,7 @@ def create_basic_pattern():
     from midi_drums.core.models.kit import InstrumentRegistry
 
     kick_inst = InstrumentRegistry.get("kick")
-    snare_inst = InstrumentRegistry.get("snare_sticks")
+    snare_inst = InstrumentRegistry.get("snare_rimshot_open_hit")
     hh_inst = InstrumentRegistry.get("hihat_closed_1_tip_closed_1_hit")
 
     pattern.add_beat(0.0, kick_inst, 100)
@@ -143,7 +143,7 @@ def test_pocket_stretching_applies_to_promoted_timekeeping_cymbals():
 
     pattern = Pattern("basic")
     kick_inst = InstrumentRegistry.get("kick")
-    snare_inst = InstrumentRegistry.get("snare_sticks")
+    snare_inst = InstrumentRegistry.get("snare_rimshot_open_hit")
     ride_inst = InstrumentRegistry.get("ride_1_tip_hit_softer")
 
     # Kick (foot) should NOT be modified
@@ -187,7 +187,7 @@ def test_linear_coordination_china_matches_crash_and_ride_priority():
     modifier = LinearCoordination()
 
     pattern = Pattern("test")
-    snare_inst = InstrumentRegistry.get("snare_sticks")
+    snare_inst = InstrumentRegistry.get("snare_rimshot_open_hit")
     china_inst = InstrumentRegistry.get("cymbal_5_hit")
 
     # Snare + China at same time (hand conflict -> resolve via linearization)
@@ -214,7 +214,7 @@ def test_minimal_creativity_thins_crash_and_china_promoted_cymbals():
     modifier = MinimalCreativity(sparseness=0.5)
 
     pattern = Pattern("test")
-    snare_inst = InstrumentRegistry.get("snare_sticks")
+    snare_inst = InstrumentRegistry.get("snare_rimshot_open_hit")
     crash_inst = InstrumentRegistry.get("cymbal_1_hit")
 
     for pos in [0.0, 1.0, 2.0, 3.0]:
@@ -237,7 +237,7 @@ def test_speed_precision_normalizes_promoted_cymbals_to_their_own_velocity():
     modifier = SpeedPrecision()
 
     pattern = Pattern("test")
-    snare_inst = InstrumentRegistry.get("snare_sticks")
+    snare_inst = InstrumentRegistry.get("snare_rimshot_open_hit")
     ride_inst = InstrumentRegistry.get("ride_1_tip_hit_softer")
 
     # Snare with varied velocity (should NOT be normalized)

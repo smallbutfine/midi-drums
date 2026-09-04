@@ -5,7 +5,7 @@ from midi_drums.generation.builders.pattern_builder import PatternBuilder
 
 # Instrument references
 _KICK = InstrumentRegistry.get("kick")
-_SNARE = InstrumentRegistry.get("snare_sticks")
+_SNARE = InstrumentRegistry.get("snare_rimshot_open_hit")
 _RIDE = InstrumentRegistry.get("ride_1_tip_hit_softer")
 _CLOSED_HH = InstrumentRegistry.get("hihat_closed_1_tip_closed_1_hit")
 _CRASH = InstrumentRegistry.get("cymbal_1_hit")

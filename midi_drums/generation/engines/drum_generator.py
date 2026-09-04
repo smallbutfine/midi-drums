@@ -101,7 +101,7 @@ def _apply_groove_restraints(song: Song) -> None:
 
             # --- Jazz: ride-centric, sparse kick, gentle snares ---
             if genre in ("jazz",):
-                if name == "snare_sticks":
+                if name == "snare_rimshot_open_hit":
                     # Bring heavy snares down to a controlled level;
                     # leave ghost notes untouched.
                     if not getattr(beat, "ghost_note", False):
@@ -119,7 +119,7 @@ def _apply_groove_restraints(song: Song) -> None:
 
             # --- Funk: tight backbeat, ghost notes stay quiet ---
             elif genre in ("funk",):
-                if name == "snare_sticks":
+                if name == "snare_rimshot_open_hit":
                     if not getattr(beat, "ghost_note", False):
                         beat.velocity = max(
                             int(VELOCITY.SNARE_NORMAL),
@@ -128,7 +128,7 @@ def _apply_groove_restraints(song: Song) -> None:
 
             # --- Metal: ensure snares are loud and clear ---
             elif genre == "metal":
-                if name == "snare_sticks" and beat.velocity < 100:
+                if name == "snare_rimshot_open_hit" and beat.velocity < 100:
                     beat.velocity = min(beat.velocity + 25, 127)
 
 

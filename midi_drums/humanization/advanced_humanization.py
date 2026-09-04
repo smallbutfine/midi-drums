@@ -37,7 +37,7 @@ class AdvancedHumanizer:
     # Positive = behind beat, Negative = ahead of beat
     INSTRUMENT_TIMING_BIAS: dict[str, float] = {
         "kick": -2.0,
-        "snare_sticks": 0.0,
+        "snare_rimshot_open_hit": 0.0,
         "hihat_closed_1_tip_closed_1_hit": 0.0,
         "hihat_closed_2_tip_closed_2_hit": 0.0,
         "hihat_open_a": 1.0,
@@ -51,7 +51,7 @@ class AdvancedHumanizer:
 
     TIMING_TIGHTNESS: dict[str, float] = {
         "kick": 3.0,
-        "snare_sticks": 4.0,
+        "snare_rimshot_open_hit": 4.0,
         "hihat_closed_1_tip_closed_1_hit": 2.0,
         "hihat_open_a": 3.0,
         "hihat_pedal_closed": 2.5,
@@ -311,7 +311,7 @@ class AdvancedHumanizer:
         timed_beats = []
 
         kick_key = "kick"
-        snare_key = "snare_sticks"
+        snare_key = "snare_rimshot_open_hit"
         crash_key = "cymbal_1_hit"
 
         for beat in beats:

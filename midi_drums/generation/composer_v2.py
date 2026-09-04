@@ -407,9 +407,9 @@ class ComposerV2:
         # Backbeat positions: odd beat indices (beats 2, 4, 6... 1-indexed) =
         # positions 1.0, 3.0, 5.0... where traditional rock/metal backbeats land
         backbeat_positions = [i for i in range(beats_per_bar) if i % 2 == 1]
-        snare_sticks = InstrumentRegistry.get("snare_sticks")
+        snare_inst = InstrumentRegistry.get("snare_rimshot_open_hit")
         has_snare_backbeat = any(
-            b[1] == snare_sticks
+            b[1] == snare_inst
             and any(abs(b[0] - bp) < 0.1 for bp in backbeat_positions)
             for b in extracted_beats
         )
@@ -435,7 +435,7 @@ class ComposerV2:
             extracted_beats.append(
                 (
                     beats_per_bar / 2,
-                    snare_sticks,
+                    snare_inst,
                     int(VELOCITY.SNARE_ACCENT),
                 )
             )
@@ -516,7 +516,10 @@ class ComposerV2:
                 closed_hh = InstrumentRegistry.get(
                     "hihat_closed_1_tip_closed_1_hit"
                 )
-                snare_sticks = InstrumentRegistry.get("snare_sticks")
+                snare_inst = InstrumentRegistry.get(
+                    "snare_rimshot_open_hit"
+                )
+
                 # Quarter 0 (downbeat): kick + hi-hat
                 combined.beats.append(
                     Beat(
@@ -544,7 +547,7 @@ class ComposerV2:
                 combined.beats.append(
                     Beat(
                         position=fill_pos + beats_per_bar / 2,
-                        instrument=snare_sticks,
+                        instrument=snare_inst,
                         velocity=int(VELOCITY.SNARE_NORMAL),
                     )
                 )

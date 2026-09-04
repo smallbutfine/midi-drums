@@ -21,7 +21,7 @@ from midi_drums.export.midi.engine import (
 # Instrument references for tests
 _CRASH = InstrumentRegistry.get("cymbal_1_hit")
 _KICK = InstrumentRegistry.get("kick")
-_SNARE = InstrumentRegistry.get("snare_sticks")
+_SNARE = InstrumentRegistry.get("snare_rimshot_open_hit")
 
 
 def _note_ons_from_pattern(pattern: Pattern) -> list[dict]:
@@ -156,7 +156,7 @@ class TestSongToMidiDedup:
         ]
         assert len(kick_tick0) <= 1, "dedup across sections failed"
 
-    @pytest.mark.skip(reason="snare_sticks not mapped in gm")
+    @pytest.mark.skip(reason="snare_rimshot_open_hit not mapped in gm")
     def test_different_notes_not_deduped(self):
         """Different pitches at same tick → both preserved."""
         generator = __import__("midi_drums").DrumGenerator()

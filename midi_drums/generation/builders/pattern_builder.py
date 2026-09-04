@@ -23,8 +23,8 @@ class PatternBuilder:
         return self
 
     def snare(self, position: float, velocity: int = 100) -> "PatternBuilder":
-        """Add snare (sticks) at position."""
-        inst = InstrumentRegistry.get("snare_sticks")
+        """Add snare stick hit at position."""
+        inst = InstrumentRegistry.get("snare_rimshot_open_hit")
         self.pattern.add_beat(position, inst, velocity)
         return self
 

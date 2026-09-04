@@ -27,7 +27,7 @@ mid_tom = InstrumentRegistry.get("tom_3_open_hit")
 floor_tom = InstrumentRegistry.get("tom_4_open_hit")
 tom_edge_1 = InstrumentRegistry.get("tom_1_rimshot_open_hit_dbl")
 tom_edge_floor = InstrumentRegistry.get("tom_4_rimshot_open_hit_dbl")
-snare_sticks = InstrumentRegistry.get("snare_sticks")
+snare_inst = InstrumentRegistry.get("snare_rimshot_open_hit")
 
 
 class PatternTemplate(ABC):
@@ -441,7 +441,7 @@ class FunkGhostNotes(PatternTemplate):
                     # Use add_beat directly to support ghost_note parameter
                     builder.pattern.add_beat(
                         pos,
-                        snare_sticks,
+                        snare_inst,
                         VELOCITY.SNARE_GHOST,
                         ghost_note=True,
                     )

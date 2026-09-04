@@ -62,7 +62,7 @@ class PhysicalValidator:
         InstrumentRegistry.get("hihat_closed_bell"),
         InstrumentRegistry.get("hihat_closed_2_tip_closed_2_hit"),
         InstrumentRegistry.get("hihat_open_a"),
-        InstrumentRegistry.get("snare_sticks"),
+        InstrumentRegistry.get("snare_rimshot_open_hit"),
         InstrumentRegistry.get("snare_side_stick"),
         InstrumentRegistry.get("tom_3_open_hit"),
         InstrumentRegistry.get("tom_4_open_hit"),

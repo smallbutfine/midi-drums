@@ -38,7 +38,7 @@ class PatternFixer:
         InstrumentRegistry.get("hihat_closed_bell"),
         InstrumentRegistry.get("hihat_closed_2_tip_closed_2_hit"),
         InstrumentRegistry.get("hihat_open_a"),
-        InstrumentRegistry.get("snare_sticks"),
+        InstrumentRegistry.get("snare_rimshot_open_hit"),
         InstrumentRegistry.get("snare_side_stick"),
         InstrumentRegistry.get("tom_3_open_hit"),
         InstrumentRegistry.get("tom_4_open_hit"),
@@ -51,7 +51,7 @@ class PatternFixer:
     # Higher number = keep this first.  Cymbals (crash/splash/china) are
     # lowest priority because they are the most dispensable ornaments.
     HAND_PRIORITY: dict = {
-        InstrumentRegistry.get("snare_sticks"): 10,
+        InstrumentRegistry.get("snare_rimshot_open_hit"): 10,
         InstrumentRegistry.get("hihat_closed_1_tip_closed_1_hit"): 9,
         InstrumentRegistry.get("hihat_closed_bell"): 9,
         InstrumentRegistry.get("hihat_closed_2_tip_closed_2_hit"): 9,
