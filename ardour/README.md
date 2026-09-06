@@ -1,7 +1,6 @@
 # Ardour / Mixbus Integration
 
-This directory contains the **Ardour/Mixbus** integration scripts for `midi_drums`,
-mirroring the REAPER integration in `../reaper/`.
+This directory contains the **Ardour/Mixbus** integration scripts for `midi_drums`.
 
 ## Files
 
@@ -10,29 +9,39 @@ mirroring the REAPER integration in `../reaper/`.
 | `create_song_sections.lua` | Bi-directional bridge (4 modes: Ardour, sidecar, AI, song-map) |
 | `midi_drums_help.lua` | Help script — displays usage instructions in the Ardour console |
 
-## Installation (Mixbus)
+## How it works
 
-1. **Set PYTHON_EXE** in `create_song_sections.lua` to your midi_drums virtualenv pythonw.exe:
-   ```lua
-   local PYTHON_EXE = "C:/path/to/midi_drums/.venv/Scripts/pythonw.exe"
-   ```
+The Python CLI generates MIDI + writes a `midi_drums_sections.json` sidecar.
+The Lua script reads that sidecar (or uses built-in template sections) and creates
+timeline regions/marker markers inside the **open** Ardour/Mixbus session.
+This is the reverse of REAPER: Python is the engine, Lua is the viewer/consumer.
 
-2. **Load the script into Mixbus**:
-   - Open Mixbus
-   - Go to `Tools → Scripts → Load Script...`
-   - Select `create_song_sections.lua`
-   - Optionally assign a keyboard shortcut via `Options → Customize...`
+### Workflow 1 — Python-first (recommended)
 
-3. **Run** the script from `Tools → Scripts → midi_drums` or your assigned shortcut.
+```bash
+# Generate drums and write sidecar
+python -m midi_drums generate --genre metal --style doom --tempo 70 \
+    --output drums.mid --write-sidecar project_dir/midi_drums_sections.json
 
-## Modes (same as REAPER version)
+# Open Ardour/Mixbus, open your session, then run the Lua script
+# It reads the sidecar and creates matching regions automatically.
+```
 
-| Mode | Description |
-|------|-------------|
-| **Ardour** (default) | Creates regions from `ARDOUR_SECTIONS` table, writes sidecar, optionally generates MIDI via Python template engine (~1-2s) |
-| **Sidecar** | Reads `midi_drums_sections.json`, creates matching regions, offers tempo sync |
-| **AI Agent** | Prompts for NL description → calls Python AI → imports generated MIDI (~20-45s) |
-| **Song-map** | Per-section tempo/meter from song_creator-shaped JSON |
+### Workflow 2 — Lua-first (interactive)
+
+1. Set `PYTHON_EXE` in `create_song_sections.lua` to your midi_drums `.venv` pythonw.exe.
+2. Open Ardour/Mixbus with a session active.
+3. Run the script (Ardour: **Edit → Scripts…**, Mixbus: **Tools → Scripts…**).
+4. Choose **YES** for template sections or **NO → sidecar/ai/songmap**.
+
+## Modes
+
+| Mode | Trigger | What it does |
+|------|---------|-------------|
+| **Ardour** (default) | YES | Creates regions from `ARDOUR_SECTIONS`, writes sidecar, optionally calls Python |
+| **Sidecar** | NO → `sidecar` | Reads existing sidecar, creates matching regions, syncs project tempo |
+| **AI Agent** | NO → `ai` | Natural-language prompt → Python AI → imports generated MIDI (~20-45s) |
+| **Song-map** | NO → `songmap` | Per-section tempo/meter from a song_creator-shaped JSON file |
 
 ## Sidecar Format (`midi_drums_sections.json`)
 
@@ -48,39 +57,28 @@ mirroring the REAPER integration in `../reaper/`.
 }
 ```
 
+## CLI Commands (Python side)
+
+```bash
+# Generate and write sidecar + MIDI
+python -m midi_drums generate --genre rock --style classic \
+    --output drums.mid --write-sidecar project_dir/midi_drums_sections.json
+
+# AI generation with Ardour output directory
+python -m midi_drums prompt "funky groove" --song --ardour ardour_output/
+```
+
 ## Troubleshooting
 
 | Problem | Fix |
 |---------|-----|
-| "No Session available" | Ensure a session is open before running the script |
-| Python generation failed | Check PYTHON_EXE path; verify .venv exists |
-| MIDI import failed | Check Ardour console for details |
-| AI too slow | Try Groq (GROQ_API_KEY, set AI_PROVIDER=groq in .env) |
+| "No Session available" | Ensure a session is open in Ardour/Mixbus before running the Lua script |
+| Python generation failed | Check PYTHON_EXE path; verify .venv exists and has dependencies installed |
+| MIDI import failed | Check Ardour console (F12) for details |
+| AI too slow / API key error | Try Groq: set `GROQ_API_KEY`, `AI_PROVIDER=groq` in `.env` |
 
-## API Equivalents
+## Notes
 
-The same Python-side API used by the REAPER script also works with this Ardour version:
-
-```python
-# Write sidecar from a Song
-api.export_sections_json(song, "midi_drums_sections.json")
-
-# Read sidecar → generate Song
-song = api.create_song_from_sections_json("midi_drums_sections.json", "metal", "death")
-
-# MIDI + sidecar in one call
-api.save_as_midi_with_sidecar(song, "drums.mid")
-```
-
-## Notes on Ardour/Mixbus API Differences
-
-This script handles several Ardour/Mixbus API variations:
-
-- **Session object**: Checked as `Session` or `SESSION` global for compatibility
-- **Tempo map**: Tries multiple method signatures (`get()`, `get_tempo_at_time()`) for different Ardour versions
-- **Time signature**: Handles both `numerator/denominator` and `num/denom` field names
-- **Regions**: Tries `add_region()` first, falls back to `markers` table insertion
-- **UI refresh**: Uses `GUI.refresh_all()` when available
-- **Undo**: Wraps changes in undo blocks via `gui:undo_start()/undo_stop()`
-
-If your Mixbus version has a different API surface, please file an issue with the error messages from the Ardour console.
+- The Lua script uses `pcall()` on all Ardour/Mixbus API calls — failures are silently skipped so the script never crashes.
+- MIDI import relies on Ardour's media system; if auto-import fails, manually import `drums.mid` from the session directory.
+- The sidecar JSON is the single source of truth shared between Python and Lua.

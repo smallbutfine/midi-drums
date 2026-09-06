@@ -51,9 +51,9 @@ Examples:
   python -m midi_drums.api.cli reaper export --genre jazz --style swing \
       --tempo 160 --output jazz.rpp --preset-only
 
-  # Ardour / Mixbus integration — markers + sidecar + MIDI
+  # Ardour / Mixbus integration — generate drums + sidecar for Lua script
   python -m midi_drums.api.cli ardour create --genre metal --style doom \
-      --tempo 70 --output project.ardourproj --midi
+      --tempo 70 --output project_dir/ --midi
 
   # List available genre structure presets
   python -m midi_drums.api.cli reaper presets
@@ -302,7 +302,7 @@ Examples:
 
     # Ardour create command (mirrors reaper export)
     ardour_create = ardour_subparsers.add_parser(
-        "create", help="Create an Ardour project with markers and optional MIDI"
+        "create", help="Generate drums + sidecar for Ardour/Mixbus Lua script"
     )
     ardour_create.add_argument(
         "--genre", required=True, help="Genre (e.g., metal, rock, jazz)"
@@ -320,7 +320,7 @@ Examples:
         "--output",
         "-o",
         required=True,
-        help="Output Ardour session path (.ardourproj) or directory name",
+        help="Output directory (sidecar + MIDI written here for the Lua script)",
     )
     ardour_create.add_argument("--name", help="Song name")
     ardour_create.add_argument(
@@ -363,9 +363,8 @@ Examples:
         action="store_true",
         default=False,
         help=(
-            "Create the Ardour project with genre-smart structure markers "
-            "without generating any MIDI audio. Much faster and does not "
-            "require the drum plugin system."
+            "Write sidecar + generate MIDI without creating anything in Ardour. "
+            "Much faster and does not require the drum plugin system."
         ),
     )
     ardour_create.add_argument(
@@ -924,8 +923,10 @@ def handle_reaper_export_command(args, generator: DrumGenerator) -> None:
 def handle_ardour_create_command(args, generator: DrumGenerator) -> None:
     """Handle Ardour / Mixbus 'create' command.
 
-    Mirrors ``reaper export`` but targets the Ardour/Mixbus sidecar + MIDI
-    workflow instead of .rpp files.
+    Generates drums via the plugin system, writes a ``midi_drums_sections.json``
+    sidecar (consumed by ``ardour/create_song_sections.lua``), and optionally
+    exports MIDI.  It does NOT create an Ardour session file — that is done by
+    the Lua script inside an open Ardour/Mixbus session.
     """
     if getattr(args, "list_presets", False):
         _print_genre_presets(genre_filter=None)
@@ -978,7 +979,7 @@ def handle_ardour_create_command(args, generator: DrumGenerator) -> None:
             else:
                 ardour_session = output
 
-            print("Ardour project preset-only (no MIDI generated)")
+            print("Ardour sidecar preset-only (no MIDI generated)")
             print(f"  Output dir : {ardour_session}")
             print(f"  Genre      : {args.genre} ({args.style})")
             print(f"  Tempo      : {resolved_tempo} BPM")
@@ -1034,7 +1035,7 @@ def handle_ardour_create_command(args, generator: DrumGenerator) -> None:
                 print(f"  MIDI       : {midi_path}")
 
             print(f"Generated song: {song.name}")
-            print(f"Ardour session dir: {output}")
+            print(f"Sidecar + MIDI written to: {output}")
             print(f"  Genre      : {args.genre} ({args.style})")
             print(f"  Tempo      : {resolved_tempo} BPM")
             print(f"  Mapping    : {args.mapping or 'gm'}")
@@ -1044,7 +1045,7 @@ def handle_ardour_create_command(args, generator: DrumGenerator) -> None:
             print(f"  Sections   : {len(song.sections)}")
 
     except Exception as e:
-        print(f"Error creating Ardour project: {e}", file=sys.stderr)
+        print(f"Error generating Ardour sidecar/MIDI: {e}", file=sys.stderr)
         import traceback
 
         traceback.print_exc()

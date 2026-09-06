@@ -770,6 +770,53 @@ class DrumGeneratorAPI:
         self.export_sections_json(song, sidecar_path)
         return sidecar_path
 
+    def export_to_ardour(
+        self,
+        song: Song,
+        output_name: str | Path = "session",
+        sample_rate: int = 48000,
+        mapping: str = "gm",
+        midi_filename: str | None = None,
+    ) -> Path:
+        """Export a Song as MIDI + Ardour session in one step.
+
+        Generates the MIDI file and wraps it in a complete Ardour project
+        folder (``<output_name>/``) with an ``<output_name>.ardour``
+        session file containing markers for every section boundary and
+        per-segment tempo/meter change.
+
+        Args:
+            song: Song to export.
+            output_name: Base name for the Ardour session folder.  If a
+                string with a ``.ardour`` suffix it is stripped; if a
+                ``Path`` only its stem is used as the session name.
+            sample_rate: Audio sample rate (default 48000 Hz).
+            mapping: MIDI mapping preset name (file stem in ``mappings/``,
+                e.g. ``"gm"``, ``"ad2"``, ``"ezd3"``).  Passed to the
+                underlying :class:`~midi_drums.export.midi.engine.MIDIEngine`.
+            midi_filename: Override filename for the embedded MIDI file.
+
+        Returns:
+            Path to the generated ``<output_name>.ardour`` session file.
+
+        Example:
+            >>> api = DrumGeneratorAPI()
+            >>> song = api.create_song("metal", "doom", tempo=130)
+            >>> ardour_file = api.export_to_ardour(song, "doom_metal")
+            >>> print(ardour_file)  # doctest: +SKIP
+            doom_metal/doom_metal.ardour
+        """
+        from midi_drums.export.ardour.exporter import ArdourExporter
+
+        drum_kit = DrumKit.from_preset(mapping)
+        exporter = ArdourExporter(drum_kit=drum_kit)
+        return exporter.export_with_markers(
+            song=song,
+            output_name=output_name,
+            sample_rate=sample_rate,
+            midi_filename=midi_filename,
+        )
+
     def list_genre_presets(self) -> dict[str, list[str]]:
         """List all available genre/style structure presets.
 

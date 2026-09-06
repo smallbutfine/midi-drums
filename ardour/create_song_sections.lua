@@ -106,7 +106,7 @@ local function get_tempo_at_qn(qn_pos)
         return tm:get(qn_pos) or tm:get_tempo_at_time(qn_pos) or 120
       end)
       if not ok then
-        reaper_show_msg("Warning: tempo map query failed, using default 120 BPM")
+        io.stderr:write("Warning: tempo map query failed, using default 120 BPM\n")
         return 120, 4, 4
       end
       local bpm = type(bpm_result) == "table" and bpm_result.bpm or bpm_result
@@ -258,16 +258,12 @@ end
 -- ---------------------------------------------------------------------------
 local function run_python(cmd)
   -- Print command to Ardour console for debugging
-  if reaper_show_msg then
-    reaper_show_msg("midi_drums: " .. cmd .. "\n")
-  end
+  io.stderr:write("midi_drums: " .. cmd .. "\n")
   local handle = io.popen(cmd .. " 2>&1")
   local out    = handle:read("*a")
   local ok     = handle:close()
   if out and out ~= "" then
-    if reaper_show_msg then
-      reaper_show_msg(out .. "\n")
-    end
+    io.stderr:write(out .. "\n")
   end
   return ok, out
 end
@@ -322,9 +318,9 @@ end
 -- ---------------------------------------------------------------------------
 -- Try ARDOUR's GUI/dialog API; fall back to io.stderr/stdout if not available.
 local function show_ardour_msgbox(msg, title)
-  -- Attempt 1: ARDOOR.msg_box or similar (Mixbus-specific)
-  if ARDOOR and ARDOOR.msg_box then
-    return ARDOOR:msg_box(msg, title or "Message")
+  -- Attempt 1: ARDOUR.msg_box or similar (Mixbus-specific)
+  if ARDOUR and ARDOUR.msg_box then
+    return ARDOUR:msg_box(msg, title or "Message")
   end
   -- Attempt 2: Session dialog callback
   if SESSION and SESSION.gui and SESSION.gui.show_message then
@@ -408,8 +404,8 @@ local function import_midi(file_path)
   end
   -- Try ARDOUR's media import API
   local ok, err = pcall(function()
-    if ARDOUR and ARDOOR.import_midi_file then
-      ARDOOR:import_midi_file(file_path)
+    if ARDOUR and ARDOUR.import_midi_file then
+      ARDOUR:import_midi_file(file_path)
     elseif SESSION.import_media then
       SESSION:import_media({ file_path })
     end

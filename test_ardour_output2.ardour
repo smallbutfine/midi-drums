@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Session version="7000" name="test_ardour_output2" sample-rate="48000" end-link="0" unit-bits="32" stereo-clean-mix="false">
+  <Config>
+    <Option name="sample-rate" value="48000"/>
+    <Option name="sample-format" value="24bitInt"/>
+    <Option name="srate" value="48000"/>
+  </Config>
+  <Metadata/>
+  <Sources>
+    <Source type="midi" name="test_ardour2.mid" id="1000001" origin="" flags=""/>
+  </Sources>
+  <Regions>
+    <Region id="2000001" name="test_ardour2" source="1000001" start="0" length="6025846" position="0" type="midi" flags="Opaque,Valid,WholeFile"/>
+  </Regions>
+  <Locations>
+    <Location id="9000001" name="Intro" start="0" end="0" flags="IsMark" locked="false" position-lock-style="AudioTime"/>
+    <Location id="9000002" name="Verse" start="708923" end="708923" flags="IsMark" locked="false" position-lock-style="AudioTime"/>
+    <Location id="9000003" name="Chorus" start="1417846" end="1417846" flags="IsMark" locked="false" position-lock-style="AudioTime"/>
+    <Location id="9000004" name="Verse" start="2126769" end="2126769" flags="IsMark" locked="false" position-lock-style="AudioTime"/>
+    <Location id="9000005" name="Breakdown" start="2835692" end="2835692" flags="IsMark" locked="false" position-lock-style="AudioTime"/>
+    <Location id="9000006" name="Chorus" start="3544615" end="3544615" flags="IsMark" locked="false" position-lock-style="AudioTime"/>
+    <Location id="9000007" name="Bridge" start="4253538" end="4253538" flags="IsMark" locked="false" position-lock-style="AudioTime"/>
+    <Location id="9000008" name="Solo" start="4608000" end="4608000" flags="IsMark" locked="false" position-lock-style="AudioTime"/>
+    <Location id="9000009" name="Outro" start="5316923" end="5316923" flags="IsMark" locked="false" position-lock-style="AudioTime"/>
+  </Locations>
+  <Routes>
+    <Route id="3000001" name="test_ardour2 MIDI" default-output-channels="2" flags="MidiTrack" active="yes" locked="no">
+      <Playlist id="4000001" name="test_ardour2 MIDI 1" orig_track_id="3000001">
+        <Region id="2000001" position="0"/>
+      </Playlist>
+    </Route>
+  </Routes>
+</Session>
