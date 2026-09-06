@@ -31,8 +31,8 @@ Chameleon Drummer is a Python system that creates professional-quality drum trac
   - ⚡ **Genre-aware default BPM** — omit `tempo` and the system picks a realistic value for each genre/style automatically
   - 📦 **Expandable** — plugin architecture for more genres and styles
 
-- 🥁 **Drummer Imitation** — 15 legendary styles + 1 composite
-  - Bonham, Porcaro, Weckl, Chambers, Roeder, Dee, Hoglan, Peart, Rich, Copeland, Carey, Haake, Halpern, Chad Smith
+- 🥁 **Drummer Imitation** — 16 legendary styles + 1 composite
+  - Bonham, Porcaro, Weckl, Chambers, Roeder, Dee, Hoglan, Peart, Rich, Copeland, Carey, Haake, Halpern, Chad Smith, Moon, Watts
   - DoomBlues composite (Roeder + Porcaro + Chambers)
   - 64+ verified signature fills (8 per drummer where researched, fewer for some)
   - Authentic playing techniques — behind-the-beat timing, ghost notes, triplet feels, shuffle patterns
@@ -769,20 +769,17 @@ Pro Tools, Cubase, Reaper, etc.). Note-number output depends on the
 `--mapping` preset (or `--mapping-file`) you choose — presets are **not**
 all identical:
 
-- **`ezdrummer3`** (default, primary target) — uses EZDrummer 3's real note
-  numbers for extended hi-hat articulations (closed-hat edge/tip, tight-hat
-  edge/tip, open-hat 1-3/max) that don't exist in General MIDI at all.
-- **`gm_drums`** / **`gm`** / **`general_midi`** — strict GM Level 1
+- **`gm`** / **`general_midi`** (default) — strict GM Level 1
   percussion. The extended hi-hat articulations above are collapsed to
   their nearest real GM note (closed-hat family → note 42, open-hat family
   → note 46) so output stays GM-compliant.
-- **`studio_drummer3`**, **`bfd3`**, **`modo_drums`**,
-  **`ml_drums`** — use the same GM-collapsed note table as `gm_drums`
-  (vendor-specific note research is still pending for these); safe to use
-  with any GM-compatible sampler today.
+- **`ezdrummer3`** — EZDrummer 3's real note numbers for extended hi-hat
+  articulations (closed-hat edge/tip, tight-hat edge/tip, open-hat 1-3/max).
 - **`addictive_drums`** — vendor-documented MIDI keymap from XLN Audio
   (June 2021). Differs from GM on hi-hat positions (notes 48-57), rim shot
   (44 vs 40), and several cymbal notes. Core drums (kick, snare) match GM.
+- **`xg`** — Yamaha XG standard drum mapping (similar to GM with slight
+  variations for extended cymbals).
 - **Custom mapping** — pass `--mapping-file path/to/mapping.json` (CLI) or
   `mapping_file="path/to/mapping.json"` (`DrumGeneratorAPI.create_song()`)
   to supply your own note table without editing the library. See
@@ -848,7 +845,7 @@ New musical genres or styles, advanced humanization techniques, integration with
 
 ### Phase 1: Core Expansion ✅
 - [x] Rock, Jazz, and Funk genre plugins (7 styles each)
-- [x] 15 drummer plugins (+ 1 composite): Bonham, Porcaro, Weckl, Chambers, Roeder, Dee, Hoglan, Peart, Rich, Copeland, Carey, Haake, Halpern, Chad Smith
+- [x] 16 drummer plugins (+ 1 composite): Bonham, Porcaro, Weckl, Chambers, Roeder, Dee, Hoglan, Peart, Rich, Copeland, Carey, Haake, Halpern, Chad Smith, Moon, Watts
 - [x] Comprehensive testing and validation system (563+ tests)
 - [x] Reaper DAW integration with automatic markers
 - [x] CLI tool installation (`uv tool install`)

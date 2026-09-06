@@ -222,3 +222,7 @@ GetGood Drums MIDI-Mapping _ r_LogicPro.pdf
 regen_log2.txt
 regen_log.txt
 lint_output.txt
+test_ardour_output.ardour
+test_ardour_output2.ardour
+Bogren_Digital_Eloy_drums_map.txt
+ardour_test/

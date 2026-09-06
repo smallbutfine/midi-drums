@@ -1,6 +1,6 @@
 # MIDI Drums Generator — User Guide
 
-Generate realistic drum tracks in **metal, rock, jazz, funk**, and **electronic** genres. Choose from **17 drummer styles**, apply genre-specific patterns, and export directly to **REAPER** or **Ardour/Mixbus**.
+Generate realistic drum tracks in **metal, rock, jazz, funk**, and **electronic** genres. Choose from **16 drummer styles**, apply genre-specific patterns, and export directly to **REAPER** or **Ardour/Mixbus**.
 
 ---
 
@@ -180,7 +180,7 @@ python -m midi_drums.api.cli prompt "DESCRIBE YOUR GROOVE" [options]
 | `--ardour DIR` | *(none)* | Create an Ardour session directory with sidecar + MIDI alongside the AI output (same as `--rpp` but for the Ardour workflow) |
 | `--save-metadata` | Off | Save a JSON metadata file at `output/<slug>/metadata.json` alongside the MIDI. When `--song` is also used, per-section part files are written to `output/<slug>/parts/`. |
 | `--write-sidecar JSON` | *(none)* | Write a `midi_drums_sections.json` sidecar at this path after generation. Used by REAPER / Ardour scripts for region creation. |
-| `--mapping NAME` | `"gm_drums"` | MIDI mapping preset (choices: `ezdrummer3`, `gm_drums`, `addictive_drums`, `bfd3`, `modo_drums`, `ml_drums`, `studio_drummer3`) |
+| `--mapping NAME` | `"gm"` | MIDI mapping preset (choices: `gm`, `ezdrummer3`, `addictive_drums`, `xg`) |
 
 **AI Backend Setup**
 

@@ -1,6 +1,6 @@
 # MIDI Drums — User Guide
 
-Chameleon Drummer is a Python system for generating realistic MIDI drum tracks. It covers **5 genres**, **32 styles**, and **17 drummer personalities** with genre-aware default tempos, humanization, pattern templates, natural-language AI generation, Additive Drums 2 (AD2) keymap support, and direct REAPER + Ardour DAW integration.
+Chameleon Drummer is a Python system for generating realistic MIDI drum tracks. It covers **5 genres**, **32 styles**, and **16 drummer personalities** with genre-aware default tempos, humanization, pattern templates, natural-language AI generation, Additive Drums 2 (AD2) keymap support, and direct REAPER + Ardour DAW integration.
 
 ## Table of Contents
 
@@ -84,7 +84,7 @@ Run these flags **without** any subcommand to generate a quick song using the de
 | `--complexity` | `0.5` | Pattern complexity 0.0–1.0 |
 | `--humanization` | `0.3` | Human feel 0.0–1.0 |
 | `--drummer` | *(none)* | Drummer personality (see below) |
-| `--mapping` / `--vst` | `gm_drums` | MIDI note mapping preset (see [Mappings](#midi-mappings)) |
+| `--mapping` / `--vst` | `gm` | MIDI note mapping preset (see [Mappings](#midi-mappings)) |
 | `--mapping-file` | *(none)* | Path to a custom JSON mapping file (overrides `--mapping`) |
 
 **Example:**
@@ -137,7 +137,7 @@ Generates a single 4-bar pattern.
 | `--tempo` | No | `120` | BPM |
 | `-o, --output` | **Yes** | — | Output `.mid` path |
 | `--complexity` | No | `0.5` | Complexity 0.0–1.0 |
-| `--mapping` / `--vst` | No | `gm_drums` | MIDI mapping preset |
+| `--mapping` / `--vst` | `gm` | MIDI mapping preset |
 | `--mapping-file` | No | — | Custom JSON mapping file path |
 
 **Example:**
@@ -164,7 +164,7 @@ Generates drums from a natural-language description using an LLM backend.
 | `--ardour DIR` | none | Create an Ardour session dir with sidecar + MIDI |
 | `--save-metadata` | off | Save a `metadata.json` alongside the output |
 | `--write-sidecar JSON` | none | Write a `midi_drums_sections.json` sidecar for REAPER Lua integration |
-| `--mapping` | `gm_drums` | MIDI mapping preset. Use `addictive_drums` for AD2 native keymap. |
+| `--mapping` | `gm` | MIDI mapping preset. Use `additive_drums` for AD2 native keymap. |
 
 **Examples:**
 
@@ -242,15 +242,10 @@ The default mapping is **`gm_drums`** (General MIDI Standard). This ensures comp
 
 | Preset | Description | Mapped Instruments |
 |--------|-------------|-------------------|
-| `gm_drums` / `gm` / `general_midi` | **Default.** GM Level 1 standard notes. Broadest compatibility. | 12 core instruments (kick, snare, rim, HH closed/open/pedal, mid/floor tom, crash, ride, ride bell, splash, china) |
-| `ezdrummer3` / `ez_drummer_3` | EZDrummer 3 keymap with extended hi-hat and cymbal choke variants. | ~30+ instruments including tight HH, crash choked A-D, tom edges, closed/hh tip |
-| `addictive_drums` / `addictive_drums_2` | **AD2 native keymap.** Most extensive mapping (~40 entries) from XLN Audio's vendor PDF. Covers core drums, brush sweeps (6 zones), rim/shot, tight HH (5 velocity-tunable zones), crash chokes, tom edges, extended cymbals. | ~40+ instruments — full AD2 zone coverage |
-| `bfd3` | BFD3 preset (uses GM baseline). | 12 core instruments |
-| `studio_drummer3` / `studio_drummer_3` | Studio Drummer 3 preset (uses GM baseline). | 12 core instruments |
-| `modo_drums` | MODO Drums preset (uses GM baseline). | 12 core instruments |
-| `ml_drums` | ML Drums preset (uses GM baseline). | 12 core instruments |
-| `metal` | Metal-optimized velocity ranges (powerful kicks/snares, loud crashes). | 12 core instruments with custom velocity ranges |
-| `jazz` | Jazz-optimized velocity ranges (softer kicks, dynamic snares, subtle HH). | 12 core instruments with custom velocity ranges |
+| `gm` / `general_midi` | **Default.** GM Level 1 standard notes. Broadest compatibility. | All template instruments mapped to nearest GM note |
+| `ezdrummer3` / `ezd3` | EZDrummer 3 keymap with extended hi-hat and cymbal choke variants. | ~80+ instruments including tight HH, crash choked A-F, tom edges |
+| `addictive_drums` / `ad2` | **AD2 native keymap.** Most extensive mapping from XLN Audio's vendor PDF. Covers core drums, brush sweeps (6 zones), rim/shots, tight HH (5 velocity-tunable zones), crash chokes, tom edges, extended cymbals. | ~80+ instruments — full AD2 zone coverage |
+| `xg` | Yamaha XG standard drum mapping. Similar to GM with slight variations for extended cymbals. | All template instruments mapped to XG notes |
 
 To use a custom mapping file:
 
