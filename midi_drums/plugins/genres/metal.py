@@ -28,6 +28,7 @@ _AD2_CRASH = {
     "light": InstrumentRegistry.get("cymbal_2_hit"),
     "splash": InstrumentRegistry.get("cymbal_6_hit"),
 }
+_AD2_CRASH_VARIANTS = list(_AD2_CRASH.values())
 
 # Styles that use china cymbal (rather than ride) as the high-energy
 # timekeeper, per issue #18's research: china-as-ride-substitute is a
@@ -113,6 +114,16 @@ class MetalGenrePlugin(GenrePlugin):
         if parameters.style in _CHINA_TIMEKEEPER_STYLES:
             return InstrumentRegistry.get("cymbal_5_hit")
         return super()._high_energy_timekeeper(section, parameters)
+
+    def _get_open_hh_crash_variant(
+        self,
+        pattern: Pattern,
+        beat_pos: float,
+        bar_index: int,
+    ) -> DrumInstrument:
+        # Cycle through heavy/light/splash crashes per bar for timbral
+        # variety consistent with AD2's three crash categories.
+        return _AD2_CRASH_VARIANTS[bar_index % len(_AD2_CRASH_VARIANTS)]
 
     def get_common_fills(self) -> list[Fill]:
         """Get common metal fill patterns using TomFill template."""

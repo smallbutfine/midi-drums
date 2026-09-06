@@ -29,6 +29,14 @@ from midi_drums.plugins.interfaces.genre_plugin import GenrePlugin
 # role.
 _CRASH_TIMEKEEPER_STYLES = frozenset({"hard", "punk"})
 
+# Rock crash variants used for open hi-hat accents.
+_ROCK_CRASHES = [
+    InstrumentRegistry.get("cymbal_1_hit"),  # Crash 1
+    InstrumentRegistry.get("cymbal_2_hit"),  # Crash 2
+    InstrumentRegistry.get("cymbal_3_hit"),  # Crash 3
+    InstrumentRegistry.get("cymbal_6_hit"),  # Crash 6 (splash)
+]
+
 
 class RockGenrePlugin(GenrePlugin):
     """Rock genre plugin using template composition.
@@ -106,6 +114,15 @@ class RockGenrePlugin(GenrePlugin):
         if parameters.style in _CRASH_TIMEKEEPER_STYLES:
             return InstrumentRegistry.get("cymbal_1_hit")
         return super()._high_energy_timekeeper(section, parameters)
+
+    def _get_open_hh_crash_variant(
+        self,
+        pattern: Pattern,
+        beat_pos: float,
+        bar_index: int,
+    ) -> DrumInstrument:
+        # Cycle through rock crash variants per bar.
+        return _ROCK_CRASHES[bar_index % len(_ROCK_CRASHES)]
 
     def get_common_fills(self) -> list[Fill]:
         """Get common rock fill patterns using TomFill template."""

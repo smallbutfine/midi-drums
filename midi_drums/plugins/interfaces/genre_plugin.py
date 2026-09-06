@@ -218,6 +218,20 @@ class GenrePlugin(ABC):
         """
         return InstrumentRegistry.get("ride_1_tip_hit_softer")
 
+    def _get_open_hh_crash_variant(
+        self,
+        pattern: Pattern,
+        beat_pos: float,
+        bar_index: int,
+    ) -> DrumInstrument:
+        """Return the crash instrument for an open hi-hat accent.
+
+        Base class returns a single default crash.  Subclasses may
+        override to cycle through multiple crash variants so that open
+        HH hits sound different across bars.
+        """
+        return InstrumentRegistry.get("cymbal_2_hit")
+
     def _apply_ride_hihat_logic(
         self,
         pattern: Pattern,
@@ -278,7 +292,9 @@ class GenrePlugin(ABC):
 
             if inst_name.startswith("hihat_open"):
                 # Open HH → crash/choke accent (not a timekeeper)
-                promoted_inst = InstrumentRegistry.get("cymbal_2_hit")
+                promoted_inst = self._get_open_hh_crash_variant(
+                    pattern, beat.position, bar_index
+                )
                 promoted_vel = VELOCITY.CRASH_ACCENT
             elif is_downbeat and bar_index >= 4 and (bar_index - 4) % 4 == 0:
                 # Every 4th bar starting from bar 5 → bell accent for timbral variety
