@@ -30,7 +30,16 @@ _SNARE = InstrumentRegistry.get("snare_rimshot_open_hit")
 _HIHAT_CLOSED_1 = InstrumentRegistry.get("hihat_closed_1_tip_closed_1_hit")
 _HIHAT_CLOSED_BELL = InstrumentRegistry.get("hihat_closed_bell")
 _HIHAT_CLOSED_2 = InstrumentRegistry.get("hihat_closed_2_tip_closed_2_hit")
-_ALL_HIHAT = frozenset([_HIHAT_CLOSED_1, _HIHAT_CLOSED_BELL, _HIHAT_CLOSED_2])
+_HIHAT_CLOSED_SHAFT_1 = InstrumentRegistry.get(
+    "hihat_closed_1_shaft_closed_1_hit_dbl"
+)
+_HIHAT_CLOSED_SHAFT_2 = InstrumentRegistry.get(
+    "hihat_closed_2_shaft_closed_2_hit_dbl"
+)
+_ALL_HIHAT = frozenset([
+    _HIHAT_CLOSED_1, _HIHAT_CLOSED_BELL, _HIHAT_CLOSED_2,
+    _HIHAT_CLOSED_SHAFT_1, _HIHAT_CLOSED_SHAFT_2,
+])
 _RIDE = InstrumentRegistry.get("ride_1_tip_hit_softer")
 _CRASH = InstrumentRegistry.get("cymbal_1_hit")
 _CHINA = InstrumentRegistry.get("cymbal_5_hit")

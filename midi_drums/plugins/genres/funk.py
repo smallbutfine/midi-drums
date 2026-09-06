@@ -116,8 +116,7 @@ class FunkGenrePlugin(GenrePlugin):
             case _:
                 pattern = self._generate_verse(style, complexity)
 
-        # No hi-hat promotion — preserves full AD2 hihat vocabulary
-        return pattern
+        return self._apply_ride_hihat_logic(pattern, section, parameters)
 
     def get_common_fills(self) -> list[Fill]:
         """Get common funk fill patterns using templates."""

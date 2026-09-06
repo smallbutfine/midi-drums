@@ -6,7 +6,7 @@
 [![Python](https://img.shields.io/badge/Python-3.12%2B%20%7C%203.13-blue.svg)](https://www.python.org/)
 [![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 [![MIDI](https://img.shields.io/badge/Output-MIDI-purple.svg)](https://en.wikipedia.org/wiki/MIDI)
-[![EZDrummer](https://img.shields.io/badge/Compatible-EZDrummer_3-orange.svg)](https://www.toontrack.com/product/ezdrummer-3/)
+
 
 *A comprehensive, plugin-based MIDI drum track generation system*
 
@@ -47,10 +47,10 @@ Chameleon Drummer is a Python system that creates professional-quality drum trac
 
 - 🎛️ **Professional Features**
   - Realistic velocity variations and humanization
-  - EZDrummer 3 compatible MIDI mapping (primary target)
+  - EZDrummer 3 compatible MIDI mapping
   - Additive Drums 2 full keymap (35 zones: tight HH, crash_choked A-D, ride_bell, tom_edge variants)
-    Use `--mapping addictive_drums` or `DrumKit.create_addictive_drums_kit()` to activate
-  - Song map / timeline export for REAPER integration (`--song-map`, `--write-timeline`)
+    Use `--ad2` or `DrumKit.create_addictive_drums_kit()` to activate
+  - Song map / timeline export for REAPER and Ardour integration (`--song-map`, `--write-timeline`)
   - Multiple complexity and dynamics levels
 
 - 🔧 **Multiple Interfaces**
@@ -60,9 +60,9 @@ Chameleon Drummer is a Python system that creates professional-quality drum trac
   - REAPER DAW integration for professional workflows
 
 - 🤖 **AI-Powered Generation**
-  - Natural language pattern generation with Pydantic AI
+  - Natural language pattern generation with AI (optional!)
   - Intelligent multi-section composition with Langchain agents
-  - Provider-agnostic backend (Anthropic, OpenAI, Groq, Cohere)
+  - Provider-agnostic backend (Anthropic, OpenAI, Groq, Cohere or locally with Ollama)
   - Environment-driven configuration for production use
 
 ---
@@ -261,13 +261,9 @@ groq_config = AIBackendConfig(
 ai_groq = DrumGeneratorAI(backend_config=groq_config)
 ```
 
-| Provider | Models | Best For |
-|----------|--------|----------|
-| **Anthropic** | Claude Sonnet 5 | High-quality, nuanced generation |
-| **OpenAI** | GPT-4o, GPT-4 Turbo | Versatile, well-tested |
-| **Groq** | Llama 3.3 70B | Fast inference, cost-effective |
 
-> Cohere is defined in the provider config (`AIProvider.COHERE`) but not yet wired into the Pydantic AI / Langchain backends — `AIBackendFactory` raises for it today. Support is tracked as a future item.
+
+> Cohere is defined in the provider config (`AIProvider.COHERE`) but not yet wired into the AI / Langchain backends — `AIBackendFactory` raises for it today. Support is tracked as a future item.
 
 **Environment Variables:** `AI_PROVIDER`, `AI_MODEL`, `ANTHROPIC_API_KEY` / `OPENAI_API_KEY` / `GROQ_API_KEY`, `AI_TEMPERATURE` (0.0-2.0, default 0.7), `AI_MAX_TOKENS` (default 4096)
 

@@ -263,10 +263,39 @@ class GenrePlugin(ABC):
             )
 
         switched = pattern.copy()
+        hh_pedal = InstrumentRegistry.get("hihat_pedal_closed")
+
         for beat in switched.beats:
-            if beat.instrument in _HIHAT_INSTRUMENTS:
-                beat.instrument = timekeeper
-                beat.instrument_promoted = True
+            if beat.instrument == hh_pedal:
+                continue  # keep pedal as-is
+
+            if beat.instrument not in _HIHAT_INSTRUMENTS:
+                continue
+
+            inst_name = beat.instrument.name
+            is_downbeat = beat.position.is_integer()
+            bar_index = int(beat.position) // switched.time_signature.beats_per_bar
+
+            if inst_name.startswith("hihat_open"):
+                # Open HH → crash/choke accent (not a timekeeper)
+                promoted_inst = InstrumentRegistry.get("cymbal_2_hit")
+                promoted_vel = VELOCITY.CRASH_ACCENT
+            elif is_downbeat and bar_index >= 4 and (bar_index - 4) % 4 == 0:
+                # Every 4th bar starting from bar 5 → bell accent for timbral variety
+                promoted_inst = InstrumentRegistry.get("ride_1_bell")
+                promoted_vel = VELOCITY.RIDE_ACCENT
+            elif is_downbeat:
+                # Downbeat → main timekeeper (ride, china, or crash per genre)
+                promoted_inst = timekeeper
+                promoted_vel = VELOCITY.RIDE_NORMAL
+            else:
+                # Offbeat → ride shaft / lighter variant
+                promoted_inst = InstrumentRegistry.get("ride_1_shaft_hit_stronger")
+                promoted_vel = VELOCITY.RIDE_LIGHT
+
+            beat.instrument = promoted_inst
+            beat.velocity = promoted_vel
+            beat.instrument_promoted = True
 
         existing_pedal_positions = {
             beat.position

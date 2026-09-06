@@ -15,8 +15,27 @@ from midi_drums.core.models.kit import DrumInstrument, InstrumentRegistry
 from midi_drums.core.models.pattern import Pattern
 from midi_drums.generation.builders.pattern_builder import PatternBuilder
 
-closed_hh = InstrumentRegistry.get("hihat_closed_1_tip_closed_1_hit")
-closed_hh_edge = InstrumentRegistry.get("hihat_closed_2_tip_closed_2_hit")
+# HH variant lists — lazily resolved at first use via helper functions
+
+
+def _hh_closed_variants():
+    return [
+        InstrumentRegistry.get("hihat_closed_1_tip_closed_1_hit"),
+        InstrumentRegistry.get("hihat_closed_1_shaft_closed_1_hit_dbl"),
+        InstrumentRegistry.get("hihat_closed_2_tip_closed_2_hit"),
+        InstrumentRegistry.get("hihat_closed_2_shaft_closed_2_hit_dbl"),
+        InstrumentRegistry.get("hihat_closed_bell"),
+    ]
+
+
+def _hh_open_variants():
+    return [
+        InstrumentRegistry.get("hihat_open_a"),
+        InstrumentRegistry.get("hihat_open_b"),
+        InstrumentRegistry.get("hihat_open_c"),
+        InstrumentRegistry.get("hihat_open_d"),
+        InstrumentRegistry.get("hihat_open_bell"),
+    ]
 ride = InstrumentRegistry.get("ride_1_tip_hit_softer")
 ride_bell = InstrumentRegistry.get("ride_1_bell")
 ride_shaft = InstrumentRegistry.get("ride_1_shaft_hit_stronger")
@@ -101,23 +120,21 @@ class BasicGroove(PatternTemplate):
 
                 # Check if this position should be open hihat
                 if self.use_open_hihat and pos in self.open_hihat_positions:
-                    builder.open_hihat(pos, VELOCITY.HIHAT_OPEN)
+                    open_variants = _hh_open_variants()
+                    variant = open_variants[i % len(open_variants)]
+                    builder.add_hit(variant, pos, VELOCITY.HIHAT_OPEN)
                 else:
-                    # Dynamic hi-hat velocity based on position for realism
-                    # Downbeats (0, 1, 2, 3) are stronger
+                    closed_variants = _hh_closed_variants()
+                    # Downbeats -> bell accent; offbeats -> cycle closed variants
                     if relative_pos.is_integer():
                         velocity = VELOCITY.HIHAT_ACCENT
-                        # Use Edge for accents (more common in rock)
-                        instrument = closed_hh_edge
+                        variant = closed_variants[-1]  # last = bell
                     else:
                         velocity = int(
                             VELOCITY.HIHAT_NORMAL + (random.random() * 10 - 5)
                         )
-                        # Use Tip for softer hits
-                        instrument = closed_hh
-
-                    # Fallback to standard if specific ones aren't available (handled by builder/kit)
-                    builder.add_hit(instrument, pos, velocity)
+                        variant = closed_variants[i % len(closed_variants)]
+                    builder.add_hit(variant, pos, velocity)
 
         return builder
 
@@ -136,21 +153,26 @@ class DoubleBassPedal(PatternTemplate):
     subdivision: float = TIMING.SIXTEENTH
     intensity: float = 1.0
     pattern_type: str = "continuous"  # "continuous", "gallop", "triplet"
+    include_timekeeper: bool = True  # whether to place ride/crash on beats
+    timekeeper_variant: str = "ride"  # "ride" or "china"
 
     def generate(self, builder: PatternBuilder, **kwargs) -> PatternBuilder:
         bars = kwargs.get("bars", 1)
+        include_timekeeper = kwargs.get(
+            "include_timekeeper", self.include_timekeeper
+        )
 
         if self.pattern_type == "continuous":
-            return self._continuous_pattern(builder, bars)
+            return self._continuous_pattern(builder, bars, include_timekeeper)
         elif self.pattern_type == "gallop":
-            return self._gallop_pattern(builder, bars)
+            return self._gallop_pattern(builder, bars, include_timekeeper)
         elif self.pattern_type == "triplet":
-            return self._triplet_pattern(builder, bars)
+            return self._triplet_pattern(builder, bars, include_timekeeper)
         else:
-            return self._continuous_pattern(builder, bars)
+            return self._continuous_pattern(builder, bars, include_timekeeper)
 
     def _continuous_pattern(
-        self, builder: PatternBuilder, bars: int
+        self, builder: PatternBuilder, bars: int, include_timekeeper: bool = True
     ) -> PatternBuilder:
         """Continuous alternating double bass."""
         for bar in range(bars):
@@ -167,10 +189,28 @@ class DoubleBassPedal(PatternTemplate):
                 velocity = max(60, min(127, velocity))
                 builder.kick(pos, velocity)
 
+            # Add native timekeeper cymbal on downbeats so the pattern
+            # produces actual cymbals even before any promotion happens.
+            if include_timekeeper:
+                tk_inst = (
+                    InstrumentRegistry.get("cymbal_5_hit")
+                    if self.timekeeper_variant == "china"
+                    else ride
+                )
+                for downbeat_pos in [0.0, 2.0]:
+                    builder.add_hit(
+                        tk_inst, bar_offset + downbeat_pos, VELOCITY.RIDE_NORMAL
+                    )
+                    # Every other downbeat gets bell accent
+                    if int(bar_offset + downbeat_pos) % 4 == 0:
+                        builder.ride_bell(
+                            bar_offset + downbeat_pos, VELOCITY.RIDE_ACCENT
+                        )
+
         return builder
 
     def _gallop_pattern(
-        self, builder: PatternBuilder, bars: int
+        self, builder: PatternBuilder, bars: int, include_timekeeper: bool = True
     ) -> PatternBuilder:
         """Galloping rhythm (1-2-3, 1-2-3)."""
         for bar in range(bars):
@@ -185,10 +225,22 @@ class DoubleBassPedal(PatternTemplate):
                 velocity = int(velocity * self.intensity)
                 builder.kick(bar_offset + pos, velocity)
 
+            # Native timekeeper on beat 1 and 3
+            if include_timekeeper:
+                tk_inst = (
+                    InstrumentRegistry.get("cymbal_5_hit")
+                    if self.timekeeper_variant == "china"
+                    else ride
+                )
+                for downbeat_pos in [0.0, 2.0]:
+                    builder.add_hit(
+                        tk_inst, bar_offset + downbeat_pos, VELOCITY.RIDE_NORMAL
+                    )
+
         return builder
 
     def _triplet_pattern(
-        self, builder: PatternBuilder, bars: int
+        self, builder: PatternBuilder, bars: int, include_timekeeper: bool = True
     ) -> PatternBuilder:
         """Triplet-based double bass."""
         for bar in range(bars):
@@ -199,6 +251,18 @@ class DoubleBassPedal(PatternTemplate):
                 pos = bar_offset + (i * TIMING.EIGHTH_TRIPLET)
                 velocity = int(VELOCITY.KICK_NORMAL * self.intensity)
                 builder.kick(pos, velocity)
+
+            # Native timekeeper on beat 1 and 3
+            if include_timekeeper:
+                tk_inst = (
+                    InstrumentRegistry.get("cymbal_5_hit")
+                    if self.timekeeper_variant == "china"
+                    else ride
+                )
+                for downbeat_pos in [0.0, 2.0]:
+                    builder.add_hit(
+                        tk_inst, bar_offset + downbeat_pos, VELOCITY.RIDE_NORMAL
+                    )
 
         return builder
 

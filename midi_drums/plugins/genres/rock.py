@@ -98,8 +98,14 @@ class RockGenrePlugin(GenrePlugin):
         else:
             pattern = self._generate_verse(style, complexity)
 
-        # No hi-hat promotion — preserves full AD2 hihat vocabulary
-        return pattern
+        return self._apply_ride_hihat_logic(pattern, section, parameters)
+
+    def _high_energy_timekeeper(
+        self, section: str, parameters: GenerationParameters
+    ) -> DrumInstrument:
+        if parameters.style in _CRASH_TIMEKEEPER_STYLES:
+            return InstrumentRegistry.get("cymbal_1_hit")
+        return super()._high_energy_timekeeper(section, parameters)
 
     def get_common_fills(self) -> list[Fill]:
         """Get common rock fill patterns using TomFill template."""

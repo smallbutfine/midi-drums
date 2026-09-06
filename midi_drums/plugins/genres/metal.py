@@ -105,8 +105,14 @@ class MetalGenrePlugin(GenrePlugin):
         else:
             pattern = self._generate_verse(style, complexity)
 
-        # No hi-hat promotion — preserves full AD2 hihat vocabulary
-        return pattern
+        return self._apply_ride_hihat_logic(pattern, section, parameters)
+
+    def _high_energy_timekeeper(
+        self, section: str, parameters: GenerationParameters
+    ) -> DrumInstrument:
+        if parameters.style in _CHINA_TIMEKEEPER_STYLES:
+            return InstrumentRegistry.get("cymbal_5_hit")
+        return super()._high_energy_timekeeper(section, parameters)
 
     def get_common_fills(self) -> list[Fill]:
         """Get common metal fill patterns using TomFill template."""
