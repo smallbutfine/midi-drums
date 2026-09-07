@@ -9,6 +9,7 @@ cymbal_choke for tight transitions.
 import random
 
 from midi_drums.config import TIMING, VELOCITY
+from midi_drums.core.models.kit import InstrumentRegistry
 from midi_drums.core.models.pattern import Pattern
 from midi_drums.core.models.song import Fill
 from midi_drums.plugins.interfaces.drummer_plugin import DrummerPlugin
@@ -77,9 +78,29 @@ class CareyPlugin(DrummerPlugin):
 
         return styled_pattern
 
-    # Helper methods for apply_style (stub implementations)
-    def _add_polyrhythmic_kick(self, pattern, track):
-        """Add polyrhythmic kick layer (stub)."""
+    # Helper methods for apply_style
+    def _add_polyrhythmic_kick(self, pattern: Pattern, track) -> Pattern:
+        """Add Danny Carey's signature polyrhythmic kick counterpoint.
+
+        Tool-style kicks often cycle in groups of 5 (quintuplets) or
+        odd meters against the genre's primary grid.
+        """
+        from midi_drums.config import TIMING, VELOCITY
+
+        beat_count = track(6)
+        if beat_count == 0:
+            return pattern
+
+        # Poly Kick A: quintuplet cycle (5 hits spread across bar)
+        for i in range(beat_count):
+            pos = (i * TIMING.QUARTER) / 2 + (i % 2) * TIMING.SIXTEENTH
+            if pos < 4.0:
+                pattern.add_beat(
+                    pos,
+                    InstrumentRegistry.get("kick"),
+                    VELOCITY.KICK_HEAVY - 10
+                )
+
         return pattern
 
     def _add_deep_tom_patterns(self, pattern, track):

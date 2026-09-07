@@ -11,7 +11,7 @@ echo Using midi-drums CLI defaults (no overrides)
 echo ========================================
 echo.
 
-set DRUMMERS=bonham porcaro weckl chambers carey dee roeder hoglan rich copeland smith haake halpern peart
+set DRUMMERS=bonham porcaro weckl chambers carey dee roeder hoglan rich copeland smith haake halpern peart moon watts
 
 REM Metal - 7 styles x 14 drummers = 98 combinations
 echo Metal
