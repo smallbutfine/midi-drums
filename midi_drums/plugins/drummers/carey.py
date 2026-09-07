@@ -104,19 +104,92 @@ class CareyPlugin(DrummerPlugin):
         return pattern
 
     def _add_deep_tom_patterns(self, pattern, track):
-        """Add deep tom patterns (stub)."""
+        """Add Danny Carey's deep tom layering across ALL toms.
+
+        Tool-style grooves often place a secondary tom pulse that cycles
+        HIGH→MID→LOW→FLOOR, creating a melodic undercurrent beneath the
+        genre's primary kick/snare skeleton.
+        """
+        beat_budget = track(4)
+        if beat_budget == 0:
+            return pattern
+
+        for i in range(beat_budget):
+            pos = TIMING.EIGHTH_TRIPLET * (1 + i * 2)
+            if pos < 4.0:
+                pattern.add_beat(
+                    pos,
+                    InstrumentRegistry.get(f"tom_{i % 4 + 1}_open_hit"),
+                    VELOCITY.TOM_NORMAL + random.randint(-5, 10)
+                )
+
         return pattern
 
     def _apply_tool_groove_space(self, pattern):
-        """Apply Tool-era groove spacing (stub)."""
+        """Apply Tool-era groove spacing.
+
+        Carey often shifts a hit by a few ms to create intentional space,
+        or removes redundant hits when the kit is overcrowded. Here we
+        nudged the first tom beat from _add_deep_tom_patterns slightly
+        ahead (play it "in front") for a pushy, propulsive feel.
+        """
+        n = len(pattern.beats)
+        if n < 2:
+            return pattern
+
+        # Find the first tom beat added by _add_deep_tom_patterns and nudge
+        # it ahead by ~12 ms for that Carey "in-your-face" groove push.
+        first_tom_hit = None
+        for beat in pattern.beats:
+            inst_name = str(beat.instrument)
+            if "tom_" in inst_name and first_tom_hit is None:
+                first_tom_hit = beat
+                break
+
+        if first_tom_hit is not None and first_tom_hit.position > 0.01:
+            first_tom_hit.position -= 0.012  # ~12 ms ahead
+
         return pattern
 
     def _add_pentatonic_accent_fills(self, pattern, track):
-        """Add pentatonic accent fills (stub)."""
+        """Add pentatonic accent fills across ALL toms.
+
+        Carey frequently uses pentatonic sequences (5 notes = 5 toms,
+        cycling) as accent patterns. We use the 4-tom cycle and pick
+        a pentatonic rhythm offset so it doesn't double as the base groove.
+        """
+        beat_budget = track(3)
+        if beat_budget == 0:
+            return pattern
+
+        for i in range(beat_budget):
+            pos = TIMING.QUARTER * (1 + i) + TIMING.EIGHTH_TRIPLET
+            if pos < 4.0:
+                pattern.add_beat(
+                    pos,
+                    InstrumentRegistry.get(f"tom_{i % 4 + 1}_open_hit"),
+                    VELOCITY.TOM_ACCENT
+                )
+
         return pattern
 
     def _add_cymbal_swell_effects(self, pattern, track):
-        """Add cymbal swell effects (stub)."""
+        """Add long-sustain cymbal swell / texture hits.
+
+        Carey layers crash_5/6 swells at the edges of phrases for the
+        heavy Tool-era sound.  We add a single large-cym swell near bar end.
+        """
+        beat_budget = track(1)
+        if beat_budget == 0:
+            return pattern
+
+        # Place at the very end of the bar for a phrase-ending swell
+        pattern.add_beat(
+            3.875,  # just before bar-line
+            InstrumentRegistry.get("cymbal_6_hit"),
+            VELOCITY.CRASH_ACCENT - 10
+        )
+
         return pattern
 
     def get_signature_fills(self) -> list[Fill]:
