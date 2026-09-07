@@ -26,7 +26,6 @@ from midi_drums.generation.engines.drum_generator import (
 )
 from midi_drums.generation.fill_library.picker import FillContext, FillPicker
 from midi_drums.generation.groove_engine import GrooveEngine
-from midi_drums.modifications.drummer_mods import _SNARE_VARIANTS
 from midi_drums.generation.intensity_curve import (
     IntensityCurve,
     interpolate_curve,
@@ -405,14 +404,6 @@ class ComposerV2:
 
         kick = InstrumentRegistry.get("kick")
         has_kick = any(b[1] == kick for b in extracted_beats)
-        # Backbeat positions: odd beat indices (beats 2, 4, 6... 1-indexed) =
-        # positions 1.0, 3.0, 5.0... where traditional rock/metal backbeats land
-        backbeat_positions = [i for i in range(beats_per_bar) if i % 2 == 1]
-        has_snare_backbeat = any(
-            b[1] in _SNARE_VARIANTS
-            and any(abs(b[0] - bp) < 0.1 for bp in backbeat_positions)
-            for b in extracted_beats
-        )
         closed_hh = InstrumentRegistry.get("hihat_closed_1_tip_closed_1_hit")
         open_hh = InstrumentRegistry.get("hihat_open_a")
         ride = InstrumentRegistry.get("ride_1_tip_hit_softer")
@@ -424,21 +415,6 @@ class ComposerV2:
         # Always ensure kick on the downbeat if not present
         if not has_kick:
             extracted_beats.append((0.0, kick, int(VELOCITY.KICK_HEAVY)))
-
-        # Force snare on backbeat only for genres that expect it (rock, metal, etc.)
-        # Jazz/funk/ballad may intentionally have sparse or no snares.
-        enforces_backbeat = (
-            global_params.genre not in ("jazz", "funk")
-            and section_name != "outro"
-        )
-        if enforces_backbeat and not has_snare_backbeat:
-            extracted_beats.append(
-                (
-                    beats_per_bar / 2,
-                    random.choice(tuple(_SNARE_VARIANTS)),
-                    int(VELOCITY.SNARE_ACCENT),
-                )
-            )
 
         # Ensure at least one timekeeping cymbal exists - bars without any
         # cymbal will sound dead/empty even with kick+snare present
@@ -538,14 +514,6 @@ class ComposerV2:
                         position=fill_pos + beats_per_bar / 4,
                         instrument=closed_hh,
                         velocity=60,
-                    )
-                )
-                # Quarter 2 (backbeat): random snare variant + hi-hat
-                combined.beats.append(
-                    Beat(
-                        position=fill_pos + beats_per_bar / 2,
-                        instrument=random.choice(tuple(_SNARE_VARIANTS)),
-                        velocity=int(VELOCITY.SNARE_NORMAL),
                     )
                 )
                 combined.beats.append(
