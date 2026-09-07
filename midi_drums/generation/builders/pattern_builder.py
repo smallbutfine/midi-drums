@@ -1,5 +1,7 @@
 """Pattern builder - fluent construction API for Pattern."""
 
+import random
+
 from midi_drums.config import VELOCITY
 from midi_drums.core.models.kit import DrumInstrument, InstrumentRegistry
 from midi_drums.core.models.pattern import Pattern
@@ -23,8 +25,21 @@ class PatternBuilder:
         return self
 
     def snare(self, position: float, velocity: int = 100) -> "PatternBuilder":
-        """Add snare stick hit at position."""
-        inst = InstrumentRegistry.get("snare_rimshot_open_hit")
+        """Add a snare hit at position.
+
+        Randomly selects one of the four main snare variants (25% each):
+        - ``snare_sticks``      standard stick hit
+        - ``snare_rimshot_open_hit``   rimshot
+        - ``snare_side_stick``   cross-stick / noodle
+        - ``snare_shallow_hit_closed_shallow_hit``  shallow head
+        """
+        _VARIANTS = (
+            "snare_sticks",
+            "snare_rimshot_open_hit",
+            "snare_side_stick",
+            "snare_shallow_hit_closed_shallow_hit",
+        )
+        inst = InstrumentRegistry.get(random.choice(_VARIANTS))
         self.pattern.add_beat(position, inst, velocity)
         return self
 

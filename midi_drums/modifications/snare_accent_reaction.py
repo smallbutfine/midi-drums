@@ -12,18 +12,18 @@ Two independent, opt-in modes (never both at once):
 
 from __future__ import annotations
 
+import random
+
 from dataclasses import dataclass
 from typing import Literal
 
 from midi_drums.config import TIMING, VELOCITY
-from midi_drums.core.models.kit import InstrumentRegistry
 from midi_drums.core.models.pattern import Beat, Pattern
 from midi_drums.core.value_objects.riff_accent import RiffAccentMap
-from midi_drums.modifications.drummer_mods import DrummerModification
-
-snare_inst = InstrumentRegistry.get("snare_rimshot_open_hit")
-
-
+from midi_drums.modifications.drummer_mods import (
+    DrummerModification,
+    _SNARE_VARIANTS,
+)
 @dataclass
 class SnareAccentReaction(DrummerModification):
     """React snare hits to riff accent positions.
@@ -69,7 +69,7 @@ class SnareAccentReaction(DrummerModification):
 
                 # Find nearest non-ghost snare beat
                 for beat in new_pattern.beats:
-                    if beat.instrument != snare_inst or beat.ghost_note:
+                    if beat.instrument not in _SNARE_VARIANTS or beat.ghost_note:
                         continue
 
                     dist = abs(beat.position - accent.position)
@@ -80,7 +80,7 @@ class SnareAccentReaction(DrummerModification):
                         snare_velocities = [
                             b.velocity
                             for b in new_pattern.beats
-                            if b.instrument == snare_inst and not b.ghost_note
+                            if b.instrument in _SNARE_VARIANTS and not b.ghost_note
                         ]
                         velocity_ceiling = (
                             max(snare_velocities)
@@ -109,7 +109,7 @@ class SnareAccentReaction(DrummerModification):
                 has_nearby_snare = False
                 for beat in new_pattern.beats:
                     if (
-                        beat.instrument == snare_inst
+                        beat.instrument in _SNARE_VARIANTS
                         or abs(beat.position - accent.position)
                         <= self.collapse_tolerance_beats
                     ):
@@ -139,7 +139,7 @@ class SnareAccentReaction(DrummerModification):
                     )
                     new_snare = Beat(
                         position=accent.position,
-                        instrument=snare_inst,
+                        instrument=random.choice(list(_SNARE_VARIANTS)),
                         velocity=min(stab_velocity, VELOCITY.SNARE_ACCENT),
                         duration=TIMING.SIXTEENTH,
                         ghost_note=False,
@@ -148,7 +148,7 @@ class SnareAccentReaction(DrummerModification):
                     # Insert in sorted order among snare beats
                     inserted = False
                     for i, existing in enumerate(new_pattern.beats):
-                        if existing.instrument == snare_inst:
+                        if existing.instrument in _SNARE_VARIANTS:
                             if (
                                 self._beat_distance(
                                     existing.position,

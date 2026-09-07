@@ -8,6 +8,7 @@ conventions of tests/unit/test_ride_hihat_switching.py.
 import pytest
 
 from midi_drums.core.models.kit import InstrumentRegistry
+from midi_drums.modifications.drummer_mods import _SNARE_VARIANTS
 from midi_drums.core.value_objects.generation_parameters import (
     GenerationParameters,
 )
@@ -22,8 +23,9 @@ def _kick_positions(pattern):
 
 
 def _snare_positions(pattern):
-    snare = InstrumentRegistry.get("snare_rimshot_open_hit")
-    return {b.position for b in pattern.beats if b.instrument == snare}
+    return {
+        b.position for b in pattern.beats if b.instrument in _SNARE_VARIANTS
+    }
 
 
 def _hihat_count(pattern):

@@ -24,9 +24,11 @@ from midi_drums.patterns import (
     create_metal_pattern,
 )
 
+from midi_drums.modifications.drummer_mods import _SNARE_VARIANTS
+
 # Instrument lookups used throughout these tests
 _KICK = InstrumentRegistry.get("kick")
-_SNARE = InstrumentRegistry.get("snare_rimshot_open_hit")
+_SNARE = InstrumentRegistry.get("snare_open_hit_open_lateral_hit")
 _HIHAT_CLOSED_1 = InstrumentRegistry.get("hihat_closed_1_tip_closed_1_hit")
 _HIHAT_CLOSED_BELL = InstrumentRegistry.get("hihat_closed_bell")
 _HIHAT_CLOSED_2 = InstrumentRegistry.get("hihat_closed_2_tip_closed_2_hit")
@@ -70,7 +72,7 @@ def test_basic_groove_template():
 
     # Should have kicks, snares, and hihats
     kick_count = sum(1 for b in pattern.beats if b.instrument == _KICK)
-    snare_count = sum(1 for b in pattern.beats if b.instrument == _SNARE)
+    snare_count = sum(1 for b in pattern.beats if b.instrument in _SNARE_VARIANTS)
     hihat_count = sum(1 for b in pattern.beats if b.instrument in _ALL_HIHAT)
 
     assert kick_count == 2, f"Expected 2 kicks, got {kick_count}"
@@ -122,7 +124,7 @@ def test_blast_beat_template():
     pattern = TemplateComposer("test_blast").add(template).build(bars=1)
 
     kick_count = sum(1 for b in pattern.beats if b.instrument == _KICK)
-    snare_count = sum(1 for b in pattern.beats if b.instrument == _SNARE)
+    snare_count = sum(1 for b in pattern.beats if b.instrument in _SNARE_VARIANTS)
 
     # Traditional blast: kick + snare on every 8th (8 times)
     assert kick_count == 8, f"Expected 8 kicks, got {kick_count}"
@@ -132,7 +134,7 @@ def test_blast_beat_template():
     hammer = BlastBeat(style="hammer")
     hammer_pattern = TemplateComposer("test_hammer").add(hammer).build(bars=1)
     hammer_snares = sum(
-        1 for b in hammer_pattern.beats if b.instrument == _SNARE
+        1 for b in hammer_pattern.beats if b.instrument in _SNARE_VARIANTS
     )
 
     # Hammer blast has 16th note snares (16 per bar)
@@ -174,9 +176,9 @@ def test_funk_ghost_notes_template():
 
     pattern = TemplateComposer("test_funk").add(template).build(bars=1)
 
-    snare_count = sum(1 for b in pattern.beats if b.instrument == _SNARE)
+    snare_count = sum(1 for b in pattern.beats if b.instrument in _SNARE_VARIANTS)
     ghost_count = sum(
-        1 for b in pattern.beats if b.instrument == _SNARE and b.ghost_note
+        1 for b in pattern.beats if b.instrument in _SNARE_VARIANTS and b.ghost_note
     )
 
     # Should have main snares + ghost notes

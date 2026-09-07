@@ -26,6 +26,7 @@ from midi_drums.generation.engines.drum_generator import (
 )
 from midi_drums.generation.fill_library.picker import FillContext, FillPicker
 from midi_drums.generation.groove_engine import GrooveEngine
+from midi_drums.modifications.drummer_mods import _SNARE_VARIANTS
 from midi_drums.generation.intensity_curve import (
     IntensityCurve,
     interpolate_curve,
@@ -407,9 +408,8 @@ class ComposerV2:
         # Backbeat positions: odd beat indices (beats 2, 4, 6... 1-indexed) =
         # positions 1.0, 3.0, 5.0... where traditional rock/metal backbeats land
         backbeat_positions = [i for i in range(beats_per_bar) if i % 2 == 1]
-        snare_inst = InstrumentRegistry.get("snare_rimshot_open_hit")
         has_snare_backbeat = any(
-            b[1] == snare_inst
+            b[1] in _SNARE_VARIANTS
             and any(abs(b[0] - bp) < 0.1 for bp in backbeat_positions)
             for b in extracted_beats
         )
@@ -435,7 +435,7 @@ class ComposerV2:
             extracted_beats.append(
                 (
                     beats_per_bar / 2,
-                    snare_inst,
+                    random.choice(tuple(_SNARE_VARIANTS)),
                     int(VELOCITY.SNARE_ACCENT),
                 )
             )
@@ -516,9 +516,6 @@ class ComposerV2:
                 closed_hh = InstrumentRegistry.get(
                     "hihat_closed_1_tip_closed_1_hit"
                 )
-                snare_inst = InstrumentRegistry.get(
-                    "snare_rimshot_open_hit"
-                )
 
                 # Quarter 0 (downbeat): kick + hi-hat
                 combined.beats.append(
@@ -543,11 +540,11 @@ class ComposerV2:
                         velocity=60,
                     )
                 )
-                # Quarter 2 (backbeat): snare + hi-hat
+                # Quarter 2 (backbeat): random snare variant + hi-hat
                 combined.beats.append(
                     Beat(
                         position=fill_pos + beats_per_bar / 2,
-                        instrument=snare_inst,
+                        instrument=random.choice(tuple(_SNARE_VARIANTS)),
                         velocity=int(VELOCITY.SNARE_NORMAL),
                     )
                 )

@@ -14,6 +14,7 @@ from midi_drums.config import TIMING, VELOCITY
 from midi_drums.core.models.kit import DrumInstrument, InstrumentRegistry
 from midi_drums.core.models.pattern import Pattern
 from midi_drums.generation.builders.pattern_builder import PatternBuilder
+from midi_drums.modifications.drummer_mods import _SNARE_VARIANTS
 
 # HH variant lists — lazily resolved at first use via helper functions
 
@@ -46,7 +47,6 @@ mid_tom = InstrumentRegistry.get("tom_3_open_hit")
 floor_tom = InstrumentRegistry.get("tom_4_open_hit")
 tom_edge_1 = InstrumentRegistry.get("tom_1_rimshot_open_hit_dbl")
 tom_edge_floor = InstrumentRegistry.get("tom_4_rimshot_open_hit_dbl")
-snare_inst = InstrumentRegistry.get("snare_rimshot_open_hit")
 
 
 class PatternTemplate(ABC):
@@ -512,7 +512,7 @@ class FunkGhostNotes(PatternTemplate):
                     # Use add_beat directly to support ghost_note parameter
                     builder.pattern.add_beat(
                         pos,
-                        snare_inst,
+                        random.choice(tuple(_SNARE_VARIANTS)),
                         VELOCITY.SNARE_GHOST,
                         ghost_note=True,
                     )

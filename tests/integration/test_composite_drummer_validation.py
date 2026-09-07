@@ -2,10 +2,11 @@
 
 from midi_drums.core.models.kit import InstrumentRegistry
 from midi_drums.generation.builders.pattern_builder import PatternBuilder
+from midi_drums.modifications.drummer_mods import _SNARE_VARIANTS
 
 # Instrument references
 _KICK = InstrumentRegistry.get("kick")
-_SNARE = InstrumentRegistry.get("snare_rimshot_open_hit")
+_SNARE = InstrumentRegistry.get("snare_open_hit_open_lateral_hit")
 _RIDE = InstrumentRegistry.get("ride_1_tip_hit_softer")
 _CLOSED_HH = InstrumentRegistry.get("hihat_closed_1_tip_closed_1_hit")
 _CRASH = InstrumentRegistry.get("cymbal_1_hit")
@@ -64,7 +65,7 @@ def test_basic_pattern_has_expected_instruments():
     pattern = _basic_pattern()
 
     has_kick = any(b.instrument == _KICK for b in pattern.beats)
-    has_snare = any(b.instrument == _SNARE for b in pattern.beats)
+    has_snare = any(b.instrument in _SNARE_VARIANTS for b in pattern.beats)
     has_hihat = any(b.instrument == _CLOSED_HH for b in pattern.beats)
 
     assert has_kick, "Pattern should have kick"

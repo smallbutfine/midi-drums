@@ -15,7 +15,7 @@ from midi_drums import DrumGenerator
 from midi_drums.core.models.kit import InstrumentRegistry
 
 _KICK = InstrumentRegistry.get("kick")
-_SNARE = InstrumentRegistry.get("snare_rimshot_open_hit")
+_SNARE = InstrumentRegistry.get("snare_open_hit_open_lateral_hit")
 
 
 def test_intensity_profiles():

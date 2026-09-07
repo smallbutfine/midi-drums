@@ -150,7 +150,7 @@ class GenrePlugin(ABC):
         for beat in adapted.beats:
             if beat.instrument in [
                 InstrumentRegistry.get("kick"),
-                InstrumentRegistry.get("snare_rimshot_open_hit"),
+                InstrumentRegistry.get("snare_open_hit_open_lateral_hit"),
             ]:
                 beat.velocity = max(1, min(127, beat.velocity + power_boost))
 

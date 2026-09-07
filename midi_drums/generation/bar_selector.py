@@ -13,6 +13,7 @@ from typing import TYPE_CHECKING
 from midi_drums.config import VELOCITY
 from midi_drums.core.models.kit import InstrumentRegistry
 from midi_drums.core.models.pattern import Beat, Pattern
+from midi_drums.modifications.drummer_mods import _SNARE_VARIANTS
 
 if TYPE_CHECKING:
     pass
@@ -110,20 +111,12 @@ class BarSelector:
 
         # Ensure minimum velocity floor for core instruments — beats this low
         # are inaudible in most MIDI players and defeat the purpose of generation.
-        from midi_drums.config import VELOCITY
-
         for beat in new_beats:
             kick = InstrumentRegistry.get("kick")
-            snare_inst = InstrumentRegistry.get("snare_rimshot_open_hit")
-            if beat.instrument in (kick, snare_inst) and beat.velocity < 40:
-                beat.velocity = max(
-                    (
-                        int(VELOCITY.KICK_NORMAL)
-                        if beat.instrument == kick
-                        else int(VELOCITY.SNARE_NORMAL)
-                    ),
-                    beat.velocity,
-                )
+            if beat.instrument == kick and beat.velocity < 40:
+                beat.velocity = max(int(VELOCITY.KICK_NORMAL), beat.velocity)
+            elif beat.instrument in _SNARE_VARIANTS and beat.velocity < 40:
+                beat.velocity = max(int(VELOCITY.SNARE_NORMAL), beat.velocity)
 
         pattern = Pattern(f"{base_pattern.name}_bar{bar_index}")
         pattern.beats = new_beats
