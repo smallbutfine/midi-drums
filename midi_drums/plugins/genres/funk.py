@@ -232,7 +232,7 @@ class FunkGenrePlugin(GenrePlugin):
                     .add(
                         BasicGroove(
                             kick_positions=[0.0],
-                            snare_positions=[],
+                            snare_positions=[1.0, 3.0],
                             hihat_subdivision=TIMING.EIGHTH,
                         )
                     )
@@ -242,7 +242,7 @@ class FunkGenrePlugin(GenrePlugin):
                     .add(
                         BasicGroove(
                             kick_positions=[0.0],
-                            snare_positions=[],
+                            snare_positions=[1.0, 3.0],
                             hihat_subdivision=TIMING.HALF,
                         )
                     )
@@ -251,7 +251,7 @@ class FunkGenrePlugin(GenrePlugin):
                     .add(
                         BasicGroove(
                             kick_positions=[0.0],
-                            snare_positions=[],
+                            snare_positions=[1.0, 3.0],
                             hihat_subdivision=TIMING.EIGHTH,
                         )
                     )
@@ -266,7 +266,7 @@ class FunkGenrePlugin(GenrePlugin):
                     .add(
                         BasicGroove(
                             kick_positions=[0.0],
-                            snare_positions=[],
+                            snare_positions=[1.0, 3.0],
                             hihat_subdivision=TIMING.EIGHTH,
                         )
                     )
@@ -276,7 +276,7 @@ class FunkGenrePlugin(GenrePlugin):
                     .add(
                         BasicGroove(
                             kick_positions=[0.0],
-                            snare_positions=[],
+                            snare_positions=[1.0, 3.0],
                             hihat_subdivision=TIMING.HALF,
                         )
                     )
@@ -290,7 +290,7 @@ class FunkGenrePlugin(GenrePlugin):
                     .add(
                         BasicGroove(
                             kick_positions=[0.0],
-                            snare_positions=[],
+                            snare_positions=[1.0, 3.0],
                             hihat_subdivision=TIMING.EIGHTH_TRIPLET,
                         )
                     )
@@ -299,7 +299,7 @@ class FunkGenrePlugin(GenrePlugin):
                     .add(
                         BasicGroove(
                             kick_positions=[0.0],
-                            snare_positions=[],
+                            snare_positions=[1.0, 3.0],
                             hihat_subdivision=TIMING.HALF,
                         )
                     )
@@ -313,7 +313,7 @@ class FunkGenrePlugin(GenrePlugin):
                     .add(
                         BasicGroove(
                             kick_positions=[0.0],
-                            snare_positions=[],
+                            snare_positions=[1.0, 3.0],
                             hihat_subdivision=TIMING.EIGHTH,
                         )
                     )
@@ -322,7 +322,7 @@ class FunkGenrePlugin(GenrePlugin):
                     .add(
                         BasicGroove(
                             kick_positions=[0.0],
-                            snare_positions=[],
+                            snare_positions=[1.0, 3.0],
                             hihat_subdivision=TIMING.HALF,
                         )
                     )
@@ -336,7 +336,7 @@ class FunkGenrePlugin(GenrePlugin):
                     .add(
                         BasicGroove(
                             kick_positions=[0.0],
-                            snare_positions=[],
+                            snare_positions=[1.0, 3.0],
                             hihat_subdivision=TIMING.EIGHTH,
                         )
                     )
@@ -345,7 +345,7 @@ class FunkGenrePlugin(GenrePlugin):
                     .add(
                         BasicGroove(
                             kick_positions=[0.0],
-                            snare_positions=[],
+                            snare_positions=[1.0, 3.0],
                             hihat_subdivision=TIMING.HALF,
                         )
                     )
@@ -358,7 +358,7 @@ class FunkGenrePlugin(GenrePlugin):
                     .add(
                         BasicGroove(
                             kick_positions=[0.0],
-                            snare_positions=[],
+                            snare_positions=[1.0, 3.0],
                             hihat_subdivision=TIMING.HALF,
                         )
                     )
@@ -367,7 +367,7 @@ class FunkGenrePlugin(GenrePlugin):
                     .add(
                         BasicGroove(
                             kick_positions=[0.0],
-                            snare_positions=[],
+                            snare_positions=[1.0, 3.0],
                             hihat_subdivision=TIMING.EIGHTH,
                         )
                     )
@@ -381,7 +381,7 @@ class FunkGenrePlugin(GenrePlugin):
                     .add(
                         BasicGroove(
                             kick_positions=[0.0],
-                            snare_positions=[],
+                            snare_positions=[1.0, 3.0],
                             hihat_subdivision=TIMING.EIGHTH,
                         )
                     )
@@ -390,7 +390,7 @@ class FunkGenrePlugin(GenrePlugin):
                     .add(
                         BasicGroove(
                             kick_positions=[0.0],
-                            snare_positions=[],
+                            snare_positions=[1.0, 3.0],
                             hihat_subdivision=TIMING.HALF,
                         )
                     )
@@ -404,7 +404,7 @@ class FunkGenrePlugin(GenrePlugin):
                     .add(
                         BasicGroove(
                             kick_positions=[0.0],
-                            snare_positions=[],
+                            snare_positions=[1.0, 3.0],
                             hihat_subdivision=TIMING.EIGHTH,
                         )
                     )
@@ -413,7 +413,7 @@ class FunkGenrePlugin(GenrePlugin):
                     .add(
                         BasicGroove(
                             kick_positions=[0.0],
-                            snare_positions=[],
+                            snare_positions=[1.0, 3.0],
                             hihat_subdivision=TIMING.HALF,
                         )
                     )
@@ -449,7 +449,7 @@ class FunkGenrePlugin(GenrePlugin):
                     .add(
                         BasicGroove(
                             kick_positions=[0.0],
-                            snare_positions=[],
+                            snare_positions=[1.0, 3.0],
                             hihat_subdivision=TIMING.EIGHTH,
                         )
                     )
@@ -518,7 +518,7 @@ class FunkGenrePlugin(GenrePlugin):
                     .add(
                         BasicGroove(
                             kick_positions=[0.0, 2.5],
-                            snare_positions=[],
+                            snare_positions=[1.0, 3.0],
                             hihat_subdivision=TIMING.EIGHTH_TRIPLET,
                         )
                     )
@@ -587,7 +587,7 @@ class FunkGenrePlugin(GenrePlugin):
                     .add(
                         BasicGroove(
                             kick_positions=[0.0, 1.5],
-                            snare_positions=[],
+                            snare_positions=[1.0, 3.0],
                             hihat_subdivision=TIMING.SIXTEENTH,
                         )
                     )
@@ -601,7 +601,7 @@ class FunkGenrePlugin(GenrePlugin):
                     .add(
                         BasicGroove(
                             kick_positions=[0.0],
-                            snare_positions=[],
+                            snare_positions=[1.0, 3.0],
                             hihat_subdivision=TIMING.EIGHTH,
                         )
                     )
@@ -610,7 +610,7 @@ class FunkGenrePlugin(GenrePlugin):
                     .add(
                         BasicGroove(
                             kick_positions=[0.0],
-                            snare_positions=[],
+                            snare_positions=[1.0, 3.0],
                             hihat_subdivision=TIMING.EIGHTH,
                         )
                     )
@@ -620,7 +620,7 @@ class FunkGenrePlugin(GenrePlugin):
                     .add(
                         BasicGroove(
                             kick_positions=[0.0],
-                            snare_positions=[],
+                            snare_positions=[1.0, 3.0],
                             hihat_subdivision=TIMING.EIGHTH,
                         )
                     )
@@ -685,7 +685,7 @@ class FunkGenrePlugin(GenrePlugin):
                     .add(
                         BasicGroove(
                             kick_positions=[0.0, 2.0],
-                            snare_positions=[],
+                            snare_positions=[1.0, 3.0],
                             hihat_subdivision=TIMING.EIGHTH,
                         )
                     )
@@ -755,7 +755,7 @@ class FunkGenrePlugin(GenrePlugin):
                     .add(
                         BasicGroove(
                             kick_positions=[0.0, 1.0, 2.0, 3.0],
-                            snare_positions=[],
+                            snare_positions=[1.0, 3.0],
                             hihat_subdivision=TIMING.EIGHTH,
                         )
                     )
@@ -869,7 +869,7 @@ class FunkGenrePlugin(GenrePlugin):
                     .add(
                         BasicGroove(
                             kick_positions=[0.0, 1.0, 2.0, 3.0],
-                            snare_positions=[],
+                            snare_positions=[1.0, 3.0],
                             hihat_subdivision=TIMING.EIGHTH_TRIPLET,
                         )
                     )
@@ -939,7 +939,7 @@ class FunkGenrePlugin(GenrePlugin):
                     .add(
                         BasicGroove(
                             kick_positions=[0.0, 1.0, 2.0, 3.0],
-                            snare_positions=[],
+                            snare_positions=[1.0, 3.0],
                             hihat_subdivision=TIMING.SIXTEENTH,
                         )
                     )
@@ -1031,7 +1031,7 @@ class FunkGenrePlugin(GenrePlugin):
                     .add(
                         BasicGroove(
                             kick_positions=[0.0],
-                            snare_positions=[],
+                            snare_positions=[1.0, 3.0],
                             hihat_subdivision=TIMING.EIGHTH,
                         )
                     )
@@ -1041,7 +1041,7 @@ class FunkGenrePlugin(GenrePlugin):
                     .add(
                         BasicGroove(
                             kick_positions=[0.0],
-                            snare_positions=[],
+                            snare_positions=[1.0, 3.0],
                             hihat_subdivision=TIMING.EIGHTH,
                         )
                     )
@@ -1052,7 +1052,7 @@ class FunkGenrePlugin(GenrePlugin):
                     .add(
                         BasicGroove(
                             kick_positions=[0.0],
-                            snare_positions=[],
+                            snare_positions=[1.0, 3.0],
                             hihat_subdivision=TIMING.EIGHTH,
                         )
                     )
@@ -1066,7 +1066,7 @@ class FunkGenrePlugin(GenrePlugin):
                     .add(
                         BasicGroove(
                             kick_positions=[0.0],
-                            snare_positions=[],
+                            snare_positions=[1.0, 3.0],
                             hihat_subdivision=TIMING.EIGHTH,
                         )
                     )
@@ -1076,7 +1076,7 @@ class FunkGenrePlugin(GenrePlugin):
                     .add(
                         BasicGroove(
                             kick_positions=[0.0],
-                            snare_positions=[],
+                            snare_positions=[1.0, 3.0],
                             hihat_subdivision=TIMING.EIGHTH,
                         )
                     )
@@ -1090,7 +1090,7 @@ class FunkGenrePlugin(GenrePlugin):
                     .add(
                         BasicGroove(
                             kick_positions=[0.0],
-                            snare_positions=[],
+                            snare_positions=[1.0, 3.0],
                             hihat_subdivision=TIMING.EIGHTH_TRIPLET,
                         )
                     )
@@ -1099,7 +1099,7 @@ class FunkGenrePlugin(GenrePlugin):
                     .add(
                         BasicGroove(
                             kick_positions=[0.0],
-                            snare_positions=[],
+                            snare_positions=[1.0, 3.0],
                             hihat_subdivision=TIMING.EIGHTH_TRIPLET,
                         )
                     )
@@ -1113,7 +1113,7 @@ class FunkGenrePlugin(GenrePlugin):
                     .add(
                         BasicGroove(
                             kick_positions=[0.0],
-                            snare_positions=[],
+                            snare_positions=[1.0, 3.0],
                             hihat_subdivision=TIMING.EIGHTH,
                         )
                     )
@@ -1122,7 +1122,7 @@ class FunkGenrePlugin(GenrePlugin):
                     .add(
                         BasicGroove(
                             kick_positions=[0.0],
-                            snare_positions=[],
+                            snare_positions=[1.0, 3.0],
                             hihat_subdivision=TIMING.HALF,
                         )
                     )
@@ -1136,7 +1136,7 @@ class FunkGenrePlugin(GenrePlugin):
                     .add(
                         BasicGroove(
                             kick_positions=[0.0],
-                            snare_positions=[],
+                            snare_positions=[1.0, 3.0],
                             hihat_subdivision=TIMING.SIXTEENTH,
                         )
                     )
@@ -1146,7 +1146,7 @@ class FunkGenrePlugin(GenrePlugin):
                     .add(
                         BasicGroove(
                             kick_positions=[0.0],
-                            snare_positions=[],
+                            snare_positions=[1.0, 3.0],
                             hihat_subdivision=TIMING.SIXTEENTH,
                         )
                     )
@@ -1159,7 +1159,7 @@ class FunkGenrePlugin(GenrePlugin):
                     .add(
                         BasicGroove(
                             kick_positions=[0.0],
-                            snare_positions=[],
+                            snare_positions=[1.0, 3.0],
                             hihat_subdivision=TIMING.HALF,
                         )
                     )
@@ -1168,7 +1168,7 @@ class FunkGenrePlugin(GenrePlugin):
                     .add(
                         BasicGroove(
                             kick_positions=[0.0],
-                            snare_positions=[],
+                            snare_positions=[1.0, 3.0],
                             hihat_subdivision=TIMING.HALF,
                         )
                     )
@@ -1181,7 +1181,7 @@ class FunkGenrePlugin(GenrePlugin):
                     .add(
                         BasicGroove(
                             kick_positions=[0.0],
-                            snare_positions=[],
+                            snare_positions=[1.0, 3.0],
                             hihat_subdivision=TIMING.EIGHTH,
                         )
                     )
@@ -1191,7 +1191,7 @@ class FunkGenrePlugin(GenrePlugin):
                     .add(
                         BasicGroove(
                             kick_positions=[0.0],
-                            snare_positions=[],
+                            snare_positions=[1.0, 3.0],
                             hihat_subdivision=TIMING.HALF,
                         )
                     )
@@ -1206,7 +1206,7 @@ class FunkGenrePlugin(GenrePlugin):
                     .add(
                         BasicGroove(
                             kick_positions=[0.0],
-                            snare_positions=[],
+                            snare_positions=[1.0, 3.0],
                             hihat_subdivision=TIMING.EIGHTH,
                         )
                     )
@@ -1216,7 +1216,7 @@ class FunkGenrePlugin(GenrePlugin):
                     .add(
                         BasicGroove(
                             kick_positions=[0.0],
-                            snare_positions=[],
+                            snare_positions=[1.0, 3.0],
                             hihat_subdivision=TIMING.EIGHTH,
                         )
                     )
@@ -1226,7 +1226,7 @@ class FunkGenrePlugin(GenrePlugin):
                     .add(
                         BasicGroove(
                             kick_positions=[0.0],
-                            snare_positions=[],
+                            snare_positions=[1.0, 3.0],
                             hihat_subdivision=TIMING.EIGHTH,
                         )
                     )
@@ -1240,7 +1240,7 @@ class FunkGenrePlugin(GenrePlugin):
                     .add(
                         BasicGroove(
                             kick_positions=[0.0, 2.5],
-                            snare_positions=[],
+                            snare_positions=[1.0, 3.0],
                             hihat_subdivision=TIMING.EIGHTH,
                         )
                     )
@@ -1250,7 +1250,7 @@ class FunkGenrePlugin(GenrePlugin):
                     .add(
                         BasicGroove(
                             kick_positions=[0.0],
-                            snare_positions=[],
+                            snare_positions=[1.0, 3.0],
                             hihat_subdivision=TIMING.EIGHTH,
                         )
                     )
@@ -1264,7 +1264,7 @@ class FunkGenrePlugin(GenrePlugin):
                     .add(
                         BasicGroove(
                             kick_positions=[0.0],
-                            snare_positions=[],
+                            snare_positions=[1.0, 3.0],
                             hihat_subdivision=TIMING.EIGHTH_TRIPLET,
                         )
                     )
@@ -1273,7 +1273,7 @@ class FunkGenrePlugin(GenrePlugin):
                     .add(
                         BasicGroove(
                             kick_positions=[0.0],
-                            snare_positions=[],
+                            snare_positions=[1.0, 3.0],
                             hihat_subdivision=TIMING.EIGHTH_TRIPLET,
                         )
                     )
@@ -1287,7 +1287,7 @@ class FunkGenrePlugin(GenrePlugin):
                     .add(
                         BasicGroove(
                             kick_positions=[0.0, 2.5],
-                            snare_positions=[],
+                            snare_positions=[1.0, 3.0],
                             hihat_subdivision=TIMING.EIGHTH,
                         )
                     )
@@ -1297,7 +1297,7 @@ class FunkGenrePlugin(GenrePlugin):
                     .add(
                         BasicGroove(
                             kick_positions=[0.0],
-                            snare_positions=[],
+                            snare_positions=[1.0, 3.0],
                             hihat_subdivision=TIMING.EIGHTH,
                         )
                     )
@@ -1311,7 +1311,7 @@ class FunkGenrePlugin(GenrePlugin):
                     .add(
                         BasicGroove(
                             kick_positions=[0.0, 2.5],
-                            snare_positions=[],
+                            snare_positions=[1.0, 3.0],
                             hihat_subdivision=TIMING.SIXTEENTH,
                         )
                     )
@@ -1321,7 +1321,7 @@ class FunkGenrePlugin(GenrePlugin):
                     .add(
                         BasicGroove(
                             kick_positions=[0.0],
-                            snare_positions=[],
+                            snare_positions=[1.0, 3.0],
                             hihat_subdivision=TIMING.SIXTEENTH,
                         )
                     )
@@ -1334,7 +1334,7 @@ class FunkGenrePlugin(GenrePlugin):
                     .add(
                         BasicGroove(
                             kick_positions=[0.0],
-                            snare_positions=[],
+                            snare_positions=[1.0, 3.0],
                             hihat_subdivision=TIMING.EIGHTH,
                         )
                     )
@@ -1343,7 +1343,7 @@ class FunkGenrePlugin(GenrePlugin):
                     .add(
                         BasicGroove(
                             kick_positions=[0.0],
-                            snare_positions=[],
+                            snare_positions=[1.0, 3.0],
                             hihat_subdivision=TIMING.HALF,
                         )
                     )
@@ -1356,7 +1356,7 @@ class FunkGenrePlugin(GenrePlugin):
                     .add(
                         BasicGroove(
                             kick_positions=[0.0],
-                            snare_positions=[],
+                            snare_positions=[1.0, 3.0],
                             hihat_subdivision=TIMING.EIGHTH,
                         )
                     )
@@ -1365,7 +1365,7 @@ class FunkGenrePlugin(GenrePlugin):
                     .add(
                         BasicGroove(
                             kick_positions=[0.0],
-                            snare_positions=[],
+                            snare_positions=[1.0, 3.0],
                             hihat_subdivision=TIMING.HALF,
                         )
                     )
@@ -1380,7 +1380,7 @@ class FunkGenrePlugin(GenrePlugin):
                     .add(
                         BasicGroove(
                             kick_positions=[0.0],
-                            snare_positions=[],
+                            snare_positions=[1.0, 3.0],
                             hihat_subdivision=TIMING.EIGHTH,
                         )
                     )
@@ -1390,7 +1390,7 @@ class FunkGenrePlugin(GenrePlugin):
                     .add(
                         BasicGroove(
                             kick_positions=[0.0],
-                            snare_positions=[],
+                            snare_positions=[1.0, 3.0],
                             hihat_subdivision=TIMING.EIGHTH,
                         )
                     )
@@ -1400,7 +1400,7 @@ class FunkGenrePlugin(GenrePlugin):
                     .add(
                         BasicGroove(
                             kick_positions=[0.0],
-                            snare_positions=[],
+                            snare_positions=[1.0, 3.0],
                             hihat_subdivision=TIMING.EIGHTH,
                         )
                     )
@@ -1414,7 +1414,7 @@ class FunkGenrePlugin(GenrePlugin):
                     .add(
                         BasicGroove(
                             kick_positions=[0.0],
-                            snare_positions=[],
+                            snare_positions=[1.0, 3.0],
                             hihat_subdivision=TIMING.EIGHTH,
                         )
                     )
@@ -1423,7 +1423,7 @@ class FunkGenrePlugin(GenrePlugin):
                     .add(
                         BasicGroove(
                             kick_positions=[0.0],
-                            snare_positions=[],
+                            snare_positions=[1.0, 3.0],
                             hihat_subdivision=TIMING.EIGHTH,
                         )
                     )
@@ -1437,7 +1437,7 @@ class FunkGenrePlugin(GenrePlugin):
                     .add(
                         BasicGroove(
                             kick_positions=[0.0],
-                            snare_positions=[],
+                            snare_positions=[1.0, 3.0],
                             hihat_subdivision=TIMING.EIGHTH_TRIPLET,
                         )
                     )
@@ -1446,7 +1446,7 @@ class FunkGenrePlugin(GenrePlugin):
                     .add(
                         BasicGroove(
                             kick_positions=[0.0],
-                            snare_positions=[],
+                            snare_positions=[1.0, 3.0],
                             hihat_subdivision=TIMING.EIGHTH_TRIPLET,
                         )
                     )
@@ -1460,7 +1460,7 @@ class FunkGenrePlugin(GenrePlugin):
                     .add(
                         BasicGroove(
                             kick_positions=[0.0],
-                            snare_positions=[],
+                            snare_positions=[1.0, 3.0],
                             hihat_subdivision=TIMING.EIGHTH,
                         )
                     )
@@ -1469,7 +1469,7 @@ class FunkGenrePlugin(GenrePlugin):
                     .add(
                         BasicGroove(
                             kick_positions=[0.0],
-                            snare_positions=[],
+                            snare_positions=[1.0, 3.0],
                             hihat_subdivision=TIMING.EIGHTH,
                         )
                     )
@@ -1483,7 +1483,7 @@ class FunkGenrePlugin(GenrePlugin):
                     .add(
                         BasicGroove(
                             kick_positions=[0.0],
-                            snare_positions=[],
+                            snare_positions=[1.0, 3.0],
                             hihat_subdivision=TIMING.SIXTEENTH,
                         )
                     )
@@ -1493,7 +1493,7 @@ class FunkGenrePlugin(GenrePlugin):
                     .add(
                         BasicGroove(
                             kick_positions=[0.0],
-                            snare_positions=[],
+                            snare_positions=[1.0, 3.0],
                             hihat_subdivision=TIMING.SIXTEENTH,
                         )
                     )
@@ -1506,7 +1506,7 @@ class FunkGenrePlugin(GenrePlugin):
                     .add(
                         BasicGroove(
                             kick_positions=[0.0],
-                            snare_positions=[],
+                            snare_positions=[1.0, 3.0],
                             hihat_subdivision=TIMING.HALF,
                         )
                     )
@@ -1515,7 +1515,7 @@ class FunkGenrePlugin(GenrePlugin):
                     .add(
                         BasicGroove(
                             kick_positions=[0.0],
-                            snare_positions=[],
+                            snare_positions=[1.0, 3.0],
                             hihat_subdivision=TIMING.EIGHTH,
                         )
                     )
@@ -1528,7 +1528,7 @@ class FunkGenrePlugin(GenrePlugin):
                     .add(
                         BasicGroove(
                             kick_positions=[0.0, 2.0],
-                            snare_positions=[],
+                            snare_positions=[1.0, 3.0],
                             hihat_subdivision=TIMING.HALF,
                         )
                     )
@@ -1542,7 +1542,7 @@ class FunkGenrePlugin(GenrePlugin):
                     .add(
                         BasicGroove(
                             kick_positions=[0.0],
-                            snare_positions=[],
+                            snare_positions=[1.0, 3.0],
                             hihat_subdivision=TIMING.HALF,
                         )
                     )
@@ -1602,7 +1602,7 @@ class FunkGenrePlugin(GenrePlugin):
             .add(
                 BasicGroove(
                     kick_positions=[0.0, 2.0],
-                    snare_positions=[],
+                    snare_positions=[1.0, 3.0],
                     hihat_subdivision=TIMING.EIGHTH,
                 )
             )
@@ -1620,7 +1620,7 @@ class FunkGenrePlugin(GenrePlugin):
             .add(
                 BasicGroove(
                     kick_positions=[0.0],
-                    snare_positions=[],
+                    snare_positions=[1.0, 3.0],
                     hihat_subdivision=TIMING.HALF,
                 )
             )
@@ -1633,7 +1633,7 @@ class FunkGenrePlugin(GenrePlugin):
             .add(
                 BasicGroove(
                     kick_positions=[0.0, 0.5, 1.0, 1.5, 2.0, 2.5, 3.0, 3.5],
-                    snare_positions=[],
+                    snare_positions=[1.0, 3.0],
                     hihat_subdivision=TIMING.HALF,
                 )
             )
@@ -1754,7 +1754,7 @@ class FunkGenrePlugin(GenrePlugin):
         # 1: sparse minimal groove
         groove_b1 = BasicGroove(
             kick_positions=[0.0],
-            snare_positions=[],
+            snare_positions=[1.0, 3.0],
             hihat_subdivision=TIMING.HALF,
         )
         f1 = (
@@ -1777,7 +1777,7 @@ class FunkGenrePlugin(GenrePlugin):
         # 3: syncopated bass drum with sparse snare
         groove_b3 = BasicGroove(
             kick_positions=[0.0, 1.25, 2.5],
-            snare_positions=[],
+            snare_positions=[1.0, 3.0],
             hihat_subdivision=TIMING.HALF,
         )
         f3 = (
@@ -1815,7 +1815,7 @@ class FunkGenrePlugin(GenrePlugin):
         # 3: sparse pocket with tom accents
         groove_f3 = BasicGroove(
             kick_positions=[0.0, 2.5],
-            snare_positions=[],
+            snare_positions=[1.0, 3.0],
             hihat_subdivision=TIMING.EIGHTH,
         )
         f3 = (
@@ -1833,7 +1833,7 @@ class FunkGenrePlugin(GenrePlugin):
         # 1: fade groove with ghost notes
         groove_o1 = BasicGroove(
             kick_positions=[0.0],
-            snare_positions=[],
+            snare_positions=[1.0, 3.0],
             hihat_subdivision=TIMING.HALF,
         )
         f1 = (
@@ -1845,7 +1845,7 @@ class FunkGenrePlugin(GenrePlugin):
         # 2: sparse hits with final tom roll
         groove_o2 = BasicGroove(
             kick_positions=[0.0],
-            snare_positions=[],
+            snare_positions=[1.0, 3.0],
             hihat_subdivision=TIMING.HALF,
         )
         f2 = (
@@ -2231,7 +2231,7 @@ class FunkGenrePlugin(GenrePlugin):
             .add(
                 BasicGroove(
                     kick_positions=[0.0],
-                    snare_positions=[],
+                    snare_positions=[1.0, 3.0],
                     hihat_subdivision=TIMING.HALF,
                 )
             )
@@ -2288,7 +2288,7 @@ class FunkGenrePlugin(GenrePlugin):
                     .add(
                         BasicGroove(
                             kick_positions=[0.0],
-                            snare_positions=[],
+                            snare_positions=[1.0, 3.0],
                             hihat_subdivision=TIMING.HALF,
                         )
                     )

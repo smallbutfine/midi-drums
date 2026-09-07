@@ -295,7 +295,7 @@ class RockGenrePlugin(GenrePlugin):
                     .add(
                         BasicGroove(
                             kick_positions=[0.0, 2.0],
-                            snare_positions=[],
+                            snare_positions=[1.0, 3.0],
                             hihat_subdivision=TIMING.EIGHTH_TRIPLET,
                         )
                     )
@@ -321,7 +321,7 @@ class RockGenrePlugin(GenrePlugin):
                     .add(
                         BasicGroove(
                             kick_positions=[0.0, 2.5],
-                            snare_positions=[],
+                            snare_positions=[1.0, 3.0],
                             hihat_subdivision=TIMING.EIGHTH_TRIPLET,
                         )
                     )
@@ -393,7 +393,7 @@ class RockGenrePlugin(GenrePlugin):
                     .add(
                         BasicGroove(
                             kick_positions=[0.0, 2.5],
-                            snare_positions=[],
+                            snare_positions=[1.0, 3.0],
                             hihat_subdivision=TIMING.EIGHTH,
                         )
                     )
@@ -666,7 +666,7 @@ class RockGenrePlugin(GenrePlugin):
                     .add(
                         BasicGroove(
                             kick_positions=[0.0],
-                            snare_positions=[],
+                            snare_positions=[1.0, 3.0],
                             hihat_subdivision=TIMING.HALF,
                         )
                     )
@@ -675,7 +675,7 @@ class RockGenrePlugin(GenrePlugin):
                     .add(
                         BasicGroove(
                             kick_positions=[0.0, 2.0],
-                            snare_positions=[],
+                            snare_positions=[1.0, 3.0],
                             hihat_subdivision=TIMING.HALF,
                         )
                     )
@@ -685,7 +685,7 @@ class RockGenrePlugin(GenrePlugin):
                     .add(
                         BasicGroove(
                             kick_positions=[0.0],
-                            snare_positions=[],
+                            snare_positions=[1.0, 3.0],
                             hihat_subdivision=TIMING.HALF,
                         )
                     )
@@ -699,7 +699,7 @@ class RockGenrePlugin(GenrePlugin):
                     .add(
                         BasicGroove(
                             kick_positions=[0.0],
-                            snare_positions=[],
+                            snare_positions=[1.0, 3.0],
                             hihat_subdivision=TIMING.EIGHTH,
                         )
                     )
@@ -708,7 +708,7 @@ class RockGenrePlugin(GenrePlugin):
                     .add(
                         BasicGroove(
                             kick_positions=[0.0],
-                            snare_positions=[],
+                            snare_positions=[1.0, 3.0],
                             hihat_subdivision=TIMING.EIGHTH,
                         )
                     )
@@ -722,7 +722,7 @@ class RockGenrePlugin(GenrePlugin):
                     .add(
                         BasicGroove(
                             kick_positions=[0.0, 2.5],
-                            snare_positions=[],
+                            snare_positions=[1.0, 3.0],
                             hihat_subdivision=TIMING.SIXTEENTH,
                         )
                     )
@@ -731,7 +731,7 @@ class RockGenrePlugin(GenrePlugin):
                     .add(
                         BasicGroove(
                             kick_positions=[0.0],
-                            snare_positions=[],
+                            snare_positions=[1.0, 3.0],
                             hihat_subdivision=TIMING.HALF,
                         )
                     )
@@ -741,7 +741,7 @@ class RockGenrePlugin(GenrePlugin):
                     .add(
                         BasicGroove(
                             kick_positions=[0.0],
-                            snare_positions=[],
+                            snare_positions=[1.0, 3.0],
                             hihat_subdivision=TIMING.HALF,
                         )
                     )
@@ -759,7 +759,7 @@ class RockGenrePlugin(GenrePlugin):
                     .add(
                         BasicGroove(
                             kick_positions=[0.0],
-                            snare_positions=[],
+                            snare_positions=[1.0, 3.0],
                             hihat_subdivision=TIMING.HALF,
                         )
                     )
@@ -771,7 +771,7 @@ class RockGenrePlugin(GenrePlugin):
                     .add(
                         BasicGroove(
                             kick_positions=[0.0, 2.5],
-                            snare_positions=[],
+                            snare_positions=[1.0, 3.0],
                             hihat_subdivision=TIMING.EIGHTH,
                         )
                     )
@@ -780,7 +780,7 @@ class RockGenrePlugin(GenrePlugin):
                     .add(
                         BasicGroove(
                             kick_positions=[0.0],
-                            snare_positions=[],
+                            snare_positions=[1.0, 3.0],
                             hihat_subdivision=TIMING.EIGHTH,
                         )
                     )
@@ -794,7 +794,7 @@ class RockGenrePlugin(GenrePlugin):
                     .add(
                         BasicGroove(
                             kick_positions=[0.0],
-                            snare_positions=[],
+                            snare_positions=[1.0, 3.0],
                             hihat_subdivision=TIMING.EIGHTH,
                         )
                     )
@@ -803,7 +803,7 @@ class RockGenrePlugin(GenrePlugin):
                     .add(
                         BasicGroove(
                             kick_positions=[0.0],
-                            snare_positions=[],
+                            snare_positions=[1.0, 3.0],
                             hihat_subdivision=TIMING.HALF,
                         )
                     )
@@ -817,7 +817,7 @@ class RockGenrePlugin(GenrePlugin):
                     .add(
                         BasicGroove(
                             kick_positions=[0.0],
-                            snare_positions=[],
+                            snare_positions=[1.0, 3.0],
                             hihat_subdivision=TIMING.HALF,
                         )
                     )
@@ -827,7 +827,7 @@ class RockGenrePlugin(GenrePlugin):
                     .add(
                         BasicGroove(
                             kick_positions=[0.0],
-                            snare_positions=[],
+                            snare_positions=[1.0, 3.0],
                             hihat_subdivision=TIMING.EIGHTH,
                         )
                     )
@@ -836,7 +836,7 @@ class RockGenrePlugin(GenrePlugin):
                     .add(
                         BasicGroove(
                             kick_positions=[0.0, 2.0],
-                            snare_positions=[],
+                            snare_positions=[1.0, 3.0],
                             hihat_subdivision=TIMING.HALF,
                         )
                     )
@@ -850,7 +850,7 @@ class RockGenrePlugin(GenrePlugin):
                     .add(
                         BasicGroove(
                             kick_positions=[0.0],
-                            snare_positions=[],
+                            snare_positions=[1.0, 3.0],
                             hihat_subdivision=TIMING.HALF,
                         )
                     )
@@ -859,7 +859,7 @@ class RockGenrePlugin(GenrePlugin):
                     .add(
                         BasicGroove(
                             kick_positions=[0.0],
-                            snare_positions=[],
+                            snare_positions=[1.0, 3.0],
                             hihat_subdivision=TIMING.EIGHTH,
                         )
                     )
@@ -869,7 +869,7 @@ class RockGenrePlugin(GenrePlugin):
                     .add(
                         BasicGroove(
                             kick_positions=[0.0],
-                            snare_positions=[],
+                            snare_positions=[1.0, 3.0],
                             hihat_subdivision=TIMING.HALF,
                         )
                     )
@@ -884,7 +884,7 @@ class RockGenrePlugin(GenrePlugin):
                     .add(
                         BasicGroove(
                             kick_positions=[0.0],
-                            snare_positions=[],
+                            snare_positions=[1.0, 3.0],
                             hihat_subdivision=TIMING.QUARTER,
                         )
                     )
@@ -903,7 +903,7 @@ class RockGenrePlugin(GenrePlugin):
                     .add(
                         BasicGroove(
                             kick_positions=[0.0],
-                            snare_positions=[],
+                            snare_positions=[1.0, 3.0],
                             hihat_subdivision=TIMING.HALF,
                         )
                     )
@@ -913,7 +913,7 @@ class RockGenrePlugin(GenrePlugin):
                     .add(
                         BasicGroove(
                             kick_positions=[0.0, 2.0],
-                            snare_positions=[],
+                            snare_positions=[1.0, 3.0],
                             hihat_subdivision=TIMING.HALF,
                         )
                     )
@@ -927,7 +927,7 @@ class RockGenrePlugin(GenrePlugin):
                     .add(
                         BasicGroove(
                             kick_positions=[0.0],
-                            snare_positions=[],
+                            snare_positions=[1.0, 3.0],
                             hihat_subdivision=TIMING.QUARTER,
                         )
                     )
@@ -941,7 +941,7 @@ class RockGenrePlugin(GenrePlugin):
                     .add(
                         BasicGroove(
                             kick_positions=[0.0],
-                            snare_positions=[],
+                            snare_positions=[1.0, 3.0],
                             hihat_subdivision=TIMING.EIGHTH,
                         )
                     )
@@ -954,7 +954,7 @@ class RockGenrePlugin(GenrePlugin):
                     .add(
                         BasicGroove(
                             kick_positions=[0.0],
-                            snare_positions=[],
+                            snare_positions=[1.0, 3.0],
                             hihat_subdivision=TIMING.HALF,
                         )
                     )
@@ -964,7 +964,7 @@ class RockGenrePlugin(GenrePlugin):
                     .add(
                         BasicGroove(
                             kick_positions=[0.0],
-                            snare_positions=[],
+                            snare_positions=[1.0, 3.0],
                             hihat_subdivision=TIMING.EIGHTH,
                         )
                     )
@@ -982,7 +982,7 @@ class RockGenrePlugin(GenrePlugin):
                     .add(
                         BasicGroove(
                             kick_positions=[0.0],
-                            snare_positions=[],
+                            snare_positions=[1.0, 3.0],
                             hihat_subdivision=TIMING.HALF,
                         )
                     )
@@ -991,7 +991,7 @@ class RockGenrePlugin(GenrePlugin):
                     .add(
                         BasicGroove(
                             kick_positions=[0.0],
-                            snare_positions=[],
+                            snare_positions=[1.0, 3.0],
                             hihat_subdivision=TIMING.EIGHTH,
                         )
                     )
@@ -1009,7 +1009,7 @@ class RockGenrePlugin(GenrePlugin):
                     .add(
                         BasicGroove(
                             kick_positions=[0.0],
-                            snare_positions=[],
+                            snare_positions=[1.0, 3.0],
                             hihat_subdivision=TIMING.EIGHTH,
                         )
                     )
@@ -1023,7 +1023,7 @@ class RockGenrePlugin(GenrePlugin):
                     .add(
                         BasicGroove(
                             kick_positions=[0.0],
-                            snare_positions=[],
+                            snare_positions=[1.0, 3.0],
                             hihat_subdivision=TIMING.HALF,
                         )
                     )
@@ -1041,7 +1041,7 @@ class RockGenrePlugin(GenrePlugin):
                     .add(
                         BasicGroove(
                             kick_positions=[0.0],
-                            snare_positions=[],
+                            snare_positions=[1.0, 3.0],
                             hihat_subdivision=TIMING.QUARTER,
                         )
                     )
@@ -1056,7 +1056,7 @@ class RockGenrePlugin(GenrePlugin):
                     .add(
                         BasicGroove(
                             kick_positions=[0.0],
-                            snare_positions=[],
+                            snare_positions=[1.0, 3.0],
                             hihat_subdivision=TIMING.HALF,
                         )
                     )
@@ -1074,7 +1074,7 @@ class RockGenrePlugin(GenrePlugin):
                     .add(
                         BasicGroove(
                             kick_positions=[0.0],
-                            snare_positions=[],
+                            snare_positions=[1.0, 3.0],
                             hihat_subdivision=TIMING.EIGHTH,
                         )
                     )
@@ -1083,7 +1083,7 @@ class RockGenrePlugin(GenrePlugin):
                     .add(
                         BasicGroove(
                             kick_positions=[0.0],
-                            snare_positions=[],
+                            snare_positions=[1.0, 3.0],
                             hihat_subdivision=TIMING.HALF,
                         )
                     )
@@ -1106,7 +1106,7 @@ class RockGenrePlugin(GenrePlugin):
                     .add(
                         BasicGroove(
                             kick_positions=[0.0],
-                            snare_positions=[],
+                            snare_positions=[1.0, 3.0],
                             hihat_subdivision=TIMING.HALF,
                         )
                     )
@@ -1125,7 +1125,7 @@ class RockGenrePlugin(GenrePlugin):
                     .add(
                         BasicGroove(
                             kick_positions=[0.0],
-                            snare_positions=[],
+                            snare_positions=[1.0, 3.0],
                             hihat_subdivision=TIMING.HALF,
                         )
                     )
@@ -1138,7 +1138,7 @@ class RockGenrePlugin(GenrePlugin):
                     .add(
                         BasicGroove(
                             kick_positions=[0.0],
-                            snare_positions=[],
+                            snare_positions=[1.0, 3.0],
                             hihat_subdivision=TIMING.EIGHTH,
                         )
                     )
@@ -1147,7 +1147,7 @@ class RockGenrePlugin(GenrePlugin):
                     .add(
                         BasicGroove(
                             kick_positions=[0.0],
-                            snare_positions=[],
+                            snare_positions=[1.0, 3.0],
                             hihat_subdivision=TIMING.HALF,
                         )
                     )
@@ -1165,7 +1165,7 @@ class RockGenrePlugin(GenrePlugin):
                     .add(
                         BasicGroove(
                             kick_positions=[0.0],
-                            snare_positions=[],
+                            snare_positions=[1.0, 3.0],
                             hihat_subdivision=TIMING.EIGHTH,
                         )
                     )
@@ -1174,7 +1174,7 @@ class RockGenrePlugin(GenrePlugin):
                     .add(
                         BasicGroove(
                             kick_positions=[0.0],
-                            snare_positions=[],
+                            snare_positions=[1.0, 3.0],
                             hihat_subdivision=TIMING.HALF,
                         )
                     )
@@ -1199,7 +1199,7 @@ class RockGenrePlugin(GenrePlugin):
                     .add(
                         BasicGroove(
                             kick_positions=[0.0],
-                            snare_positions=[],
+                            snare_positions=[1.0, 3.0],
                             hihat_subdivision=TIMING.HALF,
                         )
                     )
@@ -1212,7 +1212,7 @@ class RockGenrePlugin(GenrePlugin):
                     .add(
                         BasicGroove(
                             kick_positions=[0.0, 2.0],
-                            snare_positions=[],
+                            snare_positions=[1.0, 3.0],
                             hihat_subdivision=TIMING.HALF,
                         )
                     )
@@ -1226,7 +1226,7 @@ class RockGenrePlugin(GenrePlugin):
                     .add(
                         BasicGroove(
                             kick_positions=[0.0],
-                            snare_positions=[],
+                            snare_positions=[1.0, 3.0],
                             hihat_subdivision=TIMING.EIGHTH,
                         )
                     )
@@ -1239,7 +1239,7 @@ class RockGenrePlugin(GenrePlugin):
                     .add(
                         BasicGroove(
                             kick_positions=[0.0, 2.0],
-                            snare_positions=[],
+                            snare_positions=[1.0, 3.0],
                             hihat_subdivision=TIMING.HALF,
                         )
                     )
@@ -1253,7 +1253,7 @@ class RockGenrePlugin(GenrePlugin):
                     .add(
                         BasicGroove(
                             kick_positions=[0.0, 2.0],
-                            snare_positions=[],
+                            snare_positions=[1.0, 3.0],
                             hihat_subdivision=TIMING.HALF,
                         )
                     )
@@ -1266,7 +1266,7 @@ class RockGenrePlugin(GenrePlugin):
                     .add(
                         BasicGroove(
                             kick_positions=[0.0],
-                            snare_positions=[],
+                            snare_positions=[1.0, 3.0],
                             hihat_subdivision=TIMING.EIGHTH,
                         )
                     )
@@ -1275,7 +1275,7 @@ class RockGenrePlugin(GenrePlugin):
                     .add(
                         BasicGroove(
                             kick_positions=[0.0],
-                            snare_positions=[],
+                            snare_positions=[1.0, 3.0],
                             hihat_subdivision=TIMING.HALF,
                         )
                     )
@@ -1299,7 +1299,7 @@ class RockGenrePlugin(GenrePlugin):
             .add(
                 BasicGroove(
                     kick_positions=[0.0, 2.0],
-                    snare_positions=[],
+                    snare_positions=[1.0, 3.0],
                     hihat_subdivision=TIMING.QUARTER,
                 )
             )
@@ -1316,7 +1316,7 @@ class RockGenrePlugin(GenrePlugin):
             .add(
                 BasicGroove(
                     kick_positions=[0.0, 0.5, 1.0, 1.5, 2.0, 2.5, 3.0, 3.5],
-                    snare_positions=[],
+                    snare_positions=[1.0, 3.0],
                     hihat_subdivision=TIMING.HALF,
                 )
             )
@@ -1333,7 +1333,7 @@ class RockGenrePlugin(GenrePlugin):
             .add(
                 BasicGroove(
                     kick_positions=[0.0],
-                    snare_positions=[],
+                    snare_positions=[1.0, 3.0],
                     hihat_subdivision=TIMING.HALF,
                 )
             )
@@ -1501,7 +1501,7 @@ class RockGenrePlugin(GenrePlugin):
             .add(
                 BasicGroove(
                     kick_positions=[0.0],
-                    snare_positions=[],
+                    snare_positions=[1.0, 3.0],
                     hihat_subdivision=TIMING.HALF,
                 )
             )
@@ -1561,7 +1561,7 @@ class RockGenrePlugin(GenrePlugin):
             .add(
                 BasicGroove(
                     kick_positions=[0.0],
-                    snare_positions=[],
+                    snare_positions=[1.0, 3.0],
                     hihat_subdivision=TIMING.QUARTER,
                 )
             )

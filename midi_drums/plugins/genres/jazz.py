@@ -188,7 +188,7 @@ class JazzGenrePlugin(GenrePlugin):
                     .add(
                         BasicGroove(
                             kick_positions=[0.0],
-                            snare_positions=[],
+                            snare_positions=[2.0],
                             hihat_subdivision=TIMING.HALF,
                         )
                     )
@@ -202,7 +202,7 @@ class JazzGenrePlugin(GenrePlugin):
                     .add(
                         BasicGroove(
                             kick_positions=[0.0, 2.0],
-                            snare_positions=[],
+                            snare_positions=[2.0],
                             hihat_subdivision=TIMING.HALF,
                         )
                     )
@@ -216,7 +216,7 @@ class JazzGenrePlugin(GenrePlugin):
                     .add(
                         BasicGroove(
                             kick_positions=[0.0],
-                            snare_positions=[],
+                            snare_positions=[2.0],
                             hihat_subdivision=TIMING.HALF,
                         )
                     )
@@ -232,7 +232,7 @@ class JazzGenrePlugin(GenrePlugin):
                     .add(
                         BasicGroove(
                             kick_positions=[0.0],
-                            snare_positions=[],
+                            snare_positions=[2.0],
                             hihat_subdivision=TIMING.EIGHTH,
                         )
                     )
@@ -246,7 +246,7 @@ class JazzGenrePlugin(GenrePlugin):
                     .add(
                         BasicGroove(
                             kick_positions=[0.0],
-                            snare_positions=[],
+                            snare_positions=[2.0],
                             hihat_subdivision=TIMING.EIGHTH,
                         )
                     )
@@ -264,7 +264,7 @@ class JazzGenrePlugin(GenrePlugin):
                     .add(
                         BasicGroove(
                             kick_positions=[0.0],
-                            snare_positions=[],
+                            snare_positions=[2.0],
                             hihat_subdivision=TIMING.EIGHTH,
                         )
                     )
@@ -276,7 +276,7 @@ class JazzGenrePlugin(GenrePlugin):
                     .add(
                         BasicGroove(
                             kick_positions=[0.0],
-                            snare_positions=[],
+                            snare_positions=[2.0],
                             hihat_subdivision=TIMING.EIGHTH,
                         )
                     )
@@ -294,7 +294,7 @@ class JazzGenrePlugin(GenrePlugin):
                     .add(
                         BasicGroove(
                             kick_positions=[0.0],
-                            snare_positions=[],
+                            snare_positions=[2.0],
                             hihat_subdivision=TIMING.HALF,
                         )
                     )
@@ -303,7 +303,7 @@ class JazzGenrePlugin(GenrePlugin):
                     .add(
                         BasicGroove(
                             kick_positions=[0.0],
-                            snare_positions=[],
+                            snare_positions=[2.0],
                             hihat_subdivision=TIMING.EIGHTH,
                         )
                     )
@@ -321,7 +321,7 @@ class JazzGenrePlugin(GenrePlugin):
                     .add(
                         BasicGroove(
                             kick_positions=[0.0],
-                            snare_positions=[],
+                            snare_positions=[2.0],
                             hihat_subdivision=TIMING.HALF,
                         )
                     )
@@ -339,7 +339,7 @@ class JazzGenrePlugin(GenrePlugin):
                     .add(
                         BasicGroove(
                             kick_positions=[0.0],
-                            snare_positions=[],
+                            snare_positions=[2.0],
                             hihat_subdivision=TIMING.EIGHTH,
                         )
                     )
@@ -351,7 +351,7 @@ class JazzGenrePlugin(GenrePlugin):
                     .add(
                         BasicGroove(
                             kick_positions=[0.0],
-                            snare_positions=[],
+                            snare_positions=[2.0],
                             hihat_subdivision=TIMING.HALF,
                         )
                     )
@@ -369,7 +369,7 @@ class JazzGenrePlugin(GenrePlugin):
                     .add(
                         BasicGroove(
                             kick_positions=[0.0],
-                            snare_positions=[],
+                            snare_positions=[2.0],
                             hihat_subdivision=TIMING.HALF,
                         )
                     )
@@ -383,7 +383,7 @@ class JazzGenrePlugin(GenrePlugin):
                     .add(
                         BasicGroove(
                             kick_positions=[0.0],
-                            snare_positions=[],
+                            snare_positions=[2.0],
                             hihat_subdivision=TIMING.HALF,
                         )
                     )
@@ -564,7 +564,7 @@ class JazzGenrePlugin(GenrePlugin):
                     .add(
                         BasicGroove(
                             kick_positions=[0.0, 1.0, 2.5],
-                            snare_positions=[],
+                            snare_positions=[2.0],
                             hihat_subdivision=TIMING.HALF,
                         )
                     )
@@ -589,7 +589,7 @@ class JazzGenrePlugin(GenrePlugin):
                     .add(
                         BasicGroove(
                             kick_positions=[0.0],
-                            snare_positions=[],
+                            snare_positions=[2.0],
                             hihat_subdivision=TIMING.HALF,
                         )
                     )
@@ -679,7 +679,7 @@ class JazzGenrePlugin(GenrePlugin):
                     .add(
                         BasicGroove(
                             kick_positions=[0.0],
-                            snare_positions=[],
+                            snare_positions=[2.0],
                             hihat_subdivision=TIMING.HALF,
                         )
                     )
@@ -775,7 +775,7 @@ class JazzGenrePlugin(GenrePlugin):
                     .add(
                         BasicGroove(
                             kick_positions=[0.0, 1.5, 2.0, 3.0],
-                            snare_positions=[],
+                            snare_positions=[2.0],
                             hihat_subdivision=TIMING.HALF,
                         )
                     )
@@ -1011,7 +1011,7 @@ class JazzGenrePlugin(GenrePlugin):
                     .add(
                         BasicGroove(
                             kick_positions=[0.0],
-                            snare_positions=[],
+                            snare_positions=[2.0],
                             hihat_subdivision=TIMING.HALF,
                         )
                     )
@@ -1025,7 +1025,7 @@ class JazzGenrePlugin(GenrePlugin):
                     .add(
                         BasicGroove(
                             kick_positions=[0.0, 2.0],
-                            snare_positions=[],
+                            snare_positions=[2.0],
                             hihat_subdivision=TIMING.HALF,
                         )
                     )
@@ -1048,7 +1048,7 @@ class JazzGenrePlugin(GenrePlugin):
                     .add(
                         BasicGroove(
                             kick_positions=[0.0],
-                            snare_positions=[],
+                            snare_positions=[2.0],
                             hihat_subdivision=TIMING.HALF,
                         )
                     )
@@ -1073,7 +1073,7 @@ class JazzGenrePlugin(GenrePlugin):
                     .add(
                         BasicGroove(
                             kick_positions=[0.0],
-                            snare_positions=[],
+                            snare_positions=[2.0],
                             hihat_subdivision=TIMING.EIGHTH,
                         )
                     )
@@ -1093,7 +1093,7 @@ class JazzGenrePlugin(GenrePlugin):
                     .add(
                         BasicGroove(
                             kick_positions=[0.0],
-                            snare_positions=[],
+                            snare_positions=[2.0],
                             hihat_subdivision=TIMING.HALF,
                         )
                     )
@@ -1110,7 +1110,7 @@ class JazzGenrePlugin(GenrePlugin):
                     .add(
                         BasicGroove(
                             kick_positions=[0.0],
-                            snare_positions=[],
+                            snare_positions=[2.0],
                             hihat_subdivision=TIMING.HALF,
                         )
                     )
@@ -1120,7 +1120,7 @@ class JazzGenrePlugin(GenrePlugin):
                     .add(
                         BasicGroove(
                             kick_positions=[0.0],
-                            snare_positions=[],
+                            snare_positions=[2.0],
                             hihat_subdivision=TIMING.EIGHTH,
                         )
                     )
@@ -1145,7 +1145,7 @@ class JazzGenrePlugin(GenrePlugin):
                     .add(
                         BasicGroove(
                             kick_positions=[0.0],
-                            snare_positions=[],
+                            snare_positions=[2.0],
                             hihat_subdivision=TIMING.HALF,
                         )
                     )
@@ -1170,7 +1170,7 @@ class JazzGenrePlugin(GenrePlugin):
                     .add(
                         BasicGroove(
                             kick_positions=[0.0],
-                            snare_positions=[],
+                            snare_positions=[2.0],
                             hihat_subdivision=TIMING.HALF,
                         )
                     )
@@ -1196,7 +1196,7 @@ class JazzGenrePlugin(GenrePlugin):
                     .add(
                         BasicGroove(
                             kick_positions=[0.0],
-                            snare_positions=[],
+                            snare_positions=[2.0],
                             hihat_subdivision=TIMING.HALF,
                         )
                     )
@@ -1210,7 +1210,7 @@ class JazzGenrePlugin(GenrePlugin):
                     .add(
                         BasicGroove(
                             kick_positions=[0.0],
-                            snare_positions=[],
+                            snare_positions=[2.0],
                             hihat_subdivision=TIMING.EIGHTH,
                         )
                     )
@@ -1233,7 +1233,7 @@ class JazzGenrePlugin(GenrePlugin):
                     .add(
                         BasicGroove(
                             kick_positions=[0.0],
-                            snare_positions=[],
+                            snare_positions=[2.0],
                             hihat_subdivision=TIMING.HALF,
                         )
                     )
@@ -1256,7 +1256,7 @@ class JazzGenrePlugin(GenrePlugin):
                     .add(
                         BasicGroove(
                             kick_positions=[0.0],
-                            snare_positions=[],
+                            snare_positions=[2.0],
                             hihat_subdivision=TIMING.EIGHTH,
                         )
                     )
@@ -1276,7 +1276,7 @@ class JazzGenrePlugin(GenrePlugin):
                     .add(
                         BasicGroove(
                             kick_positions=[0.0],
-                            snare_positions=[],
+                            snare_positions=[2.0],
                             hihat_subdivision=TIMING.HALF,
                         )
                     )
@@ -1291,7 +1291,7 @@ class JazzGenrePlugin(GenrePlugin):
                     .add(
                         BasicGroove(
                             kick_positions=[0.0, 2.0],
-                            snare_positions=[],
+                            snare_positions=[2.0],
                             hihat_subdivision=TIMING.HALF,
                         )
                     )
@@ -1304,7 +1304,7 @@ class JazzGenrePlugin(GenrePlugin):
                     .add(
                         BasicGroove(
                             kick_positions=[0.0],
-                            snare_positions=[],
+                            snare_positions=[2.0],
                             hihat_subdivision=TIMING.HALF,
                         )
                     )
@@ -1329,7 +1329,7 @@ class JazzGenrePlugin(GenrePlugin):
                     .add(
                         BasicGroove(
                             kick_positions=[0.0],
-                            snare_positions=[],
+                            snare_positions=[2.0],
                             hihat_subdivision=TIMING.HALF,
                         )
                     )
@@ -1354,7 +1354,7 @@ class JazzGenrePlugin(GenrePlugin):
                     .add(
                         BasicGroove(
                             kick_positions=[0.0],
-                            snare_positions=[],
+                            snare_positions=[2.0],
                             hihat_subdivision=TIMING.HALF,
                         )
                     )
@@ -1432,7 +1432,7 @@ class JazzGenrePlugin(GenrePlugin):
                     .add(
                         BasicGroove(
                             kick_positions=[0.0],
-                            snare_positions=[],
+                            snare_positions=[2.0],
                             hihat_subdivision=TIMING.HALF,
                         )
                     )
@@ -1450,7 +1450,7 @@ class JazzGenrePlugin(GenrePlugin):
                     .add(
                         BasicGroove(
                             kick_positions=[0.0],
-                            snare_positions=[],
+                            snare_positions=[2.0],
                             hihat_subdivision=TIMING.HALF,
                         )
                     )
@@ -1563,7 +1563,7 @@ class JazzGenrePlugin(GenrePlugin):
             .add(
                 BasicGroove(
                     kick_positions=[0.0],
-                    snare_positions=[],
+                    snare_positions=[2.0],
                     hihat_subdivision=TIMING.EIGHTH,
                 )
             )
@@ -1576,7 +1576,7 @@ class JazzGenrePlugin(GenrePlugin):
             .add(
                 BasicGroove(
                     kick_positions=[0.0, 2.0],
-                    snare_positions=[],
+                    snare_positions=[2.0],
                     hihat_subdivision=TIMING.HALF,
                 )
             )
@@ -1686,7 +1686,7 @@ class JazzGenrePlugin(GenrePlugin):
             .add(
                 BasicGroove(
                     kick_positions=[0.0],
-                    snare_positions=[],
+                    snare_positions=[2.0],
                     hihat_subdivision=TIMING.EIGHTH,
                 )
             )
@@ -1723,7 +1723,7 @@ class JazzGenrePlugin(GenrePlugin):
             .add(
                 BasicGroove(
                     kick_positions=[0.0, 2.0],
-                    snare_positions=[],
+                    snare_positions=[2.0],
                     hihat_subdivision=TIMING.HALF,
                 )
             )
@@ -1747,7 +1747,7 @@ class JazzGenrePlugin(GenrePlugin):
             .add(
                 BasicGroove(
                     kick_positions=[0.0],
-                    snare_positions=[],
+                    snare_positions=[2.0],
                     hihat_subdivision=TIMING.HALF,
                 )
             )
@@ -1760,7 +1760,7 @@ class JazzGenrePlugin(GenrePlugin):
             .add(
                 BasicGroove(
                     kick_positions=[],
-                    snare_positions=[],
+                    snare_positions=[2.0],
                     hihat_subdivision=TIMING.EIGHTH,
                 )
             )

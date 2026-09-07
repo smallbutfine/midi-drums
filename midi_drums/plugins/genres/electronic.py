@@ -107,7 +107,7 @@ class ElectronicGenrePlugin(GenrePlugin):
             .add(
                 BasicGroove(
                     kick_positions=_FOUR_ON_THE_FLOOR,
-                    snare_positions=[],
+                    snare_positions=[1.0, 3.0],
                     hihat_subdivision=TIMING.SIXTEENTH,
                 )
             )
@@ -200,7 +200,7 @@ class ElectronicGenrePlugin(GenrePlugin):
                         .add(
                             BasicGroove(
                                 kick_positions=_FOUR_ON_THE_FLOOR,
-                                snare_positions=[],
+                                snare_positions=[1.0, 3.0],
                                 hihat_subdivision=TIMING.EIGHTH,
                             )
                         )
@@ -212,7 +212,7 @@ class ElectronicGenrePlugin(GenrePlugin):
                         .add(
                             BasicGroove(
                                 kick_positions=[0.0, 2.0],
-                                snare_positions=[],
+                                snare_positions=[1.0, 3.0],
                                 hihat_subdivision=TIMING.SIXTEENTH,
                             )
                         )
@@ -239,7 +239,7 @@ class ElectronicGenrePlugin(GenrePlugin):
                         .add(
                             BasicGroove(
                                 kick_positions=[0.0],
-                                snare_positions=[],
+                                snare_positions=[1.0, 3.0],
                                 hihat_subdivision=TIMING.SIXTEENTH,
                             )
                         )
@@ -251,7 +251,7 @@ class ElectronicGenrePlugin(GenrePlugin):
                         .add(
                             BasicGroove(
                                 kick_positions=[0.0, 1.5, 2.0],
-                                snare_positions=[],
+                                snare_positions=[1.0, 3.0],
                                 hihat_subdivision=TIMING.SIXTEENTH,
                             )
                         )
@@ -278,7 +278,7 @@ class ElectronicGenrePlugin(GenrePlugin):
                         .add(
                             BasicGroove(
                                 kick_positions=_BREAKBEAT_KICK,
-                                snare_positions=[],
+                                snare_positions=[1.0, 3.0],
                                 hihat_subdivision=TIMING.SIXTEENTH,
                             )
                         )
@@ -317,7 +317,7 @@ class ElectronicGenrePlugin(GenrePlugin):
                         .add(
                             BasicGroove(
                                 kick_positions=[0.0],
-                                snare_positions=[],
+                                snare_positions=[1.0, 3.0],
                                 hihat_subdivision=TIMING.QUARTER,
                             )
                         )
@@ -341,7 +341,7 @@ class ElectronicGenrePlugin(GenrePlugin):
                         .add(
                             BasicGroove(
                                 kick_positions=[0.0],
-                                snare_positions=[],
+                                snare_positions=[1.0, 3.0],
                                 hihat_subdivision=TIMING.EIGHTH,
                             )
                         )
@@ -412,7 +412,7 @@ class ElectronicGenrePlugin(GenrePlugin):
                         .add(
                             BasicGroove(
                                 kick_positions=[0.0, 1.0, 2.5],
-                                snare_positions=[],
+                                snare_positions=[1.0, 3.0],
                                 hihat_subdivision=TIMING.SIXTEENTH,
                             )
                         )
@@ -693,7 +693,7 @@ class ElectronicGenrePlugin(GenrePlugin):
                         .add(
                             BasicGroove(
                                 kick_positions=[0.0, 2.0],
-                                snare_positions=[],
+                                snare_positions=[1.0, 3.0],
                                 hihat_subdivision=TIMING.QUARTER,
                             )
                         )
@@ -705,7 +705,7 @@ class ElectronicGenrePlugin(GenrePlugin):
                         .add(
                             BasicGroove(
                                 kick_positions=[0.0],
-                                snare_positions=[],
+                                snare_positions=[1.0, 3.0],
                                 hihat_subdivision=TIMING.EIGHTH,
                             )
                         )
@@ -732,7 +732,7 @@ class ElectronicGenrePlugin(GenrePlugin):
                         .add(
                             BasicGroove(
                                 kick_positions=[0.0],
-                                snare_positions=[],
+                                snare_positions=[1.0, 3.0],
                                 hihat_subdivision=TIMING.QUARTER,
                             )
                         )
@@ -744,7 +744,7 @@ class ElectronicGenrePlugin(GenrePlugin):
                         .add(
                             BasicGroove(
                                 kick_positions=[0.0],
-                                snare_positions=[],
+                                snare_positions=[1.0, 3.0],
                                 hihat_subdivision=TIMING.EIGHTH,
                             )
                         )
@@ -795,7 +795,7 @@ class ElectronicGenrePlugin(GenrePlugin):
                         .add(
                             BasicGroove(
                                 kick_positions=[0.0, 1.0, 2.0],
-                                snare_positions=[],
+                                snare_positions=[1.0, 3.0],
                                 hihat_subdivision=TIMING.SIXTEENTH,
                             )
                         )
@@ -810,7 +810,7 @@ class ElectronicGenrePlugin(GenrePlugin):
                         .add(
                             BasicGroove(
                                 kick_positions=[0.0],
-                                snare_positions=[],
+                                snare_positions=[1.0, 3.0],
                                 hihat_subdivision=TIMING.EIGHTH,
                             )
                         )
@@ -866,7 +866,7 @@ class ElectronicGenrePlugin(GenrePlugin):
                         .add(
                             BasicGroove(
                                 kick_positions=[0.0],
-                                snare_positions=[],
+                                snare_positions=[1.0, 3.0],
                                 hihat_subdivision=TIMING.EIGHTH,
                             )
                         )
@@ -893,7 +893,7 @@ class ElectronicGenrePlugin(GenrePlugin):
                         .add(
                             BasicGroove(
                                 kick_positions=_FOUR_ON_THE_FLOOR,
-                                snare_positions=[],
+                                snare_positions=[1.0, 3.0],
                                 hihat_subdivision=TIMING.QUARTER,
                             )
                         )
@@ -1018,7 +1018,7 @@ class ElectronicGenrePlugin(GenrePlugin):
                         .add(
                             BasicGroove(
                                 kick_positions=_FOUR_ON_THE_FLOOR,
-                                snare_positions=[],
+                                snare_positions=[1.0, 3.0],
                                 hihat_subdivision=TIMING.QUARTER,
                             )
                         )
@@ -1030,7 +1030,7 @@ class ElectronicGenrePlugin(GenrePlugin):
                         .add(
                             BasicGroove(
                                 kick_positions=[0.0, 2.0],
-                                snare_positions=[],
+                                snare_positions=[1.0, 3.0],
                                 hihat_subdivision=TIMING.EIGHTH,
                             )
                         )
@@ -1042,7 +1042,7 @@ class ElectronicGenrePlugin(GenrePlugin):
                         .add(
                             BasicGroove(
                                 kick_positions=[0.0],
-                                snare_positions=[],
+                                snare_positions=[1.0, 3.0],
                                 hihat_subdivision=TIMING.EIGHTH,
                             )
                         )
@@ -1057,7 +1057,7 @@ class ElectronicGenrePlugin(GenrePlugin):
                         .add(
                             BasicGroove(
                                 kick_positions=_FOUR_ON_THE_FLOOR,
-                                snare_positions=[],
+                                snare_positions=[1.0, 3.0],
                                 hihat_subdivision=TIMING.QUARTER,
                             )
                         )
@@ -1069,7 +1069,7 @@ class ElectronicGenrePlugin(GenrePlugin):
                         .add(
                             BasicGroove(
                                 kick_positions=[0.0],
-                                snare_positions=[],
+                                snare_positions=[1.0, 3.0],
                                 hihat_subdivision=TIMING.QUARTER,
                             )
                         )
@@ -1081,7 +1081,7 @@ class ElectronicGenrePlugin(GenrePlugin):
                         .add(
                             BasicGroove(
                                 kick_positions=[0.0],
-                                snare_positions=[],
+                                snare_positions=[1.0, 3.0],
                                 hihat_subdivision=TIMING.EIGHTH,
                             )
                         )
@@ -1096,7 +1096,7 @@ class ElectronicGenrePlugin(GenrePlugin):
                         .add(
                             BasicGroove(
                                 kick_positions=[0.0],
-                                snare_positions=[],
+                                snare_positions=[1.0, 3.0],
                                 hihat_subdivision=TIMING.SIXTEENTH,
                             )
                         )
@@ -1120,7 +1120,7 @@ class ElectronicGenrePlugin(GenrePlugin):
                         .add(
                             BasicGroove(
                                 kick_positions=[0.0],
-                                snare_positions=[],
+                                snare_positions=[1.0, 3.0],
                                 hihat_subdivision=TIMING.EIGHTH,
                             )
                         )
@@ -1135,7 +1135,7 @@ class ElectronicGenrePlugin(GenrePlugin):
                         .add(
                             BasicGroove(
                                 kick_positions=[0.0],
-                                snare_positions=[],
+                                snare_positions=[1.0, 3.0],
                                 hihat_subdivision=TIMING.EIGHTH,
                             )
                         )
@@ -1147,7 +1147,7 @@ class ElectronicGenrePlugin(GenrePlugin):
                         .add(
                             BasicGroove(
                                 kick_positions=_HALF_TIME_KICK,
-                                snare_positions=[],
+                                snare_positions=[1.0, 3.0],
                                 hihat_subdivision=TIMING.EIGHTH,
                             )
                         )
@@ -1159,7 +1159,7 @@ class ElectronicGenrePlugin(GenrePlugin):
                         .add(
                             BasicGroove(
                                 kick_positions=[0.0],
-                                snare_positions=[],
+                                snare_positions=[1.0, 3.0],
                                 hihat_subdivision=TIMING.EIGHTH,
                             )
                         )
@@ -1236,7 +1236,7 @@ class ElectronicGenrePlugin(GenrePlugin):
                     .add(
                         BasicGroove(
                             kick_positions=_FOUR_ON_THE_FLOOR,
-                            snare_positions=[],
+                            snare_positions=[1.0, 3.0],
                             hihat_subdivision=TIMING.EIGHTH,
                         )
                     )
@@ -1248,7 +1248,7 @@ class ElectronicGenrePlugin(GenrePlugin):
                     .add(
                         BasicGroove(
                             kick_positions=[0.0, 2.0],
-                            snare_positions=[],
+                            snare_positions=[1.0, 3.0],
                             hihat_subdivision=TIMING.SIXTEENTH,
                         )
                     )
@@ -1260,7 +1260,7 @@ class ElectronicGenrePlugin(GenrePlugin):
                     .add(
                         BasicGroove(
                             kick_positions=[0.0],
-                            snare_positions=[],
+                            snare_positions=[1.0, 3.0],
                             hihat_subdivision=TIMING.QUARTER,
                         )
                     )
@@ -1400,7 +1400,7 @@ class ElectronicGenrePlugin(GenrePlugin):
                     .add(
                         BasicGroove(
                             kick_positions=[0.0, 2.0],
-                            snare_positions=[],
+                            snare_positions=[1.0, 3.0],
                             hihat_subdivision=TIMING.QUARTER,
                         )
                     )
@@ -1480,7 +1480,7 @@ class ElectronicGenrePlugin(GenrePlugin):
                     .add(
                         BasicGroove(
                             kick_positions=_FOUR_ON_THE_FLOOR,
-                            snare_positions=[],
+                            snare_positions=[1.0, 3.0],
                             hihat_subdivision=TIMING.QUARTER,
                         )
                     )
@@ -1492,7 +1492,7 @@ class ElectronicGenrePlugin(GenrePlugin):
                     .add(
                         BasicGroove(
                             kick_positions=[0.0],
-                            snare_positions=[],
+                            snare_positions=[1.0, 3.0],
                             hihat_subdivision=TIMING.EIGHTH,
                         )
                     )
