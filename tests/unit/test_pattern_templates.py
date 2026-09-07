@@ -39,6 +39,10 @@ _HIHAT_CLOSED_SHAFT_2 = InstrumentRegistry.get(
 _ALL_HIHAT = frozenset([
     _HIHAT_CLOSED_1, _HIHAT_CLOSED_BELL, _HIHAT_CLOSED_2,
     _HIHAT_CLOSED_SHAFT_1, _HIHAT_CLOSED_SHAFT_2,
+    InstrumentRegistry.get("hihat_open_a"),
+    InstrumentRegistry.get("hihat_open_b"),
+    InstrumentRegistry.get("hihat_open_c"),
+    InstrumentRegistry.get("hihat_open_d"),
 ])
 _RIDE = InstrumentRegistry.get("ride_1_tip_hit_softer")
 _CRASH = InstrumentRegistry.get("cymbal_1_hit")

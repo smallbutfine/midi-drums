@@ -24,6 +24,9 @@ _HIHAT_INSTRUMENTS = frozenset(
         InstrumentRegistry.get("hihat_closed_bell"),
         InstrumentRegistry.get("hihat_closed_2_tip_closed_2_hit"),
         InstrumentRegistry.get("hihat_open_a"),
+        InstrumentRegistry.get("hihat_open_b"),
+        InstrumentRegistry.get("hihat_open_c"),
+        InstrumentRegistry.get("hihat_open_d"),
         InstrumentRegistry.get("hihat_closed_1_shaft_closed_1_hit_dbl"),
         InstrumentRegistry.get("hihat_closed_2_shaft_closed_2_hit_dbl"),
     ]
@@ -231,7 +234,6 @@ class GenrePlugin(ABC):
         HH hits sound different across bars.
         """
         return InstrumentRegistry.get("cymbal_2_hit")
-
     def _apply_ride_hihat_logic(
         self,
         pattern: Pattern,

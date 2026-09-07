@@ -64,6 +64,16 @@ class MoonPlugin(DrummerPlugin):
 
         return styled
 
+    def _strip_timekeeping_cymbals(self, pattern: Pattern) -> Pattern:
+        from midi_drums.core.models.kit import InstrumentRegistry
+        stripped = pattern.copy()
+        ride_inst = InstrumentRegistry.get("ride_1_tip_hit_softer")
+        for beat in stripped.beats:
+            if beat.instrument == ride_inst:
+                beat.instrument = InstrumentRegistry.get("cymbal_1_hit")
+                beat.velocity = VELOCITY.CRASH_NORMAL
+        return stripped
+
     def get_signature_fills(self) -> list[Fill]:
         """Return Keith Moon's signature fill patterns using ALL crashes (1-6) and ALL toms.
 

@@ -89,7 +89,7 @@ class BasicGroove(PatternTemplate):
     kick_positions: list[float] = field(default_factory=lambda: [0.0, 2.0])
     snare_positions: list[float] = field(default_factory=lambda: [1.0, 3.0])
     hihat_subdivision: float = TIMING.EIGHTH
-    use_open_hihat: bool = False
+    use_open_hihat: bool = True
     open_hihat_positions: list[float] = field(default_factory=list)
 
     def generate(self, builder: PatternBuilder, **kwargs) -> PatternBuilder:
@@ -119,7 +119,14 @@ class BasicGroove(PatternTemplate):
                 relative_pos = i * self.hihat_subdivision
 
                 # Check if this position should be open hihat
-                if self.use_open_hihat and pos in self.open_hihat_positions:
+                open_positions = self.open_hihat_positions
+                if not open_positions and self.use_open_hihat:
+                    open_positions = [
+                        bar_offset + (i * self.hihat_subdivision)
+                        for i in range(beats_per_bar)
+                        if not (i * self.hihat_subdivision).is_integer()
+                    ]
+                if self.use_open_hihat and pos in open_positions:
                     open_variants = _hh_open_variants()
                     variant = open_variants[i % len(open_variants)]
                     builder.add_hit(variant, pos, VELOCITY.HIHAT_OPEN)

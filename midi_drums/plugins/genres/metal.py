@@ -123,7 +123,7 @@ class MetalGenrePlugin(GenrePlugin):
     ) -> DrumInstrument:
         # Cycle through heavy/light/splash crashes per bar for timbral
         # variety consistent with AD2's three crash categories.
-        return _AD2_CRASH_VARIANTS[bar_index % len(_AD2_CRASH_VARIANTS)]
+        return _AD2_CRASH_VARIANTS[int(bar_index) % len(_AD2_CRASH_VARIANTS)]
 
     def get_common_fills(self) -> list[Fill]:
         """Get common metal fill patterns using TomFill template."""

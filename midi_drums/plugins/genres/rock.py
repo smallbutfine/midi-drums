@@ -122,7 +122,7 @@ class RockGenrePlugin(GenrePlugin):
         bar_index: int,
     ) -> DrumInstrument:
         # Cycle through rock crash variants per bar.
-        return _ROCK_CRASHES[bar_index % len(_ROCK_CRASHES)]
+        return _ROCK_CRASHES[int(bar_index) % len(_ROCK_CRASHES)]
 
     def get_common_fills(self) -> list[Fill]:
         """Get common rock fill patterns using TomFill template."""

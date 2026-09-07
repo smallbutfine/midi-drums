@@ -33,6 +33,9 @@ def _hihat_count(pattern):
             InstrumentRegistry.get("hihat_closed_bell"),
             InstrumentRegistry.get("hihat_closed_2_tip_closed_2_hit"),
             InstrumentRegistry.get("hihat_open_a"),
+            InstrumentRegistry.get("hihat_open_b"),
+            InstrumentRegistry.get("hihat_open_c"),
+            InstrumentRegistry.get("hihat_open_d"),
             InstrumentRegistry.get("hihat_pedal_closed"),
         ]
     )
