@@ -1223,6 +1223,13 @@ class JazzGenrePlugin(GenrePlugin):
                     .add(
                         JazzRidePattern(swing_ratio=0.3, accent_pattern="tony")
                     )
+                    .add(
+                        BasicGroove(
+                            kick_positions=[0.0],
+                            snare_positions=[2.0],
+                            hihat_subdivision=TIMING.HALF,
+                        )
+                    )
                     .build(bars=1, complexity=max(0.0, c - 0.1)),
                     TemplateComposer("jazz_bebop_bridge_g2")
                     .add(
@@ -1248,6 +1255,13 @@ class JazzGenrePlugin(GenrePlugin):
                             swing_ratio=0.2, accent_pattern="standard"
                         )
                     )
+                    .add(
+                        BasicGroove(
+                            kick_positions=[0.0],
+                            snare_positions=[2.0],
+                            hihat_subdivision=TIMING.EIGHTH,
+                        )
+                    )
                     .build(bars=1, complexity=max(0.0, c - 0.1)),
                     TemplateComposer("jazz_fusion_bridge_g2")
                     .add(
@@ -1269,6 +1283,13 @@ class JazzGenrePlugin(GenrePlugin):
                     .add(
                         JazzRidePattern(
                             swing_ratio=0.35, accent_pattern="standard"
+                        )
+                    )
+                    .add(
+                        BasicGroove(
+                            kick_positions=[0.0],
+                            snare_positions=[2.0],
+                            hihat_subdivision=TIMING.HALF,
                         )
                     )
                     .build(bars=1, complexity=max(0.0, c - 0.1)),
@@ -1319,6 +1340,13 @@ class JazzGenrePlugin(GenrePlugin):
                             swing_ratio=0.35, accent_pattern="elvin"
                         )
                     )
+                    .add(
+                        BasicGroove(
+                            kick_positions=[0.0],
+                            snare_positions=[2.0],
+                            hihat_subdivision=TIMING.HALF,
+                        )
+                    )
                     .build(bars=1, complexity=max(0.0, c - 0.1)),
                     TemplateComposer("jazz_hbop_bridge_g2")
                     .add(
@@ -1342,6 +1370,13 @@ class JazzGenrePlugin(GenrePlugin):
                     .add(
                         JazzRidePattern(
                             swing_ratio=0.3, accent_pattern="standard"
+                        )
+                    )
+                    .add(
+                        BasicGroove(
+                            kick_positions=[0.0],
+                            snare_positions=[2.0],
+                            hihat_subdivision=TIMING.HALF,
                         )
                     )
                     .build(bars=1, complexity=max(0.0, c - 0.1)),

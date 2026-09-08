@@ -1962,6 +1962,13 @@ class FunkGenrePlugin(GenrePlugin):
                         )
                     )
                     .add(
+                        BasicGroove(
+                            kick_positions=[0.0, 2.0],
+                            snare_positions=[1.0, 3.0],
+                            hihat_subdivision=TIMING.EIGHTH_TRIPLET,
+                        )
+                    )
+                    .add(
                         JazzRidePattern(
                             swing_ratio=0.33, accent_pattern="standard"
                         )
@@ -2122,6 +2129,13 @@ class FunkGenrePlugin(GenrePlugin):
                             density=0.7,
                             emphasize_one=False,
                             main_snare_positions=[1.0, 3.0],
+                        )
+                    )
+                    .add(
+                        BasicGroove(
+                            kick_positions=[0.0, 2.0],
+                            snare_positions=[1.0, 3.0],
+                            hihat_subdivision=TIMING.EIGHTH_TRIPLET,
                         )
                     )
                     .add(
@@ -2302,6 +2316,13 @@ class FunkGenrePlugin(GenrePlugin):
                             swing_ratio=0.33, accent_pattern="standard"
                         )
                     )
+                    .add(
+                        BasicGroove(
+                            kick_positions=[0.0, 2.0],
+                            snare_positions=[1.0, 3.0],
+                            hihat_subdivision=TIMING.EIGHTH_TRIPLET,
+                        )
+                    )
                     .build(bars=1, complexity=bridge_complexity)
                 )
             # Fallback for any unhandled style
@@ -2309,6 +2330,13 @@ class FunkGenrePlugin(GenrePlugin):
                 return (
                     TemplateComposer(name)
                     .add(FunkGhostNotes(density=0.5, emphasize_one=False))
+                    .add(
+                        BasicGroove(
+                            kick_positions=[0.0, 2.0],
+                            snare_positions=[1.0, 3.0],
+                            hihat_subdivision=TIMING.EIGHTH,
+                        )
+                    )
                     .add(TomFill(pattern="around", start_position=3.0))
                     .build(bars=1, complexity=bridge_complexity)
                 )
