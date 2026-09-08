@@ -58,9 +58,71 @@ class WattsPlugin(DrummerPlugin):
 
         return styled
 
-    def _reduce_crash_density(self, pattern):
-        """Reduce crash cymbal density (stub for Watts' minimalist style)."""
-        return pattern
+    def _reduce_crash_density(self, pattern: Pattern) -> Pattern:
+        """Reduce crash cymbal density for Charlie Watts' minimalist style.
+
+        Charlie Watts used very few crashes — only on phrase ends
+        (bar lines) and one tasteful accent per bar max. He never bombarded
+        like Moon; his crashes were sparse punctuation, not density.
+        """
+        # Count crash hits grouped by quarter-bar positions
+        from collections import defaultdict
+
+        position_groups = defaultdict(list)
+        for beat in pattern.beats:
+            quantized_pos = round(beat.position * 4) / 4  # group into 16th-note bins
+            position_groups[quantized_pos].append(beat)
+
+        # Collect all crash instrument IDs to check against
+        _CRASH_NAMES = (
+            "cymbal_1_hit", "cymbal_2_hit", "cymbal_3_hit",
+            "cymbal_4_hit", "cymbal_5_hit", "cymbal_6_hit",
+            "cymbal_1_choke", "cymbal_2_choke", "cymbal_3_choke",
+            "cymbal_4_choke", "cymbal_5_choke", "cymbal_6_choke",
+            "china_hit", "crash_choked",
+        )
+
+        # Keep crashes only at bar-line positions (3.75, 4.0) or if it's the only crash in the bar
+        kept_beats = []
+        seen_crashes_per_bar = defaultdict(int)
+
+        for pos in sorted(position_groups.keys()):
+            beats_at_pos = position_groups[pos]
+            for beat in beats_at_pos:
+                inst_name = str(beat.instrument).lower()
+                is_crash = any(name in inst_name for name in ("cymbal", "crash", "china"))
+
+                if not is_crash:
+                    kept_beats.append(beat)
+                else:
+                    # Determine which quarter-bar this belongs to
+                    bar_section = int(pos * 4) // 2  # groups: bars 0-1, 2-3, etc.
+                    seen_crashes_per_bar[bar_section] += 1
+
+                    # Watts rule: keep at most one crash per half-bar, and prefer bar-line positions
+                    is_near_bar_line = abs(pos - int(pos)) < 0.05 or abs(pos - (int(pos) + 1)) < 0.05
+
+                    if seen_crashes_per_bar[bar_section] == 1:
+                        # First crash in this section — keep it but reduce velocity
+                        muted_beat = beat
+                        muted_beat.velocity = min(beat.velocity, VELOCITY.CRASH_NORMAL - 15)
+                        kept_beats.append(muted_beat)
+                    elif is_near_bar_line and seen_crashes_per_bar[bar_section] == 2:
+                        # Second crash allowed only at bar-line for accent
+                        muted_beat = beat
+                        muted_beat.velocity = min(beat.velocity, VELOCITY.CRASH_NORMAL - 20)
+                        kept_beats.append(muted_beat)
+                    else:
+                        # Excess Wattscrash — remove entirely (he was minimal)
+                        pass
+
+        return Pattern(
+            name=f"{pattern.name}_watts_minimal",
+            beats=kept_beats,
+            time_signature=pattern.time_signature,
+            subdivision=pattern.subdivision,
+            swing_ratio=pattern.swing_ratio,
+        )
 
     def get_signature_fills(self) -> list[Fill]:
         """Return Charlie Watts' signature fill patterns using full AD2 kit.
