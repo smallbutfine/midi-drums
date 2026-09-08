@@ -392,15 +392,15 @@ class LinearCoordination(DrummerModification):
 
         # Priority system for linear playing (keys are DrumInstrument objects from registry)
         priority = {
-            InstrumentRegistry.get("snare_sticks"): 5,
-            InstrumentRegistry.get("snare_rimshot_open_hit"): 5,
-            InstrumentRegistry.get("snare_side_stick"): 5,
-            InstrumentRegistry.get("snare_shallow_hit_closed_shallow_hit"): 5,
-            kick: 4,
-            CRASH: 3,
-            RIDE: 3,
-            TOM_3: 2,
-            TOM_4: 2,
+            kick: 10,
+            InstrumentRegistry.get("snare_sticks"): 9,
+            InstrumentRegistry.get("snare_rimshot_open_hit"): 9,
+            InstrumentRegistry.get("snare_side_stick"): 9,
+            InstrumentRegistry.get("snare_shallow_hit_closed_shallow_hit"): 9,
+            CRASH: 7,
+            RIDE: 6,
+            TOM_3: 4,
+            TOM_4: 4,
             CLOSED_HH: 1,
         }
 
