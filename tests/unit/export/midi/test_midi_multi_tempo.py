@@ -207,7 +207,9 @@ class TestSongDurationMatchesMidiLength:
 
 
 class TestPatternToMidiValidOutput:
-    @pytest.mark.skip(reason="snare_rimshot_open_hit and hihat notes not mapped in gm")
+    @pytest.mark.skip(
+        reason="snare_rimshot_open_hit and hihat notes not mapped in gm"
+    )
     def test_pattern_produces_valid_smf(self):
         pattern = _fixture_pattern()
         engine = MIDIEngine()

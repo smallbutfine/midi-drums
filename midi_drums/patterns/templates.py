@@ -39,6 +39,8 @@ def _hh_open_variants():
         (InstrumentRegistry.get("hihat_open_d"), 15),
         (InstrumentRegistry.get("hihat_open_bell"), 10),
     ]
+
+
 ride = InstrumentRegistry.get("ride_1_tip_hit_softer")
 ride_bell = InstrumentRegistry.get("ride_1_bell")
 ride_shaft = InstrumentRegistry.get("ride_1_shaft_hit_stronger")
@@ -141,7 +143,9 @@ class BasicGroove(PatternTemplate):
                     # Downbeats -> bell accent; offbeats -> weighted random
                     if relative_pos.is_integer():
                         velocity = VELOCITY.HIHAT_ACCENT
-                        variant = next(v[0] for v in closed_variants if "bell" in str(v[0]))
+                        variant = next(
+                            v[0] for v in closed_variants if "bell" in str(v[0])
+                        )
                     else:
                         velocity = int(
                             VELOCITY.HIHAT_NORMAL + (random.random() * 10 - 5)
@@ -189,7 +193,10 @@ class DoubleBassPedal(PatternTemplate):
             return self._continuous_pattern(builder, bars, include_timekeeper)
 
     def _continuous_pattern(
-        self, builder: PatternBuilder, bars: int, include_timekeeper: bool = True
+        self,
+        builder: PatternBuilder,
+        bars: int,
+        include_timekeeper: bool = True,
     ) -> PatternBuilder:
         """Continuous alternating double bass."""
         for bar in range(bars):
@@ -227,7 +234,10 @@ class DoubleBassPedal(PatternTemplate):
         return builder
 
     def _gallop_pattern(
-        self, builder: PatternBuilder, bars: int, include_timekeeper: bool = True
+        self,
+        builder: PatternBuilder,
+        bars: int,
+        include_timekeeper: bool = True,
     ) -> PatternBuilder:
         """Galloping rhythm (1-2-3, 1-2-3)."""
         for bar in range(bars):
@@ -257,7 +267,10 @@ class DoubleBassPedal(PatternTemplate):
         return builder
 
     def _triplet_pattern(
-        self, builder: PatternBuilder, bars: int, include_timekeeper: bool = True
+        self,
+        builder: PatternBuilder,
+        bars: int,
+        include_timekeeper: bool = True,
     ) -> PatternBuilder:
         """Triplet-based double bass."""
         for bar in range(bars):

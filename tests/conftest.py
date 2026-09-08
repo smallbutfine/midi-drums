@@ -5,12 +5,12 @@ from pathlib import Path
 
 import pytest
 
-from midi_drums.core.models.kit import InstrumentRegistry
 from midi_drums.api.python_api import DrumGeneratorAPI
+from midi_drums.core.models.kit import InstrumentRegistry
 from midi_drums.generation.engines.drum_generator import DrumGenerator
 
-
 # ── Ensure instrument registry is loaded before any test runs ─────
+
 
 @pytest.fixture(scope="session", autouse=True)
 def _load_instrument_registry():

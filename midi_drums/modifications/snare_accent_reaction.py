@@ -13,7 +13,6 @@ Two independent, opt-in modes (never both at once):
 from __future__ import annotations
 
 import random
-
 from dataclasses import dataclass
 from typing import Literal
 
@@ -21,9 +20,11 @@ from midi_drums.config import TIMING, VELOCITY
 from midi_drums.core.models.pattern import Beat, Pattern
 from midi_drums.core.value_objects.riff_accent import RiffAccentMap
 from midi_drums.modifications.drummer_mods import (
-    DrummerModification,
     _SNARE_VARIANTS,
+    DrummerModification,
 )
+
+
 @dataclass
 class SnareAccentReaction(DrummerModification):
     """React snare hits to riff accent positions.
@@ -69,7 +70,10 @@ class SnareAccentReaction(DrummerModification):
 
                 # Find nearest non-ghost snare beat
                 for beat in new_pattern.beats:
-                    if beat.instrument not in _SNARE_VARIANTS or beat.ghost_note:
+                    if (
+                        beat.instrument not in _SNARE_VARIANTS
+                        or beat.ghost_note
+                    ):
                         continue
 
                     dist = abs(beat.position - accent.position)
@@ -80,7 +84,8 @@ class SnareAccentReaction(DrummerModification):
                         snare_velocities = [
                             b.velocity
                             for b in new_pattern.beats
-                            if b.instrument in _SNARE_VARIANTS and not b.ghost_note
+                            if b.instrument in _SNARE_VARIANTS
+                            and not b.ghost_note
                         ]
                         velocity_ceiling = (
                             max(snare_velocities)

@@ -42,16 +42,18 @@ class PatternBuilder:
             "snare_rimclick_sweep_short_1_dbl",
         )
         _WEIGHTS = (
-            25,   # rimshot
-            10,   # dbl/closed rimshot
-            10,   # open lateral hit
-            5,    # dbl open/closed lateral
-            5,    # shallow rimshot
-            1,    # sticks (rare)
-            4,    # side stick (cross-stick)
-            1,    # rimclick/ratchet/click (rare)
+            25,  # rimshot
+            10,  # dbl/closed rimshot
+            10,  # open lateral hit
+            5,  # dbl open/closed lateral
+            5,  # shallow rimshot
+            1,  # sticks (rare)
+            4,  # side stick (cross-stick)
+            1,  # rimclick/ratchet/click (rare)
         )
-        inst = InstrumentRegistry.get(random.choices(_VARIANTS, weights=_WEIGHTS, k=1)[0])
+        inst = InstrumentRegistry.get(
+            random.choices(_VARIANTS, weights=_WEIGHTS, k=1)[0]
+        )
         self.pattern.add_beat(position, inst, velocity)
         return self
 
@@ -299,7 +301,10 @@ class PatternBuilder:
 
         AD2: notes 50 (variant=\"1\") and 52 (variant=\"2\").
         """
-        _SHAFT_MAP = {"1": "hihat_closed_1_shaft_closed_1_hit_dbl", "2": "hihat_closed_2_shaft_closed_2_hit_dbl"}
+        _SHAFT_MAP = {
+            "1": "hihat_closed_1_shaft_closed_1_hit_dbl",
+            "2": "hihat_closed_2_shaft_closed_2_hit_dbl",
+        }
         key = _SHAFT_MAP.get(variant, _SHAFT_MAP["1"])
         inst = InstrumentRegistry.get(key)
         vel = velocity if velocity is not None else VELOCITY.HIHAT_NORMAL
@@ -351,7 +356,11 @@ class PatternBuilder:
         return self
 
     def tight_hh(
-        self, position: float, open: bool = False, variant: str = "1", velocity: int | None = None
+        self,
+        position: float,
+        open: bool = False,
+        variant: str = "1",
+        velocity: int | None = None,
     ) -> "PatternBuilder":
         """Add tightly tuned hi-hat at position.
 

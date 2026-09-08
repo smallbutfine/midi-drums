@@ -13,7 +13,6 @@ from typing import Any
 
 from midi_drums.core.models.song import Song
 
-
 # ------------------------------------------------------------------ #
 #  XML helpers                                                       #
 # ------------------------------------------------------------------ #
@@ -33,7 +32,8 @@ def _escape_xml(text: str) -> str:
 def _xml_attrs(attrs: dict[str, Any]) -> str:
     """Render ``{k: v}`` as ``key1="val1" key2="val2"``."""
     return " ".join(
-        f'{_escape_xml(str(k))}="{_escape_xml(str(v))}"' for k, v in attrs.items()
+        f'{_escape_xml(str(k))}="{_escape_xml(str(v))}"'
+        for k, v in attrs.items()
     )
 
 
@@ -59,9 +59,7 @@ class ArdourEngine:
     #  Public API                                                        #
     # ------------------------------------------------------------------ #
 
-    def export(
-        self, song: Song, midi_file_path: Path | str
-    ) -> Path:
+    def export(self, song: Song, midi_file_path: Path | str) -> Path:
         """Export *song* + MIDI to a complete Ardour session directory.
 
         Returns the path to the ``<session_name>.ardour`` file inside
@@ -94,9 +92,7 @@ class ArdourEngine:
         """
         out_dir = Path(f"{self.session_name}")
         out_dir.mkdir(exist_ok=True)
-        interchange_dir = (
-            out_dir / "interchange" / self.session_name / "audio"
-        )
+        interchange_dir = out_dir / "interchange" / self.session_name / "audio"
         interchange_dir.mkdir(parents=True, exist_ok=True)
         return out_dir
 
@@ -121,7 +117,9 @@ class ArdourEngine:
             source_id, region_id, midi_src.name, midi_length_samples
         )
         locations_xml = self._render_locations(song, location_ids_start)
-        routes_xml = self._render_routes(route_id, playlist_id, region_id, song.name)
+        routes_xml = self._render_routes(
+            route_id, playlist_id, region_id, song.name
+        )
 
         return f"""\
 <?xml version="1.0" encoding="UTF-8"?>
@@ -152,7 +150,11 @@ class ArdourEngine:
         )
 
     def _render_regions(
-        self, source_id: int, region_id: int, midi_filename: str, length_samples: int
+        self,
+        source_id: int,
+        region_id: int,
+        midi_filename: str,
+        length_samples: int,
     ) -> str:
         """<Regions> block -- one Region covering the whole MIDI."""
         escaped_name = _escape_xml(Path(midi_filename).stem)
@@ -208,7 +210,9 @@ class ArdourEngine:
             duration_secs = beats / (song.tempo / 60.0)
             elapsed += duration_secs
 
-        return "\n".join(lines) + "\n" if lines else "    <!-- no locations -->\n"
+        return (
+            "\n".join(lines) + "\n" if lines else "    <!-- no locations -->\n"
+        )
 
     def _render_routes(
         self, route_id: int, playlist_id: int, region_id: int, track_name: str
@@ -219,9 +223,9 @@ class ArdourEngine:
             f'    <Route id="{route_id}" name="{escaped_name} MIDI" '
             f'default-output-channels="2" flags="MidiTrack" active="yes" '
             f'locked="no">\n'
-            f"      <Playlist id=\"{playlist_id}\" "
-            f"name=\"{escaped_name} MIDI 1\" orig_track_id=\"{route_id}\">\n"
-            f"        <Region id=\"{region_id}\" position=\"0\"/>\n"
+            f'      <Playlist id="{playlist_id}" '
+            f'name="{escaped_name} MIDI 1" orig_track_id="{route_id}">\n'
+            f'        <Region id="{region_id}" position="0"/>\n'
             f"      </Playlist>\n"
             f"    </Route>\n"
         )

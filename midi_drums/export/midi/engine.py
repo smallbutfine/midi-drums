@@ -88,7 +88,7 @@ class MIDIEngine:
 
     def _resolve_note(self, instrument) -> int | None:
         """Resolve a DrumInstrument (or int) to a MIDI note using this engine's drum kit.
-        
+
         Returns None if the instrument has no mapping in the current keymap,
         which means that beat will be silently skipped during export.
         """
@@ -110,7 +110,7 @@ class MIDIEngine:
         if keymap_name is None:
             keymap_name = "gm"
         note = KeymapLoader.get_midi_note(inst_name, keymap_name)
-        
+
         # Return None if unmapped — beat will be silently skipped during export
         return note
 
@@ -151,11 +151,11 @@ class MIDIEngine:
         for beat in _dedupe_by_instrument_position(pattern.beats):
             tick = int(round(beat.position * tpq))
             mn = self._resolve_note(beat.instrument)
-            
+
             # Skip beats with unmapped instruments (null in keymap JSON)
             if mn is None:
                 continue
-            
+
             events.append(
                 (
                     tick,
@@ -323,11 +323,11 @@ class MIDIEngine:
 
                 for beat in sorted(deduped_beats, key=lambda b: b.position):
                     mn = self._resolve_note(beat.instrument)
-                    
+
                     # Skip beats with unmapped instruments
                     if mn is None:
                         continue
-                    
+
                     abs_tick = int(
                         round(bar_start_beats * tpq + beat.position * tpq)
                     )
@@ -357,11 +357,11 @@ class MIDIEngine:
                     for fb in fill.pattern.beats:
                         if fb.position < 1.0:
                             mn = self._resolve_note(fb.instrument)
-                            
+
                             # Skip beats with unmapped instruments
                             if mn is None:
                                 continue
-                                
+
                             abs_tick = int(
                                 round(fill_start * tpq + fb.position * tpq)
                             )

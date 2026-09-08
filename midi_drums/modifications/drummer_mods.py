@@ -93,7 +93,9 @@ _SPEED_PRECISION_TARGETS = {
     InstrumentRegistry.get("snare_sticks"): VELOCITY.SNARE_HEAVY,
     InstrumentRegistry.get("snare_rimshot_open_hit"): VELOCITY.SNARE_HEAVY,
     InstrumentRegistry.get("snare_side_stick"): VELOCITY.SNARE_NORMAL,
-    InstrumentRegistry.get("snare_shallow_hit_closed_shallow_hit"): VELOCITY.SNARE_GHOST,
+    InstrumentRegistry.get(
+        "snare_shallow_hit_closed_shallow_hit"
+    ): VELOCITY.SNARE_GHOST,
     CLOSED_HH: VELOCITY.HIHAT_NORMAL,
     RIDE: VELOCITY.RIDE_NORMAL,
     CRASH: VELOCITY.CRASH_NORMAL,
@@ -896,9 +898,15 @@ class MechanicalPrecision(DrummerModification):
             velocity_target = {
                 kick: VELOCITY.KICK_HEAVY,
                 InstrumentRegistry.get("snare_sticks"): VELOCITY.SNARE_HEAVY,
-                InstrumentRegistry.get("snare_rimshot_open_hit"): VELOCITY.SNARE_HEAVY,
-                InstrumentRegistry.get("snare_side_stick"): VELOCITY.SNARE_NORMAL,
-                InstrumentRegistry.get("snare_shallow_hit_closed_shallow_hit"): VELOCITY.SNARE_GHOST,
+                InstrumentRegistry.get(
+                    "snare_rimshot_open_hit"
+                ): VELOCITY.SNARE_HEAVY,
+                InstrumentRegistry.get(
+                    "snare_side_stick"
+                ): VELOCITY.SNARE_NORMAL,
+                InstrumentRegistry.get(
+                    "snare_shallow_hit_closed_shallow_hit"
+                ): VELOCITY.SNARE_GHOST,
             }.get(beat.instrument, beat.velocity)
 
             new_velocity = int(

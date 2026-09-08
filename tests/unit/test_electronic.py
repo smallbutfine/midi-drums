@@ -8,10 +8,10 @@ conventions of tests/unit/test_ride_hihat_switching.py.
 import pytest
 
 from midi_drums.core.models.kit import InstrumentRegistry
-from midi_drums.modifications.drummer_mods import _SNARE_VARIANTS
 from midi_drums.core.value_objects.generation_parameters import (
     GenerationParameters,
 )
+from midi_drums.modifications.drummer_mods import _SNARE_VARIANTS
 from midi_drums.plugins.genres.electronic import ElectronicGenrePlugin
 
 SECTIONS = ["intro", "verse", "chorus", "breakdown", "bridge", "outro"]

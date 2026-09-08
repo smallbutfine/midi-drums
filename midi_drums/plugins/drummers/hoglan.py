@@ -160,7 +160,9 @@ class HoglanPlugin(DrummerPlugin):
             pos = TIMING.EIGHTH_TRIPLET * i
             variant = ["HIGH", "MID", "LOW", "FLOOR"][i % 4]
             vel = VELOCITY.TOM_HEAVY + random.randint(-8, 15) - (i // 2) * 3
-            builder.tom_edge(pos, variant, min(max(VELOCITY.TOM_HEAVY - 10, vel), 127))
+            builder.tom_edge(
+                pos, variant, min(max(VELOCITY.TOM_HEAVY - 10, vel), 127)
+            )
         # snare_rimshot for accent texture
         builder.snare_rimshot(
             TIMING.HALF + TIMING.EIGHTH_TRIPLET, VELOCITY.SNARE_RIMSHOT

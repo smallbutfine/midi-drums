@@ -179,7 +179,8 @@ class GenrePlugin(ABC):
                 snare_positions = [
                     b.position
                     for b in adapted.beats
-                    if b.instrument == InstrumentRegistry.get("snare_rimshot_open_hit")
+                    if b.instrument
+                    == InstrumentRegistry.get("snare_rimshot_open_hit")
                 ]
                 for pos in snare_positions:
                     if random.random() < density_increase:
@@ -188,7 +189,9 @@ class GenrePlugin(ABC):
 
                         ghost = Beat(
                             position=max(0, pos - 0.125),
-                            instrument=InstrumentRegistry.get("snare_rimshot_open_hit"),
+                            instrument=InstrumentRegistry.get(
+                                "snare_rimshot_open_hit"
+                            ),
                             velocity=max(40, int(50 * (1 - blend_amount))),
                             duration=0.05,
                             ghost_note=True,
@@ -234,6 +237,7 @@ class GenrePlugin(ABC):
         HH hits sound different across bars.
         """
         return InstrumentRegistry.get("cymbal_2_hit")
+
     def _apply_ride_hihat_logic(
         self,
         pattern: Pattern,
@@ -290,7 +294,9 @@ class GenrePlugin(ABC):
 
             inst_name = beat.instrument.name
             is_downbeat = beat.position.is_integer()
-            bar_index = int(beat.position) // switched.time_signature.beats_per_bar
+            bar_index = (
+                int(beat.position) // switched.time_signature.beats_per_bar
+            )
 
             if inst_name.startswith("hihat_open"):
                 # Open HH → crash/choke accent (not a timekeeper)
@@ -308,7 +314,9 @@ class GenrePlugin(ABC):
                 promoted_vel = VELOCITY.RIDE_NORMAL
             else:
                 # Offbeat → ride shaft / lighter variant
-                promoted_inst = InstrumentRegistry.get("ride_1_shaft_hit_stronger")
+                promoted_inst = InstrumentRegistry.get(
+                    "ride_1_shaft_hit_stronger"
+                )
                 promoted_vel = VELOCITY.RIDE_LIGHT
 
             beat.instrument = promoted_inst

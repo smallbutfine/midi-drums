@@ -67,6 +67,7 @@ class MoonPlugin(DrummerPlugin):
 
     def _strip_timekeeping_cymbals(self, pattern: Pattern) -> Pattern:
         from midi_drums.core.models.kit import InstrumentRegistry
+
         stripped = pattern.copy()
         ride_inst = InstrumentRegistry.get("ride_1_tip_hit_softer")
         for beat in stripped.beats:
@@ -92,7 +93,7 @@ class MoonPlugin(DrummerPlugin):
                 pattern.add_beat(
                     pos,
                     InstrumentRegistry.get(f"cymbal_{int(crash_num)}_hit"),
-                    VELOCITY.CRASH_NORMAL
+                    VELOCITY.CRASH_NORMAL,
                 )
         return pattern
 
@@ -113,7 +114,7 @@ class MoonPlugin(DrummerPlugin):
                 pattern.add_beat(
                     pos,
                     InstrumentRegistry.get(f"tom_{variant_idx}_open_hit"),
-                    VELOCITY.TOM_HEAVY
+                    VELOCITY.TOM_HEAVY,
                 )
         return pattern
 

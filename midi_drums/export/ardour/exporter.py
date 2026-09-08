@@ -88,9 +88,7 @@ class ArdourExporter:
             raise ValueError("Song must have at least one section")
 
         out_path = Path(output_name)
-        session_base = (
-            out_path.stem if out_path.suffix else str(out_path)
-        )
+        session_base = out_path.stem if out_path.suffix else str(out_path)
 
         # Build Ardour session directory first (creates interchange/ etc.)
         engine = ArdourEngine(session_base, sample_rate)
@@ -104,9 +102,7 @@ class ArdourExporter:
         # Generate the .ardour session file
         return engine.export(song, midi_dest)
 
-    def export_session_xml(
-        self, song: Song, midi_file_path: Path | str
-    ) -> str:
+    def export_session_xml(self, song: Song, midi_file_path: Path | str) -> str:
         """Return the Ardour session XML string without writing files.
 
         Useful for debugging or embedding in other workflows (e.g., Lua
