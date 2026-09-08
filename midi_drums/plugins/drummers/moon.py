@@ -8,6 +8,7 @@ style — matching his Who-era live performances with massive floor-tom arrays.
 import random
 
 from midi_drums.config import TIMING, VELOCITY
+from midi_drums.core.models.kit import InstrumentRegistry
 from midi_drums.core.models.pattern import Pattern
 from midi_drums.core.models.song import Fill
 from midi_drums.generation.builders.pattern_builder import PatternBuilder
@@ -73,6 +74,61 @@ class MoonPlugin(DrummerPlugin):
                 beat.instrument = InstrumentRegistry.get("cymbal_1_hit")
                 beat.velocity = VELOCITY.CRASH_NORMAL
         return stripped
+
+    def _add_crash_accent_layer(self, pattern: Pattern, track) -> Pattern:
+        """Add crash accents between the primary groove hits.
+
+        Keith Moon played on every chord — extra crashes land in the gaps
+        between kick/snare to thicken the wall of sound.
+        """
+        budget = track(3)
+        if budget == 0:
+            return pattern
+
+        for i in range(budget):
+            pos = TIMING.EIGHTH_TRIPLET * (1 + i * 2) + TIMING.SIXTEENTH / 2
+            if pos < 4.0:
+                crash_num = str((i % 3) + 1)
+                pattern.add_beat(
+                    pos,
+                    InstrumentRegistry.get(f"cymbal_{int(crash_num)}_hit"),
+                    VELOCITY.CRASH_NORMAL
+                )
+        return pattern
+
+    def _add_tom_fill_between_beats(self, pattern: Pattern, track) -> Pattern:
+        """Add wild off-beat tom fills between groove beats.
+
+        Moon filled the space *between* beats rather than on them.
+        These toms cascade HIGH→MID→LOW→FLOOR chaotically.
+        """
+        budget = track(3)
+        if budget == 0:
+            return pattern
+
+        for i in range(budget):
+            pos = TIMING.QUARTER * (1 + i) + TIMING.EIGHTH_TRIPLET / 2
+            if pos < 4.0:
+                variant_idx = i % 4 + 1
+                pattern.add_beat(
+                    pos,
+                    InstrumentRegistry.get(f"tom_{variant_idx}_open_hit"),
+                    VELOCITY.TOM_HEAVY
+                )
+        return pattern
+
+    def _add_downbeat_crash(self, pattern: Pattern) -> Pattern:
+        """Add a big crash on every downbeat (bar start)."
+
+        Moon's signature move — hit the biggest cymbal right at bar one.
+        """
+        # Check if there's already a beat near position 0.0
+        has_downbeat = any(abs(b.position) < 0.05 for b in pattern.beats)
+        if not has_downbeat:
+            crash_inst = InstrumentRegistry.get("cymbal_6_hit")
+            if crash_inst is not None:
+                pattern.add_beat(0.0, crash_inst, VELOCITY.CRASH_HEAVY)
+        return pattern
 
     def get_signature_fills(self) -> list[Fill]:
         """Return Keith Moon's signature fill patterns using ALL crashes (1-6) and ALL toms.
