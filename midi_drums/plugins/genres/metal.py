@@ -395,6 +395,13 @@ class MetalGenrePlugin(GenrePlugin):
                 return [
                     TemplateComposer("metal_prog_verse_g1")
                     .add(
+                        BasicGroove(
+                            kick_positions=[0.0, 2.0],
+                            snare_positions=[1.0, 3.0],
+                            hihat_subdivision=TIMING.SIXTEENTH,
+                        )
+                    )
+                    .add(
                         DoubleBassPedal(
                             subdivision=TIMING.EIGHTH_TRIPLET,
                             intensity=0.7,
@@ -406,6 +413,13 @@ class MetalGenrePlugin(GenrePlugin):
                     .build(bars=1, complexity=c),
                     TemplateComposer("metal_prog_verse_g2")
                     .add(
+                        BasicGroove(
+                            kick_positions=[0.0, 1.5, 3.0],
+                            snare_positions=[0.5, 2.0, 3.5],
+                            hihat_subdivision=TIMING.EIGHTH,
+                        )
+                    )
+                    .add(
                         DoubleBassPedal(
                             subdivision=TIMING.EIGHTH_TRIPLET,
                             intensity=0.65,
@@ -415,6 +429,13 @@ class MetalGenrePlugin(GenrePlugin):
                     .add(BlastBeat(style="traditional", intensity=0.6))
                     .build(bars=1, complexity=c),
                     TemplateComposer("metal_prog_verse_g3")
+                    .add(
+                        BasicGroove(
+                            kick_positions=[0.0, 2.5],
+                            snare_positions=[1.0, 3.0],
+                            hihat_subdivision=TIMING.EIGHTH,
+                        )
+                    )
                     .add(
                         DoubleBassPedal(
                             subdivision=TIMING.EIGHTH_TRIPLET,
@@ -648,6 +669,13 @@ class MetalGenrePlugin(GenrePlugin):
                 return [
                     TemplateComposer("metal_prog_chorus_g1")
                     .add(
+                        BasicGroove(
+                            kick_positions=[0.0, 2.0],
+                            snare_positions=[1.0, 3.0],
+                            hihat_subdivision=TIMING.EIGHTH,
+                        )
+                    )
+                    .add(
                         DoubleBassPedal(
                             subdivision=TIMING.EIGHTH_TRIPLET,
                             intensity=0.95,
@@ -665,6 +693,13 @@ class MetalGenrePlugin(GenrePlugin):
                     .build(bars=1, complexity=min(1.0, c + 0.2)),
                     TemplateComposer("metal_prog_chorus_g2")
                     .add(
+                        BasicGroove(
+                            kick_positions=[0.0, 1.5, 3.0],
+                            snare_positions=[0.5, 2.0, 3.5],
+                            hihat_subdivision=TIMING.EIGHTH,
+                        )
+                    )
+                    .add(
                         DoubleBassPedal(
                             subdivision=TIMING.EIGHTH_TRIPLET,
                             intensity=0.9,
@@ -679,6 +714,13 @@ class MetalGenrePlugin(GenrePlugin):
                     )
                     .build(bars=1, complexity=min(1.0, c + 0.2)),
                     TemplateComposer("metal_prog_chorus_g3")
+                    .add(
+                        BasicGroove(
+                            kick_positions=[0.0, 2.5],
+                            snare_positions=[1.0, 3.0],
+                            hihat_subdivision=TIMING.SIXTEENTH,
+                        )
+                    )
                     .add(
                         DoubleBassPedal(
                             subdivision=TIMING.SIXTEENTH,
@@ -945,6 +987,13 @@ class MetalGenrePlugin(GenrePlugin):
                 return [
                     TemplateComposer("metal_prog_bridge_g1")
                     .add(
+                        BasicGroove(
+                            kick_positions=[0.0, 2.0],
+                            snare_positions=[1.0, 3.0],
+                            hihat_subdivision=TIMING.EIGHTH,
+                        )
+                    )
+                    .add(
                         DoubleBassPedal(
                             subdivision=TIMING.EIGHTH_TRIPLET,
                             intensity=0.65,
@@ -955,13 +1004,19 @@ class MetalGenrePlugin(GenrePlugin):
                     .build(bars=1, complexity=max(0.0, c - 0.1)),
                     TemplateComposer("metal_prog_bridge_g2")
                     .add(
+                        BasicGroove(
+                            kick_positions=[0.0, 3.0],
+                            snare_positions=[1.5],
+                            hihat_subdivision=TIMING.EIGHTH,
+                        )
+                    )
+                    .add(
                         DoubleBassPedal(
                             subdivision=TIMING.EIGHTH_TRIPLET,
                             intensity=0.6,
                             pattern_type="burst",
                         )
                     )
-                    .add(TomFill(pattern="around", start_position=3.0))
                     .build(bars=1, complexity=max(0.0, c - 0.1)),
                 ]
             # === BREAKDOWN METAL BRIDGE: sparse stomp build ===
@@ -1111,6 +1166,13 @@ class MetalGenrePlugin(GenrePlugin):
             if style == "progressive":
                 return [
                     TemplateComposer("metal_prog_outro_g1")
+                    .add(
+                        BasicGroove(
+                            kick_positions=[0.0, 2.0],
+                            snare_positions=[1.0, 3.0],
+                            hihat_subdivision=TIMING.EIGHTH,
+                        )
+                    )
                     .add(
                         DoubleBassPedal(
                             subdivision=TIMING.EIGHTH_TRIPLET,
