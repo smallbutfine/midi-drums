@@ -27,19 +27,31 @@ class PatternBuilder:
     def snare(self, position: float, velocity: int = 100) -> "PatternBuilder":
         """Add a snare hit at position.
 
-        Randomly selects one of the four main snare variants (25% each):
-        - ``snare_sticks``      standard stick hit
-        - ``snare_rimshot_open_hit``   rimshot
-        - ``snare_side_stick``   cross-stick / noodle
-        - ``snare_shallow_hit_closed_shallow_hit``  shallow head
+        Weighted random selection across ALL non-brush snare variants:
+        rimshot ~50%, open-lateral ~25%, shallow/rim ~10%, sticks ~1%,
+        side stick ~6%, rimclick (ratchet/click) ~1%.
         """
         _VARIANTS = (
-            "snare_sticks",
             "snare_rimshot_open_hit",
+            "snare_rimshot_dbl_closed_hit",
+            "snare_open_hit_open_lateral_hit",
+            "snare_open_hit_dbl_closed_lateral_hit",
+            "snare_shallow_rimshot_open_shallow_hit",
+            "snare_sticks",
             "snare_side_stick",
-            "snare_shallow_hit_closed_shallow_hit",
+            "snare_rimclick_sweep_short_1_dbl",
         )
-        inst = InstrumentRegistry.get(random.choice(_VARIANTS))
+        _WEIGHTS = (
+            25,   # rimshot
+            10,   # dbl/closed rimshot
+            10,   # open lateral hit
+            5,    # dbl open/closed lateral
+            5,    # shallow rimshot
+            1,    # sticks (rare)
+            4,    # side stick (cross-stick)
+            1,    # rimclick/ratchet/click (rare)
+        )
+        inst = InstrumentRegistry.get(random.choices(_VARIANTS, weights=_WEIGHTS, k=1)[0])
         self.pattern.add_beat(position, inst, velocity)
         return self
 

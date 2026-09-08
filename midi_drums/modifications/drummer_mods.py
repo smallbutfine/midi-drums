@@ -25,7 +25,7 @@ from midi_drums.core.value_objects.timekeeping import (
 
 kick = InstrumentRegistry.get("kick")
 
-# All four main snare variants — used by modifications to detect snare beats
+# All snare variants from template — used by modifications to detect snare beats
 _SNARE_VARIANTS = frozenset(
     InstrumentRegistry.get(name)
     for name in (
@@ -33,6 +33,11 @@ _SNARE_VARIANTS = frozenset(
         "snare_rimshot_open_hit",
         "snare_side_stick",
         "snare_shallow_hit_closed_shallow_hit",
+        "snare_open_hit_open_lateral_hit",
+        "snare_open_hit_dbl_closed_lateral_hit",
+        "snare_shallow_rimshot_open_shallow_hit",
+        "snare_rimshot_dbl_closed_hit",
+        "snare_rimclick_sweep_short_1_dbl",
     )
 )
 

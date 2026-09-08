@@ -20,22 +20,24 @@ from midi_drums.modifications.drummer_mods import _SNARE_VARIANTS
 
 
 def _hh_closed_variants():
+    # (instrument, weight) — tip hits dominate, shaft is rare
     return [
-        InstrumentRegistry.get("hihat_closed_1_tip_closed_1_hit"),
-        InstrumentRegistry.get("hihat_closed_1_shaft_closed_1_hit_dbl"),
-        InstrumentRegistry.get("hihat_closed_2_tip_closed_2_hit"),
-        InstrumentRegistry.get("hihat_closed_2_shaft_closed_2_hit_dbl"),
-        InstrumentRegistry.get("hihat_closed_bell"),
+        (InstrumentRegistry.get("hihat_closed_1_tip_closed_1_hit"), 30),
+        (InstrumentRegistry.get("hihat_closed_bell"), 20),
+        (InstrumentRegistry.get("hihat_closed_2_tip_closed_2_hit"), 15),
+        (InstrumentRegistry.get("hihat_closed_1_shaft_closed_1_hit_dbl"), 1),
+        (InstrumentRegistry.get("hihat_closed_2_shaft_closed_2_hit_dbl"), 1),
     ]
 
 
 def _hh_open_variants():
+    # (instrument, weight) — open a/b are primary; c/d secondary; bell lowest
     return [
-        InstrumentRegistry.get("hihat_open_a"),
-        InstrumentRegistry.get("hihat_open_b"),
-        InstrumentRegistry.get("hihat_open_c"),
-        InstrumentRegistry.get("hihat_open_d"),
-        InstrumentRegistry.get("hihat_open_bell"),
+        (InstrumentRegistry.get("hihat_open_a"), 30),
+        (InstrumentRegistry.get("hihat_open_b"), 25),
+        (InstrumentRegistry.get("hihat_open_c"), 15),
+        (InstrumentRegistry.get("hihat_open_d"), 15),
+        (InstrumentRegistry.get("hihat_open_bell"), 10),
     ]
 ride = InstrumentRegistry.get("ride_1_tip_hit_softer")
 ride_bell = InstrumentRegistry.get("ride_1_bell")
@@ -128,19 +130,27 @@ class BasicGroove(PatternTemplate):
                     ]
                 if self.use_open_hihat and pos in open_positions:
                     open_variants = _hh_open_variants()
-                    variant = open_variants[i % len(open_variants)]
+                    variant = random.choices(
+                        [v[0] for v in open_variants],
+                        weights=[v[1] for v in open_variants],
+                        k=1,
+                    )[0]
                     builder.add_hit(variant, pos, VELOCITY.HIHAT_OPEN)
                 else:
                     closed_variants = _hh_closed_variants()
-                    # Downbeats -> bell accent; offbeats -> cycle closed variants
+                    # Downbeats -> bell accent; offbeats -> weighted random
                     if relative_pos.is_integer():
                         velocity = VELOCITY.HIHAT_ACCENT
-                        variant = closed_variants[-1]  # last = bell
+                        variant = next(v[0] for v in closed_variants if "bell" in str(v[0]))
                     else:
                         velocity = int(
                             VELOCITY.HIHAT_NORMAL + (random.random() * 10 - 5)
                         )
-                        variant = closed_variants[i % len(closed_variants)]
+                        variant = random.choices(
+                            [v[0] for v in closed_variants],
+                            weights=[v[1] for v in closed_variants],
+                            k=1,
+                        )[0]
                     builder.add_hit(variant, pos, velocity)
 
         return builder
